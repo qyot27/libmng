@@ -127,6 +127,11 @@
 /* *             0.5.1 - 05/15/2000 - G.Juyn                                * */
 /* *             - added getimgdata & putimgdata functions                  * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/16/2000 - G.Juyn                                * */
+/* *             - changed the version parameters (obviously)               * */
+/* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
+/* *             - complimented constants for chunk-property values         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -373,12 +378,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "0.5.1"
+#define MNG_VERSION_TEXT    "0.5.2"
 #define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test) */
 #define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
 #define MNG_VERSION_MAJOR   0
 #define MNG_VERSION_MINOR   5
-#define MNG_VERSION_RELEASE 1
+#define MNG_VERSION_RELEASE 2
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
@@ -1779,32 +1784,216 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_COLORTYPE_GRAY            0
-#define MNG_COLORTYPE_RGB             2
-#define MNG_COLORTYPE_INDEXED         3
-#define MNG_COLORTYPE_GRAYA           4
-#define MNG_COLORTYPE_RGBA            6
+#define MNG_BITDEPTH_1                   1       /* IHDR, BASI, JHDR */
+#define MNG_BITDEPTH_2                   2
+#define MNG_BITDEPTH_4                   4
+#define MNG_BITDEPTH_8                   8       /* sPLT */
+#define MNG_BITDEPTH_16                 16
 
-#define MNG_COMPRESSION_DEFLATE       0
+#define MNG_COLORTYPE_GRAY               0       /* IHDR, BASI */
+#define MNG_COLORTYPE_RGB                2
+#define MNG_COLORTYPE_INDEXED            3
+#define MNG_COLORTYPE_GRAYA              4
+#define MNG_COLORTYPE_RGBA               6
 
-#define MNG_FILTER_ADAPTIVE           0
+#define MNG_COMPRESSION_DEFLATE          0       /* IHDR, zTXt, iTXt, iCCP,
+                                                    BASI, JHDR */
 
-#define MNG_INTERLACE_NONE            0
-#define MNG_INTERLACE_ADAM7           1
+#define MNG_FILTER_ADAPTIVE              0       /* IHDR, BASI, JHDR */
+
+#define MNG_INTERLACE_NONE               0       /* IHDR, BASI, JHDR */
+#define MNG_INTERLACE_ADAM7              1
+
+#define MNG_FILTER_NONE                  0       /* IDAT */
+#define MNG_FILTER_SUB                   1
+#define MNG_FILTER_UP                    2
+#define MNG_FILTER_AVERAGE               3
+#define MNG_FILTER_PAETH                 4
+
+#define MNG_INTENT_PERCEPTUAL            0       /* sRGB */
+#define MNG_INTENT_RELATIVECOLORIMETRIC  1
+#define MNG_INTENT_SATURATION            2
+#define MNG_INTENT_ABSOLUTECOLORIMETRIC  3
+                                                 /* tEXt, zTXt, iTXt */
+#define MNG_TEXT_TITLE                   "Title"
+#define MNG_TEXT_AUTHOR                  "Author"
+#define MNG_TEXT_DESCRIPTION             "Description"
+#define MNG_TEXT_COPYRIGHT               "Copyright"
+#define MNG_TEXT_CREATIONTIME            "Creation Time"
+#define MNG_TEXT_SOFTWARE                "Software"
+#define MNG_TEXT_DISCLAIMER              "Disclaimer"
+#define MNG_TEXT_WARNING                 "Warning"
+#define MNG_TEXT_SOURCE                  "Source"
+#define MNG_TEXT_COMMENT                 "Comment"
+
+#define MNG_FLAG_UNCOMPRESSED            0       /* iTXt */
+#define MNG_FLAG_COMPRESSED              1
+
+#define MNG_UNIT_UNKNOWN                 0       /* pHYs, pHYg */
+#define MNG_UNIT_METER                   1
+                                                 /* MHDR */
+#define MNG_SIMPLICITY_VALID             0x00000001
+#define MNG_SIMPLICITY_SIMPLEFEATURES    0x00000002
+#define MNG_SIMPLICITY_COMPLEXFEATURES   0x00000004
+#define MNG_SIMPLICITY_TRANSPARENCY      0x00000008
+#define MNG_SIMPLICITY_JNG               0x00000010
+#define MNG_SIMPLICITY_DELTAPNG          0x00000020
+
+#define MNG_TERMINATION_DECODER_NC       0       /* LOOP */
+#define MNG_TERMINATION_USER_NC          1
+#define MNG_TERMINATION_EXTERNAL_NC      2
+#define MNG_TERMINATION_DETERMINISTIC_NC 3
+#define MNG_TERMINATION_DECODER_C        4
+#define MNG_TERMINATION_USER_C           5
+#define MNG_TERMINATION_EXTERNAL_C       6
+#define MNG_TERMINATION_DETERMINISTIC_C  7
+
+#define MNG_DONOTSHOW_VISIBLE            0       /* DEFI */
+#define MNG_DONOTSHOW_NOTVISIBLE         1
+
+#define MNG_ABSTRACT                     0       /* DEFI */
+#define MNG_CONCRETE                     1
+
+#define MNG_NOTVIEWABLE                  0       /* BASI */
+#define MNG_VIEWABLE                     1
+
+#define MNG_FULL_CLONE                   0       /* CLON */
+#define MNG_PARTIAL_CLONE                1
+#define MNG_RENUMBER                     2
+
+#define MNG_CONCRETE_ASPARENT            0       /* CLON */
+#define MNG_CONCRETE_MAKEABSTRACT        1
+
+#define MNG_LOCATION_ABSOLUTE            0       /* CLON, MOVE */
+#define MNG_LOCATION_RELATIVE            1
+
+#define MNG_TARGET_ABSOLUTE              0       /* PAST */
+#define MNG_TARGET_RELATIVE_SAMEPAST     1
+#define MNG_TARGET_RELATIVE_PREVPAST     2
+
+#define MNG_COMPOSITE_OVER               0       /* PAST */
+#define MNG_COMPOSITE_REPLACE            1
+#define MNG_COMPOSITE_UNDER              2
+
+#define MNG_ORIENTATION_SAME             0       /* PAST */
+#define MNG_ORIENTATION_180DEG           2
+#define MNG_ORIENTATION_FLIPHORZ         4
+#define MNG_ORIENTATION_FLIPVERT         6
+#define MNG_ORIENTATION_TILED            8
+
+#define MNG_OFFSET_ABSOLUTE              0       /* PAST */
+#define MNG_OFFSET_RELATIVE              1
+
+#define MNG_BOUNDARY_ABSOLUTE            0       /* PAST, FRAM */
+#define MNG_BOUNDARY_RELATIVE            1
+
+#define MNG_BACKGROUNDCOLOR_MANDATORY    0x01    /* BACK */
+#define MNG_BACKGROUNDIMAGE_MANDATORY    0x02    /* BACK */
+
+#define MNG_BACKGROUNDIMAGE_NOTILE       0       /* BACK */
+#define MNG_BACKGROUNDIMAGE_TILE         1
+
+#define MNG_FRAMINGMODE_NOCHANGE         0       /* FRAM */
+#define MNG_FRAMINGMODE_1                1
+#define MNG_FRAMINGMODE_2                2
+#define MNG_FRAMINGMODE_3                3
+#define MNG_FRAMINGMODE_4                4
+
+#define MNG_CHANGEDELAY_NO               0       /* FRAM */
+#define MNG_CHANGEDELAY_NEXTSUBFRAME     1
+#define MNG_CHANGEDELAY_DEFAULT          2
+
+#define MNG_CHANGETIMOUT_NO              0       /* FRAM */
+#define MNG_CHANGETIMOUT_DETERMINISTIC_1 1
+#define MNG_CHANGETIMOUT_DETERMINISTIC_2 2
+#define MNG_CHANGETIMOUT_DECODER_1       3
+#define MNG_CHANGETIMOUT_DECODER_2       4
+#define MNG_CHANGETIMOUT_USER_1          5
+#define MNG_CHANGETIMOUT_USER_2          6
+#define MNG_CHANGETIMOUT_EXTERNAL_1      7
+#define MNG_CHANGETIMOUT_EXTERNAL_2      8
+
+#define MNG_CHANGECLIPPING_NO            0       /* FRAM */
+#define MNG_CHANGECLIPPING_NEXTSUBFRAME  1
+#define MNG_CHANGECLIPPING_DEFAULT       2
+
+#define MNG_CHANGESYNCID_NO              0       /* FRAM */
+#define MNG_CHANGESYNCID_NEXTSUBFRAME    1
+#define MNG_CHANGESYNCID_DEFAULT         2
+
+#define MNG_CLIPPING_ABSOLUTE            0       /* CLIP */
+#define MNG_CLIPPING_RELATIVE            1
+
+#define MNG_SHOWMODE_0                   0       /* SHOW */
+#define MNG_SHOWMODE_1                   1
+#define MNG_SHOWMODE_2                   2
+#define MNG_SHOWMODE_3                   3
+#define MNG_SHOWMODE_4                   4
+#define MNG_SHOWMODE_5                   5
+#define MNG_SHOWMODE_6                   6
+#define MNG_SHOWMODE_7                   7
+
+#define MNG_TERMACTION_LASTFRAME         0       /* TERM */
+#define MNG_TERMACTION_CLEAR             1
+#define MNG_TERMACTION_FIRSTFRAME        2
+#define MNG_TERMACTION_REPEAT            3
+
+#define MNG_ITERACTION_LASTFRAME         0       /* TERM */
+#define MNG_ITERACTION_CLEAR             1
+#define MNG_ITERACTION_FIRSTFRAME        2
+
+#define MNG_SAVEOFFSET_4BYTE             4       /* SAVE */
+#define MNG_SAVEOFFSET_8BYTE             8
+
+#define MNG_SAVEENTRY_SEGMENTFULL        0       /* SAVE */
+#define MNG_SAVEENTRY_SEGMENT            1
+#define MNG_SAVEENTRY_SUBFRAME           2
+#define MNG_SAVEENTRY_EXPORTEDIMAGE      3
+
+#define MNG_PRIORITY_ABSOLUTE            0       /* fPRI */
+#define MNG_PRIORITY_RELATIVE            1
 
 #ifdef MNG_INCLUDE_JNG
-#define MNG_COLORTYPE_JPEGGRAY        8
-#define MNG_COLORTYPE_JPEGCOLOR      10
-#define MNG_COLORTYPE_JPEGGRAYA      12
-#define MNG_COLORTYPE_JPEGCOLORA     14
+#define MNG_COLORTYPE_JPEGGRAY           8       /* JHDR */
+#define MNG_COLORTYPE_JPEGCOLOR         10
+#define MNG_COLORTYPE_JPEGGRAYA         12
+#define MNG_COLORTYPE_JPEGCOLORA        14
 
-#define MNG_COMPRESSION_BASELINEJPEG  8
+#define MNG_BITDEPTH_JPEG8               8       /* JHDR */
+#define MNG_BITDEPTH_JPEG12             12
+#define MNG_BITDEPTH_JPEG8AND12         20
 
-#define MNG_INTERLACE_SEQUENTIAL      0
-#define MNG_INTERLACE_PROGRESSIVE     8
+#define MNG_COMPRESSION_BASELINEJPEG     8       /* JHDR */
+
+#define MNG_INTERLACE_SEQUENTIAL         0       /* JHDR */
+#define MNG_INTERLACE_PROGRESSIVE        8
 #endif /* MNG_INCLUDE_JNG */
 
-/* TODO: plenty more values to be defined */
+#define MNG_IMAGETYPE_UNKNOWN            0       /* DHDR */
+#define MNG_IMAGETYPE_PNG                1
+#define MNG_IMAGETYPE_JNG                1
+
+#define MNG_DELTATYPE_REPLACE            0       /* DHDR */
+#define MNG_DELTATYPE_BLOCKPIXELADD      1
+#define MNG_DELTATYPE_BLOCKALPHAADD      2
+#define MNG_DELTATYPE_BLOCKCOLORADD      3
+#define MNG_DELTATYPE_BLOCKPIXELREPLACE  4
+#define MNG_DELTATYPE_BLOCKALPHAREPLACE  5
+#define MNG_DELTATYPE_BLOCKCOLORREPLACE  6
+#define MNG_DELTATYPE_NOCHANGE           7
+
+#define MNG_FILLMETHOD_LEFTBITREPLICATE  0       /* PROM */
+#define MNG_FILLMETHOD_ZEROFILL          1
+
+#define MNG_DELTATYPE_REPLACERGB         0       /* PPLT */
+#define MNG_DELTATYPE_DELTARGB           1
+#define MNG_DELTATYPE_REPLACEALPHA       2
+#define MNG_DELTATYPE_DELTAALPHA         3
+#define MNG_DELTATYPE_REPLACERGBA        4
+#define MNG_DELTATYPE_DELTARGBA          5
+
+#define MNG_POLARITY_ONLY                0       /* DBYK */
+#define MNG_POLARITY_ALLBUT              1
 
 /* ************************************************************************** */
 /* *                                                                        * */
