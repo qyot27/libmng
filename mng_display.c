@@ -122,7 +122,7 @@ mng_retcode interframe_delay (mng_datap pData)
     if (!pData->bRunning)              /* sanity check for frozen status */
       MNG_WARNING (pData, MNG_IMAGEFROZEN)
                                        /* just give the app some breathing space */
-    bOke = pData->fSettimer ((mng_handle)pData, 0);
+    bOke = pData->fSettimer ((mng_handle)pData, 1);
     pData->bTimerset = MNG_TRUE;       /* and indicate so */
   }
 
