@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_data.h             copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -139,6 +139,9 @@
 /* *             - added conditionals around openstream/closestream         * */
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - added more SKIPCHUNK conditionals                        * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -291,7 +294,8 @@ typedef struct mng_data_struct {
            mng_bool          bStorechunks;       /* switch for storing chunkdata */
            mng_bool          bSectionbreaks;     /* indicate NEEDSECTIONWAIT breaks */
            mng_bool          bCacheplayback;     /* switch to cache playback info */
-           mng_bool          bDoProgressive;     /* progressive refresh for large images */ 
+           mng_bool          bDoProgressive;     /* progressive refresh for large images */
+           mng_uint32        iCrcmode;           /* CRC existence & checking flags */
 
            mng_speedtype     iSpeed;             /* speed-modifier for animations */
 

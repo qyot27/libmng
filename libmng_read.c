@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_read.c             copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -83,6 +83,9 @@
 /* *                                                                        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/08/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -644,7 +647,10 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
     {                                  /* previously suspended or not eof ? */
       if ((pData->iSuspendpoint > 2) || (iRead == iBuflen))
       {                                /* determine length chunkname + data + crc */
-        iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid) + sizeof (iCrc));
+        if (pData->iCrcmode & MNG_CRC_INPUT)
+          iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid) + sizeof (iCrc));
+        else
+          iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid));
 
         if (iBuflen < iBufmax)         /* does it fit in default buffer ? */
         {                              /* note that we don't use the full size
@@ -663,14 +669,55 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
               iRetcode = MNG_UNEXPECTEDEOF;
             else
             {
-              mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
-                                       /* calculate the crc */
-              iCrc = mng_crc (pData, pBuf, iL);
+              mng_bool bDiscard = MNG_FALSE;
+
+              if (pData->iCrcmode & MNG_CRC_INPUT)
+              {
+                mng_bool bCritical = (mng_bool)((*pBuf & 0x20) == 0);
+                mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
+
+                if (((bCritical ) && (pData->iCrcmode & MNG_CRC_CRITICAL )) ||
+                    ((!bCritical) && (pData->iCrcmode & MNG_CRC_ANCILLARY)))
+                {                      /* calculate the crc */
+                  iCrc = mng_crc (pData, pBuf, iL);
                                        /* and check it */
-              if (!(iCrc == mng_get_uint32 (pBuf + iL)))
-                iRetcode = MNG_INVALIDCRC;
+                  if (!(iCrc == mng_get_uint32 (pBuf + iL)))
+                  {
+                    mng_bool bWarning = MNG_FALSE;
+                    mng_bool bError   = MNG_FALSE;
+
+                    if (bCritical)
+                    {
+                      switch (pData->iCrcmode & MNG_CRC_CRITICAL)
+                      {
+                        case MNG_CRC_CRITICAL_WARNING  : { bWarning = MNG_TRUE; break; }
+                        case MNG_CRC_CRITICAL_ERROR    : { bError   = MNG_TRUE; break; }
+                      }
+                    }
+                    else
+                    {
+                      switch (pData->iCrcmode & MNG_CRC_ANCILLARY)
+                      {
+                        case MNG_CRC_ANCILLARY_DISCARD : { bDiscard = MNG_TRUE; break; }
+                        case MNG_CRC_ANCILLARY_WARNING : { bWarning = MNG_TRUE; break; }
+                        case MNG_CRC_ANCILLARY_ERROR   : { bError   = MNG_TRUE; break; }
+                      }
+                    }
+
+                    if (bWarning)
+                      MNG_WARNING (pData, MNG_INVALIDCRC)
+                    if (bError)
+                      MNG_ERROR (pData, MNG_INVALIDCRC)
+                  }
+                }
+
+                if (!bDiscard)
+                  iRetcode = process_raw_chunk (pData, pBuf, iL);
+              }
               else
-                iRetcode = process_raw_chunk (pData, pBuf, iL);
+              {
+                iRetcode = process_raw_chunk (pData, pBuf, iBuflen);
+              }
             }
           }
         }
@@ -699,14 +746,55 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
               iRetcode = MNG_UNEXPECTEDEOF;
             else
             {
-              mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
-                                       /* calculate the crc */
-              iCrc = mng_crc (pData, pData->pLargebuf, iL);
+              mng_bool bDiscard = MNG_FALSE;
+
+              if (pData->iCrcmode & MNG_CRC_INPUT)
+              {
+                mng_bool bCritical = (mng_bool)((*(pData->pLargebuf) & 0x20) == 0);
+                mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
+
+                if (((bCritical ) && (pData->iCrcmode & MNG_CRC_CRITICAL )) ||
+                    ((!bCritical) && (pData->iCrcmode & MNG_CRC_ANCILLARY)))
+                {                      /* calculate the crc */
+                  iCrc = mng_crc (pData, pData->pLargebuf, iL);
                                        /* and check it */
-              if (!(iCrc == mng_get_uint32 (pData->pLargebuf + iL)))
-                iRetcode = MNG_INVALIDCRC;
+                  if (!(iCrc == mng_get_uint32 (pData->pLargebuf + iL)))
+                  {
+                    mng_bool bWarning = MNG_FALSE;
+                    mng_bool bError   = MNG_FALSE;
+
+                    if (bCritical)
+                    {
+                      switch (pData->iCrcmode & MNG_CRC_CRITICAL)
+                      {
+                        case MNG_CRC_CRITICAL_WARNING  : { bWarning = MNG_TRUE; break; }
+                        case MNG_CRC_CRITICAL_ERROR    : { bError   = MNG_TRUE; break; }
+                      }
+                    }
+                    else
+                    {
+                      switch (pData->iCrcmode & MNG_CRC_ANCILLARY)
+                      {
+                        case MNG_CRC_ANCILLARY_DISCARD : { bDiscard = MNG_TRUE; break; }
+                        case MNG_CRC_ANCILLARY_WARNING : { bWarning = MNG_TRUE; break; }
+                        case MNG_CRC_ANCILLARY_ERROR   : { bError   = MNG_TRUE; break; }
+                      }
+                    }
+
+                    if (bWarning)
+                      MNG_WARNING (pData, MNG_INVALIDCRC)
+                    if (bError)
+                      MNG_ERROR (pData, MNG_INVALIDCRC)
+                  }
+                }
+
+                if (!bDiscard)
+                  iRetcode = process_raw_chunk (pData, pData->pLargebuf, iL);
+              }
               else
-                iRetcode = process_raw_chunk (pData, pData->pLargebuf, iL);
+              {
+                iRetcode = process_raw_chunk (pData, pData->pLargebuf, iBuflen);
+              }
             }
                                        /* cleanup additional large buffer */
             MNG_FREE (pData, pData->pLargebuf, pData->iLargebufsize)

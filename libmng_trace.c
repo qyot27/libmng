@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.c            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -137,6 +137,9 @@
 /* *             - put gamma, cms-related declarations inside #ifdef        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -287,6 +290,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SET_SRGBIMPLICIT,          "set_srgbimplicit"},
     {MNG_FN_SET_CACHEPLAYBACK,         "set_cacheplayback"},
     {MNG_FN_SET_DOPROGRESSIVE,         "set_doprogressive"},
+    {MNG_FN_SET_CRCMODE,               "set_crcmode"},
 
     {MNG_FN_GET_USERDATA,              "get_userdata"},
     {MNG_FN_GET_SIGTYPE,               "get_sigtype"},
@@ -362,6 +366,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_TOTALLAYERS,           "get_totallayers"},
     {MNG_FN_GET_TOTALPLAYTIME,         "get_totalplaytime"},
 #endif
+    {MNG_FN_GET_CRCMODE,               "get_crcmode"},
 
     {MNG_FN_STATUS_ERROR,              "status_error"},
     {MNG_FN_STATUS_READING,            "status_reading"},

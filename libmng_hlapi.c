@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_hlapi.c            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -170,6 +170,8 @@
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - fixed zTXT -> zTXt typo                                  * */
 /* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1178,6 +1180,10 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->bCacheplayback        = MNG_TRUE;
                                        /* progressive refresh for large images */
   pData->bDoProgressive        = MNG_TRUE;
+                                       /* crc exists; should check; error for
+                                          critical chunks; warning for ancillery;
+                                          generate crc for output */
+  pData->iCrcmode              = MNG_CRC_DEFAULT;
                                        /* normal animation-speed ! */
   pData->iSpeed                = mng_st_normal;
                                        /* initial image limits */

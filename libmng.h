@@ -273,6 +273,9 @@
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -834,10 +837,41 @@ MNG_EXT mng_retcode MNG_DECL mng_set_cacheplayback   (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_doprogressive   (mng_handle        hHandle,
                                                       mng_bool          bDoProgressive);
 
+/* Indicates existence and required checking of the CRC in input streams,
+   and generation in output streams */
+/* !!!! Use this ONLY if you know what you are doing !!!! */
+/* The value is a combination of the following flags:
+   0x0000001 = CRC is present in the input stream
+   0x0000002 = CRC must be generated in the output stream
+   0x0000010 = CRC should be checked for ancillary chunks
+   0x0000020 = a faulty CRC for ancillary chunks generates a warning only
+   0x0000040 = a faulty CRC for ancillary chunks generates an error
+   0x0000100 = CRC should be checked for critical chunks
+   0x0000200 = a faulty CRC for critical chunks generates a warning only
+   0x0000400 = a faulty CRC for critical chunks generates an error
+
+   The default is 0x00000533 = CRC present in input streams; should be checked;
+                               warning for ancillary chunks; error for critical
+                               chunks; generate CRC for output streams
+
+   Note that some combinations are meaningless; eg. if the CRC is not present
+   it won't do any good to turn the checking flags on; if a checking flag
+   is off, it doesn't do any good to ask for generation of warnings or errors.
+   Also libmng will generate either an error or a warning, not both,
+   so if you specify both the default will be to generate an error!
+   The only useful combinations for input are 331, 551, 351, 531, 0, 301, 501
+   and optionally 031 and 051, but only checking ancillary chunks and not
+   critical chunks is generally not a very good idea!!!
+   If you've also writing these values should be combined with 0x02 if
+   CRC's are required in the output stream
+   */
+MNG_EXT mng_retcode MNG_DECL mng_set_crcmode         (mng_handle        hHandle,
+                                                      mng_uint32        iCrcmode);
+
 /* Color-management necessaries */
 /*
     *************************************************************************
-                  !!!!!!!! THIS BIT IS IMPORTANT !!!!!!!!!
+                 !!!!!!!! THIS NEXT BIT IS IMPORTANT !!!!!!!!!
     *************************************************************************
 
     If you have defined MNG_FULL_CMS (and are using lcms), you will have to
@@ -851,7 +885,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_doprogressive   (mng_handle        hHandle,
     (eg. Windows, Linux and some others)
 
     If you are compiling for a sRGB compliant system you probably won't have
-    to do anything special. (unless you want to ofcourse)
+    to do anything special. (unless you want to of course)
 
     If you are compiling for a non-sRGB compliant system
     (eg. SGI, Mac, Next, others...)
@@ -869,7 +903,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_doprogressive   (mng_handle        hHandle,
     http://www.littlecms.com for more info.
 
     *************************************************************************
-                  !!!!!!!! THIS BIT IS IMPORTANT !!!!!!!!!
+                 !!!!!!!! THE BIT ABOVE IS IMPORTANT !!!!!!!!!
     *************************************************************************
 */
 /* mng_set_srgb tells libmng if it's running on a sRGB compliant system or not
@@ -1077,6 +1111,9 @@ MNG_EXT mng_bool    MNG_DECL mng_get_cacheplayback   (mng_handle        hHandle)
 
 /* see _set_ */
 MNG_EXT mng_bool    MNG_DECL mng_get_doprogressive   (mng_handle        hHandle);
+
+/* see _set_ */
+MNG_EXT mng_uint32  MNG_DECL mng_get_crcmode         (mng_handle        hHandle);
 
 /* see _set_ */
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
@@ -2707,6 +2744,30 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_TYPE_TEXT 0
 #define MNG_TYPE_ZTXT 1
 #define MNG_TYPE_ITXT 2
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* *  CRC processing masks                                                  * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#define MNG_CRC_INPUT              0x0000000f
+#define MNG_CRC_INPUT_NONE         0x00000000
+#define MNG_CRC_INPUT_PRESENT      0x00000001
+#define MNG_CRC_OUTPUT             0x000000f0
+#define MNG_CRC_OUTPUT_NONE        0x00000000
+#define MNG_CRC_OUTPUT_GENERATE    0x00000020
+#define MNG_CRC_OUTPUT_DUMMY       0x00000040
+#define MNG_CRC_ANCILLARY          0x00000f00
+#define MNG_CRC_ANCILLARY_IGNORE   0x00000000
+#define MNG_CRC_ANCILLARY_DISCARD  0x00000100
+#define MNG_CRC_ANCILLARY_WARNING  0x00000200
+#define MNG_CRC_ANCILLARY_ERROR    0x00000300
+#define MNG_CRC_CRITICAL           0x0000f000
+#define MNG_CRC_CRITICAL_IGNORE    0x00000000
+#define MNG_CRC_CRITICAL_WARNING   0x00002000
+#define MNG_CRC_CRITICAL_ERROR     0x00003000
+#define MNG_CRC_DEFAULT            0x00002121
 
 /* ************************************************************************** */
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -199,6 +199,9 @@
 /* *             - fixed inclusion of IJNG chunk for non-JNG use            * */
 /* *             1.0.7 - 02/26/2004 - G.Juyn                                * */
 /* *             - fixed bug in chunk-storage of SHOW chunk (from == to)    * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -546,11 +549,18 @@ MNG_LOCAL mng_retcode write_raw_chunk (mng_datap   pData,
   {                                    /* store length & chunktype in default buffer */
     mng_put_uint32 (pData->pWritebuf,   iRawlen);
     mng_put_uint32 (pData->pWritebuf+4, (mng_uint32)iChunkname);
-                                       /* calculate the crc */
-    iCrc = update_crc (pData, 0xffffffffL, pData->pWritebuf+4, 4);
-    iCrc = update_crc (pData, iCrc, pRawdata, iRawlen) ^ 0xffffffffL;
-                                       /* store crc in default buffer */
-    mng_put_uint32 (pData->pWritebuf+8, iCrc);
+
+    if (pData->iCrcmode & MNG_CRC_OUTPUT)
+    {
+      if ((pData->iCrcmode & MNG_CRC_OUTPUT) == MNG_CRC_OUTPUT_GENERATE)
+      {                                /* calculate the crc */
+        iCrc = update_crc (pData, 0xffffffffL, pData->pWritebuf+4, 4);
+        iCrc = update_crc (pData, iCrc, pRawdata, iRawlen) ^ 0xffffffffL;
+      } else {
+        iCrc = 0;                      /* dummy crc */
+      }                                /* store in default buffer */
+      mng_put_uint32 (pData->pWritebuf+8, iCrc);
+    }
                                        /* write the length & chunktype */
     if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, 8, &iWritten))
       MNG_ERROR (pData, MNG_APPIOERROR)
@@ -564,29 +574,42 @@ MNG_LOCAL mng_retcode write_raw_chunk (mng_datap   pData,
     if (iWritten != iRawlen)           /* disk full ? */
       MNG_ERROR (pData, MNG_OUTPUTERROR)
 
-                                       /* write the crc */
-    if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf+8, 4, &iWritten))
-      MNG_ERROR (pData, MNG_APPIOERROR)
+    if (pData->iCrcmode & MNG_CRC_OUTPUT)
+    {                                  /* write the crc */
+      if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf+8, 4, &iWritten))
+        MNG_ERROR (pData, MNG_APPIOERROR)
 
-    if (iWritten != 4)                 /* disk full ? */
-      MNG_ERROR (pData, MNG_OUTPUTERROR)
-
+      if (iWritten != 4)               /* disk full ? */
+        MNG_ERROR (pData, MNG_OUTPUTERROR)
+    }
   }
   else
   {                                    /* prefix with length & chunktype */
     mng_put_uint32 (pData->pWritebuf,   iRawlen);
     mng_put_uint32 (pData->pWritebuf+4, (mng_uint32)iChunkname);
+
+    if (pData->iCrcmode & MNG_CRC_OUTPUT)
+    {
+      if ((pData->iCrcmode & MNG_CRC_OUTPUT) == MNG_CRC_OUTPUT_GENERATE)
                                        /* calculate the crc */
-    iCrc = mng_crc (pData, pData->pWritebuf+4, iRawlen + 4);
+        iCrc = mng_crc (pData, pData->pWritebuf+4, iRawlen + 4);
+      else
+        iCrc = 0;                      /* dummy crc */
                                        /* add it to the buffer */
-    mng_put_uint32 (pData->pWritebuf + iRawlen + 8, iCrc);
+      mng_put_uint32 (pData->pWritebuf + iRawlen + 8, iCrc);
                                        /* write it in a single pass */
-    if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, iRawlen + 12, &iWritten))
-      MNG_ERROR (pData, MNG_APPIOERROR)
+      if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, iRawlen + 12, &iWritten))
+        MNG_ERROR (pData, MNG_APPIOERROR)
 
-    if (iWritten != iRawlen + 12)      /* disk full ? */
-      MNG_ERROR (pData, MNG_OUTPUTERROR)
+      if (iWritten != iRawlen + 12)    /* disk full ? */
+        MNG_ERROR (pData, MNG_OUTPUTERROR)
+    } else {
+      if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, iRawlen + 8, &iWritten))
+        MNG_ERROR (pData, MNG_APPIOERROR)
 
+      if (iWritten != iRawlen + 8)     /* disk full ? */
+        MNG_ERROR (pData, MNG_OUTPUTERROR)
+    }
   }
 
 #ifdef MNG_SUPPORT_TRACE

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.h            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -141,6 +141,8 @@
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -308,6 +310,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SET_SRGBIMPLICIT       334
 #define MNG_FN_SET_CACHEPLAYBACK      335
 #define MNG_FN_SET_DOPROGRESSIVE      336
+#define MNG_FN_SET_CRCMODE            337
 
 #define MNG_FN_GET_USERDATA           401
 #define MNG_FN_GET_SIGTYPE            402
@@ -369,6 +372,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_TOTALFRAMES        458
 #define MNG_FN_GET_TOTALLAYERS        459
 #define MNG_FN_GET_TOTALPLAYTIME      460
+#define MNG_FN_GET_CRCMODE            461
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482

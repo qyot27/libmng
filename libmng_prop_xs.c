@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_prop_xs.c          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -98,6 +98,9 @@
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
 /* *             - put gamma, cms-related functions inside #ifdef           * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
+/* *             - added CRC existence & checking flags                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -395,6 +398,26 @@ mng_retcode MNG_DECL mng_set_doprogressive (mng_handle hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_DOPROGRESSIVE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_set_crcmode (mng_handle hHandle,
+                                      mng_uint32 iCrcmode)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_CRCMODE, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+
+  ((mng_datap)hHandle)->iCrcmode = iCrcmode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_CRCMODE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1753,6 +1776,23 @@ mng_bool MNG_DECL mng_get_doprogressive (mng_handle hHandle)
 #endif
 
   return ((mng_datap)hHandle)->bDoProgressive;
+}
+
+/* ************************************************************************** */
+
+mng_uint32 MNG_DECL mng_get_crcmode (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_CRCMODE, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_CRCMODE, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iCrcmode;
 }
 
 /* ************************************************************************** */
