@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_read.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -38,6 +38,9 @@
 /* *             - changed EOF processing behavior                          * */
 /* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
 /* *             - changed default readbuffer size from 1024 to 4200        * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/27/2000 - G.Juyn                                * */
+/* *             - fixed GCC warning about different-sized pointer math     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -83,7 +86,7 @@ mng_retcode process_eof (mng_datap pData)
 /* ************************************************************************** */
 
 mng_retcode read_databuffer (mng_datap    pData,
-                             mng_ptr      pBuf,
+                             mng_uint8p   pBuf,
                              mng_uint32   iSize,
                              mng_uint32 * iRead)
 {
@@ -118,13 +121,13 @@ mng_retcode read_databuffer (mng_datap    pData,
         {                              /* then copy it */
           MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
                                        /* fixup variables */
-          pData->pReadbufnext    = (mng_uint8p)pBuf + pData->iSuspendbufleft;
+          pData->pReadbufnext    = pBuf + pData->iSuspendbufleft;
           pData->pSuspendbufnext = pData->pSuspendbuf;
           pData->iSuspendbufleft = 0;
         }
         else
         {
-          pData->pReadbufnext    = (mng_uint8p)pBuf;
+          pData->pReadbufnext    = pBuf;
         }
       }
                                        /* calculate how much to get */
@@ -213,7 +216,7 @@ mng_retcode read_databuffer (mng_datap    pData,
   }
   else
   {
-    if (!pData->fReaddata (((mng_handle)pData), pBuf, iSize, iRead))
+    if (!pData->fReaddata (((mng_handle)pData), (mng_ptr)pBuf, iSize, iRead))
     {
       if (iRead == 0)                  /* suspension required ? */
       {
@@ -468,7 +471,7 @@ mng_retcode read_chunk (mng_datap  pData)
     if (pData->iSuspendpoint <= 2)
     {
       iBuflen  = sizeof (mng_uint32);  /* read length */
-      iRetcode = read_databuffer (pData, (mng_ptr)pBuf, iBuflen, &iRead);
+      iRetcode = read_databuffer (pData, pBuf, iBuflen, &iRead);
 
       if (iRetcode == MNG_NEEDMOREDATA)
         pData->iSuspendpoint = 2;      /* suspended */
@@ -487,7 +490,7 @@ mng_retcode read_chunk (mng_datap  pData)
       {                                /* note that we don't use the full size
                                           so there's always a zero-byte at the
                                           very end !!! */
-        iRetcode = read_databuffer (pData, (mng_ptr)pBuf, iBuflen, &iRead);
+        iRetcode = read_databuffer (pData, pBuf, iBuflen, &iRead);
 
         if (iRetcode == MNG_NEEDMOREDATA)
           pData->iSuspendpoint = 3;    /* suspended */
@@ -514,7 +517,7 @@ mng_retcode read_chunk (mng_datap  pData)
                                        /* again reserve space for the last zero-byte */
         MNG_ALLOC (pData, pExtra, iBuflen+1)
 
-        iRetcode = read_databuffer (pData, (mng_ptr)pExtra, iBuflen, &iRead);
+        iRetcode = read_databuffer (pData, pExtra, iBuflen, &iRead);
 
         if (iRetcode)
         {                              /* don't forget to free the temp buffer */
@@ -601,7 +604,7 @@ mng_retcode read_graphic (mng_datap pData)
   {
     iBuflen = 2 * sizeof (mng_uint32); /* read signature */
 
-    iRetcode = read_databuffer (pData, (mng_ptr)pData->pReadbuf, iBuflen, &iRead);
+    iRetcode = read_databuffer (pData, pData->pReadbuf, iBuflen, &iRead);
 
     if (iRetcode)
     {                                  /* input suspension ? */
