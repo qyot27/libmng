@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000 Gerard Juyn (gerard@libmng.com)                     * */
+/* * Copyright (c) 2000 Gerard Juyn (gerard :at: libmng.com)                * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
@@ -42,7 +42,7 @@
 /* *                                                                        * */
 /* * project   : mngtree                                                    * */
 /* * file      : mngtree.c                 copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * version   : 1.0.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : main project file                                          * */
 /* *                                                                        * */
@@ -60,13 +60,16 @@
 /* *             0.5.3 - 06/28/2000 - G.Juyn                                * */
 /* *             - changed memory allocation size parameters to mng_size_t  * */
 /* *                                                                        * */
+/* *             1.0.1 - 12/07/2003 - G.Juyn                                * */
+/* *             - fixed inclusion of libmng.h (Thanks Raphael)             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 
-#include "../../libmng.h"
+#include "../../../libmng.h"
 
 /* ************************************************************************** */
 

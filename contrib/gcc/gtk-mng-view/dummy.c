@@ -1,8 +1,8 @@
 /*
  *  Very simple program, that has been used by us
- *  (V. Babin <babin@users.sourceforge.net> and
- *   S. Kondrat <valiska@users.sourceforge.net>)
- *  during toying with libmng (http://www.limng.com)
+ *  (V. Babin <babin :at: users.sourceforge.net> and
+ *   S. Kondrat <valiska :at: users.sourceforge.net>)
+ *  during toying with libmng (http://www.libmng.com)
  *
  *  License: GPL :-))
  *

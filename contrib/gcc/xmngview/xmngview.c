@@ -1,5 +1,5 @@
 /* Built with libmng-1.0.5
- * <szukw000@students.uni-mainz.de> 
+ * <szukw000 :at: students.uni-mainz.de>
  *    This program my be redistributed under the terms of the
  *    GNU General Public Licence, version 2, or at your preference,
  *    any later version.

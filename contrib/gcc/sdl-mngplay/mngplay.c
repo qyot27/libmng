@@ -1,9 +1,9 @@
 /*
 	mngplay
 
-	$Date: 2002/09/26 18:09:37 $
+	$Date: 2003/12/07 09:45:16 $
 
-	Ralph Giles <giles@ashlu.bc.ca>
+	Ralph Giles <giles :at: ashlu.bc.ca>
 
 	This program my be redistributed under the terms of the
 	GNU General Public Licence, version 2, or at your preference,
@@ -18,6 +18,10 @@
 
 	GRR 20010708:  added SDL/libmng/zlib/libjpeg version info, mouse-click
 			handling (alternate quit mode); improved automake setup
+
+	Raphael Assenat <raph :at: raphnet.net>
+	2003/11/26:    added command line options to run in alternate color depths.
+	               
 */
 
 #include <stdio.h>
@@ -26,6 +30,10 @@
 #include <SDL/SDL.h>
 #include <libmng.h>
 
+#include <libgen.h> // basename
+
+
+#define DEFAULT_SDL_VIDEO_DEPTH 32
 
 /* structure for keeping track of our mng stream inside the callbacks */
 typedef struct {
@@ -33,6 +41,7 @@ typedef struct {
 	char		*filename; /* pointer to the file's path/name */
 	SDL_Surface	*surface;  /* SDL display */
 	mng_uint32	delay;     /* ticks to wait before resuming decode */
+	int			sdl_video_depth;  /* The depth for SDL_SetVideoMode */
 } mngstuff;
 
 /* callbacks for the mng decoder */
@@ -106,15 +115,19 @@ mng_bool mymngprocessheader(mng_handle mng,
 
 //	fprintf(stderr, "our mng is %dx%d\n", width,height);
 
-	screen = SDL_SetVideoMode(width,height, 32, SDL_SWSURFACE);
+	/* retreive our user data */
+ 	mymng = (mngstuff*)mng_get_userdata(mng);
+	
+	screen = SDL_SetVideoMode(width,height, mymng->sdl_video_depth, SDL_SWSURFACE);
 	if (screen == NULL) {
 		fprintf(stderr, "unable to allocate %dx%d video memory: %s\n", 
 			width, height, SDL_GetError());
 		return MNG_FALSE;
 	}
 
+	printf("SDL Video Mode: %dx%d bpp=%d\n", width, height, mymng->sdl_video_depth);
+	
 	/* save the surface pointer */
- 	mymng = (mngstuff*)mng_get_userdata(mng);
 	mymng->surface = screen;
 
 	/* set a descriptive window title */
@@ -130,9 +143,79 @@ mng_bool mymngprocessheader(mng_handle mng,
 		}
 	}
 
-	/* tell the mng decoder about our bit-depth choice */
-	/* FIXME: this works on intel. is it correct in general? */
-	mng_set_canvasstyle(mng, MNG_CANVAS_BGRA8);
+/*
+	printf("RGBA Masks: %08X %08X %08X %08X\n", 
+				mymng->surface->format->Rmask,
+				mymng->surface->format->Gmask,
+				mymng->surface->format->Bmask,
+				mymng->surface->format->Amask);
+	printf("RGBA Shifts: %08X %08X %08X %08X\n", 
+				mymng->surface->format->Rshift,
+				mymng->surface->format->Gshift,
+				mymng->surface->format->Bshift,
+				mymng->surface->format->Ashift);
+*/
+	/* Choose a canvas style which matches the SDL_Surface pixel format */
+	switch(mymng->surface->format->BitsPerPixel)
+	{
+		case 32:
+			if (mymng->surface->format->Amask==0) {
+				/* No alpha (padding byte) */
+				if (mymng->surface->format->Bshift==0) {
+					/* Blue first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_BGRX8);
+				} else {
+					/* Red first */
+					fprintf(stderr, "No matching mng canvas for sdl pixel format. Colors may be wrong.\n");
+					mng_set_canvasstyle(mng, MNG_CANVAS_BGRX8);
+				}
+			}
+			else {
+				/* Real alpha */
+				if (mymng->surface->format->Bshift==0) {
+					/* Blue first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_BGRA8);
+				} else {
+					/* Red first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_RGBA8);
+				}
+			}
+			break;
+		case 24:
+			if (mymng->surface->format->Amask==0) {
+				/* No alpha here should mean true rgb24bit */
+				if (mymng->surface->format->Bshift==0) {
+					/* Blue first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_BGR8);
+				} else {
+					/* Red first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_RGB8);
+				}
+			}
+			else {
+				/* If there is an alpha and we are in 24 bpp, this must
+				 * mean rgb5658 */
+				if (mymng->surface->format->Bshift==0) {
+					/* Blue first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_BGRA565);
+				} else {
+					/* Red first */
+					mng_set_canvasstyle(mng, MNG_CANVAS_RGBA565);
+				}
+			}
+			break;
+		case 16:
+			if (mymng->surface->format->Bshift==0) {
+				/* Blue first */
+				mng_set_canvasstyle(mng, MNG_CANVAS_BGR565);
+			} else {
+				/* Red first */
+				mng_set_canvasstyle(mng, MNG_CANVAS_RGB565);
+			}			
+			break;
+		default:
+			return MNG_FALSE;
+	}
 
 	return MNG_TRUE;
 }
@@ -303,7 +386,8 @@ int main(int argc, char *argv[])
 	if (argc < 2) {
 		const SDL_version *pSDLver = SDL_Linked_Version();
 
-		fprintf(stderr, "Usage:  %s <mngfile>\n\n", argv[0]);
+		fprintf(stderr, "Usage:  %s mngfile [depth]\n\n", basename(argv[0]));
+		fprintf(stderr, "        where 'depth' is 15,16,24 or 32\n");
 		fprintf(stderr,
 			"  Compiled with SDL %d.%d.%d; using SDL %d.%d.%d.\n",
 			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
@@ -342,6 +426,24 @@ int main(int argc, char *argv[])
 	/* pass the name of the file we want to play */
 	mymng->filename = argv[1];
 
+	/* pass the color depth we wish to use */
+	if (argc>=3) {
+		mymng->sdl_video_depth = atoi(argv[2]);
+		switch(mymng->sdl_video_depth) {
+			case 15:
+			case 16:
+			case 24:
+			case 32:
+				break;
+			default:
+				fprintf(stderr, "Unsupported color depth. Choices are: 15, 16, 24 and 32\n");
+				exit(1);
+		}
+	}
+	else {
+		mymng->sdl_video_depth = DEFAULT_SDL_VIDEO_DEPTH;
+	}
+	
 	/* set up the mng decoder for our stream */
         mng = mng_initialize(mymng, mymngalloc, mymngfree, MNG_NULL);
         if (mng == MNG_NULL) {
@@ -349,11 +451,11 @@ int main(int argc, char *argv[])
                 exit(1);
         }
 
-        /* set the callbacks */
+	/* set the callbacks */
 	mng_setcb_errorproc(mng, mymngerror);
-        mng_setcb_openstream(mng, mymngopenstream);
-        mng_setcb_closestream(mng, mymngclosestream);
-        mng_setcb_readdata(mng, mymngreadstream);
+	mng_setcb_openstream(mng, mymngopenstream);
+	mng_setcb_closestream(mng, mymngclosestream);
+	mng_setcb_readdata(mng, mymngreadstream);
 	mng_setcb_gettickcount(mng, mymnggetticks);
 	mng_setcb_settimer(mng, mymngsettimer);
 	mng_setcb_processheader(mng, mymngprocessheader);
@@ -397,8 +499,9 @@ int main(int argc, char *argv[])
 
 	/* ¿hay alguno? pause before quitting */
 	fprintf(stderr, "pausing before shutdown...\n");
-	SDL_Delay(3000);
+	SDL_Delay(1000);
 
 	/* cleanup and quit */
 	mymngquit(mng);
 }
+

@@ -1,10 +1,10 @@
 /*
  * This code is mainly code I have found in
- *   ida-0.14  Gerd Knorr <kraxel@bytesex.org>
+ *   ida-0.14  Gerd Knorr <kraxel :at: bytesex.org>
  *          http://bytesex.org/ida
  * Ida is a small and fast image viewer, motif-based.
  *
- * Copyright (C) 2002 Gerd Knorr <kraxel@bytesex.org>
+ * Copyright (C) 2002 Gerd Knorr <kraxel :at: bytesex.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

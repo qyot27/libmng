@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2000 The Free Software Foundation
  *
- * Author(s): Volodymyr Babin <vb@dwuj.ichf.edu.pl>
+ * Author(s): Volodymyr Babin <vb :at: dwuj.ichf.edu.pl>
  *
  * This code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
