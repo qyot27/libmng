@@ -117,6 +117,8 @@
 /* *             - added conditionals around some JNG-supporting code       * */
 /* *             - removed conditionals around 8-bit magn routines          * */
 /* *             - added conditionals around delta-png and 16-bit code      * */
+/* *             1.0.6 - 07/08/2003 - G.R-P                                 * */
+/* *             - bugfix empty "if" statement when 16-bit code is enabled  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1423,16 +1425,15 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   if ((pBuf->iColortype == MNG_COLORTYPE_RGBA) &&
       (iColortype == MNG_COLORTYPE_RGBA))
   {
-    if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
+    iNewsamplesize = 4;
 #ifndef MNG_NO_16BIT_SUPPORT
+    if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
+    {
       if (iBitdepth == 16)
-      {
         pData->fPromoterow = (mng_fptr)mng_promote_rgba8_rgba16;
-        iNewsamplesize = 8;
-      }
-      else
-#else
-        iNewsamplesize = 4;
+    }
+    if (iBitdepth == 16)               /* 16-bit wide ? */
+      iNewsamplesize = 8;
 #endif
   }
 #ifdef MNG_INCLUDE_JNG
