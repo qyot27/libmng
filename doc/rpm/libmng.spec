@@ -1,6 +1,6 @@
 Summary: A library of functions for manipulating MNG format files.
 Name: libmng
-Version: 1.0.5
+Version: 1.0.6
 Release: 2.1
 Copyright: AS IS
 Group: System Environment/Libraries
@@ -29,44 +29,47 @@ files, you should install libmng-devel.  You'll also need to install
 the libmng package.
 
 %changelog
-* Tue Sep 24 2002 Gerard Juyn <gerard@libmng.com>
+* Sun Oct 19 2003 Gerard Juyn <gerard at libmng.com>
+- updated to 1.0.6
+
+* Tue Sep 24 2002 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.5
 
-* Sun Jun 23 2002 Gerard Juyn <gerard@libmng.com>
+* Sun Jun 23 2002 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.4
 
-* Mon Sep 18 2001 Gerard Juyn <gerard@libmng.com>
+* Mon Sep 18 2001 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.3
 
-* Sat Jul 7 2001 Gerard Juyn <gerard@libmng.com>
+* Sat Jul 7 2001 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.2
 
-* Wed May 2 2001 Gerard Juyn <gerard@libmng.com>
+* Wed May 2 2001 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.1
 
-* Mon Feb 5 2001 Gerard Juyn <gerard@libmng.com>
+* Mon Feb 5 2001 Gerard Juyn <gerard at libmng.com>
 - updated to 1.0.0
 
-* Fri Jan 19 2001 Gerard Juyn <gerard@libmng.com>
+* Fri Jan 19 2001 Gerard Juyn <gerard at libmng.com>
 - updated to 0.9.4
 
-* Sat Oct 28 2000 Gerard Juyn <gerard@libmng.com>
+* Sat Oct 28 2000 Gerard Juyn <gerard at libmng.com>
 - updated to 0.9.3
 
-* Tue Aug 15 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
+* Tue Aug 15 2000 MATSUURA Takanori <t-matsuu at protein.osaka-u.ac.jp>
 - based on libmng-0.9.2/doc/rpm/libmng.spec
 - use %%configure and %%makeinstall
 
-* Sat Aug  5 2000 Gerard Juyn <gerard@libmng.com>
+* Sat Aug  5 2000 Gerard Juyn <gerard at libmng.com>
 - updated to 0.9.2
 
-* Wed Jul 26 2000 Gerard Juyn <gerard@libmng.com>
+* Wed Jul 26 2000 Gerard Juyn <gerard at libmng.com>
 - updated to 0.9.1
 
-* Sat Jul  1 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
+* Sat Jul  1 2000 MATSUURA Takanori <t-matsuu at protein.osaka-u.ac.jp>
 - updated to 0.9.0
 
-* Sat Jun 24 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
+* Sat Jun 24 2000 MATSUURA Takanori <t-matsuu at protein.osaka-u.ac.jp>
 - 1st release for RPM
 
 %prep

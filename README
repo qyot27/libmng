@@ -1,11 +1,17 @@
-libmng 1.0.6-beta1
-------------------
+libmng 1.0.6
+------------
 
-Beta.
+Final release.
 
-This is mostly in the light of footprint-reduction to please the Mozilla
-crew with a leaner and meaner libmng. See bug 18574 if you're interested:
+There's been no feedback after the 1.0.6 beta, so here you go.
+
+This release is mostly in the light of footprint-reduction to please the
+Mozilla crew with a leaner and meaner libmng. See bug 18574 if you're
+interested:
 http://bugzilla.mozilla.org/show_bug.cgi?id=18574
+
+
+Y.T.
 
 Gerard
 
