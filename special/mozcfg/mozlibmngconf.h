@@ -22,15 +22,14 @@
 
 /* One or none of these may be defined via MNG_CFLAGS in "configure" */
 
-#if defined(MNG_BUILD_RAW_MNG)     || \
-    defined(MNG_BUILD_FULL_MNG)    || \
-    defined(MNG_BUILD_FULL_NO_JNG) || \
-    defined(MNG_BUILD_MOZ_MNG)     || \
-    defined(MNG_BUILD_MOZ_NO_JNG)  || \
-    defined(MNG_BUILD_WEB_MNG)     || \
-    defined(MNG_BUILD_WEB_NO_JNG)  || \
-    defined(MNG_BUILD_LC)          || \
-    defined(MNG_BUILD_LC_NO_JNG)   || \
+#if defined(MNG_BUILD_RAW_MNG)    || \
+    defined(MNG_BUILD_FULL_MNG)   || \
+    defined(MNG_BUILD_MOZ_MNG)    || \
+    defined(MNG_BUILD_MOZ_NO_JNG) || \
+    defined(MNG_BUILD_WEB_MNG)    || \
+    defined(MNG_BUILD_WEB_NO_JNG) || \
+    defined(MNG_BUILD_LC)         || \
+    defined(MNG_BUILD_LC_NO_JNG)  || \
     defined(MNG_BUILD_VLC)
 # define MNG_BUILD_DEFINED
 #endif
@@ -42,25 +41,16 @@
 
 #if defined(MNG_BUILD_FULL_MNG)
 #define MNG_DISABLE_UNUSED 
-#define MNG_ENABLE_FOOTPRINT
-#endif
-
-#if defined(MNG_BUILD_FULL_NO_JNG)
-#define MNG_DISABLE_UNUSED 
-#define MNG_ENABLE_FOOTPRINT
-#define MNG_DISABLE_JNG
 #endif
 
 #if defined(MNG_BUILD_MOZ_MNG)
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
 #endif
 
 #if defined(MNG_BUILD_MOZ_NO_JNG)
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
 #define MNG_DISABLE_JNG
 #endif
 
@@ -68,14 +58,14 @@
 #define MNG_DISABLE_UNUSED 
 #define MNG_DISABLE_DELTA_PNG 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_16_BIT
 #endif
 
 #if defined(MNG_BUILD_WEB_NO_JNG)
 #define MNG_DISABLE_UNUSED 
 #define MNG_DISABLE_DELTA_PNG 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_16_BIT
 #define MNG_DISABLE_JNG
 #endif
 
@@ -83,7 +73,7 @@
 #define MNG_DISABLE_DELTA_PNG 
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_16_BIT
 #define MNG_DISABLE_NON_LC
 #endif
 
@@ -91,7 +81,7 @@
 #define MNG_DISABLE_DELTA_PNG 
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_16_BIT
 #define MNG_DISABLE_JNG
 #define MNG_DISABLE_NON_LC
 #endif
@@ -100,7 +90,7 @@
 #define MNG_DISABLE_DELTA_PNG 
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
-#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_16_BIT
 #define MNG_DISABLE_JNG
 #define MNG_DISABLE_NON_LC
 #define MNG_DISABLE_NON_VLC
@@ -114,6 +104,7 @@
 #define MNG_DECREMENT_LOOPS
 #define MNG_USE_ZLIB_CRC
 #define MNG_OPTIMIZE_FOOTPRINT_INIT
+#define MNG_OPTIMIZE_FOOTPRINT_MAGN
 #endif
 
 #if defined(MNG_DISABLE_UNUSED)
@@ -168,9 +159,7 @@
 #define MNG_NO_OPEN_CLOSE_STREAM
 #endif
 
-#if defined(MNG_ENABLE_REDUCTIONS)
-/* Do all MAGN operations in RGBA8 space */
-#define MNG_OPTIMIZE_FOOTPRINT_MAGN
+#if defined(MNG_DISABLE_16_BIT)
 /* Eliminate 16-bit support from libmng */
 #define MNG_NO_16BIT_SUPPORT
 #endif
