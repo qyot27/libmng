@@ -1,5 +1,31 @@
 -----------------------------------------------------------
 
+1.0.8 (xxxxx nnst 2004)
+-----------------------
+
+in short:
+
+intermediate CVS
+
+-------------------
+
+bugfixes:
+- fixed problem with PAST usage where source > dest
+
+core:
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.7 (March 21st 2004)
 -----------------------
 

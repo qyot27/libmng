@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -205,6 +205,9 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *                                                                        * */
+/* *             1.0.8 - 03/31/2004 - G.Juyn                                * */
+/* *             - fixed problem with PAST usage where source > dest        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5877,9 +5880,6 @@ mng_retcode mng_process_display_past (mng_datap  pData,
                                        /* save for next time ... */
       pTargetimg->iPastx      = pData->iPastx;
       pTargetimg->iPasty      = pData->iPasty;
-                                       /* get temporary work-buffers */
-      MNG_ALLOC (pData, pData->pRGBArow, (pTargetimg->pImgbuf->iRowsize << 1))
-      MNG_ALLOC (pData, pData->pWorkrow, (pTargetimg->pImgbuf->iRowsize << 1))
                                        /* address destination for row-routines */
       pData->pStoreobj        = (mng_objectp)pTargetimg;
       pData->pStorebuf        = (mng_objectp)pTargetimg->pImgbuf;
@@ -6196,6 +6196,10 @@ mng_retcode mng_process_display_past (mng_datap  pData,
 #endif
               iTargetrowsize       = (iTargetsamples << 2);
 
+                                       /* get temporary work-buffers */
+            MNG_ALLOC (pData, pData->pRGBArow, (iSourcerowsize << 1))
+            MNG_ALLOC (pData, pData->pWorkrow, (iSourcerowsize << 1))
+
             while ((!iRetcode) && (iTargetY < pData->iDestb))
             {                          /* get a row */
               pData->iRow          = iSourceY;
@@ -6236,6 +6240,9 @@ mng_retcode mng_process_display_past (mng_datap  pData,
 
               iTargetY++;
             }
+                                       /* drop the temporary row-buffer */
+            MNG_FREEX (pData, pData->pWorkrow, (iSourcerowsize << 1))
+            MNG_FREEX (pData, pData->pRGBArow, (iSourcerowsize << 1))
           }
 
 #if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
@@ -6248,9 +6255,6 @@ mng_retcode mng_process_display_past (mng_datap  pData,
         iX++;
       }
     }
-                                       /* drop the temporary row-buffer */
-    MNG_FREEX (pData, pData->pWorkrow, (pTargetimg->pImgbuf->iRowsize << 1))
-    MNG_FREEX (pData, pData->pRGBArow, (pTargetimg->pImgbuf->iRowsize << 1))
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;

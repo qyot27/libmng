@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_object_prc.c       copyright (c) 2000-2003 G.Juyn   * */
+/* * file      : libmng_object_prc.c       copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
