@@ -649,9 +649,7 @@ READ_CHUNK (mng_read_ihdr)
 #if defined(MNG_NO_16BIT_SUPPORT)
   pData->iPNGmult = 1;
   pData->iPNGdepth = pData->iBitdepth;
-#endif
 
-#ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
@@ -3613,9 +3611,6 @@ READ_CHUNK (mng_read_basi)
 #if defined(MNG_NO_16BIT_SUPPORT)
   pData->iPNGmult = 1;
   pData->iPNGdepth = pData->iBitdepth;
-#endif
-
-#ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
@@ -3725,16 +3720,16 @@ READ_CHUNK (mng_read_basi)
                                        /* store the fields */
     ((mng_basip)*ppChunk)->iWidth       = mng_get_uint32 (pRawdata);
     ((mng_basip)*ppChunk)->iHeight      = mng_get_uint32 (pRawdata+4);
-    ((mng_basip)*ppChunk)->iBitdepth    = *(pRawdata+8);
+#ifdef MNG_NO_16BIT_SUPPORT
+    if (*(pRawdata+8) > 8)
+      ((mng_basip)*ppChunk)->iBitdepth    = 8;
+    else
+#endif
+      ((mng_basip)*ppChunk)->iBitdepth    = *(pRawdata+8);
     ((mng_basip)*ppChunk)->iColortype   = *(pRawdata+9);
     ((mng_basip)*ppChunk)->iCompression = *(pRawdata+10);
     ((mng_basip)*ppChunk)->iFilter      = *(pRawdata+11);
     ((mng_basip)*ppChunk)->iInterlace   = *(pRawdata+12);
-
-#ifdef MNG_NO_16BIT_SUPPORT
-  if (*(pRawdata+8) > 8)
-      ((mng_basip)*ppChunk)->iBitdepth    = 8;
-#endif
 
     if (iRawlen > 13)
     {

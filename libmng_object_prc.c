@@ -1122,32 +1122,25 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROMOTE_IMGOBJECT, MNG_LC_START)
 #endif
 
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (iBitdepth > 8)
+    iBitdepth=8;
+  if (pBuf->iBitdepth > 8)
+    pBuf->iBitdepth=8;
+#endif
+
   pData->fPromoterow    = MNG_NULL;    /* init promotion fields */
   pData->fPromBitdepth  = MNG_NULL;
   pData->iPromColortype = iColortype;
   pData->iPromBitdepth  = iBitdepth;
   pData->iPromFilltype  = iFilltype;
 
-#ifdef MNG_NO_16BIT_SUPPORT
-  if (iBitdepth > 8)
-     iBitdepth=8;
-#endif
-
   if (iBitdepth != pBuf->iBitdepth)    /* determine bitdepth promotion */
   {
     if (pBuf->iColortype == MNG_COLORTYPE_INDEXED)
       iTempdepth = 8;
     else
-    {
-#ifndef MNG_NO_16BIT_SUPPORT
       iTempdepth = pBuf->iBitdepth;
-#else
-      if (pBuf->iBitdepth > 8)  
-        iTempdepth = 8;
-      else
-        iTempdepth = pBuf->iBitdepth;
-#endif
-    }
 
 #ifndef MNG_NO_DELTA_PNG
     if (iFilltype == MNG_FILLMETHOD_ZEROFILL)

@@ -756,7 +756,12 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
             pData->iSourcet    = 0;
             pData->iSourceb    = pData->iDestb - pData->iDestt;
                                        /* 16-bit background ? */
+
+#ifdef MNG_NO_16BIT_SUPPORT
+            pData->bIsRGBA16   = MNG_FALSE;
+#else
             pData->bIsRGBA16      = (mng_bool)(pImage->pImgbuf->iBitdepth > 8);
+#endif
                                        /* let restore routine know the offsets !!! */
             pData->iBackimgoffsx  = pImage->iPosx;
             pData->iBackimgoffsy  = pImage->iPosy;
@@ -4680,6 +4685,7 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
                }
         }
       }
+#ifndef MNG_NO_16BIT_SUPPORT
       else
       {
         pData->bIsRGBA16 = MNG_TRUE;   /* intermediate row is 16-bit deep */
@@ -4688,6 +4694,7 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
         /* TODO: 8- + 12-bit JPEG (eg. type=20) */
 
       }
+#endif
                                        /* possible IDAT alpha-channel ? */
       if (pData->iJHDRalphacompression == MNG_COMPRESSION_DEFLATE)
       {

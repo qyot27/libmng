@@ -156,6 +156,8 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/08/2004 - G.R-P                                 * */
+/* *             - added more conditionals around 16-bit-supporting code    * */
 /* *             1.0.7 - 03/09/2004 - G.Juyn                                * */
 /* *             - fixed bug in promote_g8_g8 with 16bit support off        * */
 /* *                                                                        * */
@@ -368,13 +370,16 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol * 3) + (pData->iDestl * 3);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -388,6 +393,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -402,6 +408,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -459,6 +466,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -537,13 +545,16 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -558,6 +569,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -573,6 +585,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -658,6 +671,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -744,13 +758,16 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -787,6 +804,7 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values and premultiply */
@@ -825,6 +843,7 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -864,6 +883,7 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -947,13 +967,16 @@ mng_retcode mng_display_argb8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -968,6 +991,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -983,6 +1007,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1068,6 +1093,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -1154,13 +1180,16 @@ mng_retcode mng_display_argb8_pm (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1199,6 +1228,7 @@ mng_retcode mng_display_argb8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values and premultiply */
@@ -1239,6 +1269,7 @@ mng_retcode mng_display_argb8_pm (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1278,6 +1309,7 @@ mng_retcode mng_display_argb8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -1366,13 +1398,16 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
 
     pDataline  = pData->pRGBArow;      /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1388,6 +1423,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -1404,6 +1440,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1490,6 +1527,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -1585,13 +1623,16 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol * 3) + (pData->iDestl * 3);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + (pData->iSourcel / pData->iColinc) * 8;
     else
+#endif
       pDataline = pDataline + (pData->iSourcel / pData->iColinc) * 4;
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1605,6 +1646,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -1619,6 +1661,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1676,6 +1719,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -1754,13 +1798,16 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + (pData->iSourcel / pData->iColinc) * 8;
     else
+#endif
       pDataline = pDataline + (pData->iSourcel / pData->iColinc) * 4;
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1775,6 +1822,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -1790,6 +1838,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1849,6 +1898,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -1929,13 +1979,16 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -1950,6 +2003,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -1965,6 +2019,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2050,6 +2105,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -2136,13 +2192,16 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2179,6 +2238,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values and premultiply */
@@ -2217,6 +2277,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2256,6 +2317,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -2338,13 +2400,16 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2359,6 +2424,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -2374,6 +2440,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2459,6 +2526,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -2545,13 +2613,16 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl << 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2590,6 +2661,7 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values and premultiply */
@@ -2630,6 +2702,7 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2669,6 +2742,7 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -2745,13 +2819,16 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
     pScanline = pScanline + (pData->iCol * 2) + (pData->iDestl * 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2764,6 +2841,7 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -2778,6 +2856,7 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
 
@@ -2821,6 +2900,7 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -2893,13 +2973,16 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
     pScanline = pScanline + (pData->iCol * 2) + (pData->iDestl * 2);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -2912,6 +2995,7 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -2925,6 +3009,7 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
 
@@ -2968,6 +3053,7 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -3042,13 +3128,16 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl * 3);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -3062,6 +3151,7 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -3076,6 +3166,7 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -3144,6 +3235,7 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -3235,13 +3327,16 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
     pScanline = pScanline + (pData->iCol << 2) + (pData->iDestl * 3);
     pDataline = pData->pRGBArow;       /* address source row */
 
+#ifndef MNG_NO_16BIT_SUPPORT
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
     else
+#endif
       pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
 
     if (pData->bIsOpaque)              /* forget about transparency ? */
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -3255,6 +3350,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
@@ -3269,6 +3365,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
     }
     else
     {
+#ifndef MNG_NO_16BIT_SUPPORT
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
@@ -3337,6 +3434,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
         }
       }
       else
+#endif
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
@@ -3447,6 +3545,7 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
   while (iX >= pData->iBackimgwidth)
     iX    -= pData->iBackimgwidth;
 
+#ifndef MNG_NO_16BIT_SUPPORT
   if (pData->bIsRGBA16)                /* 16-bit buffer ? */
   {
     pTemp = pData->pPrevrow + (iX << 3);
@@ -3467,6 +3566,7 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
     }
   }
   else
+#endif
   {
     pTemp = pData->pPrevrow + (iX << 2);
 

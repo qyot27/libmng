@@ -323,7 +323,9 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_DISC, mng_init_disc, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0},
 #endif
 #ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DROP
     {MNG_UINT_DROP, mng_init_drop, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0},
+#endif
 #endif
 #ifndef MNG_SKIPCHUNK_LOOP
     {MNG_UINT_ENDL, mng_init_endl, mng_free_endl, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0},
