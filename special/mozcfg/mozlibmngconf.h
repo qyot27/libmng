@@ -6,7 +6,7 @@
 /* *                                                                        * */
 /* * purpose   : special config file for Mozilla                            * */
 /* *                                                                        * */
-/* * author    : G.R-P                                                      * */
+/* * author    : Glenn Randers-Pehrson                                      * */
 /* *                                                                        * */
 /* * comment   : This is the configurationfile designed to minize footprint * */
 /* *             for the integration with Mozilla.                          * */
@@ -15,13 +15,84 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-
 #ifndef _mozlibmng_conf_h_
 #define _mozlibmng_conf_h_
 
 /* Mozilla defines */
 
-#if 1
+/* One or none of these may be defined via MNG_CFLAGS in "configure"
+        MNG_BUILD_RAW_MNG 
+        MNG_BUILD_FULL_MNG 
+        MNG_BUILD_MOZ_MNG 
+        MNG_BUILD_MOZ_NO_JNG 
+        MNG_BUILD_WEB_MNG
+        MNG_BUILD_WEB_NO_JNG
+        MNG_BUILD_LC
+        MNG_BUILD_LC_NO_JNG
+        MNG_BUILD_VLC
+*/
+
+#if defined(MNG_BUILD_FULL_MNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#endif
+
+#if defined(MNG_BUILD_MOZ_MNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#endif
+
+#if defined(MNG_BUILD_MOZ_NO_JNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_JNG
+#endif
+
+#if defined(MNG_BUILD_WEB_MNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_DISABLE_DELTA_PNG 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#endif
+
+#if defined(MNG_BUILD_WEB_NO_JNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_DISABLE_DELTA_PNG 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_JNG
+#endif
+
+#if defined(MNG_BUILD_LC)
+#define MNG_DISABLE_DELTA_PNG 
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_NON_LC
+#endif
+
+#if defined(MNG_BUILD_LC_NO_JNG)
+#define MNG_DISABLE_DELTA_PNG 
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_JNG
+#define MNG_DISABLE_NON_LC
+#endif
+
+#if defined(MNG_BUILD_VLC)
+#define MNG_DISABLE_DELTA_PNG 
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_ENABLE_REDUCTIONS
+#define MNG_DISABLE_JNG
+#define MNG_DISABLE_NON_LC
+#define MNG_DISABLE_NON_VLC
+#endif
+
+#if defined(MNG_ENABLE_FOOTPRINT)
 /* Perform footprint optimizations */
 #define MNG_OPTIMIZE_FOOTPRINT_COMPOSE
 #define MNG_OPTIMIZE_FOOTPRINT_DIV
@@ -31,8 +102,8 @@
 #define MNG_OPTIMIZE_FOOTPRINT_INIT
 #endif
 
-#if 1
-/* eliminate unused features from libmng */
+#if defined(MNG_DISABLE_UNUSED)
+/* Eliminate unused features from libmng */
 #define MNG_NO_OLD_VERSIONS
 #define MNG_SKIPCANVAS_ABGR8
 #define MNG_SKIPCANVAS_ARGB8
@@ -79,49 +150,49 @@
 #define MNG_NO_LOOP_SIGNALS_SUPPORTED
 #endif
 
-#if 1
+#if defined(MNG_ENABLE_REDUCTIONS)
 /* Do all MAGN operations in RGBA8 space */
 #define MNG_OPTIMIZE_FOOTPRINT_MAGN
-#endif
-
-#if 1
-/* eliminate 16-bit support from libmng */
+/* Eliminate 16-bit support from libmng */
 #define MNG_NO_16BIT_SUPPORT
 #endif
 
-#if 1
-#define MNG_SKIPCHUNK_PAST
-/* eliminate PAST feature from libmng */
-#endif
-
-#if 1
-/* eliminate Delta-PNG feature from libmng */
+#if defined(MNG_DISABLE_DELTA_PNG)
+/* Eliminate Delta-PNG feature from libmng */
 #define MNG_NO_DELTA_PNG
 #endif
 
-#if 1
+#if defined(MNG_DISABLE_NON_LC)
+/* Eliminate non-MNG-LC chunks */
+#define MNG_SKIPCHUNK_BASI
+#define MNG_SKIPCHUNK_CLIP
+#define MNG_SKIPCHUNK_CLON
+#define MNG_SKIPCHUNK_DISC
+#define MNG_SKIPCHUNK_MOVE
+#define MNG_SKIPCHUNK_SHOW
+#define MNG_SKIPCHUNK_PAST
+#endif
+
+#if defined(MNG_DISABLE_JNG)
 /* If you change this you should also manually remove or restore
    jng-recognition in mozilla/modules/libpr0n/src/imgLoader.cpp */
 #define MNG_NO_INCLUDE_JNG
 #endif
 
-#if 1
-/* Recognize MNG-VLC chunks only */
-#define MNG_SKIPCHUNK_BASI
-#define MNG_SKIPCHUNK_CLIP
-#define MNG_SKIPCHUNK_CLON
-#define MNG_SKIPCHUNK_DISC
+#if defined(MNG_DISABLE_NON_VLC)
+/* Eliminate non-MNG-VLC chunks */
 #define MNG_SKIPCHUNK_DEFI
 #define MNG_SKIPCHUNK_FRAM
 #define MNG_SKIPCHUNK_LOOP
 #define MNG_SKIPCHUNK_MAGN
-#define MNG_SKIPCHUNK_MOVE
-#define MNG_SKIPCHUNK_SHOW
+#endif
+
+#if defined(MNG_DISABLE_OPTIONAL_VLC)
+/* Eliminate optional MNG-VLC chunks */
+#define MNG_SKIPCHUNK_TERM
+#define MNG_SKIPCHUNK_BACK
+#define MNG_SKIPCHUNK_gAMA
+#define MNG_SKIPCHUNK_sRGB
 #endif
 
 #endif /* _mozlibmng_conf_h */
-
-/* ************************************************************************** */
-/* * end of file                                                            * */
-/* ************************************************************************** */
-
