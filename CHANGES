@@ -1,11 +1,13 @@
 -----------------------------------------------------------
 
-1.0.6 (... ..th 2003)
----------------------
+1.0.6-alpha1 (aug 2nd 2003)
+---------------------------
 
 in short:
 
-*** intermediate cvs ***
+This is mostly in the light of footprint-reduction to please the Mozilla
+crew with a leaner and meaner libmng. See bug 18574 if you're interested:
+http://bugzilla.mozilla.org/show_bug.cgi?id=18574
 
 -------------------
 
@@ -31,7 +33,7 @@ core:
 - reversed many loops to use decrementing counter
 - converted some switches to array references
 - removed some redundant checks for iRawlen==0
-- optionally use zlib's crc32 function instead of local mng_update_crc                                     
+- optionally use zlib's crc32 function instead of local mng_update_crc
 - bugfix empty "if" statement when 16-bit code is enabled
 - restored two misplaced #else/#endif blocks
 - added conditionals around "mng_display_go*" and other unused functions
@@ -45,6 +47,8 @@ samples:
 
 contrib:
 - updated xmngview
+= added MSVC project for creating delta-MNGs: makemng (thanks Alex!)
+- added MSVC lib-file for use with the standard libmng.dll (again thanks Alex)
 
 doc:
 - updated readme.contrib

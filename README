@@ -1,10 +1,11 @@
-libmng 1.0.5
-------------
+libmng 1.0.6-alpah1
+-------------------
 
-Final release.
+Alpha.
 
-This is the long-awaited final release for the new 'dynamic MNG' feature, and
-brings MNG compliance to near 100%.
+This is mostly in the light of footprint-reduction to please the Mozilla
+crew with a leaner and meaner libmng. See bug 18574 if you're interested:
+http://bugzilla.mozilla.org/show_bug.cgi?id=18574
 
 Gerard
 
