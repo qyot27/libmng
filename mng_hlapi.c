@@ -38,7 +38,8 @@
 /* *               to it's appropriate function in the mng_write module     * */
 /* *                                                                        * */
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
-/* *             - Cleaned up some code regarding mixed support             * */
+/* *             - cleaned up some code regarding mixed support             * */
+/* *             - added JNG support                                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -57,6 +58,7 @@
 #include "mng_write.h"
 #include "mng_display.h"
 #include "mng_zlib.h"
+#include "mng_jpeg.h"
 #include "mng_cms.h"
 #include "mng_pixels.h"
 
@@ -178,21 +180,19 @@ mng_retcode mng_drop_objects (mng_datap pData)
 #ifdef MNG_SUPPORT_DISPLAY
 mng_retcode mng_drop_savedata (mng_datap pData)
 {
-  mng_savedatap pSave;
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_START);
 #endif
 
-  if (!pData->pSavedata)               /* sanity check */
-    MNG_ERROR (pData, MNG_INTERNALERROR)
+  if (pData->pSavedata)                /* sanity check */
+  {                                    /* address it more directly */
+    mng_savedatap pSave = pData->pSavedata;
 
-  pSave = pData->pSavedata;            /* address it more directly */
-
-  if (pSave->iGlobalProfilesize)       /* cleanup the profile ? */
-    MNG_FREEX (pData, pSave->pGlobalProfile, pSave->iGlobalProfilesize)
+    if (pSave->iGlobalProfilesize)     /* cleanup the profile ? */
+      MNG_FREEX (pData, pSave->pGlobalProfile, pSave->iGlobalProfilesize)
                                        /* cleanup the save structure */
-  MNG_FREE (pData, pData->pSavedata, sizeof (mng_savedata))
+    MNG_FREE (pData, pData->pSavedata, sizeof (mng_savedata))
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_END);
@@ -394,12 +394,8 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   mng_clear_cms (pData);               /* cleanup left-over cms stuff if any */
 #endif
 
-#ifdef MNG_SUPPORT_READ
-  MNG_FREE (pData, pData->pReadbuf, pData->iReadbufsize)
-#endif
-
-#ifdef MNG_SUPPORT_WRITE
-  MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize)
+#ifdef MNG_INCLUDE_JNG
+  mngjpeg_cleanup (pData);             /* cleanup jpeg stuff */
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -411,6 +407,14 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
     mngzlib_inflatefree (pData);       /* cleanup inflate! */
   }
 #endif /* MNG_INCLUDE_ZLIB */
+
+#ifdef MNG_SUPPORT_READ                /* cleanup default read buffer */
+  MNG_FREE (pData, pData->pReadbuf, pData->iReadbufsize)
+#endif
+
+#ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffer */
+  MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize)
+#endif
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
   mng_drop_chunks  (pData);            /* drop stored chunks (if any) */
@@ -733,12 +737,16 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
 
 #endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
 
+#ifdef MNG_INCLUDE_JNG
+  mngjpeg_cleanup (pData);             /* cleanup jpeg stuff */
+#endif
+
 #ifdef MNG_INCLUDE_ZLIB
   if (pData->bInflating)               /* if we've been inflating */
   {
 #ifdef MNG_INCLUDE_DISPLAY_PROCS
     cleanup_rowproc (pData);           /* cleanup row-processing, */
-#endif    
+#endif
     mngzlib_inflatefree (pData);       /* cleanup inflate! */
   }
 #endif /* MNG_INCLUDE_ZLIB */

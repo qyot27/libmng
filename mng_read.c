@@ -23,7 +23,9 @@
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
-/* *             - Cleaned up some code regarding mixed support             * */
+/* *             - cleaned up some code regarding mixed support             * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - added support for JNG                                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -241,7 +243,9 @@ mng_retcode read_chunk (mng_datap  pData)
         case 4 : { iRetcode = process_display_show  (pData); break; }
         case 5 : { iRetcode = process_display_clon2 (pData); break; }
         case 6 : { iRetcode = process_display_iend  (pData); break; }
-/*        case 7 : { break; } */
+#ifdef MNG_INCLUDE_JNG
+        case 7 : { iRetcode = process_display_jhdr  (pData); break; }
+#endif
       }
     }
   }

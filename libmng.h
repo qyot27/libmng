@@ -131,6 +131,8 @@
 /* *             - changed the version parameters (obviously)               * */
 /* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
 /* *             - complimented constants for chunk-property values         * */
+/* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
+/* *             - fixed MNG_UINT_pHYg value                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -292,6 +294,7 @@
 #ifdef MNG_SUPPORT_IJG6B
 #define MNG_INCLUDE_JNG
 #define MNG_INCLUDE_IJG6B
+#define MNG_USE_SETJMP
 #endif
 
 #ifdef MNG_FULL_CMS
@@ -650,7 +653,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_userdata        (mng_handle        hHandle,
 
 /* The style of the drawing- & background-canvas */
 /* only used for displaying images */
-/* both are initially set to 24-bit RGB */
+/* both are initially set to 24-bit RGB (eg. 8-bit per channel) */
 MNG_EXT mng_retcode MNG_DECL mng_set_canvasstyle     (mng_handle        hHandle,
                                                       mng_uint32        iStyle);
 MNG_EXT mng_retcode MNG_DECL mng_set_bkgdstyle       (mng_handle        hHandle,
@@ -674,7 +677,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_storechunks     (mng_handle        hHandle,
 /* if you've defined MNG_FULL_CMS, you must specify the profile of the
    output-device and the sRGB conditions */
 /* if you're on a sRGB system (Linux (intel), Windows, etc.), you can
-   tell the CMS with mng_set_srgb(2) and specify a default sRGB profile for
+   tell the CMS with mng_set_srgb and specify a default sRGB profile for
    the output-device; otherwise you'll need to specify the correct profile
    for your output-device and a default sRGB profile for input-images tagged
    with the sRGB chunk only */
@@ -682,7 +685,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_storechunks     (mng_handle        hHandle,
          or call set_srgb with MNG_FALSE & call set_outputprofile(2) &
          set_srgbprofile(2) */
 /* BTW: the default for set_srgb is MNG_TRUE */
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#if defined(MNG_SUPPORT_DISPLAY)
 MNG_EXT mng_retcode MNG_DECL mng_set_srgb            (mng_handle        hHandle,
                                                       mng_bool          bIssRGB);
 MNG_EXT mng_retcode MNG_DECL mng_set_outputprofile   (mng_handle        hHandle,
@@ -1767,7 +1770,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 #define MNG_UINT_nEED 0x6e454544L
 #define MNG_UINT_oFFs 0x6f464673L
 #define MNG_UINT_pCAL 0x7043414cL
-#define MNG_UINT_pHYg 0x49444167L
+#define MNG_UINT_pHYg 0x70444167L
 #define MNG_UINT_pHYs 0x70485973L
 #define MNG_UINT_sBIT 0x73424954L
 #define MNG_UINT_sCAL 0x7343414cL

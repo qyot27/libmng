@@ -34,6 +34,8 @@
 /* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
 /* *             - B003 - fixed problem with <mem.h> being proprietary      * */
 /* *               to Borland platform                                      * */
+/* *             - added helper definitions for JNG (IJG-based)             * */
+/* *             - fixed support for IJGSRC6B                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -70,14 +72,18 @@
 #include "lcms.h"
 #endif /* MNG_INCLUDE_LCMS */
 
-#ifdef MNG_INCLUDE_IJG                 /* IJG's jpgsrc6b */
+#ifdef MNG_INCLUDE_IJG6B               /* IJG's jpgsrc6b */
+#include <stdio.h>
+#ifdef MNG_USE_SETJMP
+#include <setjmp.h>                    /* needed for error-recovery (blergh) */
+#else
 #ifdef WIN32
-#include <windows.h>
-#define USE_WINDOWS_MESSAGEBOX
-#define HAVE_BOOLEAN                   /* this is what it's all about */
+#define USE_WINDOWS_MESSAGEBOX         /* display a messagebox under Windoze */
 #endif
+#endif /* MNG_USE_SETJMP */
+#undef FAR                             /* possibly defined by zlib or lcms */
 #include "jpeglib.h"                   /* all that for JPEG support  :-) */
-#endif /* MNG_INCLUDE_IJG */
+#endif /* MNG_INCLUDE_IJG6B */
 
 #ifdef MNG_INTERNAL_MEMMNGMT
 #include <stdlib.h>                    /* "calloc" & "free" */
@@ -123,7 +129,7 @@
 #undef MNG_STRICT_ANSI                 /* can't do strict-ANSI with this DLL-stuff */
 #endif
 #else
-#define MNG_DECL                       /* dummy for non-DLL */
+#define MNG_DECL                       /* dummies for non-DLL */
 #define MNG_EXT
 #endif /* MNG_DLL && WIN32 */
 
@@ -199,6 +205,26 @@ typedef mng_uint32    mng_uint32arr2[2];
 #define MNG_ZLIB_MEMLEVEL   9                    /* memory level */
 #define MNG_ZLIB_STRATEGY   Z_DEFAULT_STRATEGY   /* strategy */
 #endif /* MNG_INCLUDE_ZLIB */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+
+#ifdef MNG_INCLUDE_IJG6B                         /* IJG helper defs */
+typedef struct jpeg_compress_struct   mngjpeg_comp;
+typedef struct jpeg_decompress_struct mngjpeg_decomp;
+typedef struct jpeg_error_mgr         mngjpeg_error;
+typedef struct jpeg_source_mgr        mngjpeg_source;
+
+typedef mngjpeg_comp   * mngjpeg_compp;
+typedef mngjpeg_decomp * mngjpeg_decompp;
+typedef mngjpeg_error  * mngjpeg_errorp;
+typedef mngjpeg_source * mngjpeg_sourcep;
+#endif /* MNG_INCLUDE_IJG6B */
+
+#define MNG_JPEG_MAXBUF     65536                /* max size of temp JPEG buffer */
+
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 

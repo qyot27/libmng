@@ -27,6 +27,9 @@
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
+/* *             - changed inclusion of cms-routines                        * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -191,7 +194,7 @@ mng_retcode MNG_DECL mng_set_storechunks (mng_handle hHandle,
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_srgb (mng_handle hHandle,
                                    mng_bool   bIssRGB)
 {
@@ -208,20 +211,23 @@ mng_retcode MNG_DECL mng_set_srgb (mng_handle hHandle,
 
   return MNG_NOERROR;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_FULL_CMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_outputprofile (mng_handle hHandle,
                                             mng_pchar  zFilename)
 {
+#ifdef MNG_INCLUDE_LCMS
   mng_datap pData;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_OUTPUTPROFILE, MNG_LC_START);
 #endif
 
+#ifdef MNG_INCLUDE_LCMS
   MNG_VALIDHANDLE (hHandle)
 
   pData = (mng_datap)hHandle;          /* address the structure */
@@ -233,6 +239,7 @@ mng_retcode MNG_DECL mng_set_outputprofile (mng_handle hHandle,
 
   if (!pData->hProf2)                  /* handle error ? */
     MNG_ERRORL (pData, MNG_LCMS_NOHANDLE)
+#endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_OUTPUTPROFILE, MNG_LC_END);
@@ -240,21 +247,24 @@ mng_retcode MNG_DECL mng_set_outputprofile (mng_handle hHandle,
 
   return MNG_NOERROR;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_outputprofile2 (mng_handle hHandle,
                                              mng_uint32 iProfilesize,
                                              mng_ptr    pProfile)
 {
+#ifdef MNG_INCLUDE_LCMS
   mng_datap pData;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_OUTPUTPROFILE, MNG_LC_START);
 #endif
 
+#ifdef MNG_INCLUDE_LCMS
   MNG_VALIDHANDLE (hHandle)
 
   pData = (mng_datap)hHandle;          /* address the structure */
@@ -266,6 +276,7 @@ mng_retcode MNG_DECL mng_set_outputprofile2 (mng_handle hHandle,
 
   if (!pData->hProf2)                  /* handle error ? */
     MNG_ERRORL (pData, MNG_LCMS_NOHANDLE)
+#endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_OUTPUTPROFILE, MNG_LC_END);
@@ -273,20 +284,23 @@ mng_retcode MNG_DECL mng_set_outputprofile2 (mng_handle hHandle,
 
   return MNG_NOERROR;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_srgbprofile (mng_handle hHandle,
                                           mng_pchar  zFilename)
 {
+#ifdef MNG_INCLUDE_LCMS
   mng_datap pData;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SRGBPROFILE, MNG_LC_START);
 #endif
 
+#ifdef MNG_INCLUDE_LCMS
   MNG_VALIDHANDLE (hHandle)
 
   pData = (mng_datap)hHandle;          /* address the structure */
@@ -298,6 +312,7 @@ mng_retcode MNG_DECL mng_set_srgbprofile (mng_handle hHandle,
 
   if (!pData->hProf3)                  /* handle error ? */
     MNG_ERRORL (pData, MNG_LCMS_NOHANDLE)
+#endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SRGBPROFILE, MNG_LC_END);
@@ -305,21 +320,24 @@ mng_retcode MNG_DECL mng_set_srgbprofile (mng_handle hHandle,
 
   return MNG_NOERROR;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_srgbprofile2 (mng_handle hHandle,
                                            mng_uint32 iProfilesize,
                                            mng_ptr    pProfile)
 {
+#ifdef MNG_INCLUDE_LCMS
   mng_datap pData;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SRGBPROFILE, MNG_LC_START);
 #endif
 
+#ifdef MNG_INCLUDE_LCMS
   MNG_VALIDHANDLE (hHandle)
 
   pData = (mng_datap)hHandle;          /* address the structure */
@@ -331,6 +349,7 @@ mng_retcode MNG_DECL mng_set_srgbprofile2 (mng_handle hHandle,
 
   if (!pData->hProf3)                  /* handle error ? */
     MNG_ERRORL (pData, MNG_LCMS_NOHANDLE)
+#endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SRGBPROFILE, MNG_LC_END);
@@ -338,7 +357,7 @@ mng_retcode MNG_DECL mng_set_srgbprofile2 (mng_handle hHandle,
 
   return MNG_NOERROR;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
@@ -754,7 +773,7 @@ mng_bool MNG_DECL mng_get_storechunks (mng_handle hHandle)
 
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
+#ifdef MNG_SUPPORT_DISPLAY
 mng_bool MNG_DECL mng_get_srgb (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -769,7 +788,7 @@ mng_bool MNG_DECL mng_get_srgb (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->bIssRGB;
 };
-#endif /* MNG_SUPPORT_DISPLAY && MNG_FULL_CMS */
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 

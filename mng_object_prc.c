@@ -20,6 +20,9 @@
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - fixed to support JNG objects                             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -81,42 +84,46 @@ mng_retcode create_imagedataobject (mng_datap      pData,
                                        /* determine samplesize from color_type/bit_depth */
   switch (iColortype)                  /* for < 8-bit samples we just reserve 8 bits */
   {
-    case 0  : {                        /* gray */
-                if (iBitdepth == 16)
-                  iSamplesize = 2;
-                else
-                  iSamplesize = 1;
+    case  0  : ;                       /* gray */
+    case  8  : {                       /* JPEG gray */
+                 if (iBitdepth > 8)
+                   iSamplesize = 2;
+                 else
+                   iSamplesize = 1;
 
-                break;
-              }
-    case 2  : {                        /* rgb */
-                if (iBitdepth == 16)
-                  iSamplesize = 6;
-                else
-                  iSamplesize = 3;
+                 break;
+               }
+    case  2  : ;                       /* rgb */
+    case 10  : {                       /* JPEG rgb */
+                 if (iBitdepth > 8)
+                   iSamplesize = 6;
+                 else
+                   iSamplesize = 3;
 
-                break;
-              }
-    case 3  : {                        /* indexed */
-                iSamplesize = 1;
-                break;
-              }
-    case 4  : {                        /* gray+alpha */
-                if (iBitdepth == 16)
-                  iSamplesize = 4;
-                else
-                  iSamplesize = 2;
+                 break;
+               }
+    case  3  : {                       /* indexed */
+                 iSamplesize = 1;
+                 break;
+               }
+    case  4  : ;                       /* gray+alpha */
+    case 12  : {                       /* JPEG gray+alpha */
+                 if (iBitdepth > 8)
+                   iSamplesize = 4;
+                 else
+                   iSamplesize = 2;
 
-                break;
-              }
-    case 6  : {                        /* rgb+alpha */
-                if (iBitdepth == 16)
-                  iSamplesize = 8;
-                else
-                  iSamplesize = 4;
+                 break;
+               }
+    case  6  : ;                       /* rgb+alpha */
+    case 14  : {                       /* JPEG rgb+alpha */
+                 if (iBitdepth > 8)
+                   iSamplesize = 8;
+                 else
+                   iSamplesize = 4;
 
-                break;
-              }
+                 break;
+               }
   }
                                        /* make sure we remember all this */
   pImagedata->iSamplesize  = iSamplesize;
@@ -665,42 +672,46 @@ mng_retcode reset_object_details (mng_datap  pData,
                                        /* determine samplesize from color_type/bit_depth */
   switch (iColortype)                  /* for < 8-bit samples we just reserve 8 bits */
   {
-    case 0  : {                        /* gray */
-                if (iBitdepth == 16)
-                  iSamplesize = 2;
-                else
-                  iSamplesize = 1;
+    case  0  : ;                       /* gray */
+    case  8  : {                       /* JPEG gray */
+                 if (iBitdepth > 8)
+                   iSamplesize = 2;
+                 else
+                   iSamplesize = 1;
 
-                break;
-              }
-    case 2  : {                        /* rgb */
-                if (iBitdepth == 16)
-                  iSamplesize = 6;
-                else
-                  iSamplesize = 3;
+                 break;
+               }
+    case  2  : ;                       /* rgb */
+    case 10  : {                       /* JPEG rgb */
+                 if (iBitdepth > 8)
+                   iSamplesize = 6;
+                 else
+                   iSamplesize = 3;
 
-                break;
-              }
-    case 3  : {                        /* indexed */
-                iSamplesize = 1;
-                break;
-              }
-    case 4  : {                        /* gray+alpha */
-                if (iBitdepth == 16)
-                  iSamplesize = 4;
-                else
-                  iSamplesize = 2;
+                 break;
+               }
+    case  3  : {                       /* indexed */
+                 iSamplesize = 1;
+                 break;
+               }
+    case  4  : ;                       /* gray+alpha */
+    case 12  : {                       /* JPEG gray+alpha */
+                 if (iBitdepth > 8)
+                   iSamplesize = 4;
+                 else
+                   iSamplesize = 2;
 
-                break;
-              }
-    case 6  : {                        /* rgb+alpha */
-                if (iBitdepth == 16)
-                  iSamplesize = 8;
-                else
-                  iSamplesize = 4;
+                 break;
+               }
+    case  6  : ;                       /* rgb+alpha */
+    case 14  : {                       /* JPEG rgb+alpha */
+                 if (iBitdepth > 8)
+                   iSamplesize = 8;
+                 else
+                   iSamplesize = 4;
 
-                break;
-              }
+                 break;
+               }
   }
 
   iRowsize     = iSamplesize * iWidth;
@@ -913,7 +924,7 @@ mng_retcode process_ani_image (mng_datap   pData,
     }  
                                        /* now go and shoot it off (if required) */
     if ((pImage->bVisible) && (pImage->bViewable))
-      iRetcode = display_image (pData, pCurrent);
+      iRetcode = display_image (pData, pCurrent, MNG_FALSE);
   }
   else                                 /* overlay with object 0 status */
   {
@@ -928,7 +939,7 @@ mng_retcode process_ani_image (mng_datap   pData,
     pImage->iClipb     = pObjzero->iClipb;
                                        /* so this should do the trick */
     if ((pImage->bVisible) && (pImage->bViewable))
-      iRetcode = display_image (pData, pImage);
+      iRetcode = display_image (pData, pImage, MNG_FALSE);
   }
 
   if (!iRetcode)                       /* all's well ? */

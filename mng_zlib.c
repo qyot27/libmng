@@ -22,6 +22,9 @@
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - fixed for JNG alpha handling                             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -94,9 +97,6 @@ mng_retcode mngzlib_initialize (mng_datap pData)
   pData->sZlib.zfree  = mngzlib_free;
   pData->sZlib.opaque = (voidpf)pData;
 #endif
-                                       /* initialize bufferspace */
-  pData->iZoutsize    = MNG_ZLIB_MAXBUF;
-  MNG_ALLOC (pData, pData->pZoutbuf, pData->iZoutsize)
                                        /* default zlib compression parameters */
   pData->iZlevel      = MNG_ZLIB_LEVEL;
   pData->iZmethod     = MNG_ZLIB_METHOD;
@@ -126,12 +126,6 @@ mng_retcode mngzlib_cleanup (mng_datap pData)
     mngzlib_inflatefree (pData);
   if (pData->bDeflating)
     mngzlib_deflatefree (pData);
-
-  if (pData->pZoutbuf)                 /* free the zlib buffer */
-  {
-    MNG_FREE (pData, pData->pZoutbuf, pData->iZoutsize)
-    pData->pZoutbuf = 0;               /* and make sure we do it only once! */
-  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_CLEANUP, MNG_LC_END);
@@ -205,11 +199,12 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
         else
           iRslt = MNG_NOERROR;
 
-        if (!iRslt)                    /* now process this row */
+                                       /* now process this row */
+        if ((!iRslt) && (pData->fProcessrow))
           iRslt = ((mng_processrow)pData->fProcessrow) (pData);
                                        /* store in object ? */
         if ((!iRslt) && (pData->fStorerow))
-          iRslt = ((mng_correctrow)pData->fStorerow) (pData);
+          iRslt = ((mng_correctrow)pData->fStorerow)   (pData);
                                        /* color correction ? */
         if ((!iRslt) && (pData->fCorrectrow))
           iRslt = ((mng_correctrow)pData->fCorrectrow) (pData);
@@ -319,9 +314,6 @@ mng_retcode mngzlib_deflateinit (mng_datap pData)
     MNG_ERRORZ (pData, (mng_uint32)iZrslt)
 
   pData->bDeflating      = MNG_TRUE;   /* really deflating something now */
-                                       /* let zlib know where to find the buffer */
-  pData->sZlib.next_out  = pData->pZoutbuf;
-  pData->sZlib.avail_out = (uInt)pData->iZoutsize;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_DEFLATEINIT, MNG_LC_END);

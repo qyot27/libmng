@@ -44,9 +44,11 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
 /* *             - B004 - fixed problem with MNG_SUPPORT_WRITE not defined  * */
-/* *               also for MNG_SUPPORT_WRITE without MNG_SUPPORT_JNG       * */
+/* *               also for MNG_SUPPORT_WRITE without MNG_INCLUDE_JNG       * */
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
-/* *             - Cleaned up some code regarding mixed support             * */
+/* *             - cleaned up some code regarding mixed support             * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - implemented JNG support                                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -721,11 +723,10 @@ READ_CHUNK (read_idat)
 
 #ifdef MNG_INCLUDE_JNG                 /* sequence checks */
   if ((!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR) && (!pData->bHasJHDR))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #else
   if ((!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #endif
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
   if (pData->bHasJSEP)
@@ -747,7 +748,7 @@ READ_CHUNK (read_idat)
     {                                  /* display processing for non-empty chunks */
       mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
 
-      if (iRetcode)                      /* on error bail out */
+      if (iRetcode)                    /* on error bail out */
         return iRetcode;
     }
   }
@@ -792,11 +793,10 @@ READ_CHUNK (read_iend)
 
 #ifdef MNG_INCLUDE_JNG                 /* sequence checks */
   if ((!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR) && (!pData->bHasJHDR))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #else
   if ((!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #endif
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
                                        /* IHDR-block requires IDAT */
   if ((pData->bHasIHDR) && (!pData->bHasIDAT))
     MNG_ERROR (pData, MNG_IDATMISSING)
@@ -4652,7 +4652,7 @@ READ_CHUNK (read_jhdr)
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
       MNG_ERROR (pData, MNG_APPMISCERROR)
-      
+
   }
 
   pData->iColortype = 0;               /* fake grayscale for other routines */
@@ -4660,61 +4660,13 @@ READ_CHUNK (read_jhdr)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    pData->fInitrowproc = 0;           /* do nothing by default */
-    pData->fDisplayrow  = 0;
-    pData->fCorrectrow  = 0;
-    pData->fStorerow    = 0;
-    pData->fProcessrow  = 0;
-    pData->pStoreobj    = 0;
-
-    switch (pData->iJHDRalphabitdepth) /* determine alpha processing routine */
+    if (pData->bRunning)               /* running animation ? */
     {
-      case  1 : {
-                  if (!pData->iJHDRalphainterlace)
-                    pData->fInitrowproc = (mng_ptr)init_g1_ni;
-                  else
-                    pData->fInitrowproc = (mng_ptr)init_g1_i;
+      mng_retcode iRetcode = process_display_jhdr (pData);
 
-                  break;
-                }
-      case  2 : {
-                  if (!pData->iJHDRalphainterlace)
-                    pData->fInitrowproc = (mng_ptr)init_g2_ni;
-                  else
-                    pData->fInitrowproc = (mng_ptr)init_g2_i;
-
-                  break;
-                }
-      case  4 : {
-                  if (!pData->iJHDRalphainterlace)
-                    pData->fInitrowproc = (mng_ptr)init_g4_ni;
-                  else
-                    pData->fInitrowproc = (mng_ptr)init_g4_i;
-
-                  break;
-                }
-      case  8 : {
-                  if (!pData->iJHDRalphainterlace)
-                    pData->fInitrowproc = (mng_ptr)init_g8_ni;
-                  else
-                    pData->fInitrowproc = (mng_ptr)init_g8_i;
-
-                  break;
-                }
-      case 16 : {
-                  if (!pData->iJHDRalphainterlace)
-                    pData->fInitrowproc = (mng_ptr)init_g16_ni;
-                  else
-                    pData->fInitrowproc = (mng_ptr)init_g16_i;
-
-                  break;
-                }
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
     }
-
-
-    /* TODO: something !!! */
-
-
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -4745,6 +4697,8 @@ READ_CHUNK (read_jhdr)
 
   return MNG_NOERROR;                  /* done */
 }
+#else
+#define read_jhdr 0;
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
@@ -4765,13 +4719,15 @@ READ_CHUNK (read_jdat)
   pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
+  if ((pData->bDisplaying) && (iRawlen))
   {
+    if (pData->bRunning)               /* running animation ? */
+    {                                  /* display processing for non-empty chunks */
+      mng_retcode iRetcode = process_display_jdat (pData, iRawlen, pRawdata);
 
-
-    /* TODO: something */
-    
-
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -4800,6 +4756,8 @@ READ_CHUNK (read_jdat)
 
   return MNG_NOERROR;                  /* done */
 }
+#else
+#define read_jdat 0;
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
@@ -4836,6 +4794,8 @@ READ_CHUNK (read_jsep)
 
   return MNG_NOERROR;                  /* done */
 }
+#else
+#define read_jsep 0;
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */

@@ -25,6 +25,9 @@
 /* *             0.5.1 - 05/15/2000 - G.Juyn                                * */
 /* *             - added getimgdata & putimgdata trace-codes                * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - added JNG tracecodes                                     * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -797,6 +800,57 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_DISPLAY_DROP  3244
 #define MNG_FN_PROCESS_DISPLAY_DBYK  3245
 #define MNG_FN_PROCESS_DISPLAY_ORDR  3246
+
+/* ************************************************************************** */
+
+#define MNG_FN_JPEG_INITIALIZE       3401
+#define MNG_FN_JPEG_CLEANUP          3402
+#define MNG_FN_JPEG_DECOMPRESSINIT   3403
+#define MNG_FN_JPEG_DECOMPRESSDATA   3404
+#define MNG_FN_JPEG_DECOMPRESSFREE   3405
+
+#define MNG_FN_STORE_JPEG_G8         3501
+#define MNG_FN_STORE_JPEG_RGB8       3502
+#define MNG_FN_STORE_JPEG_G12        3503
+#define MNG_FN_STORE_JPEG_RGB12      3504
+#define MNG_FN_STORE_JPEG_GA8        3505
+#define MNG_FN_STORE_JPEG_RGBA8      3506
+#define MNG_FN_STORE_JPEG_GA12       3507
+#define MNG_FN_STORE_JPEG_RGBA12     3508
+
+#define MNG_FN_INIT_JPEG_A1_NI       3511
+#define MNG_FN_INIT_JPEG_A2_NI       3512
+#define MNG_FN_INIT_JPEG_A4_NI       3513
+#define MNG_FN_INIT_JPEG_A8_NI       3514
+#define MNG_FN_INIT_JPEG_A16_NI      3515
+
+#define MNG_FN_STORE_JPEG_G8_A1      3521
+#define MNG_FN_STORE_JPEG_G8_A2      3522
+#define MNG_FN_STORE_JPEG_G8_A4      3523
+#define MNG_FN_STORE_JPEG_G8_A8      3524
+#define MNG_FN_STORE_JPEG_G8_A16     3525
+
+#define MNG_FN_STORE_JPEG_RGB8_A1    3531
+#define MNG_FN_STORE_JPEG_RGB8_A2    3532
+#define MNG_FN_STORE_JPEG_RGB8_A4    3533
+#define MNG_FN_STORE_JPEG_RGB8_A8    3534
+#define MNG_FN_STORE_JPEG_RGB8_A16   3535
+
+#define MNG_FN_STORE_JPEG_G12_A1     3541
+#define MNG_FN_STORE_JPEG_G12_A2     3542
+#define MNG_FN_STORE_JPEG_G12_A4     3543
+#define MNG_FN_STORE_JPEG_G12_A8     3544
+#define MNG_FN_STORE_JPEG_G12_A16    3545
+
+#define MNG_FN_STORE_JPEG_RGB12_A1   3551
+#define MNG_FN_STORE_JPEG_RGB12_A2   3552
+#define MNG_FN_STORE_JPEG_RGB12_A4   3553
+#define MNG_FN_STORE_JPEG_RGB12_A8   3554
+#define MNG_FN_STORE_JPEG_RGB12_A16  3555
+
+#define MNG_FN_NEXT_JPEG_ALPHAROW    3591
+#define MNG_FN_NEXT_JPEG_ROW         3592
+#define MNG_FN_DISPLAY_JPEG_ROWS     3593
 
 /* ************************************************************************** */
 

@@ -33,6 +33,11 @@
 /* *             - added save_state and restore_state for SAVE/SEEK/TERM    * */
 /* *               processing                                               * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - added JNG support (JHDR/JDAT)                            * */
+/* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
+/* *             - fixed problem with DEFI clipping                         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -46,6 +51,7 @@
 #include "mng_object_prc.h"
 #include "mng_memory.h"
 #include "mng_zlib.h"
+#include "mng_jpeg.h"
 #include "mng_cms.h"
 #include "mng_pixels.h"
 #include "mng_display.h"
@@ -535,20 +541,22 @@ mng_retcode next_layer (mng_datap pData)
 /* ************************************************************************** */
 
 mng_retcode display_image (mng_datap  pData,
-                           mng_imagep pImage)
+                           mng_imagep pImage,
+                           mng_bool   bLayeradvanced)
 {
-  mng_imagep pSave;
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START);
 #endif
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
 
-  pSave               = pData->pCurrentobj;
-  pData->pCurrentobj  = pImage;
-  next_layer (pData);                  /* advance to next layer */
-  pData->pCurrentobj  = pSave;
+//  if (!bLayeradvanced)                 /* need to advance the layer ? */
+  {
+    mng_imagep pSave    = pData->pCurrentobj;
+    pData->pCurrentobj  = pImage;
+    next_layer (pData);                /* advance to next layer */
+    pData->pCurrentobj  = pSave;
+  }
 
   if (!pData->bTimerset)               /* all systems still go ? */
   {
@@ -1060,9 +1068,8 @@ mng_retcode process_display_ihdr (mng_datap pData)
       pData->pStoreobj = pData->pObjzero;
   }
                                        /* display "on-the-fly" ? */
-  if ( (pData->eImagetype == mng_it_png                       ) ||
-       ((!pImage) && (((mng_imagep)pData->pObjzero)->bVisible)) ||
-       ((pImage ) && (pImage->bVisible                       ))    )
+  if ( (pData->eImagetype == mng_it_png         ) ||
+       (((mng_imagep)pData->pStoreobj)->bVisible)    )
   {
     next_layer (pData);                /* that's a new layer then ! */
 
@@ -1281,22 +1288,33 @@ mng_retcode process_display_idat (mng_datap  pData,
 mng_retcode process_display_iend (mng_datap pData)
 {
   mng_retcode iRetcode, iRetcode2;
+  mng_bool bDodisplay = MNG_FALSE;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_START);
 #endif
 
+#ifdef MNG_INCLUDE_JNG                 /* progressive+alpha JNG can be displayed now */
+  if ((pData->bHasJHDR) && (pData->bJPEGprogressive) &&
+      ((pData->eImagetype == mng_it_jng         ) ||
+       (((mng_imagep)pData->pStoreobj)->bVisible)    ) &&
+      ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    ))
+    bDodisplay = MNG_TRUE;
+#endif    
+
   if ((pData->bHasBASI) ||             /* was it a BASI stream */
+      (bDodisplay)      ||             /* or should we display the JNG */
       (pData->iBreakpoint))            /* or did we get broken last time ? */
   {
     mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
     if (!pImage)                       /* or was it an "on-the-fly" image ? */
       pImage = (mng_imagep)pData->pObjzero;
-                                       /* display it on the fly then ? */
+                                       /* display it now then ? */
     if ((pImage->bVisible) && (pImage->bViewable))
-    {                                  /* so do it */
-      iRetcode = display_image (pData, pImage);
+    {                                  /* ok, so do it */
+      iRetcode = display_image (pData, pImage, bDodisplay);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1323,6 +1341,20 @@ mng_retcode process_display_iend (mng_datap pData)
       if (iRetcode2)
         return iRetcode2;
     }
+
+#ifdef MNG_INCLUDE_JNG
+    if (pData->bJPEGdecompress)        /* if we've been decompressing */
+    {                                  /* cleanup row-processing, */
+      iRetcode  = cleanup_rowproc (pData);
+                                       /* also cleanup decompress! */
+      iRetcode2 = mngjpeg_decompressfree (pData);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+      if (iRetcode2)
+        return iRetcode2;
+    }
+#endif
                                        /* if the image was displayed on the fly, */
                                        /* we'll have to make the app refresh */
     if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
@@ -1444,11 +1476,15 @@ mng_retcode process_display_defi (mng_datap pData)
     pImage->bVisible   = (mng_bool)(pData->iDEFIdonotshow == 0);
     pImage->iPosx      = pData->iDEFIlocax;
     pImage->iPosy      = pData->iDEFIlocay;
-    pImage->bClipped   = pData->bDEFIhasclip;
-    pImage->iClipl     = pData->iDEFIclipl;
-    pImage->iClipr     = pData->iDEFIclipr;
-    pImage->iClipt     = pData->iDEFIclipt;
-    pImage->iClipb     = pData->iDEFIclipb;
+
+    if (pData->bDEFIhasclip)
+    {
+      pImage->bClipped = pData->bDEFIhasclip;
+      pImage->iClipl   = pData->iDEFIclipl;
+      pImage->iClipr   = pData->iDEFIclipr;
+      pImage->iClipt   = pData->iDEFIclipt;
+      pImage->iClipb   = pData->iDEFIclipb;
+    }
 
     pData->pCurrentobj = 0;            /* not a real object ! */
   }
@@ -1923,7 +1959,8 @@ mng_retcode process_display_clon (mng_datap  pData,
   if ((pClone->bViewable) && (pClone->bVisible))
   {
     pData->pLastclone = pClone;        /* remember in case of timer break ! */
-    display_image (pData, pClone);     /* display it */
+                                       /* display it */
+    display_image (pData, pClone, MNG_FALSE);
 
     if (pData->bTimerset)              /* timer break ? */
       pData->iBreakpoint = 5;
@@ -1944,7 +1981,7 @@ mng_retcode process_display_clon2 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
 #endif
                                        /* only called after timer break ! */
-  display_image (pData, (mng_imagep)pData->pLastclone);
+  display_image (pData, (mng_imagep)pData->pLastclone, MNG_FALSE);
   pData->iBreakpoint = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2188,7 +2225,7 @@ mng_retcode process_display_show (mng_datap pData)
     pImage = find_imageobject (pData, pData->iSHOWnextid);
 
     if (pImage)                        /* still there ? */
-      display_image (pData, pImage);
+      display_image (pData, pImage, MNG_FALSE);
 
     pData->iBreakpoint = 0;            /* let's not go through this again! */
   }
@@ -2292,7 +2329,7 @@ mng_retcode process_display_show (mng_datap pData)
                                        /* display it ? */
       if ((pData->iSHOWmode == 6) && (pFound))
       {
-        display_image (pData, pFound);
+        display_image (pData, pFound, MNG_FALSE);
 
         if (pData->bTimerset)          /* timer set ? */
         {
@@ -2311,7 +2348,7 @@ mng_retcode process_display_show (mng_datap pData)
         {
           if (pData->iBreakpoint)      /* did we get broken last time ? */
           {                            /* could only happen in the display routine */
-            display_image (pData, pImage);
+            display_image (pData, pImage, MNG_FALSE);
             pData->iBreakpoint = 0;    /* only once inside this loop please ! */
           }
           else
@@ -2320,7 +2357,7 @@ mng_retcode process_display_show (mng_datap pData)
             {
               case 0 : {
                          pImage->bVisible = MNG_TRUE;
-                         display_image (pData, pImage);
+                         display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 1 : {
@@ -2329,7 +2366,7 @@ mng_retcode process_display_show (mng_datap pData)
                        }
               case 2 : {
                          if (pImage->bVisible)
-                           display_image (pData, pImage);
+                           display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 3 : {
@@ -2339,7 +2376,7 @@ mng_retcode process_display_show (mng_datap pData)
               case 4 : {
                          pImage->bVisible = (mng_bool)(!pImage->bVisible);
                          if (pImage->bVisible)
-                           display_image (pData, pImage);
+                           display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 5 : {
@@ -2417,6 +2454,177 @@ mng_retcode process_display_seek (mng_datap pData)
 
   return MNG_NOERROR;
 }
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+mng_retcode process_display_jhdr (mng_datap pData)
+{                                      /* address the current "object" if any */
+  mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_START);
+#endif
+
+  pData->fInitrowproc  = 0;            /* do nothing by default */
+  pData->fDisplayrow   = 0;
+  pData->fCorrectrow   = 0;
+  pData->fStorerow     = 0;
+  pData->fProcessrow   = 0;
+  pData->fStorerow2    = 0;
+
+  pData->pStoreobj     = MNG_NULL;     /* initialize important work-parms */
+  pData->iJPEGrow      = 0;
+  pData->iJPEGalpharow = 0;
+  pData->iJPEGrgbrow   = 0;
+  pData->iRowmax       = 0;            /* so init_rowproc does the right thing ! */
+
+  if (!pData->iBreakpoint)             /* not previously broken ? */
+  {
+    mng_retcode iRetcode;
+
+    if (pImage)                        /* update object buffer ? */
+      iRetcode = reset_object_details (pData, pImage,
+                                       pData->iDatawidth, pData->iDataheight,
+                                       pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                       MNG_TRUE);
+    else                               /* update object 0 ? */
+      iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                       pData->iDatawidth, pData->iDataheight,
+                                       pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                       MNG_TRUE);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+                                       /* we're always storing a JPEG */
+  if (pImage)                          /* real object ? */
+    pData->pStoreobj = pImage;         /* tell the row routines */
+  else                                 /* otherwise use object 0 */
+    pData->pStoreobj = pData->pObjzero;
+                                       /* display "on-the-fly" ? */
+  if ( (pData->eImagetype == mng_it_jng         ) ||
+       (((mng_imagep)pData->pStoreobj)->bVisible)    )
+  {
+    next_layer (pData);                /* that's a new layer then ! */
+
+    if (pData->bTimerset)              /* timer break ? */
+      pData->iBreakpoint = 7;
+    else
+    {
+      pData->iBreakpoint = 0;
+                                       /* anything to display ? */
+      if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+      {
+        set_display_routine (pData);   /* then determine display routine */
+                                       /* display from the object we store in */
+        pData->pRetrieveobj = pData->pStoreobj;
+      }
+    }  
+  }
+
+  if (!pData->bTimerset)               /* no timer break ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)  /* 8-bit JPEG ? */
+    {
+      pData->bIsRGBA16 = MNG_FALSE;    /* intermediate row is 8-bit deep */
+
+      switch (pData->iJHDRcolortype)   /* determine pixel processing routines */
+      {
+        case MNG_COLORTYPE_JPEGGRAY :
+             {
+               pData->fStorerow2   = (mng_ptr)store_jpeg_g8;
+               pData->fRetrieverow = (mng_ptr)retrieve_g8;
+               pData->bIsOpaque    = MNG_TRUE;
+               break;
+             }
+        case MNG_COLORTYPE_JPEGCOLOR :
+             {
+               pData->fStorerow2   = (mng_ptr)store_jpeg_rgb8;
+               pData->fRetrieverow = (mng_ptr)retrieve_rgb8;
+               pData->bIsOpaque    = MNG_TRUE;
+               break;
+             }
+        case MNG_COLORTYPE_JPEGGRAYA :
+             {
+               pData->fStorerow2   = (mng_ptr)store_jpeg_ga8;
+               pData->fRetrieverow = (mng_ptr)retrieve_ga8;
+               pData->bIsOpaque    = MNG_FALSE;
+               break;
+             }
+        case MNG_COLORTYPE_JPEGCOLORA :
+             {
+               pData->fStorerow2   = (mng_ptr)store_jpeg_rgba8;
+               pData->fRetrieverow = (mng_ptr)retrieve_rgba8;
+               pData->bIsOpaque    = MNG_FALSE;
+               break;
+             }
+      }
+    }
+    else
+    {
+      pData->bIsRGBA16 = MNG_TRUE;     /* intermediate row is 16-bit deep */
+
+      /* TODO: 12-bit JPEG */
+      /* TODO: 8- + 12-bit JPEG (eg. type=20) */
+
+    }
+
+    switch (pData->iJHDRalphabitdepth) /* determine alpha processing routine */
+    {
+      case  1 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a1_ni;  break; }
+      case  2 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a2_ni;  break; }
+      case  4 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a4_ni;  break; }
+      case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
+      case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+mng_retcode process_display_jdat (mng_datap  pData,
+                                  mng_uint32 iRawlen,
+                                  mng_uint8p pRawdata)
+{
+  mng_retcode iRetcode = MNG_NOERROR;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_START);
+#endif
+
+  if (!pData->bJPEGdecompress)         /* if we're not decompressing already */
+  {
+    if (pData->fInitrowproc)           /* initialize row-processing */
+      iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
+    else
+      iRetcode = init_rowproc (pData); /* this still if no alpha present ! */   
+
+    if (!iRetcode)                     /* initialize JPEG library */
+      iRetcode = mngjpeg_initialize (pData);
+
+    if (!iRetcode)                     /* initialize decompress */
+      iRetcode = mngjpeg_decompressinit (pData);
+  }
+
+  if (!iRetcode)                       /* all ok? then decompress, my man */
+    iRetcode = mngjpeg_decompressdata (pData, iRawlen, pRawdata);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_END);
+#endif
+
+  return iRetcode;
+}
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 

@@ -31,7 +31,7 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
 /* *             - B004 - fixed problem with MNG_SUPPORT_WRITE not defined  * */
-/* *               also for MNG_SUPPORT_WRITE without MNG_SUPPORT_JNG       * */
+/* *               also for MNG_SUPPORT_WRITE without MNG_INCLUDE_JNG       * */
 /* *             - Cleaned up some code regarding mixed support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
@@ -1613,7 +1613,7 @@ mng_retcode MNG_DECL mng_getchunk_phyg (mng_handle hHandle,
 
 /* ************************************************************************** */
 /* B004 */
-#ifdef MNG_SUPPORT_JNG
+#ifdef MNG_INCLUDE_JNG
 /* B004 */
 mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
                                         mng_handle hChunk,
@@ -1660,11 +1660,11 @@ mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
   return MNG_NOERROR;
 }
 /* B004 */
-#endif /* MNG_SUPPORT_JNG */
+#endif /* MNG_INCLUDE_JNG */
 /* B004 */
 /* ************************************************************************** */
 /* B004 */
-#ifdef MNG_SUPPORT_JNG
+#ifdef MNG_INCLUDE_JNG
 /* B004 */
 mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
                                         mng_handle hChunk,
@@ -1695,7 +1695,7 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
   return MNG_NOERROR;
 }
 /* B004 */
-#endif /* MNG_SUPPORT_JNG */
+#endif /* MNG_INCLUDE_JNG */
 /* B004 */
 /* ************************************************************************** */
 
@@ -2187,9 +2187,9 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
 
   add_chunk (pData, pChunk);           /* add it to the list */
 
-#ifdef MNG_SUPPORT_JNG
-  if ((pData->iFirstchuinkadded == MNG_UINT_IHDR) ||
-      (pData->iFirstchuinkadded == MNG_UINT_JHDR)    )
+#ifdef MNG_INCLUDE_JNG
+  if ((pData->iFirstchunkadded == MNG_UINT_IHDR) ||
+      (pData->iFirstchunkadded == MNG_UINT_JHDR)    )
 #else
   if (pData->iFirstchunkadded == MNG_UINT_IHDR)
 #endif
@@ -4145,7 +4145,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
 
 /* ************************************************************************** */
 /* B004 */
-#ifdef MNG_SUPPORT_JNG
+#ifdef MNG_INCLUDE_JNG
 /* B004 */
 mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
                                         mng_uint32 iWidth,
@@ -4203,11 +4203,11 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   return MNG_NOERROR;
 }
 /* B004 */
-#endif /* MNG_SUPPORT_JNG */
+#endif /* MNG_INCLUDE_JNG */
 /* B004 */
 /* ************************************************************************** */
 /* B004 */
-#ifdef MNG_SUPPORT_JNG
+#ifdef MNG_INCLUDE_JNG
 /* B004 */
 mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
                                         mng_uint32 iRawlen,
@@ -4255,11 +4255,11 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   return MNG_NOERROR;
 }
 /* B004 */
-#endif /*  MNG_SUPPORT_JNG */
+#endif /*  MNG_INCLUDE_JNG */
 /* B004 */
 /* ************************************************************************** */
 /* B004 */
-#ifdef MNG_SUPPORT_JNG
+#ifdef MNG_INCLUDE_JNG
 /* B004 */
 mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 {
@@ -4297,7 +4297,7 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
   return MNG_NOERROR;
 }
 /* B004 */
-#endif /* MNG_SUPPORT_JNG */
+#endif /* MNG_INCLUDE_JNG */
 /* B004 */
 /* ************************************************************************** */
 

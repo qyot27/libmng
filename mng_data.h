@@ -29,6 +29,9 @@
 /* *             - added TERM animation object pointer (easier reference)   * */
 /* *             - added saved-data structure for SAVE/SEEK processing      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
+/* *             - added fields for JNG support (IJG-based)                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -170,8 +173,9 @@ typedef struct mng_data_struct {
            mng_uint16        iBGgreen;           /* initially "black" */
            mng_uint16        iBGblue;
 
-#ifdef MNG_FULL_CMS                              /* little CMS variables */
            mng_bool          bIssRGB;            /* indicates sRGB system */
+
+#ifdef MNG_FULL_CMS                              /* little CMS variables */
            mng_cmsprof       hProf1;             /* image input profile */
            mng_cmsprof       hProf2;             /* default output profile */
            mng_cmsprof       hProf3;             /* default sRGB profile */
@@ -458,8 +462,6 @@ typedef struct mng_data_struct {
 
 #ifdef MNG_INCLUDE_ZLIB
            z_stream          sZlib;              /* zlib (de)compression variables */
-           mng_uint32        iZoutsize;
-           mng_ptr           pZoutbuf;
 
            mng_int32         iZlevel;            /* zlib compression parameters */
            mng_int32         iZmethod;
@@ -470,6 +472,43 @@ typedef struct mng_data_struct {
            mng_bool          bInflating;         /* indicates "inflate" in progress */
            mng_bool          bDeflating;         /* indicates "deflate" in progress */
 #endif /* MNG_INCLUDE_ZLIB */
+
+#ifdef MNG_INCLUDE_JNG
+           mngjpeg_compp     pJPEGcinfo;         /* compression structure */
+           mngjpeg_errorp    pJPEGcerr;          /* error-manager compress */
+           mngjpeg_decompp   pJPEGdinfo;         /* decompression structure */
+           mngjpeg_errorp    pJPEGderr;          /* error-manager decompress */
+           mngjpeg_sourcep   pJPEGdsrc;          /* source-manager decompress */
+
+           mng_uint8p        pJPEGbuf;           /* buffer for JPEG (de)compression */
+           mng_uint32        iJPEGbufmax;        /* allocated space for buffer */
+           mng_uint8p        pJPEGcurrent;       /* current pointer into buffer */
+           mng_uint32        iJPEGbufremain;     /* remaining bytes in buffer */
+           mng_uint32        iJPEGtoskip;        /* bytes to skip on next input-block */
+
+           mng_uint8p        pJPEGrow;           /* buffer for a JPEG row of samples */
+           mng_uint32        iJPEGrowlen;
+
+           mng_bool          bJPEGcompress;      /* indicates "compress" initialized */
+
+           mng_bool          bJPEGdecompress;    /* indicates "decompress" ininitialized */
+           mng_bool          bJPEGhasheader;     /* indicates "readheader" succeeded */
+           mng_bool          bJPEGdecostarted;   /* indicates "decompress" started */
+           mng_bool          bJPEGscanstarted;   /* indicates "first scan" started */
+           mng_bool          bJPEGprogressive;   /* indicates a progressive image */
+
+           mng_ptr           fStorerow2;         /* internal callback to store an
+                                                    uncompressed/unfiltered row of JPEG-data */
+           mng_uint32        iJPEGrow;           /* row-number for current JPEG row */
+           mng_uint32        iJPEGalpharow;      /* nr. of rows filled with alpha */
+           mng_uint32        iJPEGrgbrow;        /* nr. of rows filled with 'color'-info */
+           mng_uint32        iJPEGdisprow;       /* nr. of rows already displayed "on-the-fly" */
+
+#if defined(MNG_USE_SETJMP) && defined (MNG_INCLUDE_IJG6B)
+           jmp_buf           sErrorbuf;          /* setjmp/longjmp buffer (error-recovery) */
+#endif
+           
+#endif /* MNG_INCLUDE_JNG */
 
            mng_uint32        aCRCtable [256];    /* CRC prefab table */
            mng_bool          bCRCcomputed;       /* "has been build" indicator */

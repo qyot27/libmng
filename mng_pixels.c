@@ -22,6 +22,9 @@
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/22/2000 - G.Juyn                                * */
+/* *             - added JNG support                                        * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -1681,6 +1684,845 @@ mng_retcode store_rgba16 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Row storage routines (JPEG) - store processed & uncompressed row-data  * */
+/* * into the current "object"                                              * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iJPEGrow * pBuf->iRowsize);
+                                       /* easy as pie ... */
+  MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_END);
+#endif
+
+  return next_jpeg_row (pData);        /* we've got one more row of gray-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iJPEGrow * pBuf->iRowsize);
+                                       /* easy as pie ... */
+  MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples * 3)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_END);
+#endif
+
+  return next_jpeg_row (pData);        /* we've got one more row of rgb-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_ga8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iJPEGrow * pBuf->iRowsize);
+
+  for (iX = 0; iX < pData->iRowsamples; iX++)
+  {
+    *pOutrow = *pWorkrow;              /* copy into object buffer */
+
+    pOutrow += 2;                      /* next pixel */
+    pWorkrow++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_END);
+#endif
+
+  return next_jpeg_row (pData);        /* we've got one more row of gray-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgba8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iJPEGrow * pBuf->iRowsize);
+
+  for (iX = 0; iX < pData->iRowsamples; iX++)
+  {
+    *pOutrow     = *pWorkrow;          /* copy pixel into object buffer */
+    *(pOutrow+1) = *(pWorkrow+1);
+    *(pOutrow+2) = *(pWorkrow+2);
+
+    pOutrow  += 4;                     /* next pixel */
+    pWorkrow += 3;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_END);
+#endif
+
+  return next_jpeg_row (pData);        /* we've got one more row of rgb-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8_a1 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0x80;
+
+  while (iX < pData->iRowsamples)
+  {
+    if (iB & iM)                       /* is it white ? */
+      *pOutrow = 0xFF;                 /* white */
+    else
+      *pOutrow = 0x00;                 /* black */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 1;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0x80;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8_a2 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xC0;
+  iS       = 6;
+
+  while (iX < pData->iRowsamples)
+  {
+    switch ((iB & iM) >> iS)           /* determine the gray level */
+    {
+      case 0x03 : { *pOutrow = 0xFF; break; }
+      case 0x02 : { *pOutrow = 0xAA; break; }
+      case 0x01 : { *pOutrow = 0x55; break; }
+      default   : { *pOutrow = 0x00; }
+    }
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 2;
+    iS -= 2;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xC0;
+      iS = 6;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8_a4 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+  mng_uint8      iQ;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xF0;
+  iS       = 4;
+
+  while (iX < pData->iRowsamples)
+  {                                    /* get the gray level */
+    iQ = (mng_uint8)((iB & iM) >> iS);
+    iQ = (mng_uint8)(iQ + (iQ << 4));  /* expand to 8-bit by replication */
+
+    *pOutrow = iQ;                     /* put in object buffer */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 4;
+    iS -= 4;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xF0;
+      iS = 4;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8_a8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+
+  while (iX < pData->iRowsamples)
+  {
+    *pOutrow = iB;                     /* put in object buffer */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+
+    iB = *pWorkrow;                    /* get next input-byte */
+    pWorkrow++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g8_a16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint16     iW;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+  iX = 0;                              /* start at pixel 0 */
+  iW = mng_get_uint16 (pWorkrow);      /* and get first input 2-byte */
+  pWorkrow += 2;
+
+  while (iX < pData->iRowsamples)
+  {
+    *pOutrow = (mng_uint8)(iW >> 8);   /* only high-order byte! */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+
+    iW = mng_get_uint16 (pWorkrow);    /* get next input 2-byte */
+    pWorkrow += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8_a1 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0x80;
+
+  while (iX < pData->iRowsamples)
+  {
+    if (iB & iM)                       /* is it white ? */
+      *pOutrow = 0xFF;                 /* white */
+    else
+      *pOutrow = 0x00;                 /* black */
+
+    pOutrow += 4;                      /* next pixel */
+    iX++;
+    iM >>= 1;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0x80;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8_a2 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xC0;
+  iS       = 6;
+
+  while (iX < pData->iRowsamples)
+  {
+    switch ((iB & iM) >> iS)           /* determine the gray level */
+    {
+      case 0x03 : { *pOutrow = 0xFF; break; }
+      case 0x02 : { *pOutrow = 0xAA; break; }
+      case 0x01 : { *pOutrow = 0x55; break; }
+      default   : { *pOutrow = 0x00; }
+    }
+
+    pOutrow += 4;                      /* next pixel */
+    iX++;
+    iM >>= 2;
+    iS -= 2;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xC0;
+      iS = 6;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8_a4 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+  mng_uint8      iQ;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xF0;
+  iS       = 4;
+
+  while (iX < pData->iRowsamples)
+  {                                    /* get the gray level */
+    iQ = (mng_uint8)((iB & iM) >> iS);
+    iQ = (mng_uint8)(iQ + (iQ << 4));  /* expand to 8-bit by replication */
+
+    *pOutrow = iQ;                     /* put in object buffer */
+
+    pOutrow += 4;                      /* next pixel */
+    iX++;
+    iM >>= 4;
+    iS -= 4;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xF0;
+      iS = 4;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8_a8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+
+  while (iX < pData->iRowsamples)
+  {
+    *pOutrow = iB;                     /* put in object buffer */
+
+    pOutrow += 4;                      /* next pixel */
+    iX++;
+
+    iB = *pWorkrow;                    /* get next input-byte */
+    pWorkrow++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_rgb8_a16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+  mng_uint16     iW;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+  iX = 0;                              /* start at pixel 0 */
+  iW = mng_get_uint16 (pWorkrow);      /* and get first input 2-byte */
+  pWorkrow += 2;
+
+  while (iX < pData->iRowsamples)
+  {
+    *pOutrow = (mng_uint8)(iW >> 8);   /* only high-order byte! */
+
+    pOutrow += 4;                      /* next pixel */
+    iX++;
+
+    iW = mng_get_uint16 (pWorkrow);    /* get next input 2-byte */
+    pWorkrow += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g12_a1 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint16p    pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0x80;
+
+  while (iX < pData->iRowsamples)
+  {
+    if (iB & iM)                       /* is it white ? */
+      *pOutrow = 0xFFFF;               /* white */
+    else
+      *pOutrow = 0x0000;               /* black */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 1;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0x80;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g12_a2 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint16p    pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xC0;
+  iS       = 6;
+
+  while (iX < pData->iRowsamples)
+  {
+    switch ((iB & iM) >> iS)           /* determine the gray level */
+    {
+      case 0x03 : { *pOutrow = 0xFFFF; break; }
+      case 0x02 : { *pOutrow = 0xAAAA; break; }
+      case 0x01 : { *pOutrow = 0x5555; break; }
+      default   : { *pOutrow = 0x0000; }
+    }
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 2;
+    iS -= 2;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xC0;
+      iS = 6;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g12_a4 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint16p    pOutrow;
+  mng_int32      iX;
+  mng_uint8      iB;
+  mng_uint8      iM;
+  mng_uint32     iS;
+  mng_uint16     iQ;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = *pWorkrow;                /* and get first input byte */
+  pWorkrow++;
+  iM       = 0xF0;
+  iS       = 4;
+
+  while (iX < pData->iRowsamples)
+  {                                    /* get the gray level */
+    iQ = (mng_uint16)((iB & iM) >> iS);
+    iQ = (mng_uint16)(iQ + (iQ << 4)); /* expand to 16-bit by replication */
+    iQ = (mng_uint16)(iQ + (iQ << 8));
+                                       /* put in object buffer */
+    mng_put_uint16 ((mng_uint8p)pOutrow, iQ);
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+    iM >>= 4;
+    iS -= 4;
+
+    if (!iM)                           /* mask underflow ? */
+    {
+      iB = *pWorkrow;                  /* get next input-byte */
+      pWorkrow++;
+      iM = 0xF0;
+      iS = 4;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g12_a8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint8p     pWorkrow;
+  mng_uint16p    pOutrow;
+  mng_int32      iX;
+  mng_uint16     iB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_START);
+#endif
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  iX       = 0;                        /* start at pixel 0 */
+  iB       = (mng_uint16)(*pWorkrow);  /* and get first input byte */
+  pWorkrow++;
+
+  while (iX < pData->iRowsamples)
+  {
+    iB = (mng_uint16)(iB + (iB << 8)); /* expand to 16-bit by replication */
+                                       /* put in object buffer */
+    mng_put_uint16 ((mng_uint8p)pOutrow, iB);
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+
+    iB = (mng_uint16)(*pWorkrow);      /* get next input-byte */
+    pWorkrow++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+mng_retcode store_jpeg_g12_a16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+  mng_uint16p    pWorkrow;
+  mng_uint16p    pOutrow;
+  mng_int32      iX;
+  mng_uint16     iW;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_START);
+#endif
+
+  pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
+  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  iX = 0;                              /* start at pixel 0 */
+  iW = *pWorkrow;                      /* and get first input 2-byte */
+  pWorkrow++;
+
+  while (iX < pData->iRowsamples)
+  {
+    *pOutrow = iW;                     /* only high-order byte! */
+
+    pOutrow += 2;                      /* next pixel */
+    iX++;
+
+    iW = *pWorkrow;                    /* get next input 2-byte */
+    pWorkrow++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_END);
+#endif
+
+  return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
+}
+
+/* ************************************************************************** */
+
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -3849,6 +4691,234 @@ mng_retcode init_rgba16_i  (mng_datap pData)
 
 /* ************************************************************************** */
 /* *                                                                        * */
+/* * Row processing initialization routines (JPEG) - set up the variables   * */
+/* * needed to process uncompressed row-data                                * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+
+/* ************************************************************************** */
+
+mng_retcode init_jpeg_a1_ni     (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_START);
+#endif
+
+  if (pData->pStoreobj)                /* store in object too ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)
+    {
+      switch (pData->iJHDRcolortype)
+      {
+        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a1;   break; }
+        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a1; break; }
+      }
+    }
+
+    /* TODO: bitdepth 12 & 20 */
+    
+  }
+
+  pData->iPass       = -1;
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iDatawidth;
+  pData->iSamplemul  = 1;
+  pData->iSampleofs  = 7;
+  pData->iSamplediv  = 3;
+  pData->iRowsize    = (pData->iRowsamples + 7) >> 3;
+  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iFilterbpp  = 1;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_END);
+#endif
+
+  return init_rowproc (pData);
+}
+
+/* ************************************************************************** */
+
+mng_retcode init_jpeg_a2_ni     (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_START);
+#endif
+
+  if (pData->pStoreobj)                /* store in object too ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)
+    {
+      switch (pData->iJHDRcolortype)
+      {
+        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a2;   break; }
+        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a2; break; }
+      }
+    }
+
+    /* TODO: bitdepth 12 & 20 */
+
+  }
+
+  pData->iPass       = -1;
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iDatawidth;
+  pData->iSamplemul  = 1;
+  pData->iSampleofs  = 3;
+  pData->iSamplediv  = 2;
+  pData->iRowsize    = (pData->iRowsamples + 3) >> 2;
+  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iFilterbpp  = 1;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_END);
+#endif
+
+  return init_rowproc (pData);
+}
+
+/* ************************************************************************** */
+
+mng_retcode init_jpeg_a4_ni     (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_START);
+#endif
+
+  if (pData->pStoreobj)                /* store in object too ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)
+    {
+      switch (pData->iJHDRcolortype)
+      {
+        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a4;   break; }
+        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a4; break; }
+      }
+    }
+
+    /* TODO: bitdepth 12 & 20 */
+
+  }
+
+  pData->iPass       = -1;
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iDatawidth;
+  pData->iSamplemul  = 1;
+  pData->iSampleofs  = 1;
+  pData->iSamplediv  = 1;
+  pData->iRowsize    = (pData->iRowsamples + 1) >> 1;
+  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iFilterbpp  = 1;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_END);
+#endif
+
+  return init_rowproc (pData);
+}
+
+/* ************************************************************************** */
+
+mng_retcode init_jpeg_a8_ni     (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_START);
+#endif
+
+  if (pData->pStoreobj)                /* store in object too ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)
+    {
+      switch (pData->iJHDRcolortype)
+      {
+        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a8;   break; }
+        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a8; break; }
+      }
+    }
+
+    /* TODO: bitdepth 12 & 20 */
+
+  }
+
+  pData->iPass       = -1;
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iDatawidth;
+  pData->iSamplemul  = 1;
+  pData->iSampleofs  = 0;
+  pData->iSamplediv  = 0;
+  pData->iRowsize    = pData->iRowsamples;
+  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iFilterbpp  = 1;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_END);
+#endif
+
+  return init_rowproc (pData);
+}
+
+/* ************************************************************************** */
+
+mng_retcode init_jpeg_a16_ni    (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_START);
+#endif
+
+  if (pData->pStoreobj)                /* store in object too ? */
+  {
+    if (pData->iJHDRimgbitdepth == 8)
+    {
+      switch (pData->iJHDRcolortype)
+      {
+        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a16;   break; }
+        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a16; break; }
+      }
+    }
+
+    /* TODO: bitdepth 12 & 20 */
+
+  }
+
+  pData->iPass       = -1;
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iDatawidth;
+  pData->iSamplemul  = 2;
+  pData->iSampleofs  = 0;
+  pData->iSamplediv  = 0;
+  pData->iRowsize    = pData->iRowsamples << 1;
+  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iFilterbpp  = 2;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_END);
+#endif
+
+  return init_rowproc (pData);
+}
+
+/* ************************************************************************** */
+
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+/* *                                                                        * */
 /* * Generic row processing initialization & cleanup routines               * */
 /* * - initialize the buffers used by the row processing routines           * */
 /* * - cleanup the buffers used by the row processing routines              * */
@@ -3870,9 +4940,13 @@ mng_retcode init_rowproc (mng_datap pData)
   }
 
   /* allocate the buffers; the individual init routines have already
-     calculated the required maximum size */
-  MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax)
-  MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax)
+     calculated the required maximum size; except in the case of a JNG
+     without alpha */
+  if (pData->iRowmax)
+  {
+    MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax)
+    MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax)
+  }  
 
   /* allocate an RGBA16 row for intermediate processing */
   MNG_ALLOC (pData, pData->pRGBArow, (pData->iDatawidth << 3));
@@ -3911,7 +4985,7 @@ mng_retcode next_row (mng_datap pData)
 
   if (pData->iPass >= 0)               /* interlaced ? */
   {
-    while ((pData->iPass < 7) &&       /* went outside the image ? */
+    while ((pData->iPass < 7) &&       /* went 'outside' the image ? */
            ((pData->iRow >= (mng_int32)pData->iDataheight) ||
             (pData->iCol >= (mng_int32)pData->iDatawidth )    ))
     {
@@ -3984,6 +5058,141 @@ mng_retcode cleanup_rowproc (mng_datap pData)
 
   return MNG_NOERROR;                  /* woohiii */
 }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Generic row processing routines for JNG                                * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+
+/* ************************************************************************** */
+
+mng_retcode display_jpeg_rows (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_START);
+#endif
+                                       /* any completed rows ? */
+  if ((pData->iJPEGrow      > pData->iJPEGdisprow) &&
+      (pData->iJPEGalpharow > pData->iJPEGdisprow)    )
+  {
+    mng_uint32 iX, iMax;
+    mng_uint32 iSaverow = pData->iRow; /* save alpha decompression row-count */
+                                       /* determine the highest complete(!) row */
+    if (pData->iJPEGrow > pData->iJPEGalpharow)
+      iMax = pData->iJPEGalpharow;
+    else
+      iMax = pData->iJPEGrow;
+                                       /* display the rows */
+    for (iX = pData->iJPEGdisprow; iX < iMax; iX++)
+    {
+      pData->iRow = iX;                /* make sure we all know which row to handle */
+                                       /* makeup an intermediate row from the buffer */
+      iRetcode = ((mng_retrieverow)pData->fRetrieverow) (pData);
+                                       /* color-correct it if necessary */
+      if ((!iRetcode) && (pData->fCorrectrow))
+        iRetcode = ((mng_correctrow)pData->fCorrectrow) (pData);
+
+      if (!iRetcode)                   /* and display it */
+        iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+
+    pData->iJPEGdisprow = iMax;        /* keep track of the last displayed row */
+    pData->iRow         = iSaverow;    /* restore alpha decompression row-count */
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode next_jpeg_alpharow (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_START);
+#endif
+
+  pData->iJPEGalpharow++;              /* count the row */
+
+  if (pData->fDisplayrow)              /* display "on-the-fly" ? */
+  {                                    /* try to display what you can */
+    iRetcode = display_jpeg_rows (pData);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR; 
+}
+
+/* ************************************************************************** */
+
+mng_retcode next_jpeg_row (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_START);
+#endif
+
+  pData->iJPEGrow++;                   /* increase the row-counter */
+  
+  if (pData->fDisplayrow)              /* display "on-the-fly" ? */
+  {                                    /* has alpha channel ? */
+    if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+        (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+    {                                  /* try to display what you can */
+      iRetcode = display_jpeg_rows (pData);
+    }
+    else
+    {                                  /* make sure we all know which row to handle */
+      pData->iRow = pData->iJPEGrow - 1;
+                                       /* makeup an intermediate row from the buffer */
+      iRetcode = ((mng_retrieverow)pData->fRetrieverow) (pData);
+                                       /* color-correct it if necessary */
+      if ((!iRetcode) && (pData->fCorrectrow))
+        iRetcode = ((mng_correctrow)pData->fCorrectrow) (pData);
+
+      if (!iRetcode)                   /* and display it */
+        iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
+
+    }
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+
+                                       /* surpassed last filled row ? */
+  if (pData->iJPEGrow > pData->iJPEGrgbrow)
+    pData->iJPEGrgbrow = pData->iJPEGrow;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 

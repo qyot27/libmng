@@ -24,6 +24,9 @@
 /* *             - added application errorcodes (used with callbacks)       * */
 /* *             - moved chunk-access errorcodes to severity 5              * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - added JNG errorcodes                                     * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -59,6 +62,7 @@
 #define MNG_BUFOVERFLOW      (mng_retcode)10   /* zlib output-buffer overflow */
 #define MNG_FUNCTIONINVALID  (mng_retcode)11   /* ay, totally inappropriate   */
 #define MNG_OUTPUTERROR      (mng_retcode)12   /* disk full ?                 */
+#define MNG_JPEGBUFTOOSMALL  (mng_retcode)13   /* can't handle buffer overflow*/
 
 #define MNG_APPIOERROR       (mng_retcode)901  /* application I/O error       */
 #define MNG_APPTIMERERROR    (mng_retcode)902  /* application timing error    */
@@ -97,6 +101,8 @@
 #define MNG_INVIMAGETYPE     (mng_retcode)1052 /* invalid image_type          */
 #define MNG_INVDELTATYPE     (mng_retcode)1053 /* invalid delta_type          */
 #define MNG_INVALIDINDEX     (mng_retcode)1054 /* index-value invalid         */
+#define MNG_TOOMUCHJDAT      (mng_retcode)1055 /* got too much compressed data*/
+#define MNG_JPEGPARMSERR     (mng_retcode)1056 /* JHDR/JPEG parms do not match*/
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */

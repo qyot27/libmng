@@ -18,6 +18,9 @@
 /* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
 /* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
+/* *             - added JNG support stuff                                  * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -33,7 +36,8 @@
 /* ************************************************************************** */
 
 mng_retcode display_image (mng_datap  pData,
-                           mng_imagep pImage);
+                           mng_imagep pImage,
+                           mng_bool   bLayeradvanced);
 
 /* ************************************************************************** */
 
@@ -109,6 +113,12 @@ mng_retcode process_display_show  (mng_datap  pData);
 mng_retcode process_display_save  (mng_datap  pData);
 
 mng_retcode process_display_seek  (mng_datap  pData);
+
+mng_retcode process_display_jhdr  (mng_datap  pData);
+
+mng_retcode process_display_jdat  (mng_datap  pData,
+                                   mng_uint32 iRawlen,
+                                   mng_uint8p pRawdata);
 
 /* ************************************************************************** */
 
