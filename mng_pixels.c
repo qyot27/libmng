@@ -49,6 +49,8 @@
 /* *             - optimized some store_xxx routines                        * */
 /* *             0.5.3 - 06/20/2000 - G.Juyn                                * */
 /* *             - fixed nasty bug with embedded PNG after delta-image      * */
+/* *             0.5.3 - 06/24/2000 - G.Juyn                                * */
+/* *             - fixed problem with 16-bit GA format                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5321,7 +5323,7 @@ mng_retcode process_ga16 (mng_datap pData)
     mng_put_uint16 (pRGBArow+2, iW);
     mng_put_uint16 (pRGBArow+4, iW);
                                        /* copy the alpha value */
-    mng_put_uint16 (pRGBArow, mng_get_uint16 (pWorkrow+2));
+    mng_put_uint16 (pRGBArow+6, mng_get_uint16 (pWorkrow+2));
 
     pWorkrow += 4;                     /* next pixel */
     pRGBArow += 8;

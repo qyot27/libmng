@@ -150,6 +150,8 @@
 /* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
 /* *             - added get/set for speedtype to facilitate testing        * */
 /* *             - added get for imagelevel during processtext callback     * */
+/* *             0.5.3 - 06/24/2000 - G.Juyn                                * */
+/* *             - fixed inclusion of IJG read/write code                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
