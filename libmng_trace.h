@@ -133,6 +133,9 @@
 /* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
 /* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
+/* *             1.0.6 - 07/14/2003 - G.Randers-Pehrson                     * */
+/* *             - added conditionals around rarely used features           * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -194,9 +197,11 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_RESUME           9
 #define MNG_FN_DISPLAY_FREEZE          10
 #define MNG_FN_DISPLAY_RESET           11
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
 #define MNG_FN_DISPLAY_GOFRAME         12
 #define MNG_FN_DISPLAY_GOLAYER         13
 #define MNG_FN_DISPLAY_GOTIME          14
+#endif
 #define MNG_FN_GETLASTERROR            15
 #define MNG_FN_READ_RESUME             16
 #define MNG_FN_TRAPEVENT               17

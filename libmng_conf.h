@@ -42,6 +42,8 @@
 /* *             1.0.6 - 06/22/2002 - G.R-P                                 * */
 /* *             - added MNG_NO_INCLUDE_JNG conditional                     * */
 /* *             - added MNG_SKIPCHUNK_evNT conditional                     * */
+/* *             1.0.6 - 07/14/2002 - G.R-P                                 * */
+/* *             - added MNG_NO_SUPPORT_FUNCQUERY conditional               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -52,6 +54,8 @@
 
 #ifndef _libmng_conf_h_
 #define _libmng_conf_h_
+
+#include "mozlibmngconf.h"
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -219,9 +223,11 @@
    useful for apps that dynamically load the library and that need specific
    functions */
 
+#ifndef MNG_NO_SUPPORT_FUNCQUERY
 #ifndef MNG_SUPPORT_FUNCQUERY
 #if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
 #define MNG_SUPPORT_FUNCQUERY
+#endif
 #endif
 #endif
 

@@ -258,6 +258,8 @@
 /* *               by macros that optionally skip unused chunks, remove     * */
 /* *               16-bit sample support, remove Delta support, and         * */
 /* *               remove JNG support, to accomodate Mozilla/Firebird.      * */
+/* *             1.0.6 - 07/14/2003 - G. Randers-Pehrson                    * */
+/* *             - further optional removal of unused functions             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -507,12 +509,14 @@ MNG_EXT mng_retcode MNG_DECL mng_display         (mng_handle    hHandle);
 MNG_EXT mng_retcode MNG_DECL mng_display_resume  (mng_handle    hHandle);
 MNG_EXT mng_retcode MNG_DECL mng_display_freeze  (mng_handle    hHandle);
 MNG_EXT mng_retcode MNG_DECL mng_display_reset   (mng_handle    hHandle);
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
 MNG_EXT mng_retcode MNG_DECL mng_display_goframe (mng_handle    hHandle,
                                                   mng_uint32    iFramenr);
 MNG_EXT mng_retcode MNG_DECL mng_display_golayer (mng_handle    hHandle,
                                                   mng_uint32    iLayernr);
 MNG_EXT mng_retcode MNG_DECL mng_display_gotime  (mng_handle    hHandle,
                                                   mng_uint32    iPlaytime);
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* event processing function */
@@ -1142,12 +1146,14 @@ MNG_EXT mng_retcode MNG_DECL mng_get_lastseekname    (mng_handle        hHandle,
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_uint32  MNG_DECL mng_get_starttime       (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_runtime         (mng_handle        hHandle);
+#ifndef MNG_NO_CURRENT_INFO
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentframe    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentlayer    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentplaytime (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_totalframes     (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_totallayers     (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_totalplaytime   (mng_handle        hHandle);
+#endif
 #endif
 
 /* Status variables */

@@ -117,8 +117,8 @@
 /* *             - added conditionals around some JNG-supporting code       * */
 /* *             - removed conditionals around 8-bit magn routines          * */
 /* *             - added conditionals around delta-png and 16-bit code      * */
-/* *             1.0.6 - 07/08/2003 - G.R-P                                 * */
-/* *             - bugfix empty "if" statement when 16-bit code is enabled  * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3074,11 +3074,13 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
                                          /* running counter starts with repeat_count */
     pLOOP->iRunningcount    = iRepeatcount;
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
     if (iCount)
     {
       MNG_ALLOC (pData, pLOOP->pSignals, (iCount << 1))
       MNG_COPY (pLOOP->pSignals, pSignals, (iCount << 1))
     }
+#endif
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3099,8 +3101,10 @@ mng_retcode mng_free_ani_loop (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_START)
 #endif
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
   if (pLOOP->iCount)                   /* drop signal buffer ? */
     MNG_FREEX (pData, pLOOP->pSignals, (pLOOP->iCount << 1))
+#endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_loop))
 

@@ -49,6 +49,8 @@
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
 /* *             - added MNG_NO_DELTA_PNG reduction feature                 * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1576,9 +1578,11 @@ FREE_CHUNK_HDR (mng_free_loop)
   MNG_TRACE (pData, MNG_FN_FREE_LOOP, MNG_LC_START)
 #endif
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
   if (((mng_loopp)pHeader)->iCount)
     MNG_FREEX (pData, ((mng_loopp)pHeader)->pSignals,
                       ((mng_loopp)pHeader)->iCount * sizeof (mng_uint32) )
+#endif
 
   MNG_FREEX (pData, pHeader, sizeof (mng_loop))
 
@@ -2899,8 +2903,10 @@ ASSIGN_CHUNK_HDR (mng_assign_loop)
   {
     mng_uint32 iLen = ((mng_loopp)pChunkto)->iCount * sizeof (mng_uint32);
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
     MNG_ALLOC (pData, ((mng_loopp)pChunkto)->pSignals, iLen)
     MNG_COPY  (((mng_loopp)pChunkto)->pSignals, ((mng_loopp)pChunkfrom)->pSignals, iLen)
+#endif
   }
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ASSIGN_LOOP, MNG_LC_END)

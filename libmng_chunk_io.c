@@ -186,6 +186,8 @@
 /* *             - added MNG_NO_16BIT_SUPPORT, MNG_NO_DELTA_PNG reductions  * */
 /* *             - optionally use zlib's crc32 function instead of          * */
 /* *               local mng_update_crc                                     * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2433,9 +2435,9 @@ READ_CHUNK (mng_read_itxt)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_bKGD
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_bKGD
 READ_CHUNK (mng_read_bkgd)
 {
 #ifdef MNG_SUPPORT_DISPLAY
@@ -2621,9 +2623,9 @@ READ_CHUNK (mng_read_bkgd)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_pHYs
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYs
 READ_CHUNK (mng_read_phys)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2686,9 +2688,9 @@ READ_CHUNK (mng_read_phys)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_sBIT
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sBIT
 READ_CHUNK (mng_read_sbit)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2807,9 +2809,9 @@ READ_CHUNK (mng_read_sbit)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_sPLT
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sPLT
 READ_CHUNK (mng_read_splt)
 {
   mng_uint8p pTemp;
@@ -2908,9 +2910,9 @@ READ_CHUNK (mng_read_splt)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_hIST
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_hIST
 READ_CHUNK (mng_read_hist)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2964,9 +2966,9 @@ READ_CHUNK (mng_read_hist)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_tIME
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tIME
 READ_CHUNK (mng_read_time)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3299,6 +3301,7 @@ READ_CHUNK (mng_read_loop)
         {
           ((mng_loopp)*ppChunk)->iItermin = mng_get_uint32 (pRawdata+6);
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
           if (iRawlen >= 14)
           {
             ((mng_loopp)*ppChunk)->iItermax = mng_get_uint32 (pRawdata+10);
@@ -3327,6 +3330,7 @@ READ_CHUNK (mng_read_loop)
 #endif /* !MNG_BIGENDIAN_SUPPORTED */
             }
           }
+#endif
         }
       }
     }
@@ -8098,6 +8102,7 @@ WRITE_CHUNK (mng_write_loop)
       mng_put_uint32 (pRawdata+6,  pLOOP->iItermin);
       mng_put_uint32 (pRawdata+10, pLOOP->iItermax);
 
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
       if (pLOOP->iCount)
       {
         iRawlen += pLOOP->iCount * 4;
@@ -8113,6 +8118,7 @@ WRITE_CHUNK (mng_write_loop)
           pTemp2++;
         }
       }
+#endif
     }
   }
                                        /* and write it */
@@ -9385,6 +9391,7 @@ WRITE_CHUNK (mng_write_pplt)
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
 WRITE_CHUNK (mng_write_ijng)
 {
   mng_ijngp   pIJNG;
@@ -9404,6 +9411,7 @@ WRITE_CHUNK (mng_write_ijng)
 
   return iRetcode;
 }
+#endif
 #endif
 
 /* ************************************************************************** */

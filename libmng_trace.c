@@ -126,6 +126,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added conditionals around JNG and Delta-PNG code         * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added conditionals around various unused functions       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -161,9 +163,11 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RESUME,            "display_resume"},
     {MNG_FN_DISPLAY_FREEZE,            "display_freeze"},
     {MNG_FN_DISPLAY_RESET,             "display_reset"},
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
     {MNG_FN_DISPLAY_GOFRAME,           "display_goframe"},
     {MNG_FN_DISPLAY_GOLAYER,           "display_golayer"},
     {MNG_FN_DISPLAY_GOTIME,            "display_gotime"},
+#endif
     {MNG_FN_GETLASTERROR,              "getlasterror"},
     {MNG_FN_READ_RESUME,               "read_resume"},
     {MNG_FN_TRAPEVENT,                 "trapevent"},
@@ -230,8 +234,10 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SET_BGCOLOR,               "set_bgcolor"},
     {MNG_FN_SET_STORECHUNKS,           "set_storechunks"},
     {MNG_FN_SET_VIEWGAMMA,             "set_viewgamma"},
+#ifndef MNG_NO_DFLT_INFO
     {MNG_FN_SET_DISPLAYGAMMA,          "set_displaygamma"},
     {MNG_FN_SET_DFLTIMGGAMMA,          "set_dfltimggamma"},
+#endif
     {MNG_FN_SET_SRGB,                  "set_srgb"},
     {MNG_FN_SET_OUTPUTPROFILE,         "set_outputprofile"},
     {MNG_FN_SET_SRGBPROFILE,           "set_srgbprofile"},
@@ -283,7 +289,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_STORECHUNKS,           "get_storechunks"},
     {MNG_FN_GET_VIEWGAMMA,             "get_viewgamma"},
     {MNG_FN_GET_DISPLAYGAMMA,          "get_displaygamma"},
+#ifndef MNG_NO_DFLT_INFO
     {MNG_FN_GET_DFLTIMGGAMMA,          "get_dfltimggamma"},
+#endif
     {MNG_FN_GET_SRGB,                  "get_srgb"},
 #ifndef MNG_SKIP_MAXCANVAS
     {MNG_FN_GET_MAXCANVASWIDTH,        "get_maxcanvaswidth"},
@@ -310,9 +318,11 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_SUSPENSIONMODE,        "get_speed"},
     {MNG_FN_GET_STARTTIME,             "get_starttime"},
     {MNG_FN_GET_RUNTIME,               "get_runtime"},
+#ifndef MNG_NO_CURRENT_INFO
     {MNG_FN_GET_CURRENTFRAME,          "get_currentframe"},
     {MNG_FN_GET_CURRENTLAYER,          "get_currentlayer"},
     {MNG_FN_GET_CURRENTPLAYTIME,       "get_currentplaytime"},
+#endif
     {MNG_FN_GET_SECTIONBREAKS,         "get_sectionbreaks"},
     {MNG_FN_GET_ALPHADEPTH,            "get_alphadepth"},
     {MNG_FN_GET_BITDEPTH,              "get_bitdepth"},
@@ -330,9 +340,11 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_DOPROGRESSIVE,         "get_doprogressive"},
     {MNG_FN_GET_LASTBACKCHUNK,         "get_lastbackchunk"},
     {MNG_FN_GET_LASTSEEKNAME,          "get_lastseekname"},
+#ifndef MNG_NO_CURRENT_INFO
     {MNG_FN_GET_TOTALFRAMES,           "get_totalframes"},
     {MNG_FN_GET_TOTALLAYERS,           "get_totallayers"},
     {MNG_FN_GET_TOTALPLAYTIME,         "get_totalplaytime"},
+#endif
 
     {MNG_FN_STATUS_ERROR,              "status_error"},
     {MNG_FN_STATUS_READING,            "status_reading"},

@@ -159,6 +159,9 @@
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
 /* *             1.0.6 - 07/11/2003 - G.R-P                                 * */
 /* *             - added conditionals zlib and jpeg property accessors      * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added conditionals around "mng_display_go*" and other    * */
+/* *               unused functions                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -583,9 +586,11 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_create",                 1, 0, 0},
     {"mng_display",                1, 0, 0},
     {"mng_display_freeze",         1, 0, 0},
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
     {"mng_display_goframe",        1, 0, 0},
     {"mng_display_golayer",        1, 0, 0},
     {"mng_display_gotime",         1, 0, 0},
+#endif
     {"mng_display_reset",          1, 0, 0},
     {"mng_display_resume",         1, 0, 0},
     {"mng_get_alphabitdepth",      1, 0, 0},
@@ -600,11 +605,15 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_canvasstyle",        1, 0, 0},
     {"mng_get_colortype",          1, 0, 0},
     {"mng_get_compression",        1, 0, 0},
+#ifndef MNG_NO_CURRENT_INFO
     {"mng_get_currentframe",       1, 0, 0},
     {"mng_get_currentlayer",       1, 0, 0},
     {"mng_get_currentplaytime",    1, 0, 0},
+#endif
+#ifndef MNG_NO_DFLT_INFO
     {"mng_get_dfltimggamma",       1, 0, 0},
     {"mng_get_dfltimggammaint",    1, 0, 0},
+#endif
     {"mng_get_displaygamma",       1, 0, 0},
     {"mng_get_displaygammaint",    1, 0, 0},
     {"mng_get_doprogressive",      1, 0, 2},
@@ -642,9 +651,11 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_storechunks",        1, 0, 0},
     {"mng_get_suspensionmode",     1, 0, 0},
     {"mng_get_ticks",              1, 0, 0},
+#ifndef MNG_NO_CURRENT_INFO
     {"mng_get_totalframes",        1, 0, 5},
     {"mng_get_totallayers",        1, 0, 5},
     {"mng_get_totalplaytime",      1, 0, 5},
+#endif
     {"mng_get_usebkgd",            1, 0, 0},
     {"mng_get_userdata",           1, 0, 0},
     {"mng_get_viewgamma",          1, 0, 0},
@@ -927,7 +938,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_cacheplayback",      1, 0, 2},
     {"mng_set_canvasstyle",        1, 0, 0},
     {"mng_set_dfltimggamma",       1, 0, 0},
+#ifndef MNG_NO_DFLT_INFO
     {"mng_set_dfltimggammaint",    1, 0, 0},
+#endif
     {"mng_set_displaygamma",       1, 0, 0},
     {"mng_set_displaygammaint",    1, 0, 0},
     {"mng_set_doprogressive",      1, 0, 2},
@@ -2309,6 +2322,7 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
 mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
                                           mng_uint32 iFramenr)
 {
@@ -2363,11 +2377,13 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
 mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
                                           mng_uint32 iLayernr)
 {
@@ -2422,11 +2438,13 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_DISPLAY_GO_SUPPORTED
 mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
                                          mng_uint32 iPlaytime)
 {
@@ -2481,6 +2499,7 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */

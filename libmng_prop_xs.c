@@ -89,6 +89,8 @@
 /* *             - added conditionals around some JNG-supporting code       * */
 /* *             1.0.6 - 07/11/2003 - G.R-P                                 * */
 /* *             - added conditionals zlib and jpeg property accessors      * */
+/* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
+/* *             - added conditionals around various unused functions       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -641,6 +643,7 @@ mng_retcode MNG_DECL mng_set_displaygamma (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DFLT_INFO
 mng_retcode MNG_DECL mng_set_dfltimggamma (mng_handle hHandle,
                                            mng_float  dGamma)
 {
@@ -657,6 +660,7 @@ mng_retcode MNG_DECL mng_set_dfltimggamma (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -698,6 +702,7 @@ mng_retcode MNG_DECL mng_set_displaygammaint (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DFLT_INFO
 mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle hHandle,
                                               mng_uint32 iGamma)
 {
@@ -714,6 +719,7 @@ mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1768,6 +1774,7 @@ mng_float MNG_DECL mng_get_displaygamma (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DFLT_INFO
 mng_float MNG_DECL mng_get_dfltimggamma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1782,6 +1789,7 @@ mng_float MNG_DECL mng_get_dfltimggamma (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->dDfltimggamma;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1819,6 +1827,7 @@ mng_uint32 MNG_DECL mng_get_displaygammaint (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DFLT_INFO
 mng_uint32 MNG_DECL mng_get_dfltimggammaint (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1833,6 +1842,7 @@ mng_uint32 MNG_DECL mng_get_dfltimggammaint (mng_handle hHandle)
 
   return (mng_uint32)(((mng_datap)hHandle)->dDfltimggamma * 100000);
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2295,6 +2305,7 @@ mng_uint32 MNG_DECL mng_get_runtime (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_currentframe (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2310,11 +2321,13 @@ mng_uint32 MNG_DECL mng_get_currentframe (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iFrameseq;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_currentlayer (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2330,11 +2343,13 @@ mng_uint32 MNG_DECL mng_get_currentlayer (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iLayerseq;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_currentplaytime (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2350,11 +2365,13 @@ mng_uint32 MNG_DECL mng_get_currentplaytime (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iFrametime;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_totalframes (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2370,11 +2387,13 @@ mng_uint32 MNG_DECL mng_get_totalframes (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iTotalframes;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_totallayers (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2390,11 +2409,13 @@ mng_uint32 MNG_DECL mng_get_totallayers (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iTotallayers;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_NO_CURRENT_INFO
 mng_uint32 MNG_DECL mng_get_totalplaytime (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2410,6 +2431,7 @@ mng_uint32 MNG_DECL mng_get_totalplaytime (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iTotalplaytime;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
