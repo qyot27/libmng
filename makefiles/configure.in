@@ -42,39 +42,39 @@ AC_DEFINE(MNG_SUPPORT_FULL)
 dnl remove support in library to read images?
 AC_ARG_ENABLE(read,
 [  --disable-read          remove read support from library])
-if ! test "x$enable_read" = "xno"; then
+if test "x$enable_read" != "xno"; then
   AC_DEFINE(MNG_SUPPORT_READ)
 fi
 
 dnl remove support in library to write images?
 AC_ARG_ENABLE(write,
 [  --disable-write         remove write support from library])
-if ! test "x$enable_write" = "xno"; then
+if test "x$enable_write" != "xno"; then
   AC_DEFINE(MNG_SUPPORT_WRITE)
 fi
 
 dnl remove support in library to display images?
 AC_ARG_ENABLE(display,
 [  --disable-display       remove display support from library])
-if ! test "x$enable_display" = "xno"; then
+if test "x$enable_display" != "xno"; then
   AC_DEFINE(MNG_SUPPORT_DISPLAY)
 fi
 
 dnl remove support in library to access chunks?
 AC_ARG_ENABLE(chunks,
 [  --disable-chunks        remove support for chunk access])
-if ! test "x$enable_chunks" = "xno"; then
+if test "x$enable_chunks" != "xno"; then
   AC_DEFINE(MNG_ACCESS_CHUNKS)
 fi
 
 dnl disable support for accessing chunks that have been previously read?
 AC_ARG_ENABLE(storechunks,
-[  --disable-storechunks   remove support for access to previous chunks],[
-if test "x$enable_trace" = "xyes"; then
+[  --disable-storechunks   remove support for access of previous chunks],[
+if test "x$enable_storechunks" != "xno"; then
   AC_DEFINE(MNG_STORE_CHUNKS)
 fi
 ])
- 
+
 dnl enable support for debug tracing callbacks and messages?
 AC_ARG_ENABLE(trace,
 [  --enable-trace          include support for debug tracing callbacks],[
