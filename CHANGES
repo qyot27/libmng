@@ -21,6 +21,7 @@ core:
 - added function to retrieve current FRAM delay
 - added MNG_NO_1_2_4BIT_SUPPORT
 - added bgr565_a8 canvas-style (thanks to J. Elvander)
+- standard windows dll upgraded to zlib 1.2.2
 
 samples:
 
