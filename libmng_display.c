@@ -100,6 +100,9 @@
 /* *             - fixed timing & refresh behavior for single PNG/JNG       * */
 /* *             0.9.3 - 09/19/2000 - G.Juyn                                * */
 /* *             - refixed timing & refresh behavior for single PNG/JNG     * */
+/* *             0.9.3 - 10/02/2000 - G.Juyn                                * */
+/* *             - fixed timing again (this is getting boring...)           * */
+/* *             - refixed problem with no refresh after TERM               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -528,11 +531,10 @@ mng_retcode next_frame (mng_datap  pData,
                                        /* interframe delay required ? */
     if ((iOldmode == 2) || (iOldmode == 4))
     {
-/* removing this as it seems superfluous */
-/*      if (pData->iFrameseq)
+/* changed here because FRAM 1/3 will delay themselves before each image */
+      if ((pData->iFrameseq) && (iFramemode != 1) && (iFramemode != 3))
         iRetcode = interframe_delay (pData);
-      else */
-      if (!pData->iFrameseq)
+      else
         pData->iFramedelay = pData->iNextdelay;
     }
 
@@ -2021,8 +2023,11 @@ mng_retcode process_display_mend (mng_datap pData)
                                        /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
 
+/* always refresh, or a zero delay will terminate the animation !!!! */                   
                    if (pTERM->iDelay)  /* set the delay (?) */
                      iRetcode = display_progressive_refresh (pData, pTERM->iDelay);
+                   else
+                     iRetcode = display_progressive_refresh (pData, 1);
 
                    if (iRetcode)       /* on error bail out */
                      return iRetcode;
