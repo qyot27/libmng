@@ -40,7 +40,9 @@
 /* *             - changed default readbuffer size from 1024 to 4200        * */
 /* *                                                                        * */
 /* *             0.9.2 - 07/27/2000 - G.Juyn                                * */
-/* *             - fixed GCC warning about different-sized pointer math     * */
+/* *             - B110320 - fixed GCC warning about mix-sized pointer math * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - B110546 - fixed for improperly returning UNEXPECTEDEOF   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -179,7 +181,7 @@ mng_retcode read_databuffer (mng_datap    pData,
           MNG_ERROR (pData, MNG_APPIOERROR);
                                        /* adjust fill-counter */
         pData->iSuspendbufleft += iTemp;
-                                       /* first read after suspension return 0 means EOF */
+                                       /* first read after suspension returning 0 means EOF */
         if ((pData->iSuspendpoint) && (iTemp == 0))
         {                              /* that makes it final */
           mng_retcode iRetcode = process_eof (pData);
@@ -197,6 +199,8 @@ mng_retcode read_databuffer (mng_datap    pData,
 
           return MNG_NOERROR;          /* nothing more to do */
         }
+
+        pData->iSuspendpoint = 0;      /* we can safely reset it now */
                                        /* suspension required ? */
         if ((iSize > pData->iSuspendbufleft) && (iTemp < MNG_SUSPENDREQUESTSIZE))
         {
