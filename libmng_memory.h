@@ -4,14 +4,12 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_memory.h           copyright (c) 2000 G.Juyn        * */
+/* * file      : libmng_memory.h           copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.0                                                      * */
 /* *                                                                        * */
 /* * purpose   : Memory management (definition)                             * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : Definition of memory management functions                  * */
 /* *                                                                        * */

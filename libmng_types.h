@@ -10,8 +10,6 @@
 /* * purpose   : type specifications                                        * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : Specification of the types used by the library             * */
 /* *             Creates platform-independant structure                     * */

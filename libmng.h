@@ -2,15 +2,15 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000-2003 Gerard Juyn (gerard@libmng.com)                * */
+/* * Copyright (c) 2000-2003 Gerard Juyn                                    * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
 /* * For the purposes of this copyright and license, "Contributing Authors" * */
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
-/* *    Gerard Juyn - gerard (@) libmng.com                                 * */
-/* *    Glenn Randers-Pherson -                                             * */
+/* *    Gerard Juyn - gerard :at: libmng.com                                * */
+/* *    Glenn Randers-Pehrson -                                             * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
