@@ -88,6 +88,8 @@
 /* *             - fixed inclusion of lcms header for non-windows platforms * */
 /* *             0.9.4 - 12/12/2000 - G.Juyn                                * */
 /* *             - changed callback convention for MSVC (Thanks Chad)       * */
+/* *             0.9.4 - 12/16/2000 - G.Juyn                                * */
+/* *             - fixed mixup of data- & function-pointers (thanks Dimitri)* */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -254,6 +256,7 @@ typedef size_t           mng_size_t;             /* size field for memory alloca
 
 typedef char *           mng_pchar;              /* string */
 typedef void *           mng_ptr;                /* generic pointer */
+typedef void             (*mng_fptr) (void);     /* generic function pointer */
 
 /* ************************************************************************** */
 /* *                                                                        * */

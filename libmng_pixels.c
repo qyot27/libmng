@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -86,6 +86,9 @@
 /* *             - implemented delayed delta-processing                     * */
 /* *             0.9.3 - 10/28/2000 - G.Juyn                                * */
 /* *             - fixed tRNS processing for gray-image < 8-bits            * */
+/* *                                                                        * */
+/* *             0.9.4 - 12/16/2000 - G.Juyn                                * */
+/* *             - fixed mixup of data- & function-pointers (thanks Dimitri)* */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -6509,18 +6512,18 @@ mng_retcode init_g1_ni     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g1;
+    pData->fProcessrow = (mng_fptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g1;
+      pData->fStorerow = (mng_fptr)delta_g1;
     else
-      pData->fStorerow = (mng_ptr)store_g1;
+      pData->fStorerow = (mng_fptr)store_g1;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g1;
+    pData->fDifferrow  = (mng_fptr)differ_g1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6552,18 +6555,18 @@ mng_retcode init_g1_i      (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g1;
+    pData->fProcessrow = (mng_fptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g1;
+      pData->fStorerow = (mng_fptr)delta_g1;
     else
-      pData->fStorerow = (mng_ptr)store_g1;
+      pData->fStorerow = (mng_fptr)store_g1;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g1;
+    pData->fDifferrow  = (mng_fptr)differ_g1;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -6594,18 +6597,18 @@ mng_retcode init_g2_ni     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g2;
+    pData->fProcessrow = (mng_fptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g2;
+      pData->fStorerow = (mng_fptr)delta_g2;
     else
-      pData->fStorerow = (mng_ptr)store_g2;
+      pData->fStorerow = (mng_fptr)store_g2;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g2;
+    pData->fDifferrow  = (mng_fptr)differ_g2;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6637,18 +6640,18 @@ mng_retcode init_g2_i      (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g2;
+    pData->fProcessrow = (mng_fptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g2;
+      pData->fStorerow = (mng_fptr)delta_g2;
     else
-      pData->fStorerow = (mng_ptr)store_g2;
+      pData->fStorerow = (mng_fptr)store_g2;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g2;
+    pData->fDifferrow  = (mng_fptr)differ_g2;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -6680,18 +6683,18 @@ mng_retcode init_g4_ni     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g4;
+    pData->fProcessrow = (mng_fptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g4;
+      pData->fStorerow = (mng_fptr)delta_g4;
     else
-      pData->fStorerow = (mng_ptr)store_g4;
+      pData->fStorerow = (mng_fptr)store_g4;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g4;
+    pData->fDifferrow  = (mng_fptr)differ_g4;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6723,18 +6726,18 @@ mng_retcode init_g4_i      (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g4;
+    pData->fProcessrow = (mng_fptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g4;
+      pData->fStorerow = (mng_fptr)delta_g4;
     else
-      pData->fStorerow = (mng_ptr)store_g4;
+      pData->fStorerow = (mng_fptr)store_g4;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g4;
+    pData->fDifferrow  = (mng_fptr)differ_g4;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -6766,18 +6769,18 @@ mng_retcode init_g8_ni     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g8;
+    pData->fProcessrow = (mng_fptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g8;
+      pData->fStorerow = (mng_fptr)delta_g8;
     else
-      pData->fStorerow = (mng_ptr)store_g8;
+      pData->fStorerow = (mng_fptr)store_g8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g8;
+    pData->fDifferrow  = (mng_fptr)differ_g8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6809,18 +6812,18 @@ mng_retcode init_g8_i      (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g8;
+    pData->fProcessrow = (mng_fptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g8;
+      pData->fStorerow = (mng_fptr)delta_g8;
     else
-      pData->fStorerow = (mng_ptr)store_g8;
+      pData->fStorerow = (mng_fptr)store_g8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g8;
+    pData->fDifferrow  = (mng_fptr)differ_g8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -6852,18 +6855,18 @@ mng_retcode init_g16_ni    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g16;
+    pData->fProcessrow = (mng_fptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g16;
+      pData->fStorerow = (mng_fptr)delta_g16;
     else
-      pData->fStorerow = (mng_ptr)store_g16;
+      pData->fStorerow = (mng_fptr)store_g16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g16;
+    pData->fDifferrow  = (mng_fptr)differ_g16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6895,18 +6898,18 @@ mng_retcode init_g16_i     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_g16;
+    pData->fProcessrow = (mng_fptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_g16;
+      pData->fStorerow = (mng_fptr)delta_g16;
     else
-      pData->fStorerow = (mng_ptr)store_g16;
+      pData->fStorerow = (mng_fptr)store_g16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g16;
+    pData->fDifferrow  = (mng_fptr)differ_g16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -6938,18 +6941,18 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgb8;
+    pData->fProcessrow = (mng_fptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgb8;
+      pData->fStorerow = (mng_fptr)delta_rgb8;
     else
-      pData->fStorerow = (mng_ptr)store_rgb8;
+      pData->fStorerow = (mng_fptr)store_rgb8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgb8;
+    pData->fDifferrow  = (mng_fptr)differ_rgb8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6981,18 +6984,18 @@ mng_retcode init_rgb8_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgb8;
+    pData->fProcessrow = (mng_fptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgb8;
+      pData->fStorerow = (mng_fptr)delta_rgb8;
     else
-      pData->fStorerow = (mng_ptr)store_rgb8;
+      pData->fStorerow = (mng_fptr)store_rgb8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgb8;
+    pData->fDifferrow  = (mng_fptr)differ_rgb8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7024,18 +7027,18 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgb16;
+    pData->fProcessrow = (mng_fptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgb16;
+      pData->fStorerow = (mng_fptr)delta_rgb16;
     else
-      pData->fStorerow = (mng_ptr)store_rgb16;
+      pData->fStorerow = (mng_fptr)store_rgb16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgb16;
+    pData->fDifferrow  = (mng_fptr)differ_rgb16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7067,18 +7070,18 @@ mng_retcode init_rgb16_i   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgb16;
+    pData->fProcessrow = (mng_fptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgb16;
+      pData->fStorerow = (mng_fptr)delta_rgb16;
     else
-      pData->fStorerow = (mng_ptr)store_rgb16;
+      pData->fStorerow = (mng_fptr)store_rgb16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgb16;
+    pData->fDifferrow  = (mng_fptr)differ_rgb16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7110,18 +7113,18 @@ mng_retcode init_idx1_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx1;
+    pData->fProcessrow = (mng_fptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx1;
+      pData->fStorerow = (mng_fptr)delta_idx1;
     else
-      pData->fStorerow = (mng_ptr)store_idx1;
+      pData->fStorerow = (mng_fptr)store_idx1;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx1;
+    pData->fDifferrow  = (mng_fptr)differ_idx1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7153,18 +7156,18 @@ mng_retcode init_idx1_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx1;
+    pData->fProcessrow = (mng_fptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx1;
+      pData->fStorerow = (mng_fptr)delta_idx1;
     else
-      pData->fStorerow = (mng_ptr)store_idx1;
+      pData->fStorerow = (mng_fptr)store_idx1;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx1;
+    pData->fDifferrow  = (mng_fptr)differ_idx1;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7196,18 +7199,18 @@ mng_retcode init_idx2_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx2;
+    pData->fProcessrow = (mng_fptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx2;
+      pData->fStorerow = (mng_fptr)delta_idx2;
     else
-      pData->fStorerow = (mng_ptr)store_idx2;
+      pData->fStorerow = (mng_fptr)store_idx2;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx2;
+    pData->fDifferrow  = (mng_fptr)differ_idx2;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7239,18 +7242,18 @@ mng_retcode init_idx2_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx2;
+    pData->fProcessrow = (mng_fptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx2;
+      pData->fStorerow = (mng_fptr)delta_idx2;
     else
-      pData->fStorerow = (mng_ptr)store_idx2;
+      pData->fStorerow = (mng_fptr)store_idx2;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx2;
+    pData->fDifferrow  = (mng_fptr)differ_idx2;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7282,18 +7285,18 @@ mng_retcode init_idx4_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx4;
+    pData->fProcessrow = (mng_fptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx4;
+      pData->fStorerow = (mng_fptr)delta_idx4;
     else
-      pData->fStorerow = (mng_ptr)store_idx4;
+      pData->fStorerow = (mng_fptr)store_idx4;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx4;
+    pData->fDifferrow  = (mng_fptr)differ_idx4;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7325,18 +7328,18 @@ mng_retcode init_idx4_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx4;
+    pData->fProcessrow = (mng_fptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx4;
+      pData->fStorerow = (mng_fptr)delta_idx4;
     else
-      pData->fStorerow = (mng_ptr)store_idx4;
+      pData->fStorerow = (mng_fptr)store_idx4;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx4;
+    pData->fDifferrow  = (mng_fptr)differ_idx4;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7368,18 +7371,18 @@ mng_retcode init_idx8_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx8;
+    pData->fProcessrow = (mng_fptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx8;
+      pData->fStorerow = (mng_fptr)delta_idx8;
     else
-      pData->fStorerow = (mng_ptr)store_idx8;
+      pData->fStorerow = (mng_fptr)store_idx8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx8;
+    pData->fDifferrow  = (mng_fptr)differ_idx8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7411,18 +7414,18 @@ mng_retcode init_idx8_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_idx8;
+    pData->fProcessrow = (mng_fptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_idx8;
+      pData->fStorerow = (mng_fptr)delta_idx8;
     else
-      pData->fStorerow = (mng_ptr)store_idx8;
+      pData->fStorerow = (mng_fptr)store_idx8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_idx8;
+    pData->fDifferrow  = (mng_fptr)differ_idx8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7454,18 +7457,18 @@ mng_retcode init_ga8_ni    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_ga8;
+    pData->fProcessrow = (mng_fptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_ga8;
+      pData->fStorerow = (mng_fptr)delta_ga8;
     else
-      pData->fStorerow = (mng_ptr)store_ga8;
+      pData->fStorerow = (mng_fptr)store_ga8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_ga8;
+    pData->fDifferrow  = (mng_fptr)differ_ga8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7497,18 +7500,18 @@ mng_retcode init_ga8_i     (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_ga8;
+    pData->fProcessrow = (mng_fptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_ga8;
+      pData->fStorerow = (mng_fptr)delta_ga8;
     else
-      pData->fStorerow = (mng_ptr)store_ga8;
+      pData->fStorerow = (mng_fptr)store_ga8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_ga8;
+    pData->fDifferrow  = (mng_fptr)differ_ga8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7540,18 +7543,18 @@ mng_retcode init_ga16_ni   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_ga16;
+    pData->fProcessrow = (mng_fptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_ga16;
+      pData->fStorerow = (mng_fptr)delta_ga16;
     else
-      pData->fStorerow = (mng_ptr)store_ga16;
+      pData->fStorerow = (mng_fptr)store_ga16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_ga16;
+    pData->fDifferrow  = (mng_fptr)differ_ga16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7583,18 +7586,18 @@ mng_retcode init_ga16_i    (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_ga16;
+    pData->fProcessrow = (mng_fptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_ga16;
+      pData->fStorerow = (mng_fptr)delta_ga16;
     else
-      pData->fStorerow = (mng_ptr)store_ga16;
+      pData->fStorerow = (mng_fptr)store_ga16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_ga16;
+    pData->fDifferrow  = (mng_fptr)differ_ga16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7626,18 +7629,18 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgba8;
+    pData->fProcessrow = (mng_fptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgba8;
+      pData->fStorerow = (mng_fptr)delta_rgba8;
     else
-      pData->fStorerow = (mng_ptr)store_rgba8;
+      pData->fStorerow = (mng_fptr)store_rgba8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgba8;
+    pData->fDifferrow  = (mng_fptr)differ_rgba8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7669,18 +7672,18 @@ mng_retcode init_rgba8_i   (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgba8;
+    pData->fProcessrow = (mng_fptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgba8;
+      pData->fStorerow = (mng_fptr)delta_rgba8;
     else
-      pData->fStorerow = (mng_ptr)store_rgba8;
+      pData->fStorerow = (mng_fptr)store_rgba8;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgba8;
+    pData->fDifferrow  = (mng_fptr)differ_rgba8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -7712,18 +7715,18 @@ mng_retcode init_rgba16_ni (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgba16;
+    pData->fProcessrow = (mng_fptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgba16;
+      pData->fStorerow = (mng_fptr)delta_rgba16;
     else
-      pData->fStorerow = (mng_ptr)store_rgba16;
+      pData->fStorerow = (mng_fptr)store_rgba16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgba16;
+    pData->fDifferrow  = (mng_fptr)differ_rgba16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7755,18 +7758,18 @@ mng_retcode init_rgba16_i  (mng_datap pData)
 #endif
 
   if (pData->fDisplayrow)
-    pData->fProcessrow = (mng_ptr)process_rgba16;
+    pData->fProcessrow = (mng_fptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
   {                                    /* immediate delta ? */
     if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
-      pData->fStorerow = (mng_ptr)delta_rgba16;
+      pData->fStorerow = (mng_fptr)delta_rgba16;
     else
-      pData->fStorerow = (mng_ptr)store_rgba16;
+      pData->fStorerow = (mng_fptr)store_rgba16;
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_rgba16;
+    pData->fDifferrow  = (mng_fptr)differ_rgba16;
 
   pData->iPass       = 0;              /* from 0..6; (1..7 in specification) */
   pData->iRow        = interlace_row     [0];
@@ -7812,8 +7815,8 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
     {
       switch (pData->iJHDRcolortype)
       {
-        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a1;   break; }
-        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a1; break; }
+        case 12 : { pData->fStorerow = (mng_fptr)store_jpeg_g8_a1;   break; }
+        case 14 : { pData->fStorerow = (mng_fptr)store_jpeg_rgb8_a1; break; }
       }
     }
 
@@ -7822,7 +7825,7 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g1;
+    pData->fDifferrow  = (mng_fptr)differ_g1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7858,8 +7861,8 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
     {
       switch (pData->iJHDRcolortype)
       {
-        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a2;   break; }
-        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a2; break; }
+        case 12 : { pData->fStorerow = (mng_fptr)store_jpeg_g8_a2;   break; }
+        case 14 : { pData->fStorerow = (mng_fptr)store_jpeg_rgb8_a2; break; }
       }
     }
 
@@ -7868,7 +7871,7 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g2;
+    pData->fDifferrow  = (mng_fptr)differ_g2;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7904,8 +7907,8 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
     {
       switch (pData->iJHDRcolortype)
       {
-        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a4;   break; }
-        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a4; break; }
+        case 12 : { pData->fStorerow = (mng_fptr)store_jpeg_g8_a4;   break; }
+        case 14 : { pData->fStorerow = (mng_fptr)store_jpeg_rgb8_a4; break; }
       }
     }
 
@@ -7914,7 +7917,7 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g4;
+    pData->fDifferrow  = (mng_fptr)differ_g4;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7950,8 +7953,8 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
     {
       switch (pData->iJHDRcolortype)
       {
-        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a8;   break; }
-        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a8; break; }
+        case 12 : { pData->fStorerow = (mng_fptr)store_jpeg_g8_a8;   break; }
+        case 14 : { pData->fStorerow = (mng_fptr)store_jpeg_rgb8_a8; break; }
       }
     }
 
@@ -7960,7 +7963,7 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g8;
+    pData->fDifferrow  = (mng_fptr)differ_g8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -7996,8 +7999,8 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
     {
       switch (pData->iJHDRcolortype)
       {
-        case 12 : { pData->fStorerow = (mng_ptr)store_jpeg_g8_a16;   break; }
-        case 14 : { pData->fStorerow = (mng_ptr)store_jpeg_rgb8_a16; break; }
+        case 12 : { pData->fStorerow = (mng_fptr)store_jpeg_g8_a16;   break; }
+        case 14 : { pData->fStorerow = (mng_fptr)store_jpeg_rgb8_a16; break; }
       }
     }
 
@@ -8006,7 +8009,7 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
   }
 
   if (pData->iFilter & 0x40)           /* leveling & differing ? */
-    pData->fDifferrow  = (mng_ptr)differ_g16;
+    pData->fDifferrow  = (mng_fptr)differ_g16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;

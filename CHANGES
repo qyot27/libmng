@@ -23,6 +23,7 @@ core:
 - fixed TERM delay processing (B123314)
 - fixed TERM end processing when count = 0 (B123314)                   
 - changed callback convention for MSVC (Thanks Chad)
+- fixed mixup of data- & function-pointers (thanks Dimitri)
 
 samples:
 
