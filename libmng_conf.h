@@ -43,6 +43,9 @@
 /* *             1.0.6 - 07/14/2002 - G.R-P                                 * */
 /* *             - added MNG_NO_SUPPORT_FUNCQUERY conditional               * */
 /* *                                                                        * */
+/* *             1.0.7 - 03/07/2004 - G.R-P                                 * */
+/* *             - added MNG_VERSION_QUERY_SUPPORT_ conditional             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 
