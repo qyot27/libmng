@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -166,6 +166,9 @@
 /* *             - fixed some warnings for 16bit optimizations              * */
 /* *             1.0.7 - 03/21/2004 - G.Juyn                                * */
 /* *             - fixed some 64-bit platform compiler warnings             * */
+/* *                                                                        * */
+/* *             1.0.8 - 06/20/2004 - G.Juyn                                * */
+/* *             - some speed optimizations (thanks to John Stiles)         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -824,10 +827,14 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
 		  {
 			if (s == 255)
 			{
+#ifdef MNG_BIGENDIAN_SUPPORTED
+              *(mng_uint32*)pScanline = (*(mng_uint32*)pDataline) | 0x000000FF;
+#else
               pScanline[0] = pDataline[0];
               pScanline[1] = pDataline[1];
 		      pScanline[2] = pDataline[2];
               pScanline[3] = 255;
+#endif
 			}
 			else
 			{
@@ -897,14 +904,18 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
       {
         for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
         {
-          if ((s = pDataline[3]) != 0)       /* any opacity at all ? */
+          if ((s = pDataline[3]) != 0) /* any opacity at all ? */
           {                            /* fully opaque ? */
             if (s == 255)
             {                          /* then simply copy the values */
+#ifdef MNG_BIGENDIAN_SUPPORTED
+              *(mng_uint32*)pScanline = (*(mng_uint32*)pDataline) | 0x000000FF;
+#else
               pScanline[0] = pDataline[0];
               pScanline[1] = pDataline[1];
               pScanline[2] = pDataline[2];
               pScanline[3] = 255;
+#endif
             }
             else
             {                          /* now blend (premultiplied) */
@@ -3561,7 +3572,7 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
     pData->iRow -= (mng_int32)pData->iBackimgheight;
                                        /* set width to that of background image */
   pData->iRowsamples = pData->iBackimgwidth;
-                                       /* retrieve into alternate buffer ! */     
+                                       /* retrieve into alternate buffer ! */
   pData->pRGBArow    = pData->pPrevrow;
                                        /* get it then */
   iRetcode = ((mng_retrieverow)pData->fRetrieverow) (pData);
@@ -3573,14 +3584,14 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
   iX = pData->iDestl - pData->iBackimgoffsx;
 
   while (iX >= pData->iBackimgwidth)
-    iX    -= pData->iBackimgwidth;
+    iX -= pData->iBackimgwidth;
 
 #ifndef MNG_NO_16BIT_SUPPORT
   if (pData->bIsRGBA16)                /* 16-bit buffer ? */
   {
     pTemp = pData->pPrevrow + (iX << 3);
 
-    for (iZ = pData->iDestl; iZ < pData->iDestr; iZ++)
+    for (iZ = (pData->iDestr - pData->iDestl); iZ > 0; iZ--)
     {
       MNG_COPY (pWork, pTemp, 8)
 
@@ -3600,7 +3611,7 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
   {
     pTemp = pData->pPrevrow + (iX << 2);
 
-    for (iZ = pData->iDestl; iZ < pData->iDestr; iZ++)
+    for (iZ = (pData->iDestr - pData->iDestl); iZ > 0; iZ--)
     {
       MNG_COPY (pWork, pTemp, 4)
 
@@ -3631,22 +3642,28 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
 
 mng_retcode mng_restore_bkgd_backcolor (mng_datap pData)
 {
-  mng_int32  iX;
-  mng_uint8p pWork = pData->pRGBArow;
+  mng_int32   iX;
+  mng_uint32p pWork32 = (mng_uint32p)pData->pRGBArow;
+  mng_uint32  iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_START)
 #endif
 
-  for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-  {                                    /* ok; drop the background-color in there */
-    *pWork     = (mng_uint8)(pData->iBACKred   >> 8);
-    *(pWork+1) = (mng_uint8)(pData->iBACKgreen >> 8);
-    *(pWork+2) = (mng_uint8)(pData->iBACKblue  >> 8);
-    *(pWork+3) = 0xFF;                 /* opaque! it's mandatory */
-
-    pWork += 4;
-  }
+#ifdef MNG_BIGENDIAN_SUPPORTED
+  iWrite = (((mng_uint8)(pData->iBACKred   >> 8)) << 24) |
+		   (((mng_uint8)(pData->iBACKgreen >> 8)) << 16) |
+		   (((mng_uint8)(pData->iBACKblue  >> 8)) <<  8) |
+           ( 0xFF                                      );
+#else
+  iWrite = ( 0xFF                                 << 24) |
+           (((mng_uint8)(pData->iBACKblue  >> 8)) << 16) |
+		   (((mng_uint8)(pData->iBACKgreen >> 8)) <<  8) |
+		   (((mng_uint8)(pData->iBACKred   >> 8))      );
+#endif
+                                       /* ok; drop the background-color in there */
+  for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
+    *pWork32++ = iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_END)
@@ -3661,13 +3678,14 @@ mng_retcode mng_restore_bkgd_backcolor (mng_datap pData)
 mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
 {
   mng_int32      iX;
-  mng_uint8p     pWork  = pData->pRGBArow;
-  mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
-  mng_imagedatap pBuf   = pImage->pImgbuf;
-  mng_uint8      iRed   = 0;
-  mng_uint8      iGreen = 0;
-  mng_uint8      iBlue  = 0;
-
+  mng_uint8p     pWork   = pData->pRGBArow;
+  mng_imagep     pImage  = (mng_imagep)pData->pCurrentobj;
+  mng_imagedatap pBuf    = pImage->pImgbuf;
+  mng_uint8      iRed    = 0;
+  mng_uint8      iGreen  = 0;
+  mng_uint8      iBlue   = 0;
+  mng_uint32p    pWork32 = (mng_uint32p)pWork;
+  mng_uint32     iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BKGD, MNG_LC_START)
@@ -3727,15 +3745,18 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
              }
   }
 
-  for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-  {
-    *pWork     = iRed;
-    *(pWork+1) = iGreen;
-    *(pWork+2) = iBlue;
-    *(pWork+3) = 0x00;                 /* transparant for alpha-canvasses */
-
-    pWork += 4;
-  }
+#ifdef MNG_BIGENDIAN_SUPPORTED
+  iWrite = (iRed   << 24) |
+		   (iGreen << 16) |
+		   (iBlue  <<  8);
+#else
+  iWrite = (iBlue  << 16) |
+		   (iGreen <<  8) |
+		   (iRed        );
+#endif
+                                       /* ok; drop it in there */
+  for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
+    *pWork32++ = iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BKGD, MNG_LC_END)
@@ -3749,22 +3770,26 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
 
 mng_retcode mng_restore_bkgd_bgcolor (mng_datap pData)
 {
-  mng_int32  iX;
-  mng_uint8p pWork = pData->pRGBArow;
+  mng_int32   iX;
+  mng_uint32p pWork32 = (mng_uint32p)pData->pRGBArow;
+  mng_uint32  iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_START)
 #endif
 
-  for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-  {                                    /* ok; drop the background-color in there */
-    *pWork     = (mng_uint8)(pData->iBGred   >> 8);
-    *(pWork+1) = (mng_uint8)(pData->iBGgreen >> 8);
-    *(pWork+2) = (mng_uint8)(pData->iBGblue  >> 8);
-    *(pWork+3) = 0x00;                 /* transparant for alpha-canvasses */
-
-    pWork += 4;
-  }
+#ifdef MNG_BIGENDIAN_SUPPORTED
+  iWrite = (((mng_uint8)(pData->iBGred   >> 8)) << 24) |
+		   (((mng_uint8)(pData->iBGgreen >> 8)) << 16) |
+		   (((mng_uint8)(pData->iBGblue  >> 8)) <<  8);
+#else
+  iWrite = (((mng_uint8)(pData->iBGblue  >> 8)) << 16) |
+		   (((mng_uint8)(pData->iBGgreen >> 8)) <<  8) |
+		   (((mng_uint8)(pData->iBGred   >> 8))      );
+#endif
+                                       /* ok; drop the background-color in there */
+  for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
+    *pWork32++ = iWrite;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_END)
@@ -3792,7 +3817,7 @@ mng_retcode mng_restore_bkgd_rgb8 (mng_datap pData)
                                              pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
-    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
     {
       *pWork     = *pBkgd;             /* ok; copy the pixel */
       *(pWork+1) = *(pBkgd+1);
@@ -3831,7 +3856,7 @@ mng_retcode mng_restore_bkgd_bgr8 (mng_datap pData)
                                              pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
-    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
     {
       *pWork     = *(pBkgd+2);         /* ok; copy the pixel */
       *(pWork+1) = *(pBkgd+1);
@@ -3870,7 +3895,7 @@ mng_retcode mng_restore_bkgd_bgrx8 (mng_datap pData)
                                              pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
-    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
     {
       *pWork     = *(pBkgd+2);         /* ok; copy the pixel */
       *(pWork+1) = *(pBkgd+1);
@@ -3909,7 +3934,7 @@ mng_retcode mng_restore_bkgd_bgr565 (mng_datap pData)
                                              pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
-    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
     {
       *pWork     = (mng_uint8)(  *(pBkgd+1) & 0xF8);             /* ok; copy the pixel */
       *(pWork+1) = (mng_uint8)( (*(pBkgd+1) << 5 )  |  ( ((*pBkgd)&0xE0)>>3 ) );
@@ -3948,7 +3973,7 @@ mng_retcode mng_restore_bkgd_rgb565 (mng_datap pData)
                                              pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
-    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
     {
       *pWork     = (mng_uint8)(  *(pBkgd)&0xF8);             /* ok; copy the pixel */
       *(pWork+1) = (mng_uint8)( (*(pBkgd+1) << 5)  |  ( ((*pBkgd)&0xE0)>>3 ) );
