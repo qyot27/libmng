@@ -283,7 +283,7 @@ mng_retcode display_rgba8 (mng_datap pData)
           *pScanline     = *pDataline;
           *(pScanline+1) = *(pDataline+2);
           *(pScanline+2) = *(pDataline+4);
-          *(pScanline+3) = 0xFF;
+          *(pScanline+3) = *(pDataline+6);
 
           pScanline += (pData->iColinc << 2);
           pDataline += 8;
@@ -296,7 +296,7 @@ mng_retcode display_rgba8 (mng_datap pData)
           *pScanline     = *pDataline;
           *(pScanline+1) = *(pDataline+1);
           *(pScanline+2) = *(pDataline+2);
-          *(pScanline+3) = 0xFF;
+          *(pScanline+3) = *(pDataline+3);
 
           pScanline += (pData->iColinc << 2);
           pDataline += 4;
@@ -475,7 +475,7 @@ mng_retcode display_argb8 (mng_datap pData)
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* scale down by dropping the LSB */
-          *pScanline     = 0xFF;
+          *pScanline     = *(pDataline+6);
           *(pScanline+1) = *pDataline;
           *(pScanline+2) = *(pDataline+2);
           *(pScanline+3) = *(pDataline+4);
@@ -488,7 +488,7 @@ mng_retcode display_argb8 (mng_datap pData)
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
-          *pScanline     = 0xFF;
+          *pScanline     = *(pDataline+2);
           *(pScanline+1) = *pDataline;
           *(pScanline+2) = *(pDataline+1);
           *(pScanline+3) = *(pDataline+2);
@@ -678,7 +678,7 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
           *pScanline     = *pDataline;
           *(pScanline+1) = *(pDataline+2);
           *(pScanline+2) = *(pDataline+4);
-          *pAlphaline    = 0xFF;
+          *pAlphaline    = *(pDataline+6);
 
           pScanline  += (pData->iColinc * 3);
           pAlphaline += pData->iColinc;
@@ -692,7 +692,7 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
           *pScanline     = *pDataline;
           *(pScanline+1) = *(pDataline+1);
           *(pScanline+2) = *(pDataline+2);
-          *pAlphaline    = 0xFF;
+          *pAlphaline    = *(pDataline+3);
 
           pScanline  += (pData->iColinc * 3);
           pAlphaline += pData->iColinc;
@@ -1026,7 +1026,7 @@ mng_retcode display_bgra8 (mng_datap pData)
           *pScanline     = *(pDataline+4);
           *(pScanline+1) = *(pDataline+2);
           *(pScanline+2) = *pDataline;
-          *(pScanline+3) = 0xFF;
+          *(pScanline+3) = *(pDataline+6);
 
           pScanline += (pData->iColinc << 2);
           pDataline += 8;
@@ -1039,7 +1039,7 @@ mng_retcode display_bgra8 (mng_datap pData)
           *pScanline     = *(pDataline+2);
           *(pScanline+1) = *(pDataline+1);
           *(pScanline+2) = *pDataline;
-          *(pScanline+3) = 0xFF;
+          *(pScanline+3) = *(pDataline+3);
 
           pScanline += (pData->iColinc << 2);
           pDataline += 4;
@@ -1217,7 +1217,7 @@ mng_retcode display_abgr8 (mng_datap pData)
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* scale down by dropping the LSB */
-          *pScanline     = 0xFF;
+          *pScanline     = *(pDataline+6);
           *(pScanline+1) = *(pDataline+4);
           *(pScanline+2) = *(pDataline+2);
           *(pScanline+3) = *pDataline;
@@ -1230,7 +1230,7 @@ mng_retcode display_abgr8 (mng_datap pData)
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
         {                              /* copy the values */
-          *pScanline     = 0xFF;
+          *pScanline     = *(pDataline+3);
           *(pScanline+1) = *(pDataline+2);
           *(pScanline+2) = *(pDataline+1);
           *(pScanline+3) = *pDataline;
@@ -1418,7 +1418,7 @@ mng_retcode restore_bkgd_backcolor (mng_datap pData)
     *pWork     = (mng_uint8)(pData->iBACKred   >> 8);
     *(pWork+1) = (mng_uint8)(pData->iBACKgreen >> 8);
     *(pWork+2) = (mng_uint8)(pData->iBACKblue  >> 8);
-    *(pWork+3) = 0xFF;                 /* opaque */
+    *(pWork+3) = 0x00;                 /* transparant for alpha-canvasses */
 
     pWork += 4;
   }
@@ -1446,7 +1446,7 @@ mng_retcode restore_bkgd_bgcolor (mng_datap pData)
     *pWork     = (mng_uint8)(pData->iBGred   >> 8);
     *(pWork+1) = (mng_uint8)(pData->iBGgreen >> 8);
     *(pWork+2) = (mng_uint8)(pData->iBGblue  >> 8);
-    *(pWork+3) = 0xFF;                 /* opaque */
+    *(pWork+3) = 0x00;                 /* transparant for alpha-canvasses */
 
     pWork += 4;
   }
@@ -1477,10 +1477,10 @@ mng_retcode restore_bkgd_rgb8 (mng_datap pData)
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
     {
-      *pWork     = *pBkgd;               /* ok; copy the pixel */
+      *pWork     = *pBkgd;             /* ok; copy the pixel */
       *(pWork+1) = *(pBkgd+1);
       *(pWork+2) = *(pBkgd+2);
-      *(pWork+3) = 0xFF;                 /* opaque */
+      *(pWork+3) = 0x00;               /* transparant for alpha-canvasses */
 
       pWork += 4;
       pBkgd += 3;
@@ -1513,10 +1513,10 @@ mng_retcode restore_bkgd_bgr8 (mng_datap pData)
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
     {
-      *pWork     = *(pBkgd+2);           /* ok; copy the pixel */
+      *pWork     = *(pBkgd+2);         /* ok; copy the pixel */
       *(pWork+1) = *(pBkgd+1);
       *(pWork+2) = *pBkgd;
-      *(pWork+3) = 0xFF;                 /* opaque */
+      *(pWork+3) = 0x00;               /* transparant for alpha-canvasses */
 
       pWork += 4;
       pBkgd += 3;
