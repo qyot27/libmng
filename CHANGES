@@ -77,6 +77,7 @@ core:
 - fixed bug in empty PLTE handling
 - fixed seperate read() & display() processing          
 - fixed inclusion of lcms.h for *nix platforms             
+- fixed tRNS processing for gray-image < 8-bits
 
 samples:
 - added BCB mngview contribution by Andy Protano

@@ -1803,6 +1803,9 @@ mng_retcode process_display (mng_datap pData)
   if (!pData->bTimerset)
     pData->iBreakpoint = 0;            /* reset if no timer break */
 
+  if (!pData->pCurraniobj)
+    pData->bRunning = MNG_FALSE;       /* all done now ! */
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY, MNG_LC_END)
 #endif
@@ -2341,8 +2344,8 @@ mng_retcode process_display_mend (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START)
 #endif
-
-  if (pData->bHasTERM)                 /* TERM processed ? */
+                                       /* TERM processed ? */
+  if ((pData->bDisplaying) && (pData->bRunning) && (pData->bHasTERM))
   {
     mng_retcode   iRetcode;
     mng_ani_termp pTERM;
@@ -2422,10 +2425,6 @@ mng_retcode process_display_mend (mng_datap pData)
                }
 
     }
-  }
-  else
-  {
-    pData->bRunning = MNG_FALSE;       /* all done now ! */
   }
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */

@@ -311,6 +311,123 @@ mng_retcode mng_reset_objzero (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_DISPLAY
+mng_retcode mng_reset_rundata (mng_datap pData)
+{
+  drop_invalid_objects (pData);        /* drop invalidly stored objects */
+  mng_drop_savedata    (pData);        /* drop invalidly stored savedata */
+  mng_reset_objzero    (pData);        /* reset object 0 */
+
+  pData->iFrameseq             = 0;    /* reset counters & stuff */
+  pData->iLayerseq             = 0;
+  pData->iFrametime            = 0;
+
+  pData->iRuntime              = 0;
+  pData->iSynctime             = 0;
+  pData->iStarttime            = 0;
+  pData->iEndtime              = 0;
+  pData->bRunning              = MNG_FALSE;
+  pData->bTimerset             = MNG_FALSE;
+  pData->iBreakpoint           = 0;
+  pData->bSectionwait          = MNG_FALSE;
+  pData->bFreezing             = MNG_FALSE;
+  pData->bResetting            = MNG_FALSE;
+  pData->bNeedrefresh          = MNG_FALSE;
+
+  pData->iUpdateleft           = 0;    /* reset region */
+  pData->iUpdateright          = 0;
+  pData->iUpdatetop            = 0;
+  pData->iUpdatebottom         = 0;
+  pData->iPLTEcount            = 0;    /* reset PLTE data */
+
+  pData->iDEFIobjectid         = 0;    /* reset DEFI data */
+  pData->bDEFIhasdonotshow     = MNG_FALSE;
+  pData->iDEFIdonotshow        = 0;
+  pData->bDEFIhasconcrete      = MNG_FALSE;
+  pData->iDEFIconcrete         = 0;
+  pData->bDEFIhasloca          = MNG_FALSE;
+  pData->iDEFIlocax            = 0;
+  pData->iDEFIlocay            = 0;
+  pData->bDEFIhasclip          = MNG_FALSE;
+  pData->iDEFIclipl            = 0;
+  pData->iDEFIclipr            = 0;
+  pData->iDEFIclipt            = 0;
+  pData->iDEFIclipb            = 0;
+
+  pData->iBACKred              = 0;    /* reset BACK data */
+  pData->iBACKgreen            = 0;
+  pData->iBACKblue             = 0;
+  pData->iBACKmandatory        = 0;
+  pData->iBACKimageid          = 0;
+  pData->iBACKtile             = 0;
+
+  pData->iFRAMmode             = 1;     /* default global FRAM variables */
+  pData->iFRAMdelay            = 1;
+  pData->iFRAMtimeout          = 0x7fffffffl;
+  pData->bFRAMclipping         = MNG_FALSE;
+  pData->iFRAMclipl            = 0;
+  pData->iFRAMclipr            = 0;
+  pData->iFRAMclipt            = 0;
+  pData->iFRAMclipb            = 0;
+
+  pData->iFramemode            = 1;     /* again for the current frame */
+  pData->iFramedelay           = 1;
+  pData->iFrametimeout         = 0x7fffffffl;
+  pData->bFrameclipping        = MNG_FALSE;
+  pData->iFrameclipl           = 0;
+  pData->iFrameclipr           = 0;
+  pData->iFrameclipt           = 0;
+  pData->iFrameclipb           = 0;
+
+  pData->iNextdelay            = 1;
+
+  pData->iSHOWmode             = 0;    /* reset SHOW data */
+  pData->iSHOWfromid           = 0;
+  pData->iSHOWtoid             = 0;
+  pData->iSHOWnextid           = 0;
+  pData->iSHOWskip             = 0;
+
+  pData->iGlobalPLTEcount      = 0;    /* reset global PLTE data */
+
+  pData->iGlobalTRNSrawlen     = 0;    /* reset global tRNS data */
+
+  pData->iGlobalGamma          = 0;    /* reset global gAMA data */
+
+  pData->iGlobalWhitepointx    = 0;    /* reset global cHRM data */
+  pData->iGlobalWhitepointy    = 0;
+  pData->iGlobalPrimaryredx    = 0;
+  pData->iGlobalPrimaryredy    = 0;
+  pData->iGlobalPrimarygreenx  = 0;
+  pData->iGlobalPrimarygreeny  = 0;
+  pData->iGlobalPrimarybluex   = 0;
+  pData->iGlobalPrimarybluey   = 0;
+
+  pData->iGlobalRendintent     = 0;    /* reset global sRGB data */
+
+  if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
+    MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+
+  pData->iGlobalProfilesize    = 0;    
+
+  pData->iGlobalBKGDred        = 0;    /* reset global bKGD data */
+  pData->iGlobalBKGDgreen      = 0;
+  pData->iGlobalBKGDblue       = 0;
+                                       /* reset delta-image */
+  pData->pDeltaImage           = MNG_NULL;
+  pData->iDeltaImagetype       = 0;
+  pData->iDeltatype            = 0;
+  pData->iDeltaBlockwidth      = 0;
+  pData->iDeltaBlockheight     = 0;
+  pData->iDeltaBlockx          = 0;
+  pData->iDeltaBlocky          = 0;
+  pData->bDeltaimmediate       = MNG_FALSE;
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
 void cleanup_errors (mng_datap pData)
 {
   pData->iErrorcode = MNG_NOERROR;
@@ -1038,9 +1155,7 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
     
 #ifdef MNG_SUPPORT_DISPLAY
-    drop_invalid_objects (pData);      /* drop invalidly stored objects */
-    mng_drop_savedata    (pData);      /* drop invalidly stored savedata */
-    mng_reset_objzero    (pData);      /* reset object 0 */
+    mng_reset_rundata (pData);         /* reset rundata */
 #endif
   }
 
@@ -1096,9 +1211,7 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
     
 #ifdef MNG_SUPPORT_DISPLAY
-    drop_invalid_objects (pData);      /* drop invalidly stored objects */
-    mng_drop_savedata    (pData);      /* drop invalidly stored savedata */
-    mng_reset_objzero    (pData);      /* reset object 0 */
+    mng_reset_rundata (pData);         /* reset rundata */
 #endif
   }
 

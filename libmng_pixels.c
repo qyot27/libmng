@@ -84,6 +84,8 @@
 /* *             - fixed support for bKGD                                   * */
 /* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
 /* *             - implemented delayed delta-processing                     * */
+/* *             0.9.3 - 10/28/2000 - G.Juyn                                * */
+/* *             - fixed tRNS processing for gray-image < 8-bits            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1770,6 +1772,13 @@ mng_retcode retrieve_g8 (mng_datap pData)
       }
       else
       {
+        switch (pBuf->iBitdepth)       /* LBR to 8-bits ! */
+        {
+          case 1 : iG = (mng_uint8)((iG << 1) + iG);
+          case 2 : iG = (mng_uint8)((iG << 2) + iG);
+          case 4 : iG = (mng_uint8)((iG << 4) + iG);
+        }
+
         *pRGBArow     = iG;            /* put in intermediate row */
         *(pRGBArow+1) = iG;
         *(pRGBArow+2) = iG;
@@ -1785,6 +1794,14 @@ mng_retcode retrieve_g8 (mng_datap pData)
     for (iX = 0; iX < pData->iRowsamples; iX++)
     {
       iG = *pWorkrow;                  /* get the gray-value */
+
+      switch (pBuf->iBitdepth)         /* LBR to 8-bits ! */
+      {
+        case 1 : iG = (mng_uint8)((iG << 1) + iG);
+        case 2 : iG = (mng_uint8)((iG << 2) + iG);
+        case 4 : iG = (mng_uint8)((iG << 4) + iG);
+      }
+
       *pRGBArow     = iG;              /* put in intermediate row */
       *(pRGBArow+1) = iG;
       *(pRGBArow+2) = iG;
@@ -2227,7 +2244,7 @@ mng_retcode store_g1 (mng_datap pData)
     }
 
     if (iB & iM)                       /* is it white ? */
-      *pOutrow = 0xFF;                 /* white */
+      *pOutrow = 0x01;                 /* white */
     else
       *pOutrow = 0x00;                 /* black */
 
@@ -2253,6 +2270,7 @@ mng_retcode store_g2 (mng_datap pData)
   mng_uint8      iB;
   mng_uint8      iM;
   mng_uint32     iS;
+  mng_uint8      iQ;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_START)
@@ -2275,13 +2293,8 @@ mng_retcode store_g2 (mng_datap pData)
       iS = 6;
     }
 
-    switch ((iB & iM) >> iS)           /* determine the gray level */
-    {
-      case 0x03 : { *pOutrow = 0xFF; break; }
-      case 0x02 : { *pOutrow = 0xAA; break; }
-      case 0x01 : { *pOutrow = 0x55; break; }
-      default   : { *pOutrow = 0x00; }
-    }
+    iQ = (mng_uint8)((iB & iM) >> iS); /* get the gray level */
+    *pOutrow = iQ;                     /* put in object buffer */
 
     pOutrow += pData->iColinc;         /* next pixel */
     iM >>= 2;
@@ -2328,10 +2341,8 @@ mng_retcode store_g4 (mng_datap pData)
       iM = 0xF0;
       iS = 4;
     }
-                                       /* get the gray level */
-    iQ = (mng_uint8)((iB & iM) >> iS);
-    iQ = (mng_uint8)(iQ + (iQ << 4));  /* expand to 8-bit by replication */
 
+    iQ = (mng_uint8)((iB & iM) >> iS); /* get the gray level */
     *pOutrow = iQ;                     /* put in object buffer */
 
     pOutrow += pData->iColinc;         /* next pixel */

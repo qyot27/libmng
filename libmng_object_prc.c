@@ -1502,18 +1502,6 @@ mng_retcode process_ani_image (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_START)
 #endif
 
-  if (pData->bRestorebkgd)             /* need to restore the background ? */
-  {
-    pData->bRestorebkgd = MNG_FALSE;
-    iRetcode            = load_bkgdlayer (pData);
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-
-    if ((pData->bDisplaying) && (pData->bRunning))
-      pData->iLayerseq++;              /* and it counts as a layer then ! */
-  }
-  
   if (pData->bHasDHDR)                 /* processing delta-image ? */
   {
     mng_imagep pDelta = (mng_imagep)pData->pDeltaImage;
