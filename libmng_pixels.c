@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -171,6 +171,9 @@
 /* *             - some speed optimizations (thanks to John Stiles)         * */
 /* *             1.0.8 - 08/01/2004 - G.Juyn                                * */
 /* *             - added support for 3+byte pixelsize for JPEG's            * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/09/2004 - G.R-P.                                * */
+/* *             - fixed bug in scaling of 1- and 2-bit background grays    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3704,12 +3707,12 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
                else
                {
                  iGray = (mng_uint8)pBuf->iBKGDgray;
-                                       /* please note how tricky the next code is !! */
+                 /* please note how tricky the next code is !! */
                  switch (pBuf->iBitdepth)
                  {
-                   case 1 : iGray = (mng_uint8)((iGray << 1) + iGray);
-                   case 2 : iGray = (mng_uint8)((iGray << 2) + iGray);
-                   case 4 : iGray = (mng_uint8)((iGray << 4) + iGray);
+                   case 1 : iGray *= 255;
+                   case 2 : iGray *= 85;
+                   case 4 : iGray *= 17;
                  }
                }
 
@@ -4046,9 +4049,9 @@ mng_retcode mng_retrieve_g8 (mng_datap pData)
       {
         switch (pBuf->iBitdepth)       /* LBR to 8-bits ! */
         {
-          case 1 : iG = (mng_uint8)((iG << 1) + iG);
-          case 2 : iG = (mng_uint8)((iG << 2) + iG);
-          case 4 : iG = (mng_uint8)((iG << 4) + iG);
+          case 1 : iG *= 255;
+          case 2 : iG *= 85;
+          case 4 : iG *= 17;
         }
 
         *pRGBArow     = iG;            /* put in intermediate row */
@@ -4073,9 +4076,9 @@ mng_retcode mng_retrieve_g8 (mng_datap pData)
 
       switch (pBuf->iBitdepth)         /* LBR to 8-bits ! */
       {
-        case 1 : iG = (mng_uint8)((iG << 1) + iG);
-        case 2 : iG = (mng_uint8)((iG << 2) + iG);
-        case 4 : iG = (mng_uint8)((iG << 4) + iG);
+        case 1 : iG *= 255;
+        case 2 : iG *= 85;
+        case 4 : iG *= 17;
       }
 
       *pRGBArow     = iG;              /* put in intermediate row */
