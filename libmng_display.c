@@ -116,6 +116,8 @@
 /* *                                                                        * */
 /* *             0.9.4 - 10/31/2000 - G.Juyn                                * */
 /* *             - fixed possible loop in display_resume() (Thanks Vova!)   * */
+/* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
+/* *             - fixed unwanted repetition in mng_readdisplay()           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1717,11 +1719,6 @@ mng_retcode process_display (mng_datap pData)
         return iRetcode;
                                        /* let's start from the top, shall we */
       pData->pCurraniobj = pData->pFirstaniobj;
-    }
-    else
-    {
-      if (!pData->pCurraniobj)         /* no animation object? start at top */
-        pData->pCurraniobj = pData->pFirstaniobj;
     }
   }
 

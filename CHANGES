@@ -12,7 +12,9 @@ intermediate for now
 bugfixes:
 
 core:
+- version numbers
 - fixed possible loop in display_resume() (Thanks Vova!)
+- fixed unwanted repetition in mng_readdisplay()
 
 samples:
 
@@ -20,6 +22,7 @@ contrib:
 - added GTK mng-view example by Vova Babin
 - added MSVC MNGview sample by Nikolaus Brennig
 - updated Jason Summer's mngplg to version 0.9.2
+  (that's mngplg-0.9.2 based on libmng-0.9.3 !!!)
 
 doc:
 - added README.dll

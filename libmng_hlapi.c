@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_hlapi.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -109,6 +109,9 @@
 /* *             - added closestream() processing for mng_cleanup()         * */
 /* *             0.9.3 - 10/27/2000 - G.Juyn                                * */
 /* *             - fixed seperate read() & display() processing             * */
+/* *                                                                        * */
+/* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
+/* *             - fixed unwanted repetition in mng_readdisplay()           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1468,6 +1471,7 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
 #endif  
   pData->iStarttime    = pData->iSynctime;
   pData->iEndtime      = 0;
+  pData->pCurraniobj   = pData->pFirstaniobj;
 
   iRetcode = process_display (pData);  /* go do it */
 
