@@ -455,7 +455,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
               iBGg16 = (mng_uint16)(*(pScanline+i));
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
                                        /* and return the composed values */
               *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
             }
@@ -471,9 +471,9 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
               iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                        /* and return the composed values */
               *pScanline     = (mng_uint8)(iFGr16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -507,12 +507,12 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iA8, *(pScanline+i))
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iA8, *(pScanline+i));
               }
 #else
-              MNG_COMPOSE8 (*pScanline,     *pDataline,     iA8, *pScanline    )
-              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
-              MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iA8, *(pScanline+2))
+              MNG_COMPOSE8 (*pScanline,     *pDataline,     iA8, *pScanline    );
+              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1));
+              MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iA8, *(pScanline+2));
 #endif
             }
           }
@@ -639,7 +639,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(*(pScanline+i));
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
                                        /* and return the composed values */
                 *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
                                        /* alpha remains fully opaque !!! */
@@ -656,9 +656,9 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iFGr16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -679,7 +679,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCr16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCg16 >> 8);
@@ -718,12 +718,12 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i))
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i));
               }
 #else
-                MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
-                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
-                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2))
+                MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    );
+                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1));
+                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2));
 #endif
                                        /* alpha remains fully opaque !!! */
               }
@@ -731,7 +731,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iFGa8,
                             *pScanline, *(pScanline+1), *(pScanline+2), iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *pScanline     = iCr8;
                 *(pScanline+1) = iCg8;
@@ -1071,7 +1071,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(*(pScanline+i+1));
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
                                        /* and return the composed values */
                                        /* alpha remains fully opaque !!! */
                 *(pScanline+i+1) = (mng_uint8)(iFGg16 >> 8);
@@ -1088,9 +1088,9 @@ mng_retcode mng_display_argb8 (mng_datap pData)
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                                        /* alpha remains fully opaque !!! */
                 *(pScanline+1) = (mng_uint8)(iFGr16 >> 8);
@@ -1111,7 +1111,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCa16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCr16 >> 8);
@@ -1151,19 +1151,19 @@ mng_retcode mng_display_argb8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+i), iFGa8, *(pScanline+i+1))
+              MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+i), iFGa8, *(pScanline+i+1));
               }
 #else
-                MNG_COMPOSE8 (*(pScanline+1), *pDataline,     iFGa8, *(pScanline+1))
-                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2))
-                MNG_COMPOSE8 (*(pScanline+3), *(pDataline+2), iFGa8, *(pScanline+3))
+                MNG_COMPOSE8 (*(pScanline+1), *pDataline,     iFGa8, *(pScanline+1));
+                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2));
+                MNG_COMPOSE8 (*(pScanline+3), *(pDataline+2), iFGa8, *(pScanline+3));
 #endif
               }
               else
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline,     *(pDataline+1), *(pDataline+2), iFGa8,
                             *(pScanline+1), *(pScanline+2), *(pScanline+3), iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *pScanline     = iCa8;
                 *(pScanline+1) = iCr8;
@@ -1506,7 +1506,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(*(pScanline+i));
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
                                        /* and return the composed values */
                 *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
                                        /* alpha remains fully opaque !!! */
@@ -1523,9 +1523,9 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iFGr16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -1546,7 +1546,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCr16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCg16 >> 8);
@@ -1586,12 +1586,12 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i))
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i));
               }
 #else
-                MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
-                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
-                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2))
+                MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    );
+                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1));
+                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2));
 #endif
                                        /* alpha remains fully opaque !!! */
               }
@@ -1599,7 +1599,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iFGa8,
                             *pScanline, *(pScanline+1), *(pScanline+2), iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *pScanline     = iCr8;
                 *(pScanline+1) = iCg8;
@@ -1724,7 +1724,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
               iBGg16 = (mng_uint16)(*(pScanline+2-i));
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
                                        /* and return the composed values */
               *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
               }
@@ -1740,9 +1740,9 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
               iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                        /* and return the composed values */
               *pScanline     = (mng_uint8)(iFGb16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -1776,13 +1776,12 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iA8,
-                  *(pScanline+i))
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iA8, *(pScanline+i));
               }
 #else
-              MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    )
-              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
-              MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2))
+              MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    );
+              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1));
+              MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2));
 #endif
             }
           }
@@ -1904,7 +1903,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
               iBGg16 = (mng_uint16)(*(pScanline+2-i));
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
                                        /* and return the composed values */
               *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
               }
@@ -1920,9 +1919,9 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
               iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                        /* and return the composed values */
               *pScanline     = (mng_uint8)(iFGb16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -1958,12 +1957,12 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
               int i;
               for (i=2; i >= 0; i--)
               {
-              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iA8, *(pScanline+i))
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iA8, *(pScanline+i));
               }
 #else
-              MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    )
-              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
-              MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2))
+              MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    );
+              MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1));
+              MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2));
 #endif
               *(pScanline+3) = 0xFF;   /* filler byte */
             }
@@ -2091,7 +2090,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(*(pScanline+2-i));
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
                                        /* and return the composed values */
                 *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
                                        /* alpha remains fully opaque !!! */
@@ -2108,9 +2107,9 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iFGb16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
@@ -2131,7 +2130,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCb16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCg16 >> 8);
@@ -2170,12 +2169,12 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                 int i;
                 for (i=2; i >= 0; i--)
                 {
-                MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iFGa8, *(pScanline+i))
+                MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iFGa8, *(pScanline+i));
                 }
 #else
-                MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iFGa8, *pScanline    )
-                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
-                MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iFGa8, *(pScanline+2))
+                MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iFGa8, *pScanline    );
+                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1));
+                MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iFGa8, *(pScanline+2));
 #endif
                                        /* alpha remains fully opaque !!! */
               }
@@ -2183,7 +2182,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline,     *(pDataline+1), *(pDataline+2), iFGa8,
                             *(pScanline+2), *(pScanline+1), *pScanline,     iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *pScanline     = iCb8;
                 *(pScanline+1) = iCg8;
@@ -2514,7 +2513,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(*(pScanline+3-i));
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
                                        /* and return the composed values */
                                        /* alpha itself remains fully opaque !!! */
                 *(pScanline+3-i) = (mng_uint8)(iFGg16 >> 8);
@@ -2531,9 +2530,9 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                                        /* alpha itself remains fully opaque !!! */
                 *(pScanline+1) = (mng_uint8)(iFGb16 >> 8);
@@ -2554,7 +2553,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCa16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCb16 >> 8);
@@ -2594,19 +2593,19 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                 int i;
                 for (i=2; i >= 0; i--)
                 {
-                MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+2-i), iFGa8, *(pScanline+i+1))
+                MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+2-i), iFGa8, *(pScanline+i+1));
                 }
 #else
-                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+2), iFGa8, *(pScanline+1))
-                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2))
-                MNG_COMPOSE8 (*(pScanline+3), *pDataline,     iFGa8, *(pScanline+3))
+                MNG_COMPOSE8 (*(pScanline+1), *(pDataline+2), iFGa8, *(pScanline+1));
+                MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2));
+                MNG_COMPOSE8 (*(pScanline+3), *pDataline,     iFGa8, *(pScanline+3));
 #endif
               }
               else
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline,     *(pDataline+1), *(pDataline+2), iFGa8,
                             *(pScanline+3), *(pScanline+2), *(pScanline+1), iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *pScanline     = iCa8;
                 *(pScanline+1) = iCb8;
@@ -2931,9 +2930,9 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
               iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                        /* and return the composed values */
               *(pScanline+1) = (mng_uint8) ( ( (iFGr16 >> 8)&0xF8 )  |  ( (mng_uint8)(iFGg16>>8) >> 5)      );
               *pScanline     = (mng_uint8) ( ( (iFGb16>>11)       )  |  (((mng_uint8)(iFGg16>>8)&0xFC) << 3) );
@@ -2966,9 +2965,9 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
               iGreen = (mng_uint8) ( (*(pScanline+1) << 5)  |  ( ((*pScanline) & 0xE0)>>3 ) );
               iBlue  = (mng_uint8) ( (*pScanline << 3) );
 
-              MNG_COMPOSE8 (iRed,     *pDataline,     iA8, iRed    )
-              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  )
-              MNG_COMPOSE8 (iBlue,    *(pDataline+2), iA8, iBlue   )
+              MNG_COMPOSE8 (iRed,     *pDataline,     iA8, iRed    );
+              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  );
+              MNG_COMPOSE8 (iBlue,    *(pDataline+2), iA8, iBlue   );
 
               *(pScanline+1) = (mng_uint8) ( ( iRed  & 0xF8 )  |   (iGreen>>5) );
               *pScanline     = (mng_uint8) ( ( iBlue >>  3  )  | ( (iGreen & 0xFC) << 3) );
@@ -3086,9 +3085,9 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
               iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
               iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                        /* now compose */
-              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                        /* and return the composed values */
               *(pScanline+1) = (mng_uint8)( (mng_uint8)((iFGb16 >> 8) &0xF8) |   (   (mng_uint8)(iFGg16 >> 8) >> 5  )        );
               *pScanline     = (mng_uint8)( (mng_uint8) (iFGr16 >>11)        |   ( ( (mng_uint8)(iFGg16 >> 8) & 0xFC) << 3)  );
@@ -3121,9 +3120,9 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
               iGreen = (mng_uint8)( ( *(pScanline+1) << 5  )  |  ( ( (*pScanline)&0xE0)>>3 ) );
               iBlue  = (mng_uint8)(   *(pScanline  ) << 3 );
 
-              MNG_COMPOSE8 (iRed,     *(pDataline+2),     iA8, iRed    )
-              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  )
-              MNG_COMPOSE8 (iBlue,    *(pDataline+0), iA8, iBlue   )  
+              MNG_COMPOSE8 (iRed,     *(pDataline+2), iA8, iRed    );
+              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  );
+              MNG_COMPOSE8 (iBlue,    *(pDataline+0), iA8, iBlue   );
 
               *(pScanline+1) = (mng_uint8)( ( iRed & 0xF8)  |  (  iGreen >> 5        ) );
               *pScanline     = (mng_uint8)( (iBlue >> 3  )  |  ( (iGreen & 0xFC) << 3) );
@@ -3249,9 +3248,9 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
 
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iFGr16 >> 8)&0xF8 )  |  ( (mng_uint8)(iFGg16>>8) >> 5)      );
                 *pScanline     = (mng_uint8) ( ( (iFGb16>>11)       )  |  (((mng_uint8)(iFGg16>>8)&0xFC) << 3) );
@@ -3270,7 +3269,7 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iCr16 >>  8) & 0xF8 )  |  ( (mng_uint8)(iCg16 >> 8) >> 5  )       );
                 *pScanline     = (mng_uint8) ( ( (iCb16 >> 11)        )  |  (((mng_uint8)(iCg16 >> 8) & 0xFC) << 3) );
@@ -3309,9 +3308,9 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
 
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
-                MNG_COMPOSE8 (iRed,   *pDataline,     iFGa8, iRed   )
-                MNG_COMPOSE8 (iGreen, *(pDataline+1), iFGa8, iGreen )
-                MNG_COMPOSE8 (iBlue,  *(pDataline+2), iFGa8, iBlue  )
+                MNG_COMPOSE8 (iRed,   *pDataline,     iFGa8, iRed   );
+                MNG_COMPOSE8 (iGreen, *(pDataline+1), iFGa8, iGreen );
+                MNG_COMPOSE8 (iBlue,  *(pDataline+2), iFGa8, iBlue  );
                                        /* alpha remains fully opaque !!! */
                 *(pScanline+1) = (mng_uint8) ( ( iRed  & 0xF8 )  |   (iGreen>>5) );
                 *pScanline     = (mng_uint8) ( ( iBlue >>  3  )  | ( (iGreen & 0xFC) << 3) );
@@ -3320,7 +3319,7 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iFGa8,
                             iRed      , iGreen        , iBlue         , iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
 
 				
@@ -3450,9 +3449,9 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
 
                                        /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iFGa16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iFGa16, iBGb16);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iFGb16 >> 8)&0xF8 )  |  ( (mng_uint8)(iFGg16>>8) >> 5)      );
                 *pScanline     = (mng_uint8) ( ( (iFGr16>>11)       )  |  (((mng_uint8)(iFGg16>>8)&0xFC) << 3) );
@@ -3471,7 +3470,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iFGa16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iCb16 >>  8) & 0xF8 )  |  ( (mng_uint8)(iCg16 >> 8) >> 5  )       );
                 *pScanline     = (mng_uint8) ( ( (iCr16 >> 11)        )  |  (((mng_uint8)(iCg16 >> 8) & 0xFC) << 3) );
@@ -3510,9 +3509,9 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
 
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
-                MNG_COMPOSE8 (iRed,   *pDataline,     iFGa8, iRed   )
-                MNG_COMPOSE8 (iGreen, *(pDataline+1), iFGa8, iGreen )
-                MNG_COMPOSE8 (iBlue,  *(pDataline+2), iFGa8, iBlue  )
+                MNG_COMPOSE8 (iRed,   *pDataline,     iFGa8, iRed   );
+                MNG_COMPOSE8 (iGreen, *(pDataline+1), iFGa8, iGreen );
+                MNG_COMPOSE8 (iBlue,  *(pDataline+2), iFGa8, iBlue  );
                                        /* alpha remains fully opaque !!! */
                 *(pScanline+1) = (mng_uint8) ( ( iBlue  & 0xF8 )  |   (iGreen>>5) );
                 *pScanline     = (mng_uint8) ( ( iRed >>  3  )  | ( (iGreen & 0xFC) << 3) );
@@ -3521,7 +3520,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
               {                        /* now blend */
                 MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iFGa8,
                             iRed      , iGreen        , iBlue         , iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
 
 				
@@ -3663,9 +3662,9 @@ starting-point */
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
                                          /* now compose */
-                MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
-                MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
-                MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+                MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16);
+                MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16);
+                MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16);
                                          /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iFGr16 >> 8)&0xF8 )  | ( (mng_uint8)(iFGg16>>8) >> 5)       );
                 *pScanline     = (mng_uint8) ( ( (iFGb16>>11)       )  | (((mng_uint8)(iFGg16>>8)&0xFC) << 3) );
@@ -3685,7 +3684,7 @@ starting-point */
                              mng_get_uint16 (pDataline+2),
                              mng_get_uint16 (pDataline+4), iA16,
                              iBGr16, iBGg16, iBGb16, iBGa16,
-                             iCr16,  iCg16,  iCb16,  iCa16)
+                             iCr16,  iCg16,  iCb16,  iCa16);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( (iCr16 >> 8)&0xF8 )  | ( (mng_uint8)(iCg16>>8) >> 5)       );
                 *pScanline     = (mng_uint8) ( ( (iCb16>>11)       )  | (((mng_uint8)(iCg16>>8)&0xFC) << 3) );
@@ -3727,9 +3726,9 @@ iX += pData->iColinc)
                 iGreen = (mng_uint8) ( (*(pScanline+1) << 5)  |  (((*pScanline) & 0xE0)>>3 ) );
                 iBlue  = (mng_uint8) ( (*pScanline << 3) );
 
-                MNG_COMPOSE8 (iRed,     *pDataline,     iA8, iRed    )
-                MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  )
-                MNG_COMPOSE8 (iBlue,    *(pDataline+2), iA8, iBlue   )
+                MNG_COMPOSE8 (iRed,     *pDataline,     iA8, iRed    );
+                MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  );
+                MNG_COMPOSE8 (iBlue,    *(pDataline+2), iA8, iBlue   );
 
                 *(pScanline+1) = (mng_uint8) ( ( iRed  & 0xF8 )  | (iGreen>>5) );
                 *pScanline     = (mng_uint8) ( ( iBlue >>  3  )  | ((iGreen & 0xFC) << 3) );
@@ -3739,7 +3738,7 @@ iX += pData->iColinc)
               {
                 MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iA8,
                             *pScanline, *(pScanline+1), *(pScanline+2), iBGa8,
-                            iCr8, iCg8, iCb8, iCa8)
+                            iCr8, iCg8, iCb8, iCa8);
                                        /* and return the composed values */
                 *(pScanline+1) = (mng_uint8) ( ( iCr8  & 0xF8 )  | (iCg8>>5) );
                 *pScanline     = (mng_uint8) ( ( iCb8 >>  3  )  | ((iCg8 & 0xFC) << 3) );
@@ -19034,12 +19033,12 @@ mng_retcode mng_composeover_rgba8 (mng_datap pData)
           int i;
           for (i=2; i >= 0; i--)
           {
-          MNG_COMPOSE8 (*(pOutrow+i), *(pWorkrow+i), iFGa8, *(pOutrow+i))
+          MNG_COMPOSE8 (*(pOutrow+i), *(pWorkrow+i), iFGa8, *(pOutrow+i));
           }
 #else
-          MNG_COMPOSE8 (*pOutrow,     *pWorkrow,     iFGa8, *pOutrow    )
-          MNG_COMPOSE8 (*(pOutrow+1), *(pWorkrow+1), iFGa8, *(pOutrow+1))
-          MNG_COMPOSE8 (*(pOutrow+2), *(pWorkrow+2), iFGa8, *(pOutrow+2))
+          MNG_COMPOSE8 (*pOutrow,     *pWorkrow,     iFGa8, *pOutrow    );
+          MNG_COMPOSE8 (*(pOutrow+1), *(pWorkrow+1), iFGa8, *(pOutrow+1));
+          MNG_COMPOSE8 (*(pOutrow+2), *(pWorkrow+2), iFGa8, *(pOutrow+2));
 #endif
                                  /* alpha remains fully opaque !!! */
         }
@@ -19047,7 +19046,7 @@ mng_retcode mng_composeover_rgba8 (mng_datap pData)
         {                        /* here we'll have to blend */
           MNG_BLEND8 (*pWorkrow, *(pWorkrow+1), *(pWorkrow+2), iFGa8,
                       *pOutrow, *(pOutrow+1), *(pOutrow+2), iBGa8,
-                      iCr8, iCg8, iCb8, iCa8)
+                      iCr8, iCg8, iCb8, iCa8);
                                  /* and return the composed values */
           *pOutrow     = iCr8;
           *(pOutrow+1) = iCg8;
@@ -19118,9 +19117,9 @@ mng_retcode mng_composeover_rgba16 (mng_datap pData)
 
         if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
         {                        /* do alpha composing */
-          MNG_COMPOSE16 (iFGr16, iFGr16, iFGa16, iBGr16)
-          MNG_COMPOSE16 (iFGg16, iFGg16, iFGa16, iBGg16)
-          MNG_COMPOSE16 (iFGb16, iFGb16, iFGa16, iBGb16)
+          MNG_COMPOSE16 (iFGr16, iFGr16, iFGa16, iBGr16);
+          MNG_COMPOSE16 (iFGg16, iFGg16, iFGa16, iBGg16);
+          MNG_COMPOSE16 (iFGb16, iFGb16, iFGa16, iBGb16);
 
           mng_put_uint16 ((mng_uint8p)pOutrow,     iFGr16);
           mng_put_uint16 ((mng_uint8p)(pOutrow+1), iFGg16);
@@ -19131,7 +19130,7 @@ mng_retcode mng_composeover_rgba16 (mng_datap pData)
         {                        /* here we'll have to blend */
           MNG_BLEND16 (iFGr16, iFGg16, iFGb16, iFGa16,
                        iBGr16, iBGg16, iBGb16, iBGa16,
-                       iCr16,  iCg16,  iCb16,  iCa16)
+                       iCr16,  iCg16,  iCb16,  iCa16);
                                  /* and return the composed values */
           mng_put_uint16 ((mng_uint8p)pOutrow,     iCr16);
           mng_put_uint16 ((mng_uint8p)(pOutrow+1), iCg16);
@@ -19189,12 +19188,12 @@ mng_retcode mng_composeunder_rgba8 (mng_datap pData)
         int i;
         for (i=2; i >= 0; i--)
         {
-        MNG_COMPOSE8 (*(pOutrow+i), *(pOutrow+i), iFGa8, *(pWorkrow+i))
+        MNG_COMPOSE8 (*(pOutrow+i), *(pOutrow+i), iFGa8, *(pWorkrow+i));
         }
 #else
-        MNG_COMPOSE8 (*pOutrow,     *pOutrow,     iFGa8, *pWorkrow    )
-        MNG_COMPOSE8 (*(pOutrow+1), *(pOutrow+1), iFGa8, *(pWorkrow+1))
-        MNG_COMPOSE8 (*(pOutrow+2), *(pOutrow+2), iFGa8, *(pWorkrow+2))
+        MNG_COMPOSE8 (*pOutrow,     *pOutrow,     iFGa8, *pWorkrow    );
+        MNG_COMPOSE8 (*(pOutrow+1), *(pOutrow+1), iFGa8, *(pWorkrow+1));
+        MNG_COMPOSE8 (*(pOutrow+2), *(pOutrow+2), iFGa8, *(pWorkrow+2));
 #endif
         *(pOutrow+3) = 0xFF;     /* alpha becomes fully opaque !!! */
       }
@@ -19202,7 +19201,7 @@ mng_retcode mng_composeunder_rgba8 (mng_datap pData)
       {                          /* here we'll have to blend */
         MNG_BLEND8 (*pOutrow, *(pOutrow+1), *(pOutrow+2), iFGa8,
                     *pWorkrow, *(pWorkrow+1), *(pWorkrow+2), iBGa8,
-                    iCr8, iCg8, iCb8, iCa8)
+                    iCr8, iCg8, iCb8, iCa8);
                                  /* and return the composed values */
         *pOutrow     = iCr8;
         *(pOutrow+1) = iCg8;
@@ -19263,9 +19262,9 @@ mng_retcode mng_composeunder_rgba16 (mng_datap pData)
 
       if (iBGa16 == 0xFFFF)      /* background fully opaque ? */
       {                          /* do alpha composing */
-        MNG_COMPOSE16 (iFGr16, iFGr16, iFGa16, iBGr16)
-        MNG_COMPOSE16 (iFGg16, iFGg16, iFGa16, iBGg16)
-        MNG_COMPOSE16 (iFGb16, iFGb16, iFGa16, iBGb16)
+        MNG_COMPOSE16 (iFGr16, iFGr16, iFGa16, iBGr16);
+        MNG_COMPOSE16 (iFGg16, iFGg16, iFGa16, iBGg16);
+        MNG_COMPOSE16 (iFGb16, iFGb16, iFGa16, iBGb16);
 
         mng_put_uint16 ((mng_uint8p)pOutrow,     iFGr16);
         mng_put_uint16 ((mng_uint8p)(pOutrow+1), iFGg16);
@@ -19276,7 +19275,7 @@ mng_retcode mng_composeunder_rgba16 (mng_datap pData)
       {                          /* here we'll have to blend */
         MNG_BLEND16 (iFGr16, iFGg16, iFGb16, iFGa16,
                      iBGr16, iBGg16, iBGb16, iBGa16,
-                     iCr16,  iCg16,  iCb16,  iCa16)
+                     iCr16,  iCg16,  iCb16,  iCa16);
                                  /* and return the composed values */
         mng_put_uint16 ((mng_uint8p)pOutrow,     iCr16);
         mng_put_uint16 ((mng_uint8p)(pOutrow+1), iCg16);
