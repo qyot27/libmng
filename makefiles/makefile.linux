@@ -157,7 +157,7 @@ libmng_filter.o libmng_filter.pic.o: libmng_filter.c libmng.h libmng_conf.h libm
 libmng_dither.o libmng_dither.pic.o: libmng_dither.c libmng.h libmng_conf.h libmng_types.h \
 	libmng_data.h libmng_error.h libmng_trace.h libmng_dither.h
 libmng_zlib.o libmng_zlib.pic.o: libmng_zlib.c libmng.h libmng_conf.h libmng_types.h \
-	libmng_data.h libmng_memory.h libmng_error.h libmng_trace.h libmng_pixels.h
+	libmng_data.h libmng_memory.h libmng_error.h libmng_trace.h libmng_pixels.h \
     libmng_filter.h libmng_zlib.h
 libmng_jpeg.o libmng_jpeg.pic.o: libmng_jpeg.c libmng.h libmng_conf.h libmng_types.h \
 	libmng_data.h libmng_memory.h libmng_error.h libmng_trace.h libmng_pixels.h libmng_jpeg.h
