@@ -13,6 +13,7 @@ Third beta release! Last one???
 - added several status retrieval functions
 - fixed other small bugs in display processing
 - fixed number of small problems and documentation typos
+- added autoconf/automake/libtool
 
 -------------------
 
@@ -33,9 +34,9 @@ core:
 - added status_xxxx functions
 - added trace-codes/-strings for status_xxxxx functions
 - changed file-prefixes
-- added function to set simplicity field              
+- added function to set simplicity field
 - added trace-code/-string for updatemngsimplicity
-- fixed putchunk_unknown() function                      
+- fixed putchunk_unknown() function
 
 samples:
 
@@ -44,9 +45,11 @@ contrib:
 
 doc:
 - version numbers
+- added autoconf readme
 
 makefiles:
 - fixed for new file-prefix
+- added autoconf/automake/libtool
 
 -----------------------------------------------------------
 
