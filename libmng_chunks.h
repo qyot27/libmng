@@ -85,10 +85,10 @@
 
 #ifdef MNG_OPTIMIZE_CHUNKREADER
 
-typedef mng_retcode (*mng_f_specialfunc)  (mng_datap  pData,
-                                           mng_chunkp pChunk,
-                                           mng_uint32 iRawlen,
-                                           mng_uint8p pRawdata);
+typedef mng_retcode (*mng_f_specialfunc)  (mng_datap   pData,
+                                           mng_chunkp  pChunk,
+                                           mng_uint32* piRawlen,
+                                           mng_uint8p* ppRawdata);
                                            
 typedef mng_retcode (*mng_c_specialfunc)  (mng_datap  pData,
                                            mng_chunkp pChunk);

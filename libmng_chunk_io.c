@@ -824,6 +824,13 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
           }
         }
 
+        if (pTempfield->pSpecialfunc)  /* special function required ? */
+        {
+          iRetcode = pTempfield->pSpecialfunc(pData, *ppChunk, &iTemplen, &pTempdata);
+          if (iRetcode)                /* on error bail out */
+            return iRetcode;
+        }
+
         pTempfield++;                  /* Neeeeeeexxxtt */
         iFieldcount--;
       }
@@ -1211,6 +1218,7 @@ READ_CHUNK (mng_read_ihdr)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_plte)
 {
 #if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
@@ -1388,6 +1396,7 @@ READ_CHUNK (mng_read_plte)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
 
 /* ************************************************************************** */
 
@@ -1548,6 +1557,7 @@ READ_CHUNK (mng_read_iend)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_trns)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1830,6 +1840,7 @@ READ_CHUNK (mng_read_trns)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3185,9 +3196,11 @@ READ_CHUNK (mng_read_phys)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_sBIT
 READ_CHUNK (mng_read_sbit)
 {
@@ -3310,6 +3323,7 @@ READ_CHUNK (mng_read_sbit)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_sPLT
 READ_CHUNK (mng_read_splt)
 {
@@ -3408,9 +3422,11 @@ READ_CHUNK (mng_read_splt)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_hIST
 READ_CHUNK (mng_read_hist)
 {
@@ -3463,6 +3479,7 @@ READ_CHUNK (mng_read_hist)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -3685,6 +3702,7 @@ READ_CHUNK (mng_read_mend)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_LOOP
 READ_CHUNK (mng_read_loop)
 {
@@ -3849,6 +3867,7 @@ READ_CHUNK (mng_read_loop)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -4384,6 +4403,7 @@ READ_CHUNK (mng_read_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_PAST
 READ_CHUNK (mng_read_past)
 {
@@ -4502,9 +4522,11 @@ READ_CHUNK (mng_read_past)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_DISC
 READ_CHUNK (mng_read_disc)
 {
@@ -4599,6 +4621,7 @@ READ_CHUNK (mng_read_disc)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */

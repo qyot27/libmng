@@ -37,12 +37,20 @@ void mng_get_chunkheader (mng_chunkid       iChunkname,
 
 /* ************************************************************************** */
 
-#define MNG_F_SPECIALFUNC(n) mng_retcode n (mng_datap  pData,   \
-                                            mng_chunkp pChunk,  \
-                                            mng_uint32 iRawlen, \
-                                            mng_uint8p pRawdata)
+#define MNG_F_SPECIALFUNC(n) mng_retcode n (mng_datap   pData,    \
+                                            mng_chunkp  pChunk,   \
+                                            mng_uint32* piRawlen, \
+                                            mng_uint8p* ppRawdata)
 
+MNG_F_SPECIALFUNC (mng_debunk_plte) ;
+MNG_F_SPECIALFUNC (mng_debunk_trns) ;
 MNG_F_SPECIALFUNC (mng_deflate_itxt) ;
+MNG_F_SPECIALFUNC (mng_splt_entries) ;
+MNG_F_SPECIALFUNC (mng_hist_entries) ;
+
+MNG_F_SPECIALFUNC (mng_debunk_loop) ;
+MNG_F_SPECIALFUNC (mng_debunk_past) ;
+MNG_F_SPECIALFUNC (mng_disc_entries) ;
 
 /* ************************************************************************** */
 
@@ -50,8 +58,10 @@ MNG_F_SPECIALFUNC (mng_deflate_itxt) ;
                                             mng_chunkp pChunk)
 
 MNG_C_SPECIALFUNC (mng_special_ihdr) ;
+MNG_C_SPECIALFUNC (mng_special_plte) ;
 MNG_C_SPECIALFUNC (mng_special_idat) ;
 MNG_C_SPECIALFUNC (mng_special_iend) ;
+MNG_C_SPECIALFUNC (mng_special_trns) ;
 MNG_C_SPECIALFUNC (mng_special_gama) ;
 MNG_C_SPECIALFUNC (mng_special_chrm) ;
 MNG_C_SPECIALFUNC (mng_special_srgb) ;
@@ -62,6 +72,8 @@ MNG_C_SPECIALFUNC (mng_special_itxt) ;
 MNG_C_SPECIALFUNC (mng_special_bkgd) ;
 MNG_C_SPECIALFUNC (mng_special_phys) ;
 MNG_C_SPECIALFUNC (mng_special_sbit) ;
+MNG_C_SPECIALFUNC (mng_special_splt) ;
+MNG_C_SPECIALFUNC (mng_special_hist) ;
 MNG_C_SPECIALFUNC (mng_special_time) ;
 
 MNG_C_SPECIALFUNC (mng_special_jhdr) ;
@@ -76,6 +88,8 @@ MNG_C_SPECIALFUNC (mng_special_endl) ;
 MNG_C_SPECIALFUNC (mng_special_defi) ;
 MNG_C_SPECIALFUNC (mng_special_basi) ;
 MNG_C_SPECIALFUNC (mng_special_clon) ;
+MNG_C_SPECIALFUNC (mng_special_past) ;
+MNG_C_SPECIALFUNC (mng_special_disc) ;
 MNG_C_SPECIALFUNC (mng_special_back) ;
 MNG_C_SPECIALFUNC (mng_special_move) ;
 MNG_C_SPECIALFUNC (mng_special_clip) ;
