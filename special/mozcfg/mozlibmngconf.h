@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003-2004    * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : special config file for Mozilla                            * */
 /* *                                                                        * */
@@ -22,14 +22,15 @@
 
 /* One or none of these may be defined via MNG_CFLAGS in "configure" */
 
-#if defined(MNG_BUILD_RAW_MNG)    || \
-    defined(MNG_BUILD_FULL_MNG)   || \
-    defined(MNG_BUILD_MOZ_MNG)    || \
-    defined(MNG_BUILD_MOZ_NO_JNG) || \
-    defined(MNG_BUILD_WEB_MNG)    || \
-    defined(MNG_BUILD_WEB_NO_JNG) || \
-    defined(MNG_BUILD_LC)         || \
-    defined(MNG_BUILD_LC_NO_JNG)  || \
+#if defined(MNG_BUILD_RAW_MNG)     || \
+    defined(MNG_BUILD_FULL_MNG)    || \
+    defined(MNG_BUILD_FULL_NO_JNG) || \
+    defined(MNG_BUILD_MOZ_MNG)     || \
+    defined(MNG_BUILD_MOZ_NO_JNG)  || \
+    defined(MNG_BUILD_WEB_MNG)     || \
+    defined(MNG_BUILD_WEB_NO_JNG)  || \
+    defined(MNG_BUILD_LC)          || \
+    defined(MNG_BUILD_LC_NO_JNG)   || \
     defined(MNG_BUILD_VLC)
 # define MNG_BUILD_DEFINED
 #endif
@@ -42,6 +43,12 @@
 #if defined(MNG_BUILD_FULL_MNG)
 #define MNG_DISABLE_UNUSED 
 #define MNG_ENABLE_FOOTPRINT
+#endif
+
+#if defined(MNG_BUILD_FULL_NO_JNG)
+#define MNG_DISABLE_UNUSED 
+#define MNG_ENABLE_FOOTPRINT
+#define MNG_DISABLE_JNG
 #endif
 
 #if defined(MNG_BUILD_MOZ_MNG)
