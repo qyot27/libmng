@@ -1,7 +1,7 @@
 /*
 	mngplay
 
-	$Date: 2000/07/06 12:56:29 $
+	$Date: 2000/10/06 23:09:12 $
 
 	Ralph Giles <giles@ashlu.bc.ca>
 
@@ -100,7 +100,7 @@ mng_bool mymngprocessheader(mng_handle mng,
 	SDL_Surface	*screen;
 	char		title[256];
 
-//	fprintf(stderr,"our mng is %dx%d\n", width,height);
+//	fprintf(stderr, "our mng is %dx%d\n", width,height);
 
 	screen = SDL_SetVideoMode(width,height, 32, SDL_SWSURFACE);
 	if (screen == NULL) {
@@ -127,7 +127,8 @@ mng_bool mymngprocessheader(mng_handle mng,
 	}
 
 	/* tell the mng decoder about our bit-depth choice */
-	mng_set_canvasstyle(mng, MNG_CANVAS_RGBA8);
+	/* FIXME: this works on intel. is it correct in general? */
+	mng_set_canvasstyle(mng, MNG_CANVAS_BGRA8);
 
 	return MNG_TRUE;
 }
