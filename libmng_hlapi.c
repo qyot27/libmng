@@ -833,6 +833,14 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pImage->iClipr               = 0;
   pImage->iClipt               = 0;
   pImage->iClipb               = 0;
+  pImage->iMAGN_MethodX        = 0;
+  pImage->iMAGN_MethodY        = 0;
+  pImage->iMAGN_MX             = 0;
+  pImage->iMAGN_MY             = 0;
+  pImage->iMAGN_ML             = 0;
+  pImage->iMAGN_MR             = 0;
+  pImage->iMAGN_MT             = 0;
+  pImage->iMAGN_MB             = 0;
 #endif
 
 #ifdef MNG_SUPPORT_TRACE

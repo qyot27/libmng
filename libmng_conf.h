@@ -25,6 +25,7 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
 /* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
 /* *             - Added workaround for faulty PhotoShop iCCP chunk         * */
 /* *                                                                        * */

@@ -958,8 +958,48 @@ mng_retcode promote_imageobject (mng_datap  pData,
   else
   if ((pBuf->iColortype == 3) && (iColortype == 6))
   {                                    /* indexed -> rgba */
+    iNewsamplesize = 4;
+    iNewrowsize    = iW * iNewsamplesize;
+    iNewbufsize    = iH * iNewrowsize;
 
+    MNG_ALLOC (pData, pNewbuf, iNewbufsize)
 
+    pSrcline = pBuf->pImgdata;
+    pDstline = pNewbuf;
+
+    for (iY = 0; iY < iH; iY++)
+    {
+      for (iX = 0; iX < iW; iX++)
+      {
+        iB = *pSrcline;
+
+        if ((mng_uint32)iB < pBuf->iPLTEcount)
+        {
+          *pDstline       = pBuf->aPLTEentries [iB].iRed;
+          *(pDstline+1)   = pBuf->aPLTEentries [iB].iGreen;
+          *(pDstline+2)   = pBuf->aPLTEentries [iB].iBlue;
+
+          if ((mng_uint32)iB < pBuf->iTRNScount)
+            *(pDstline+3) = pBuf->aTRNSentries [iB];
+          else
+            *(pDstline+3) = 255;
+        }
+
+        pSrcline++;
+        pDstline += 4;
+      }
+    }
+
+    MNG_FREEX (pData, pBuf->pImgdata, pBuf->iImgdatasize)
+
+    pBuf->iBitdepth    = iBitdepth;
+    pBuf->iColortype   = iColortype;
+    pBuf->iSamplesize  = iNewsamplesize;
+    pBuf->iRowsize     = iNewrowsize;
+    pBuf->iImgdatasize = iNewbufsize;
+    pBuf->pImgdata     = pNewbuf;
+    pBuf->bHasPLTE     = MNG_FALSE;
+    pBuf->bHasTRNS     = MNG_FALSE;
   }
   else
   {
