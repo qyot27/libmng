@@ -157,6 +157,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 07/11/2003 - G.R-P                                 * */
+/* *             - added conditionals zlib and jpeg property accessors      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -613,12 +615,14 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_imagetype",          1, 0, 0},
     {"mng_get_imagewidth",         1, 0, 0},
     {"mng_get_interlace",          1, 0, 0},
+#ifdef MNG_ACCESS_JPEG
     {"mng_get_jpeg_dctmethod",     1, 0, 0},
     {"mng_get_jpeg_maxjdat",       1, 0, 0},
     {"mng_get_jpeg_optimized",     1, 0, 0},
     {"mng_get_jpeg_progressive",   1, 0, 0},
     {"mng_get_jpeg_quality",       1, 0, 0},
     {"mng_get_jpeg_smoothing",     1, 0, 0},
+#endif
     {"mng_get_lastbackchunk",      1, 0, 3},
     {"mng_get_lastseekname",       1, 0, 5},
     {"mng_get_layercount",         1, 0, 0},
@@ -643,12 +647,14 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_userdata",           1, 0, 0},
     {"mng_get_viewgamma",          1, 0, 0},
     {"mng_get_viewgammaint",       1, 0, 0},
+#ifdef MNG_ACCESS_ZLIB
     {"mng_get_zlib_level",         1, 0, 0},
     {"mng_get_zlib_maxidat",       1, 0, 0},
     {"mng_get_zlib_memlevel",      1, 0, 0},
     {"mng_get_zlib_method",        1, 0, 0},
     {"mng_get_zlib_strategy",      1, 0, 0},
     {"mng_get_zlib_windowbits",    1, 0, 0},
+#endif
     {"mng_getcb_closestream",      1, 0, 0},
     {"mng_getcb_errorproc",        1, 0, 0},
     {"mng_getcb_getalphaline",     1, 0, 0},
@@ -678,63 +684,117 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getcb_writedata",        1, 0, 0},
     {"mng_getchunk_back",          1, 0, 0},
     {"mng_getchunk_basi",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_bKGD
     {"mng_getchunk_bkgd",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_cHRM
     {"mng_getchunk_chrm",          1, 0, 0},
+#endif
     {"mng_getchunk_clip",          1, 0, 0},
     {"mng_getchunk_clon",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_dBYK
     {"mng_getchunk_dbyk",          1, 0, 0},
+#endif
+#endif
     {"mng_getchunk_defi",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {"mng_getchunk_dhdr",          1, 0, 0},
+#endif
     {"mng_getchunk_disc",          1, 0, 0},
     {"mng_getchunk_drop",          1, 0, 0},
     {"mng_getchunk_endl",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_evNT
     {"mng_getchunk_evnt",          1, 0, 5},
     {"mng_getchunk_evnt_entry",    1, 0, 5},
+#endif
+#ifndef MNG_SKIPCHUNK_eXPI
     {"mng_getchunk_expi",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_fPRI
     {"mng_getchunk_fpri",          1, 0, 0},
+#endif
     {"mng_getchunk_fram",          1, 0, 0},
     {"mng_getchunk_gama",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_hIST
     {"mng_getchunk_hist",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iCCP
     {"mng_getchunk_iccp",          1, 0, 0},
+#endif
     {"mng_getchunk_idat",          1, 0, 0},
     {"mng_getchunk_iend",          1, 0, 0},
     {"mng_getchunk_ihdr",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
     {"mng_getchunk_ijng",          1, 0, 0},
+#endif
     {"mng_getchunk_ipng",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iTXt
     {"mng_getchunk_itxt",          1, 0, 0},
+#endif
+#ifdef MNG_INCLUDE_JNG
     {"mng_getchunk_jdaa",          1, 0, 0},
     {"mng_getchunk_jdat",          1, 0, 0},
     {"mng_getchunk_jhdr",          1, 0, 0},
     {"mng_getchunk_jsep",          1, 0, 0},
+#endif
     {"mng_getchunk_loop",          1, 0, 0},
     {"mng_getchunk_magn",          1, 0, 0},
     {"mng_getchunk_mend",          1, 0, 0},
     {"mng_getchunk_mhdr",          1, 0, 0},
     {"mng_getchunk_move",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_nEED
     {"mng_getchunk_need",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_ORDR
+#ifndef MNG_NO_DELTA_PNG
     {"mng_getchunk_ordr",          1, 0, 0},
     {"mng_getchunk_ordr_entry",    1, 0, 0},
+#endif
+#endif
     {"mng_getchunk_past",          1, 0, 0},
     {"mng_getchunk_past_src",      1, 0, 0},
+#ifndef MNG_SKIPCHUNK_pHYg
     {"mng_getchunk_phyg",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_pHYs
     {"mng_getchunk_phys",          1, 0, 0},
+#endif
+#ifndef MNG_NO_DELTA_PNG
     {"mng_getchunk_plte",          1, 0, 0},
     {"mng_getchunk_pplt",          1, 0, 0},
     {"mng_getchunk_pplt_entry",    1, 0, 0},
     {"mng_getchunk_prom",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SAVE
     {"mng_getchunk_save",          1, 0, 0},
     {"mng_getchunk_save_entry",    1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_sBIT
     {"mng_getchunk_sbit",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
     {"mng_getchunk_seek",          1, 0, 0},
+#endif
     {"mng_getchunk_show",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_sPLT
     {"mng_getchunk_splt",          1, 0, 0},
+#endif
     {"mng_getchunk_srgb",          1, 0, 0},
     {"mng_getchunk_term",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_tEXt
     {"mng_getchunk_text",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_tIME
     {"mng_getchunk_time",          1, 0, 0},
+#endif
     {"mng_getchunk_trns",          1, 0, 0},
     {"mng_getchunk_unkown",        1, 0, 0},
+#ifndef MNG_SKIPCHUNK_zTXt
     {"mng_getchunk_ztxt",          1, 0, 0},
+#endif
     {"mng_getimgdata_chunk",       0, 0, 0},
     {"mng_getimgdata_chunkseq",    0, 0, 0},
     {"mng_getimgdata_seq",         0, 0, 0},
@@ -743,63 +803,117 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_iterate_chunks",         1, 0, 0},
     {"mng_putchunk_back",          1, 0, 0},
     {"mng_putchunk_basi",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_bKGD
     {"mng_putchunk_bkgd",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_cHRM
     {"mng_putchunk_chrm",          1, 0, 0},
+#endif
     {"mng_putchunk_clip",          1, 0, 0},
     {"mng_putchunk_clon",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
     {"mng_putchunk_dbyk",          1, 0, 0},
+#endif
+#endif
     {"mng_putchunk_defi",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {"mng_putchunk_dhdr",          1, 0, 0},
+#endif
     {"mng_putchunk_disc",          1, 0, 0},
     {"mng_putchunk_drop",          1, 0, 0},
     {"mng_putchunk_endl",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_evNT
     {"mng_putchunk_evnt",          1, 0, 5},
     {"mng_putchunk_evnt_entry",    1, 0, 5},
+#endif
+#ifndef MNG_SKIPCHUNK_eXPI
     {"mng_putchunk_expi",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_fPRI
     {"mng_putchunk_fpri",          1, 0, 0},
+#endif
     {"mng_putchunk_fram",          1, 0, 0},
     {"mng_putchunk_gama",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_hIST
     {"mng_putchunk_hist",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iCCP
     {"mng_putchunk_iccp",          1, 0, 0},
+#endif
     {"mng_putchunk_idat",          1, 0, 0},
     {"mng_putchunk_iend",          1, 0, 0},
     {"mng_putchunk_ihdr",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
     {"mng_putchunk_ijng",          1, 0, 0},
+#endif
     {"mng_putchunk_ipng",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iTXt
     {"mng_putchunk_itxt",          1, 0, 0},
+#endif
+#ifdef MNG_INCLUDE_JNG
     {"mng_putchunk_jdaa",          1, 0, 0},
     {"mng_putchunk_jdat",          1, 0, 0},
     {"mng_putchunk_jhdr",          1, 0, 0},
     {"mng_putchunk_jsep",          1, 0, 0},
+#endif
     {"mng_putchunk_loop",          1, 0, 0},
     {"mng_putchunk_magn",          1, 0, 0},
     {"mng_putchunk_mend",          1, 0, 0},
     {"mng_putchunk_mhdr",          1, 0, 0},
     {"mng_putchunk_move",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_nEED
     {"mng_putchunk_need",          1, 0, 0},
+#endif
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
     {"mng_putchunk_ordr",          1, 0, 0},
     {"mng_putchunk_ordr_entry",    1, 0, 0},
+#endif
+#endif
     {"mng_putchunk_past",          1, 0, 0},
     {"mng_putchunk_past_src",      1, 0, 0},
+#ifndef MNG_SKIPCHUNK_pHYg
     {"mng_putchunk_phyg",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_pHYs
     {"mng_putchunk_phys",          1, 0, 0},
+#endif
+#ifndef MNG_NO_DELTA_PNG
     {"mng_putchunk_plte",          1, 0, 0},
     {"mng_putchunk_pplt",          1, 0, 0},
     {"mng_putchunk_pplt_entry",    1, 0, 0},
     {"mng_putchunk_prom",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SAVE
     {"mng_putchunk_save",          1, 0, 0},
     {"mng_putchunk_save_entry",    1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_sBIT
     {"mng_putchunk_sbit",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
     {"mng_putchunk_seek",          1, 0, 0},
+#endif
     {"mng_putchunk_show",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_sPLT
     {"mng_putchunk_splt",          1, 0, 0},
+#endif
     {"mng_putchunk_srgb",          1, 0, 0},
     {"mng_putchunk_term",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_tEXt
     {"mng_putchunk_text",          1, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_tIME
     {"mng_putchunk_time",          1, 0, 0},
+#endif
     {"mng_putchunk_trns",          1, 0, 0},
     {"mng_putchunk_unkown",        1, 0, 0},
+#ifndef MNG_SKIPCHUNK_zTXT
     {"mng_putchunk_ztxt",          1, 0, 0},
+#endif
     {"mng_putimgdata_ihdr",        0, 0, 0},
     {"mng_putimgdata_jhdr",        0, 0, 0},
     {"mng_reset",                  1, 0, 0},
@@ -815,12 +929,14 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_displaygamma",       1, 0, 0},
     {"mng_set_displaygammaint",    1, 0, 0},
     {"mng_set_doprogressive",      1, 0, 2},
+#ifdef MNG_ACCESS_JPEG
     {"mng_set_jpeg_dctmethod",     1, 0, 0},
     {"mng_set_jpeg_maxjdat",       1, 0, 0},
     {"mng_set_jpeg_optimized",     1, 0, 0},
     {"mng_set_jpeg_progressive",   1, 0, 0},
     {"mng_set_jpeg_quality",       1, 0, 0},
     {"mng_set_jpeg_smoothing",     1, 0, 0},
+#endif
     {"mng_set_maxcanvasheight",    1, 0, 0},
     {"mng_set_maxcanvassize",      1, 0, 0},
     {"mng_set_maxcanvaswidth",     1, 0, 0},
@@ -839,12 +955,14 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_userdata",           1, 0, 0},
     {"mng_set_viewgamma",          1, 0, 0},
     {"mng_set_viewgammaint",       1, 0, 0},
+#ifdef MNG_ACCESS_ZLIB
     {"mng_set_zlib_level",         1, 0, 0},
     {"mng_set_zlib_maxidat",       1, 0, 0},
     {"mng_set_zlib_memlevel",      1, 0, 0},
     {"mng_set_zlib_method",        1, 0, 0},
     {"mng_set_zlib_strategy",      1, 0, 0},
     {"mng_set_zlib_windowbits",    1, 0, 0},
+#endif
     {"mng_setcb_closestream",      1, 0, 0},
     {"mng_setcb_errorproc",        1, 0, 0},
     {"mng_setcb_getalphaline",     1, 0, 0},

@@ -3949,8 +3949,8 @@ mng_retcode mng_store_jpeg_g8_a2 (mng_datap pData)
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
     {
-       const mng_uint8  alpha_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
-       *pOutrow = alpha_level[((iB & iM) >> iS)] ;
+      const mng_uint8  alpha_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
+        *pOutrow = alpha_level[((iB & iM) >> iS)] ;
     }
 #else
     switch ((iB & iM) >> iS)           /* determine the alpha level */
@@ -4191,10 +4191,10 @@ mng_retcode mng_store_jpeg_rgb8_a2 (mng_datap pData)
     }
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
-     {
-        const mng_uint8  alpha_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
-        *pOutrow = alpha_level[((iB & iM) >> iS)] ;
-     }
+    {
+      const mng_uint8  alpha_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
+      *pOutrow = alpha_level[((iB & iM) >> iS)] ;
+    }
 #else
     switch ((iB & iM) >> iS)           /* determine the alpha level */
     {
@@ -4437,10 +4437,10 @@ mng_retcode mng_store_jpeg_g12_a2 (mng_datap pData)
     }
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
-     {
-        const mng_uint16  gray_level[4] = { 0x0000, 0x5555, 0xAAAA, 0xFFFF};
-        mng_put_uint16 (pOutrow, gray_level[((iB & iM) >> iS)]) ;
-     }
+    {
+      const mng_uint16  gray_level[4] = { 0x0000, 0x5555, 0xAAAA, 0xFFFF};
+      mng_put_uint16 (pOutrow, gray_level[((iB & iM) >> iS)]) ;
+    }
 #else
     switch ((iB & iM) >> iS)           /* determine the gray level */
     {
@@ -4702,6 +4702,9 @@ mng_retcode mng_delta_g2 (mng_datap pData)
   mng_uint8      iB;
   mng_uint8      iM;
   mng_uint32     iS;
+#ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
+  const mng_uint8  level[4] = { 0x00, 0x55, 0xAA, 0xFF};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G2, MNG_LC_START)
@@ -4733,10 +4736,7 @@ mng_retcode mng_delta_g2 (mng_datap pData)
       }
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
-     {
-        const mng_uint8  alpha_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
-        *pOutrow = alpha_level[((iB & iM) >> iS)] ;
-     }
+    *pOutrow = level[((iB & iM) >> iS)] ;
 #else
     switch ((iB & iM) >> iS)           /* determine the alpha level */
     {
@@ -4769,12 +4769,8 @@ mng_retcode mng_delta_g2 (mng_datap pData)
       }
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
-     {
-        const mng_uint8  gray_level[4] = { 0x00, 0x55, 0xAA, 0xFF};
-        *pOutrow = gray_level[((*pOutrow >> 6) + ((iB & iM) >> iS)) & 0x03] ;
-     }
+      *pOutrow = level[((*pOutrow >> 6) + ((iB & iM) >> iS)) & 0x03] ;
 #else
-                                       /* determine the gray level */
       switch (((*pOutrow >> 6) + ((iB & iM) >> iS)) & 0x03)
       {
         case 0x03 : { *pOutrow = 0xFF; break; }
@@ -8903,6 +8899,10 @@ mng_retcode mng_process_g2 (mng_datap pData)
   mng_uint32     iS;
   mng_uint8      iQ;
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
+#ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
+  const mng_uint32  level[4] = { 0x000000FF, 0x555555FF,
+          0xAAAAAAFF, 0xFFFFFFFF};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_G2, MNG_LC_START)
@@ -8939,6 +8939,9 @@ mng_retcode mng_process_g2 (mng_datap pData)
         mng_put_uint32 (pRGBArow, 0x00000000);
       else
       {
+#ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
+        mng_put_uint32 (pRGBArow, level[iQ]);
+#else
         switch (iQ)                    /* determine the gray level */
         {
           case 0x03 : { mng_put_uint32 (pRGBArow, 0xFFFFFFFF); break; }
@@ -8946,6 +8949,7 @@ mng_retcode mng_process_g2 (mng_datap pData)
           case 0x01 : { mng_put_uint32 (pRGBArow, 0x555555FF); break; }
           default   : { mng_put_uint32 (pRGBArow, 0x000000FF); }
         }
+#endif
       }
 
       pRGBArow += 4;                   /* next pixel */
@@ -8972,11 +8976,7 @@ mng_retcode mng_process_g2 (mng_datap pData)
       }
 
 #ifdef MNG_OPTIMIZE_FOOTPRINT_SWITCH
-     {
-        const mng_uint32  gray_level[4] = { 0x000000FF, 0x555555FF,
-          0xAAAAAAFF, 0xFFFFFFFF};
-        mng_put_uint32 (pRGBArow, gray_level[((iB & iM) >> iS)] );
-     }
+      mng_put_uint32 (pRGBArow, level[((iB & iM) >> iS)] );
 #else
       switch ((iB & iM) >> iS)         /* determine the gray level */
       {

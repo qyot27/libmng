@@ -66,6 +66,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 04/11/2003 - G.Juyn                                * */
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
+/* *             1.0.6 - 07/11/2003 - G. R-P                                * */
+/* *             - added conditional MNG_SKIPCHUNK_cHRM/iCCP                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -225,6 +227,7 @@ mng_retcode mng_init_full_cms (mng_datap pData,
 
   if ((!pBuf) || (!pBuf->bCorrected))  /* is the buffer already corrected ? */
   {
+#ifndef MNG_SKIPCHUNK_iCCP
     if (((pBuf) && (pBuf->bHasICCP)) || ((bGlobal) && (pData->bHasglobalICCP)))
     {
       if (!pData->hProf2)              /* output profile not defined ? */
@@ -264,6 +267,7 @@ mng_retcode mng_init_full_cms (mng_datap pData,
       return MNG_NOERROR;              /* and done */
     }
     else
+#endif
     if (((pBuf) && (pBuf->bHasSRGB)) || ((bGlobal) && (pData->bHasglobalSRGB)))
     {
       mng_uint8 iIntent;
@@ -322,6 +326,7 @@ mng_retcode mng_init_full_cms (mng_datap pData,
           MNG_ERRORL (pData, MNG_LCMS_NOHANDLE)
       }
 
+#ifndef MNG_SKIPCHUNK_cHRM
       if ((pBuf) && (pBuf->bHasCHRM))  /* local cHRM ? */
       {
         sWhitepoint.x      = (mng_float)pBuf->iWhitepointx   / 100000;
@@ -344,6 +349,7 @@ mng_retcode mng_init_full_cms (mng_datap pData,
         sPrimaries.Blue.x  = (mng_float)pData->iGlobalPrimarybluex  / 100000;
         sPrimaries.Blue.y  = (mng_float)pData->iGlobalPrimarybluey  / 100000;
       }
+#endif
 
       sWhitepoint.Y      =             /* Y component is always 1.0 */
       sPrimaries.Red.Y   =
@@ -580,6 +586,7 @@ mng_retcode mng_init_app_cms (mng_datap pData,
 
   if ((!pBuf) || (!pBuf->bCorrected))  /* is the buffer already corrected ? */
   {
+#ifndef MNG_SKIPCHUNK_iCCP
     if ( (pData->fProcessiccp) &&
          (((pBuf) && (pBuf->bHasICCP)) || ((bGlobal) && (pData->bHasglobalICCP))) )
     {
@@ -603,6 +610,7 @@ mng_retcode mng_init_app_cms (mng_datap pData,
       pData->fCorrectrow = (mng_fptr)mng_correct_app_cms;
       bDone              = MNG_TRUE;
     }
+#endif
 
     if ( (pData->fProcesssrgb) &&
          (((pBuf) && (pBuf->bHasSRGB)) || ((bGlobal) && (pData->bHasglobalSRGB))) )
@@ -621,6 +629,7 @@ mng_retcode mng_init_app_cms (mng_datap pData,
       bDone              = MNG_TRUE;
     }
 
+#ifndef MNG_SKIPCHUNK_cHRM
     if ( (pData->fProcesschroma) &&
          (((pBuf) && (pBuf->bHasCHRM)) || ((bGlobal) && (pData->bHasglobalCHRM))) )
     {
@@ -661,6 +670,7 @@ mng_retcode mng_init_app_cms (mng_datap pData,
       pData->fCorrectrow = (mng_fptr)mng_correct_app_cms;
       bDone              = MNG_TRUE;
     }
+#endif
 
     if ( (pData->fProcessgamma) &&
          (((pBuf) && (pBuf->bHasGAMA)) || ((bGlobal) && (pData->bHasglobalGAMA))) )

@@ -53,6 +53,8 @@
 #ifndef _libmng_conf_h_
 #define _libmng_conf_h_
 
+#include "mozlibmngconf.h"
+
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  User-selectable compile-time options                                  * */
@@ -240,6 +242,22 @@
 #ifndef MNG_SUPPORT_DYNAMICMNG
 #ifndef MNG_SKIPCHUNK_evNT
 #define MNG_SKIPCHUNK_evNT
+#endif
+#endif
+
+#ifdef MNG_INCLUDE_JNG
+#ifndef MNG_NO_ACCESS_JPEG
+#ifndef MNG_ACCESS_JPEG
+#define MNG_ACCESS_JPEG
+#endif
+#endif
+#endif
+
+#ifdef MNG_INCLUDE_ZLIB
+#ifndef MNG_NO_ACCESS_ZLIB
+#ifndef MNG_ACCESS_ZLIB
+#define MNG_ACCESS_ZLIB
+#endif
 #endif
 #endif
 
