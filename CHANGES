@@ -12,9 +12,11 @@ CVS only
 bugfixes:
 
 core:
-- fixed initializtion of pIds in dISC read routine
+- fixed initializtion of pIds in dISC read routine (Thanks Winfried!)
 - fixed issue in freeing evNT chunk (Thanks Winfried!)
 - fixed clipping-problem with BACK tiling (Thanks Sakura!)
+- fixed processing for multiple objects in MAGN (Thanks Sakura!)
+- fixed display of visible target of PAST operation (Thanks Sakura!)
 
 samples:
 

@@ -47,6 +47,8 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - added proposed change in handling of TERM- & if-delay    * */
+/* *             1.0.5 - 10/20/2002 - G.Juyn                                * */
+/* *             - fixed display of visible target of PAST operation        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -207,6 +209,7 @@ mng_retcode mng_process_display_past  (mng_datap      pData,
                                        mng_int32      iTargety,
                                        mng_uint32     iCount,
                                        mng_ptr        pSources);
+mng_retcode mng_process_display_past2 (mng_datap      pData);
 
 /* ************************************************************************** */
 

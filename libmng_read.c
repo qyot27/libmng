@@ -471,17 +471,18 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
     {
       switch (pData->iBreakpoint)      /* return to broken display routine */
       {
-        case 1 : { iRetcode = mng_process_display_fram2 (pData); break; }
-        case 2 : { iRetcode = mng_process_display_ihdr  (pData); break; }
-        case 3 : ;                     /* same as 4 !!! */
-        case 4 : { iRetcode = mng_process_display_show  (pData); break; }
-        case 5 : { iRetcode = mng_process_display_clon2 (pData); break; }
+        case  1 : { iRetcode = mng_process_display_fram2 (pData); break; }
+        case  2 : { iRetcode = mng_process_display_ihdr  (pData); break; }
+        case  3 : ;                     /* same as 4 !!! */
+        case  4 : { iRetcode = mng_process_display_show  (pData); break; }
+        case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
 #ifdef MNG_INCLUDE_JNG
-        case 7 : { iRetcode = mng_process_display_jhdr  (pData); break; }
+        case  7 : { iRetcode = mng_process_display_jhdr  (pData); break; }
 #endif
-        case 6 : ;                     /* same as 8 !!! */
-        case 8 : { iRetcode = mng_process_display_iend  (pData); break; }
-        case 9 : { iRetcode = mng_process_display_magn2 (pData); break; }
+        case  6 : ;                     /* same as 8 !!! */
+        case  8 : { iRetcode = mng_process_display_iend  (pData); break; }
+        case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
+        case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
       }
     }
   }

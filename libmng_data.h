@@ -120,6 +120,9 @@
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - added another fix for misplaced TERM chunk               * */
 /* *             - completed support for condition=2 in TERM chunk          * */
+/* *             1.0.5 - 10/20/2002 - G.Juyn                                * */
+/* *             - fixed processing for multiple objects in MAGN            * */
+/* *             - fixed display of visible target of PAST operation        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -650,8 +653,10 @@ typedef struct mng_data_struct {
            mng_ptr           pPromDst;
 
            mng_uint16        iMAGNfromid;
+           mng_uint16        iMAGNcurrentid;
            mng_uint16        iMAGNtoid;
 
+           mng_uint16        iPASTid;
            mng_int32         iPastx;             /* target x/y of last PAST */
            mng_int32         iPasty;
 

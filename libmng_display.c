@@ -171,6 +171,9 @@
 /* *             - completed support for condition=2 in TERM chunk          * */
 /* *             1.0.5 - 10/18/2002 - G.Juyn                                * */
 /* *             - fixed clipping-problem with BACK tiling (Thanks Sakura!) * */
+/* *             1.0.5 - 10/20/2002 - G.Juyn                                * */
+/* *             - fixed processing for multiple objects in MAGN            * */
+/* *             - fixed display of visible target of PAST operation        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2220,6 +2223,7 @@ mng_retcode mng_process_display (mng_datap pData)
         case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
         case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
+        case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
         default : MNG_ERROR (pData, MNG_INTERNALERROR)
       }
     }
@@ -5179,7 +5183,6 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
         if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
         {
           mng_retcode iRetcode = mng_magnify_imageobject (pData, pImage);
-                                     
           if (iRetcode)                /* on error bail out */
             return iRetcode;
         }
@@ -5196,10 +5199,14 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
     }
   }
 
-  iX = iFirstid;
+  pData->iMAGNfromid = iFirstid;
+  pData->iMAGNtoid   = iLastid;
+  iX                 = iFirstid;
                                        /* iterate again for showing */
   while ((iX <= iLastid) && (!pData->bTimerset))
   {
+    pData->iMAGNcurrentid = iX;
+
     if (iX)                            /* only real objects ! */
     {
       pImage = mng_find_imageobject (pData, iX);
@@ -5207,18 +5214,18 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
                                           is visible & is viewable ? */
       if ((pImage) && (!pImage->bFrozen) &&
           (pImage->bVisible) && (pImage->bViewable))
-        mng_display_image (pData, pImage, MNG_FALSE);
+      {
+        mng_retcode iRetcode = mng_display_image (pData, pImage, MNG_FALSE);
+        if (iRetcode)
+          return iRetcode;
+      }
     }
 
     iX++;
   }
 
   if (pData->bTimerset)                /* broken ? */
-  {
-    pData->iMAGNfromid = iFirstid;
-    pData->iMAGNtoid   = iLastid;
     pData->iBreakpoint = 9;
-  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_END)
@@ -5238,10 +5245,12 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_START)
 #endif
 
-  iX = pData->iMAGNfromid;
+  iX = pData->iMAGNcurrentid;
                                        /* iterate again for showing */
   while ((iX <= pData->iMAGNtoid) && (!pData->bTimerset))
   {
+    pData->iMAGNcurrentid = iX;
+
     if (iX)                            /* only real objects ! */
     {
       pImage = mng_find_imageobject (pData, iX);
@@ -5249,7 +5258,11 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
                                           is visible & is viewable ? */
       if ((pImage) && (!pImage->bFrozen) &&
           (pImage->bVisible) && (pImage->bViewable))
-        mng_display_image (pData, pImage, MNG_FALSE);
+      {
+        mng_retcode iRetcode = mng_display_image (pData, pImage, MNG_FALSE);
+        if (iRetcode)
+          return iRetcode;
+      }
     }
 
     iX++;
@@ -5257,6 +5270,8 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
 
   if (pData->bTimerset)                /* broken ? */
     pData->iBreakpoint = 9;
+  else
+    pData->iBreakpoint = 0;            /* not again ! */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_END)
@@ -5735,11 +5750,54 @@ mng_retcode mng_process_display_past (mng_datap  pData,
     if (!iTargetid)                    /* did we paste into object 0 ? */
     {                                  /* display it then ! */
       iRetcode = mng_display_image (pData, pTargetimg, MNG_FALSE);
-
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
     }
+    else
+    {                                  /* target is visible & viewable ? */
+      if ((pTargetimg->bVisible) && (pTargetimg->bViewable))
+      {
+        iRetcode = mng_display_image (pData, pTargetimg, MNG_FALSE);
+        if (iRetcode)
+          return iRetcode;
+      }
+    }  
   }
+
+  if (pData->bTimerset)                /* broken ? */
+  {
+    pData->iPASTid     = iTargetid;
+    pData->iBreakpoint = 11;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_process_display_past2 (mng_datap pData)
+{
+  mng_retcode iRetcode;
+  mng_imagep  pTargetimg;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_START)
+#endif
+
+  if (pData->iPASTid)                  /* a real destination object ? */
+    pTargetimg = (mng_imagep)mng_find_imageobject (pData, pData->iPASTid);
+  else                                 /* otherwise object 0 */
+    pTargetimg = (mng_imagep)pData->pObjzero;
+
+  iRetcode = mng_display_image (pData, pTargetimg, MNG_FALSE);
+  if (iRetcode)
+    return iRetcode;
+
+  pData->iBreakpoint = 0;              /* only once */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_END)
