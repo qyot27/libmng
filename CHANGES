@@ -17,10 +17,12 @@ core:
 - fixed clipping-problem with BACK tiling (Thanks Sakura!)
 - fixed processing for multiple objects in MAGN (Thanks Sakura!)
 - fixed display of visible target of PAST operation (Thanks Sakura!)
+- modified TERM/MEND processing for max(1, TERM_delay, interframe_delay)
 
 samples:
 
 contrib:
+- fixed typo in Makefile for gtk-mng-view sample
 
 doc:
 

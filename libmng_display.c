@@ -174,7 +174,9 @@
 /* *             1.0.5 - 10/20/2002 - G.Juyn                                * */
 /* *             - fixed processing for multiple objects in MAGN            * */
 /* *             - fixed display of visible target of PAST operation        * */
-/* *                                                                        * */
+/* *             1.0.5 - 10/30/2002 - G.Juyn                                * */
+/* *             - modified TERM/MEND processing for max(1, TERM_delay,     * */
+/* *               interframe_delay)                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -2862,8 +2864,11 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 /*                 pData->bFrameclipping = MNG_FALSE;
                  load_bkgdlayer (pData); */
 
+                                       /* max(1, TERM delay, interframe_delay) */
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
+                 if (!pData->iFramedelay)
+                   pData->iFramedelay = 1;
 
                  iRetcode = interframe_delay (pData);
                                        /* no interframe_delay? then fake it */
@@ -2894,10 +2899,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                  pData->pCurraniobj      = pTERM;
                  pData->bOnlyfirstframe  = MNG_TRUE;
                  pData->iFramesafterTERM = 0;
-                                       /* new interframe_delay is the greater
-                                          of TERM delay and current interframe_delay */
+
+                                       /* max(1, TERM delay, interframe_delay) */
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
+                 if (!pData->iFramedelay)
+                   pData->iFramedelay = 1;
 
 /*                 iWaitfor = calculate_delay (pData, pData->iFramedelay);
                  iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
@@ -2934,10 +2941,11 @@ mng_retcode mng_process_display_mend (mng_datap pData)
    see 'mng-list' archives for more details */
 
 /*                     mng_uint32 iWaitfor; */
-                                       /* new interframe_delay is the greater
-                                          of TERM delay and current interframe_delay */
+                                       /* max(1, TERM delay, interframe_delay) */
                      if (pTERM->iDelay > pData->iFramedelay)
                        pData->iFramedelay = pTERM->iDelay;
+                     if (!pData->iFramedelay)
+                       pData->iFramedelay = 1;
 
 /*                     iWaitfor = calculate_delay (pData, pData->iFramedelay);
                      iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
@@ -2965,8 +2973,11 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 /*                                pData->bFrameclipping = MNG_FALSE;
                                 load_bkgdlayer (pData); */
 
+                                       /* max(1, TERM delay, interframe_delay) */
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
+                                if (!pData->iFramedelay)
+                                  pData->iFramedelay = 1;
 
                                 iRetcode = interframe_delay (pData);
                                        /* no interframe_delay? then fake it */
@@ -2998,10 +3009,11 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                 pData->pCurraniobj      = pTERM;
                                 pData->bOnlyfirstframe  = MNG_TRUE;
                                 pData->iFramesafterTERM = 0;
-                                       /* new interframe_delay is the greater
-                                          of TERM delay and current interframe_delay */
+                                       /* max(1, TERM delay, interframe_delay) */
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
+                                if (!pData->iFramedelay)
+                                  pData->iFramedelay = 1;
 
 /*                                iWaitfor = calculate_delay (pData, pData->iFramedelay);
                                 iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
