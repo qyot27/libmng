@@ -17,8 +17,6 @@ AC_PROG_CC
 dnl Checks for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADERS(libmng.h)
-
 dnl check for Simple Direct Media Layer
 AC_CHECK_PROG(HAS_SDL, sdl-config, yes)
 if test "x$HAS_SDL" != "xyes"; then
@@ -29,9 +27,7 @@ fi
 CFLAGS="$CFLAGS `sdl-config --cflags`"
 LDFLAGS="$LDFLAGS `sdl-config --libs`"
 
-dnl Checks for libraries.
-AC_CHECK_LIB(png, png_check_sig)
-AC_CHECK_LIB(jpeg, jpeg_set_defaults)
-AC_CHECK_LIB(mng, mng_readdisplay)
+dnl check for libmng
+LIBMNG_CHECK()
 
 AC_OUTPUT(Makefile)

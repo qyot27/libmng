@@ -3,6 +3,8 @@
 
 PKGNAME="mngplay"
 
+am_opt="--foreign"
+
 DIE=0
 
 # try to guess the proper treetop
@@ -60,7 +62,7 @@ fi
 
 case $CC in
 xlc )
-  am_opt=--include-deps;;
+  am_opt="$(am_opt) --include-deps";;
 esac
 
 for coin in `find $srcdir -name configure.in -print`
@@ -110,15 +112,15 @@ do
 	echo "Running autoheader..."
 	autoheader
       fi
-      echo "Running automake --gnu $am_opt ..."
-      automake --add-missing --gnu $am_opt
+      echo "Running automake $am_opt ..."
+      automake --add-missing $am_opt
       echo "Running autoconf ..."
       autoconf
     )
   fi
 done
 
-conf_flags="--enable-maintainer-mode --enable-debug " 
+#conf_flags="--enable-maintainer-mode --enable-debug " 
 
 if test x$NOCONFIGURE = x; then
   echo Running $srcdir/configure $conf_flags "$@" ...
