@@ -193,6 +193,15 @@
 #define MNG_USE_SETJMP
 #endif
 
+#ifdef MNG_INCLUDE_JNG
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_ACCESS_CHUNKS)
+#define MNG_INCLUDE_JNG_READ
+#endif
+#if defined(MNG_SUPPORT_WRITE) || defined(MNG_ACCESS_CHUNKS)
+#define MNG_INCLUDE_JNG_WRITE
+#endif
+#endif
+
 #ifdef MNG_FULL_CMS
 #define MNG_INCLUDE_LCMS
 #endif
