@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -190,6 +190,9 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around non-VLC chunk support          * */
+/* *                                                                        * */
+/* *             1.0.7 - 10/29/2003 - G.R-P                                 * */
+/* *             - revised JDAA and JDAT readers to avoid compiler bug      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5668,6 +5671,12 @@ READ_CHUNK (mng_read_jhdr)
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jdaa)
 {
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  volatile mng_retcode iRetcode;
+
+  iRetcode=MNG_NOERROR;
+#endif
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAA, MNG_LC_START)
 #endif
@@ -5687,18 +5696,16 @@ READ_CHUNK (mng_read_jdaa)
   pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
+  iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  if (iRetcode)                      /* on error bail out */
+    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5729,6 +5736,12 @@ READ_CHUNK (mng_read_jdaa)
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jdat)
 {
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  volatile mng_retcode iRetcode;
+
+  iRetcode=MNG_NOERROR;
+#endif
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAT, MNG_LC_START)
 #endif
@@ -5742,18 +5755,16 @@ READ_CHUNK (mng_read_jdat)
   pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
+  iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  if (iRetcode)                      /* on error bail out */
+    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
