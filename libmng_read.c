@@ -975,8 +975,8 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 
 MNG_LOCAL mng_retcode process_pushedchunk (mng_datap pData)
 {
-  mng_retcode   iRetcode;
   mng_pushdatap pPush;
+  mng_retcode   iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->pCurraniobj)              /* processing an animation object ? */

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_prc.c        copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (implementation)            * */
 /* *                                                                        * */
@@ -57,6 +57,9 @@
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - fixed SKIPCHUNK_eXPI -> fPRI typo                        * */
 /* *                                                                        * */
+/* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
+/* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -88,20 +91,25 @@ void mng_add_chunk (mng_datap  pData,
     pData->pFirstchunk      = pChunk;  /* then this becomes the first */
     
 #ifdef MNG_SUPPORT_WRITE
-    pData->iFirstchunkadded = ((mng_chunk_headerp)pChunk)->iChunkname;
+    if (!pData->iFirstchunkadded)
+    {
+      pData->iFirstchunkadded = ((mng_chunk_headerp)pChunk)->iChunkname;
 #endif
 
-    if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
-      pData->eImagetype     = mng_it_png;
-    else
+      if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
+        pData->eImagetype     = mng_it_png;
+      else
 #ifdef MNG_INCLUDE_JNG
-    if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_JHDR)
-      pData->eImagetype     = mng_it_jng;
-    else
+      if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_JHDR)
+        pData->eImagetype     = mng_it_jng;
+      else
 #endif
-      pData->eImagetype     = mng_it_mng;
+        pData->eImagetype     = mng_it_mng;
 
-    pData->eSigtype         = pData->eImagetype;
+      pData->eSigtype         = pData->eImagetype;
+#ifdef MNG_SUPPORT_WRITE
+    }
+#endif
   }
   else
   {                                    /* else we make appropriate links */

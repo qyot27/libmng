@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_hlapi.c            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -181,6 +181,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 08/17/2004 - G.R-P                                 * */
 /* *             - added more SKIPCHUNK conditionals                        * */
+/* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
+/* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -213,46 +215,8 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-mng_retcode mng_drop_chunks (mng_datap pData)
-{
-  mng_chunkp       pChunk;
-  mng_chunkp       pNext;
-  mng_cleanupchunk fCleanup;
-
-#ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_START)
-#endif
-
-  pChunk = pData->pFirstchunk;         /* and get first stored chunk (if any) */
-
-  while (pChunk)                       /* more chunks to discard ? */
-  {
-    pNext = ((mng_chunk_headerp)pChunk)->pNext;
-                                       /* call appropriate cleanup */
-    fCleanup = ((mng_chunk_headerp)pChunk)->fCleanup;
-    fCleanup (pData, pChunk);
-
-    pChunk = pNext;                    /* neeeext */
-  }
-
-#ifdef MNG_TWEAK_LARGE_MNG_WRITES
-  pData->pFirstchunk = MNG_NULL;
-  pData->pLastchunk  = MNG_NULL;
-#endif
-
-#ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_END)
-#endif
-
-  return MNG_NOERROR;
-}
-#endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
-
-/* ************************************************************************** */
-
 #ifdef MNG_SUPPORT_DISPLAY
-mng_retcode mng_drop_objects (mng_datap pData,
+MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
                               mng_bool  bDropaniobj)
 {
   mng_objectp       pObject;
@@ -325,7 +289,7 @@ mng_retcode mng_drop_objects (mng_datap pData,
 
 #ifdef MNG_SUPPORT_DISPLAY
 #ifndef MNG_SKIPCHUNK_SAVE
-mng_retcode mng_drop_savedata (mng_datap pData)
+MNG_LOCAL mng_retcode mng_drop_savedata (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_START)
@@ -353,7 +317,7 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-mng_retcode mng_reset_rundata (mng_datap pData)
+MNG_LOCAL mng_retcode mng_reset_rundata (mng_datap pData)
 {
   mng_drop_invalid_objects (pData);    /* drop invalidly stored objects */
 #ifndef MNG_SKIPCHUNK_SAVE
@@ -2131,11 +2095,6 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
 
 #ifdef MNG_SUPPORT_READ
   if (pData->bReading)                 /* valid at this point ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-#endif
-
-#ifndef MNG_TWEAK_LARGE_MNG_WRITES
-  if (pData->bCreating)                /* can't write while it's still being made! */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 #endif
 

@@ -79,6 +79,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/17/2004 - G.R-P                                 * */
 /* *             - added two more conditionals                              * */
+/* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
+/* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2583,7 +2585,6 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
 
   mng_add_chunk (pData, pChunk);       /* add it to the list */
 
-#ifndef MNG_TWEAK_LARGE_MNG_WRITES
 #ifdef MNG_INCLUDE_JNG
   if ((pData->iFirstchunkadded == MNG_UINT_IHDR) ||
       (pData->iFirstchunkadded == MNG_UINT_JHDR)    )
@@ -2591,7 +2592,6 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   if (pData->iFirstchunkadded == MNG_UINT_IHDR)
 #endif
     pData->bCreating = MNG_FALSE;      /* should be last chunk !!! */
-#endif /* MNG_TWEAK_LARGE_MNG_WRITES */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_END)

@@ -13,6 +13,7 @@ bugfixes:
 
 core:
 - fixed chunk pushing mechanism
+- replaced MNG_TWEAK_LARGE_FILES with permanent solution
 
 samples:
 
