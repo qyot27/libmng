@@ -29,6 +29,8 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -157,9 +159,9 @@ mng_retcode process_display_ijng  (mng_datap      pData);
 mng_retcode process_display_pplt  (mng_datap      pData,
                                    mng_uint8      iType,
                                    mng_uint32     iCount,
-                                   mng_rgbpaltab* paIndexentries,
-                                   mng_uint8arr*  paAlphaentries,
-                                   mng_uint8arr*  paUsedentries);
+                                   mng_palette8ep paIndexentries,
+                                   mng_uint8p     paAlphaentries,
+                                   mng_uint8p     paUsedentries);
 
 /* ************************************************************************** */
 

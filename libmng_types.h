@@ -69,6 +69,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #ifndef _libmng_types_h_
@@ -182,29 +185,29 @@
 /* ************************************************************************** */
 
 #if USHRT_MAX == 0xffffffffU                     /* get the proper 32-bit width !!! */
-typedef unsigned short mng_uint32;
-typedef signed   short mng_int32;
+typedef unsigned short   mng_uint32;
+typedef signed   short   mng_int32;
 #elif UINT_MAX == 0xffffffffU
-typedef unsigned int   mng_uint32;
-typedef signed   int   mng_int32;
+typedef unsigned int     mng_uint32;
+typedef signed   int     mng_int32;
 #elif ULONG_MAX == 0xffffffffU
-typedef unsigned long  mng_uint32;
-typedef signed   long  mng_int32;
+typedef unsigned long    mng_uint32;
+typedef signed   long    mng_int32;
 #else
 #error "Sorry, I can't find any 32-bit integers on this platform."
 #endif
 
-typedef signed   short mng_int16;                /* other basic integers */
-typedef unsigned short mng_uint16;
-typedef signed   char  mng_int8;
-typedef unsigned char  mng_uint8;
+typedef signed   short   mng_int16;              /* other basic integers */
+typedef unsigned short   mng_uint16;
+typedef signed   char    mng_int8;
+typedef unsigned char    mng_uint8;
 
-typedef double         mng_float;                /* basic float */
+typedef double           mng_float;              /* basic float */
 
-typedef size_t         mng_size_t;               /* size field for memory allocation */
+typedef size_t           mng_size_t;             /* size field for memory allocation */
 
-typedef char *         mng_pchar;                /* string */
-typedef void *         mng_ptr;                  /* generic pointer */
+typedef char *           mng_pchar;              /* string */
+typedef void *           mng_ptr;                /* generic pointer */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -212,34 +215,35 @@ typedef void *         mng_ptr;                  /* generic pointer */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-typedef mng_uint32 *   mng_uint32p;              /* pointer to unsigned longs */
-typedef mng_int32 *    mng_int32p;               /* pointer to longs */
-typedef mng_uint16 *   mng_uint16p;              /* pointer to unsigned words */
-typedef mng_uint8 *    mng_uint8p;               /* pointer to unsigned bytes */
+typedef mng_uint32 *     mng_uint32p;            /* pointer to unsigned longs */
+typedef mng_int32 *      mng_int32p;             /* pointer to longs */
+typedef mng_uint16 *     mng_uint16p;            /* pointer to unsigned words */
+typedef mng_uint8 *      mng_uint8p;             /* pointer to unsigned bytes */
 
-typedef mng_int8       mng_bool;                 /* booleans */
+typedef mng_int8         mng_bool;               /* booleans */
 
 struct mng_data_struct;
 typedef struct mng_data_struct * mng_handle;     /* generic handle */
 
-typedef mng_int32      mng_retcode;              /* generic return code */
-typedef mng_int32      mng_chunkid;              /* 4-byte chunkname identifier */
-typedef mng_ptr        mng_chunkp;               /* pointer to a chunk-structure */
-typedef mng_ptr        mng_objectp;              /* pointer to an object-structure */
+typedef mng_int32        mng_retcode;            /* generic return code */
+typedef mng_int32        mng_chunkid;            /* 4-byte chunkname identifier */
+typedef mng_ptr          mng_chunkp;             /* pointer to a chunk-structure */
+typedef mng_ptr          mng_objectp;            /* pointer to an object-structure */
 
-typedef mng_chunkid *  mng_chunkidp;             /* pointer to chunkid */
+typedef mng_chunkid *    mng_chunkidp;           /* pointer to chunkid */
 
 typedef struct {                                 /* 8-bit palette element */
           mng_uint8 iRed;
           mng_uint8 iGreen;
           mng_uint8 iBlue;
         } mng_palette8e;
-typedef mng_palette8e mng_palette8[256];         /* 8-bit palette */
+typedef mng_palette8e   mng_palette8[256];       /* 8-bit palette */
+typedef mng_palette8e * mng_palette8ep;
 
-typedef mng_uint8     mng_uint8arr[256];         /* generic arrays */
-typedef mng_uint8     mng_uint8arr4[4];
-typedef mng_uint16    mng_uint16arr[256];
-typedef mng_uint32    mng_uint32arr2[2];
+typedef mng_uint8       mng_uint8arr[256];       /* generic arrays */
+typedef mng_uint8       mng_uint8arr4[4];
+typedef mng_uint16      mng_uint16arr[256];
+typedef mng_uint32      mng_uint32arr2[2];
 
 /* ************************************************************************** */
 

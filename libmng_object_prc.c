@@ -56,6 +56,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -1076,9 +1079,9 @@ mng_retcode process_ani_image (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-mng_retcode create_ani_plte (mng_datap     pData,
-                             mng_uint32    iEntrycount,
-                             mng_rgbpaltab aEntries)
+mng_retcode create_ani_plte (mng_datap      pData,
+                             mng_uint32     iEntrycount,
+                             mng_palette8ep paEntries)
 {
   mng_ani_pltep pPLTE;
 
@@ -1095,7 +1098,7 @@ mng_retcode create_ani_plte (mng_datap     pData,
 
   pPLTE->iEntrycount      = iEntrycount;
 
-  MNG_COPY (&pPLTE->aEntries, &aEntries, sizeof (aEntries))
+  MNG_COPY (pPLTE->aEntries, paEntries, sizeof (pPLTE->aEntries))
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_CREATE_ANI_PLTE, MNG_LC_END)
@@ -1136,7 +1139,7 @@ mng_retcode process_ani_plte (mng_datap   pData,
   pData->bHasglobalPLTE   = MNG_TRUE;
   pData->iGlobalPLTEcount = pPLTE->iEntrycount;
 
-  MNG_COPY (&pData->aGlobalPLTEentries, &pPLTE->aEntries, sizeof (pPLTE->aEntries))
+  MNG_COPY (pData->aGlobalPLTEentries, pPLTE->aEntries, sizeof (pPLTE->aEntries))
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_PLTE, MNG_LC_END)
@@ -1150,7 +1153,7 @@ mng_retcode process_ani_plte (mng_datap   pData,
 
 mng_retcode create_ani_trns (mng_datap    pData,
                              mng_uint32   iRawlen,
-                             mng_uint8arr aRawdata)
+                             mng_uint8p   pRawdata)
 {
   mng_ani_trnsp pTRNS;
 
@@ -1167,7 +1170,7 @@ mng_retcode create_ani_trns (mng_datap    pData,
 
   pTRNS->iRawlen          = iRawlen;
 
-  MNG_COPY (&pTRNS->aRawdata, &aRawdata, sizeof (aRawdata))
+  MNG_COPY (pTRNS->aRawdata, pRawdata, sizeof (pTRNS->aRawdata))
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_CREATE_ANI_TRNS, MNG_LC_END)
@@ -1208,7 +1211,7 @@ mng_retcode process_ani_trns (mng_datap   pData,
   pData->bHasglobalTRNS    = MNG_TRUE;
   pData->iGlobalTRNSrawlen = pTRNS->iRawlen;
 
-  MNG_COPY (&pData->aGlobalTRNSrawdata, &pTRNS->aRawdata, sizeof (pTRNS->aRawdata))
+  MNG_COPY (pData->aGlobalTRNSrawdata, pTRNS->aRawdata, sizeof (pTRNS->aRawdata))
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TRNS, MNG_LC_END)
@@ -3027,9 +3030,9 @@ mng_retcode process_ani_ijng (mng_datap   pData,
 mng_retcode create_ani_pplt (mng_datap      pData,
                              mng_uint8      iType,
                              mng_uint32     iCount,
-                             mng_rgbpaltab* paIndexentries,
-                             mng_uint8arr*  paAlphaentries,
-                             mng_uint8arr*  paUsedentries)
+                             mng_palette8ep paIndexentries,
+                             mng_uint8p     paAlphaentries,
+                             mng_uint8p     paUsedentries)
 {
   mng_ani_ppltp pPPLT;
 
@@ -3045,9 +3048,9 @@ mng_retcode create_ani_pplt (mng_datap      pData,
   pPPLT->iType            = iType;
   pPPLT->iCount           = iCount;
 
-  MNG_COPY (&pPPLT->aIndexentries, paIndexentries, sizeof (pPPLT->aIndexentries))
-  MNG_COPY (&pPPLT->aAlphaentries, paAlphaentries, sizeof (pPPLT->aAlphaentries))
-  MNG_COPY (&pPPLT->aUsedentries,  paUsedentries,  sizeof (pPPLT->aUsedentries ))
+  MNG_COPY (pPPLT->aIndexentries, paIndexentries, sizeof (pPPLT->aIndexentries))
+  MNG_COPY (pPPLT->aAlphaentries, paAlphaentries, sizeof (pPPLT->aAlphaentries))
+  MNG_COPY (pPPLT->aUsedentries,  paUsedentries,  sizeof (pPPLT->aUsedentries ))
 
   add_ani_object (pData, (mng_object_headerp)pPPLT);
 
@@ -3089,8 +3092,8 @@ mng_retcode process_ani_pplt (mng_datap   pData,
 #endif
 
   iRetcode = process_display_pplt (pData, pPPLT->iType, pPPLT->iCount,
-                                   &pPPLT->aIndexentries, &pPPLT->aAlphaentries,
-                                   &pPPLT->aUsedentries);
+                                   pPPLT->aIndexentries, pPPLT->aAlphaentries,
+                                   pPPLT->aUsedentries);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;

@@ -88,6 +88,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -970,7 +973,7 @@ mng_retcode execute_delta_image (mng_datap  pData,
                 if ((!pBuftarget->bHasTRNS) || (pBuftarget->iTRNScount < pBufdelta->iTRNScount))
                   pBuftarget->iTRNScount = pBufdelta->iTRNScount;
 
-                MNG_COPY (&pBuftarget->aTRNSentries, &pBufdelta->aTRNSentries, pBufdelta->iTRNScount)
+                MNG_COPY (pBuftarget->aTRNSentries, pBufdelta->aTRNSentries, pBufdelta->iTRNScount)
                 break;
               }
     }
@@ -1094,10 +1097,10 @@ mng_retcode save_state (mng_datap pData)
 
   pSave->iGlobalPLTEcount     = pData->iGlobalPLTEcount;
 
-  MNG_COPY (&pSave->aGlobalPLTEentries, &pData->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
+  MNG_COPY (pSave->aGlobalPLTEentries, pData->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
 
   pSave->iGlobalTRNSrawlen    = pData->iGlobalTRNSrawlen;
-  MNG_COPY (&pSave->aGlobalTRNSrawdata, &pData->aGlobalTRNSrawdata, 256)
+  MNG_COPY (pSave->aGlobalTRNSrawdata, pData->aGlobalTRNSrawdata, 256)
 
   pSave->iGlobalGamma         = pData->iGlobalGamma;
 
@@ -1207,10 +1210,10 @@ mng_retcode restore_state (mng_datap pData)
     pData->iNextdelay           = pSave->iFRAMdelay;
 
     pData->iGlobalPLTEcount     = pSave->iGlobalPLTEcount;
-    MNG_COPY (&pData->aGlobalPLTEentries, &pSave->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
+    MNG_COPY (pData->aGlobalPLTEentries, pSave->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
 
     pData->iGlobalTRNSrawlen    = pSave->iGlobalTRNSrawlen;
-    MNG_COPY (&pData->aGlobalTRNSrawdata, &pSave->aGlobalTRNSrawdata, 256)
+    MNG_COPY (pData->aGlobalTRNSrawdata, pSave->aGlobalTRNSrawdata, 256)
 
     pData->iGlobalGamma         = pSave->iGlobalGamma;
 
@@ -3381,7 +3384,7 @@ mng_retcode process_display_dhdr (mng_datap  pData,
           pBufzero->iTRNSblue  = pBuf->iTRNSblue;
           pBufzero->iTRNScount = pBuf->iTRNScount;
 
-          MNG_COPY (&pBufzero->aTRNSentries, &pBuf->aTRNSentries,
+          MNG_COPY (pBufzero->aTRNSentries, pBuf->aTRNSentries,
                     sizeof (pBufzero->aTRNSentries))
         }
                                        /* process immediatly if bitdepth & colortype are equal */
@@ -3625,9 +3628,9 @@ mng_retcode process_display_ijng (mng_datap pData)
 mng_retcode process_display_pplt (mng_datap      pData,
                                   mng_uint8      iType,
                                   mng_uint32     iCount,
-                                  mng_rgbpaltab* paIndexentries,
-                                  mng_uint8arr*  paAlphaentries,
-                                  mng_uint8arr*  paUsedentries)
+                                  mng_palette8ep paIndexentries,
+                                  mng_uint8p     paAlphaentries,
+                                  mng_uint8p     paUsedentries)
 {
   mng_uint32     iX;
   mng_imagep     pImage = (mng_imagep)pData->pObjzero;
@@ -3643,11 +3646,11 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
+          if (paUsedentries [iX])
           {
-            pBuf->aPLTEentries [iX].iRed   = (*(paIndexentries)) [iX].iRed;
-            pBuf->aPLTEentries [iX].iGreen = (*(paIndexentries)) [iX].iGreen;
-            pBuf->aPLTEentries [iX].iBlue  = (*(paIndexentries)) [iX].iBlue;
+            pBuf->aPLTEentries [iX].iRed   = paIndexentries [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = paIndexentries [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = paIndexentries [iX].iBlue;
           }
         }
 
@@ -3657,17 +3660,17 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
+          if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
-                                           (*(paIndexentries)) [iX].iRed  );
+                                           paIndexentries [iX].iRed  );
             pBuf->aPLTEentries [iX].iGreen =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
-                                           (*(paIndexentries)) [iX].iGreen);
+                                           paIndexentries [iX].iGreen);
             pBuf->aPLTEentries [iX].iBlue  =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
-                                           (*(paIndexentries)) [iX].iBlue );
+                                           paIndexentries [iX].iBlue );
           }
         }
 
@@ -3677,8 +3680,8 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
-            pBuf->aTRNSentries [iX] = (*(paAlphaentries)) [iX];
+          if (paUsedentries [iX])
+            pBuf->aTRNSentries [iX] = paAlphaentries [iX];
         }
 
         break;
@@ -3687,10 +3690,10 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
+          if (paUsedentries [iX])
             pBuf->aTRNSentries [iX] =
                                (mng_uint8)(pBuf->aTRNSentries [iX] +
-                                           (*(paAlphaentries)) [iX]);
+                                           paAlphaentries [iX]);
         }
 
         break;
@@ -3699,12 +3702,12 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
+          if (paUsedentries [iX])
           {
-            pBuf->aPLTEentries [iX].iRed   = (*(paIndexentries)) [iX].iRed;
-            pBuf->aPLTEentries [iX].iGreen = (*(paIndexentries)) [iX].iGreen;
-            pBuf->aPLTEentries [iX].iBlue  = (*(paIndexentries)) [iX].iBlue;
-            pBuf->aTRNSentries [iX]        = (*(paAlphaentries)) [iX];
+            pBuf->aPLTEentries [iX].iRed   = paIndexentries [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = paIndexentries [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = paIndexentries [iX].iBlue;
+            pBuf->aTRNSentries [iX]        = paAlphaentries [iX];
           }
         }
 
@@ -3714,20 +3717,20 @@ mng_retcode process_display_pplt (mng_datap      pData,
       {
         for (iX = 0; iX < iCount; iX++)
         {
-          if ((*(paUsedentries)) [iX])
+          if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
-                                           (*(paIndexentries)) [iX].iRed  );
+                                           paIndexentries [iX].iRed  );
             pBuf->aPLTEentries [iX].iGreen =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
-                                           (*(paIndexentries)) [iX].iGreen);
+                                           paIndexentries [iX].iGreen);
             pBuf->aPLTEentries [iX].iBlue  =
                                (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
-                                           (*(paIndexentries)) [iX].iBlue );
+                                           paIndexentries [iX].iBlue );
             pBuf->aTRNSentries [iX] =
                                (mng_uint8)(pBuf->aTRNSentries [iX] +
-                                           (*(paAlphaentries)) [iX]);
+                                           paAlphaentries [iX]);
           }
         }
 

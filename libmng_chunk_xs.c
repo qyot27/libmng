@@ -41,6 +41,8 @@
 /* *             - changed file-prefixes                                    * */
 /* *             - added function to set simplicity field                   * */
 /* *             - fixed putchunk_unknown() function                        * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2900,7 +2902,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
                                        /* fill the chunk */
   ((mng_histp)pChunk)->iEntrycount = iEntrycount;
 
-  MNG_COPY (&((mng_histp)pChunk)->aEntries, &aEntries, sizeof (mng_uint16arr))
+  MNG_COPY (((mng_histp)pChunk)->aEntries, aEntries, sizeof (mng_uint16arr))
 
   add_chunk (pData, pChunk);           /* add it to the list */
 
@@ -4508,7 +4510,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
   if (iEntry >= ((mng_ppltp)pChunk)->iCount)
     MNG_ERROR (pData, MNG_INVALIDENTRYIX)
                                        /* address proper entry */
-  pEntry = (mng_pplt_entryp)(&((mng_ppltp)pChunk)->aEntries) + iEntry;
+  pEntry = (mng_pplt_entryp)(((mng_ppltp)pChunk)->aEntries) + iEntry;
 
   pEntry->iRed   = iRed;               /* fill the entry */
   pEntry->iGreen = iGreen;

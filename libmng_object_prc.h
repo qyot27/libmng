@@ -142,11 +142,11 @@ mng_retcode create_ani_image  (mng_datap      pData);
 
 mng_retcode create_ani_plte   (mng_datap      pData,
                                mng_uint32     iEntrycount,
-                               mng_rgbpaltab  aEntries);
+                               mng_palette8ep paEntries);
 
 mng_retcode create_ani_trns   (mng_datap      pData,
                                mng_uint32     iRawlen,
-                               mng_uint8arr   aRawdata);
+                               mng_uint8p     pRawdata);
 
 mng_retcode create_ani_gama   (mng_datap      pData,
                                mng_bool       bEmpty,
@@ -282,9 +282,9 @@ mng_retcode create_ani_ijng   (mng_datap      pData);
 mng_retcode create_ani_pplt   (mng_datap      pData,
                                mng_uint8      iType,
                                mng_uint32     iCount,
-                               mng_rgbpaltab* paIndexentries,
-                               mng_uint8arr*  paAlphaentries,
-                               mng_uint8arr*  paUsedentries);
+                               mng_palette8ep paIndexentries,
+                               mng_uint8p     paAlphaentries,
+                               mng_uint8p     paUsedentries);
 
 /* ************************************************************************** */
 

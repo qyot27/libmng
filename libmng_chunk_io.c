@@ -98,6 +98,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
+/* *             - B111300 - fixup for improved portability                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -721,7 +724,7 @@ READ_CHUNK (read_plte)
       if (!iRawlen)                    /* if empty, inherit from global */
       {
         pBuf->iPLTEcount = pData->iGlobalPLTEcount;
-        MNG_COPY (&pBuf->aPLTEentries, &pData->aGlobalPLTEentries,
+        MNG_COPY (pBuf->aPLTEentries, pData->aGlobalPLTEentries,
                   sizeof (pBuf->aPLTEentries))
 
         if (pData->bHasglobalTRNS)     /* also copy global tRNS ? */
@@ -729,13 +732,13 @@ READ_CHUNK (read_plte)
           pBuf->bHasTRNS = MNG_TRUE;
 
           iRawlen2  = pData->iGlobalTRNSrawlen;
-          pRawdata2 = (mng_uint8p)(&pData->aGlobalTRNSrawdata);
+          pRawdata2 = (mng_uint8p)(pData->aGlobalTRNSrawdata);
                                        /* global length oke ? */
           if ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount))
             MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
                                        /* copy it */
           pBuf->iTRNScount = iRawlen2;
-          MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
+          MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2)
         }
       }
       else
@@ -1057,7 +1060,7 @@ READ_CHUNK (read_trns)
                   pBuf->iTRNSgreen = 0;
                   pBuf->iTRNSblue  = 0;
                   pBuf->iTRNScount = iRawlen;
-                  MNG_COPY (&pBuf->aTRNSentries, pRawdata, iRawlen)
+                  MNG_COPY (pBuf->aTRNSentries, pRawdata, iRawlen)
                   break;
                 }
       }
@@ -1077,7 +1080,7 @@ READ_CHUNK (read_trns)
       if (iRawlen == 0)                /* if empty, inherit from global */
       {
         iRawlen2  = pData->iGlobalTRNSrawlen;
-        pRawdata2 = (mng_ptr)(&pData->aGlobalTRNSrawdata);
+        pRawdata2 = (mng_ptr)(pData->aGlobalTRNSrawdata);
                                          /* global length oke ? */
         if ((pData->iColortype == 0) && (iRawlen2 != 2))
           MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
@@ -1118,7 +1121,7 @@ READ_CHUNK (read_trns)
                   pBuf->iTRNSgreen = 0;
                   pBuf->iTRNSblue  = 0;
                   pBuf->iTRNScount = iRawlen2;
-                  MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
+                  MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2)
                   break;
                 }
       }
@@ -1127,7 +1130,7 @@ READ_CHUNK (read_trns)
   else                                 /* store as global */
   {
     pData->iGlobalTRNSrawlen = iRawlen;
-    MNG_COPY (&pData->aGlobalTRNSrawdata, pRawdata, iRawlen)
+    MNG_COPY (pData->aGlobalTRNSrawdata, pRawdata, iRawlen)
 
     {                                  /* create an animation object */
       mng_retcode iRetcode = create_ani_trns (pData, pData->iGlobalTRNSrawlen,
@@ -1172,7 +1175,7 @@ READ_CHUNK (read_trns)
                   }
           case 3: {                    /* indexed */
                     ((mng_trnsp)*ppChunk)->iCount = iRawlen;
-                    MNG_COPY (&((mng_trnsp)*ppChunk)->aEntries, pRawdata, iRawlen)
+                    MNG_COPY (((mng_trnsp)*ppChunk)->aEntries, pRawdata, iRawlen)
                     break;
                   }
         }
@@ -1185,7 +1188,7 @@ READ_CHUNK (read_trns)
       ((mng_trnsp)*ppChunk)->iType   = 0;
       ((mng_trnsp)*ppChunk)->iRawlen = iRawlen;
 
-      MNG_COPY (&((mng_trnsp)*ppChunk)->aRawdata, pRawdata, iRawlen)
+      MNG_COPY (((mng_trnsp)*ppChunk)->aRawdata, pRawdata, iRawlen)
     }
   }
 #endif /* MNG_STORE_CHUNKS */
@@ -5479,8 +5482,8 @@ READ_CHUNK (read_pplt)
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create animation object */
     mng_retcode iRetcode = create_ani_pplt (pData, iDeltatype, iMax,
-                                            &aIndexentries, &aAlphaentries,
-                                            &aUsedentries);
+                                            aIndexentries, aAlphaentries,
+                                            aUsedentries);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5489,8 +5492,8 @@ READ_CHUNK (read_pplt)
   if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
   {
     mng_retcode iRetcode = process_display_pplt (pData, iDeltatype, iMax,
-                                                 &aIndexentries, &aAlphaentries,
-                                                 &aUsedentries);
+                                                 aIndexentries, aAlphaentries,
+                                                 aUsedentries);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5959,7 +5962,7 @@ WRITE_CHUNK (write_trns)
   else
   if (pTRNS->bGlobal)                  /* write global chunk ? */
     iRetcode = write_raw_chunk (pData, pTRNS->sHeader.iChunkname,
-                                pTRNS->iRawlen, (mng_uint8p)&pTRNS->aRawdata);
+                                pTRNS->iRawlen, (mng_uint8p)pTRNS->aRawdata);
   else
   {
     pRawdata = pData->pWritebuf+8;     /* init output buffer */
