@@ -80,6 +80,8 @@
 /* *             - skip additional code when MNG_INCLUDE_JNG is not enabled * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added conditionals around non-VLC chunk support          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -296,25 +298,41 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 
   mng_chunk_header chunk_table [] =
   {
+#ifndef MNG_SKIPCHUNK_BACK
     {MNG_UINT_BACK, mng_init_back, mng_free_back, mng_read_back, mng_write_back, mng_assign_back, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_BASI
     {MNG_UINT_BASI, mng_init_basi, mng_free_basi, mng_read_basi, mng_write_basi, mng_assign_basi, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_CLIP
     {MNG_UINT_CLIP, mng_init_clip, mng_free_clip, mng_read_clip, mng_write_clip, mng_assign_clip, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_CLON
     {MNG_UINT_CLON, mng_init_clon, mng_free_clon, mng_read_clon, mng_write_clon, mng_assign_clon, 0, 0},
+#endif
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
     {MNG_UINT_DBYK, mng_init_dbyk, mng_free_dbyk, mng_read_dbyk, mng_write_dbyk, mng_assign_dbyk, 0, 0},
 #endif
 #endif
+#ifndef MNG_SKIPCHUNK_DEFI
     {MNG_UINT_DEFI, mng_init_defi, mng_free_defi, mng_read_defi, mng_write_defi, mng_assign_defi, 0, 0},
+#endif
 #ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_DHDR, mng_init_dhdr, mng_free_dhdr, mng_read_dhdr, mng_write_dhdr, mng_assign_dhdr, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_DISC
     {MNG_UINT_DISC, mng_init_disc, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0},
+#endif
 #ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_DROP, mng_init_drop, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_LOOP
     {MNG_UINT_ENDL, mng_init_endl, mng_free_endl, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_FRAM
     {MNG_UINT_FRAM, mng_init_fram, mng_free_fram, mng_read_fram, mng_write_fram, mng_assign_fram, 0, 0},
+#endif
     {MNG_UINT_IDAT, mng_init_idat, mng_free_idat, mng_read_idat, mng_write_idat, mng_assign_idat, 0, 0},  /* 12-th element! */
     {MNG_UINT_IEND, mng_init_iend, mng_free_iend, mng_read_iend, mng_write_iend, mng_assign_iend, 0, 0},
     {MNG_UINT_IHDR, mng_init_ihdr, mng_free_ihdr, mng_read_ihdr, mng_write_ihdr, mng_assign_ihdr, 0, 0},
@@ -331,11 +349,17 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_JSEP, mng_init_jsep, mng_free_jsep, mng_read_jsep, mng_write_jsep, mng_assign_jsep, 0, 0},
     {MNG_UINT_JdAA, mng_init_jdaa, mng_free_jdaa, mng_read_jdaa, mng_write_jdaa, mng_assign_jdaa, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_LOOP
     {MNG_UINT_LOOP, mng_init_loop, mng_free_loop, mng_read_loop, mng_write_loop, mng_assign_loop, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_MAGN
     {MNG_UINT_MAGN, mng_init_magn, mng_free_magn, mng_read_magn, mng_write_magn, mng_assign_magn, 0, 0},
+#endif
     {MNG_UINT_MEND, mng_init_mend, mng_free_mend, mng_read_mend, mng_write_mend, mng_assign_mend, 0, 0},
     {MNG_UINT_MHDR, mng_init_mhdr, mng_free_mhdr, mng_read_mhdr, mng_write_mhdr, mng_assign_mhdr, 0, 0},
+#ifndef MNG_SKIPCHUNK_MOVE
     {MNG_UINT_MOVE, mng_init_move, mng_free_move, mng_read_move, mng_write_move, mng_assign_move, 0, 0},
+#endif
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
     {MNG_UINT_ORDR, mng_init_ordr, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0},
@@ -355,8 +379,12 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 #ifndef MNG_SKIPCHUNK_SEEK
     {MNG_UINT_SEEK, mng_init_seek, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_SHOW
     {MNG_UINT_SHOW, mng_init_show, mng_free_show, mng_read_show, mng_write_show, mng_assign_show, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_TERM
     {MNG_UINT_TERM, mng_init_term, mng_free_term, mng_read_term, mng_write_term, mng_assign_term, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_bKGD
     {MNG_UINT_bKGD, mng_init_bkgd, mng_free_bkgd, mng_read_bkgd, mng_write_bkgd, mng_assign_bkgd, 0, 0},
 #endif
@@ -372,7 +400,9 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 #ifndef MNG_SKIPCHUNK_fPRI
     {MNG_UINT_fPRI, mng_init_fpri, mng_free_fpri, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_gAMA
     {MNG_UINT_gAMA, mng_init_gama, mng_free_gama, mng_read_gama, mng_write_gama, mng_assign_gama, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_hIST
     {MNG_UINT_hIST, mng_init_hist, mng_free_hist, mng_read_hist, mng_write_hist, mng_assign_hist, 0, 0},
 #endif
@@ -545,17 +575,25 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
     {
       switch (pData->iBreakpoint)      /* return to broken display routine */
       {
+#ifndef MNG_SKIPCHUNK_FRAM
         case  1 : { iRetcode = mng_process_display_fram2 (pData); break; }
+#endif
         case  2 : { iRetcode = mng_process_display_ihdr  (pData); break; }
+#ifndef MNG_SKIPCHUNK_SHOW
         case  3 : ;                     /* same as 4 !!! */
         case  4 : { iRetcode = mng_process_display_show  (pData); break; }
+#endif
+#ifndef MNG_SKIPCHUNK_CLON
         case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
+#endif
 #ifdef MNG_INCLUDE_JNG
         case  7 : { iRetcode = mng_process_display_jhdr  (pData); break; }
 #endif
         case  6 : ;                     /* same as 8 !!! */
         case  8 : { iRetcode = mng_process_display_iend  (pData); break; }
+#ifndef MNG_SKIPCHUNK_MAGN
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
+#endif
         case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
 #ifndef MNG_SKIPCHUNK_PAST
         case 11 : { iRetcode = mng_process_display_past2 (pData); break; }

@@ -190,6 +190,8 @@
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added conditionals around non-VLC chunk support          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -637,20 +639,23 @@ READ_CHUNK (mng_read_ihdr)
   pData->iFilter       = *(pRawdata+11);
   pData->iInterlace    = *(pRawdata+12);
 
+#if defined(MNG_NO_16BIT_SUPPORT)
+  pData->iPNGmult = 1;
+  pData->iPNGdepth = pData->iBitdepth;
+#endif
+
 #ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
       pData->iPNGmult = 2;
     }
-  else
-    pData->iPNGmult = 1;
 #endif
 
-  if ((pData->iBitdepth !=  1) &&      /* parameter validity checks */
+  if ((pData->iBitdepth !=  8)      /* parameter validity checks */
+      && (pData->iBitdepth !=  1) &&
       (pData->iBitdepth !=  2) &&
-      (pData->iBitdepth !=  4) &&
-      (pData->iBitdepth !=  8)
+      (pData->iBitdepth !=  4)
 #ifndef MNG_NO_16BIT_SUPPORT
       && (pData->iBitdepth != 16)   
 #endif
@@ -2085,9 +2090,9 @@ READ_CHUNK (mng_read_text)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_zTXt
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_zTXt
 READ_CHUNK (mng_read_ztxt)
 {
   mng_retcode iRetcode;
@@ -2228,9 +2233,9 @@ READ_CHUNK (mng_read_ztxt)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_iTXt
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iTXt
 READ_CHUNK (mng_read_itxt)
 {
   mng_retcode iRetcode;
@@ -3182,6 +3187,7 @@ READ_CHUNK (mng_read_mend)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_LOOP
 READ_CHUNK (mng_read_loop)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3345,9 +3351,11 @@ READ_CHUNK (mng_read_loop)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_LOOP
 READ_CHUNK (mng_read_endl)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3411,9 +3419,11 @@ READ_CHUNK (mng_read_endl)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DEFI
 READ_CHUNK (mng_read_defi)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3558,9 +3568,11 @@ READ_CHUNK (mng_read_defi)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_BASI
 READ_CHUNK (mng_read_basi)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3590,20 +3602,24 @@ READ_CHUNK (mng_read_basi)
   pData->iFilter      = *(pRawdata+11);
   pData->iInterlace   = *(pRawdata+12);
 
+
+#if defined(MNG_NO_16BIT_SUPPORT)
+  pData->iPNGmult = 1;
+  pData->iPNGdepth = pData->iBitdepth;
+#endif
+
 #ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
       pData->iPNGmult = 2;
     }
-  else
-    pData->iPNGmult = 1;
 #endif
 
-  if ((pData->iBitdepth !=  1) &&      /* parameter validity checks */
+  if ((pData->iBitdepth !=  8)      /* parameter validity checks */
+      && (pData->iBitdepth !=  1) &&
       (pData->iBitdepth !=  2) &&
-      (pData->iBitdepth !=  4) &&
-      (pData->iBitdepth !=  8)
+      (pData->iBitdepth !=  4)
 #ifndef MNG_NO_16BIT_SUPPORT
       && (pData->iBitdepth != 16)
 #endif
@@ -3850,6 +3866,7 @@ READ_CHUNK (mng_read_clon)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3974,6 +3991,7 @@ READ_CHUNK (mng_read_past)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DISC
 READ_CHUNK (mng_read_disc)
 {
 #if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
@@ -4067,9 +4085,11 @@ READ_CHUNK (mng_read_disc)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_BACK
 READ_CHUNK (mng_read_back)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4152,9 +4172,11 @@ READ_CHUNK (mng_read_back)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_FRAM
 READ_CHUNK (mng_read_fram)
 {
   mng_uint8p pTemp;
@@ -4417,9 +4439,11 @@ READ_CHUNK (mng_read_fram)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MOVE
 READ_CHUNK (mng_read_move)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4485,9 +4509,11 @@ READ_CHUNK (mng_read_move)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_CLIP
 READ_CHUNK (mng_read_clip)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4559,9 +4585,11 @@ READ_CHUNK (mng_read_clip)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SHOW
 READ_CHUNK (mng_read_show)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4647,9 +4675,11 @@ READ_CHUNK (mng_read_show)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_TERM
 READ_CHUNK (mng_read_term)
 {
   mng_uint8   iTermaction;
@@ -4737,6 +4767,7 @@ READ_CHUNK (mng_read_term)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5473,14 +5504,18 @@ READ_CHUNK (mng_read_jhdr)
   pData->iJHDRalphafilter      = *(pRawdata+14);
   pData->iJHDRalphainterlace   = *(pRawdata+15);
 
+
+#if defined(MNG_NO_16BIT_SUPPORT)
+  pData->iPNGmult = 1;
+  pData->iPNGdepth = pData->iJHDRalphabitdepth;
+#endif
+
 #ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iJHDRalphabitdepth > 8)
   {
     pData->iPNGmult = 2;
     pData->iJHDRalphabitdepth = 8;
   }
-  else
-    pData->iPNGmult = 1;
 #endif
                                        /* parameter validity checks */
   if ((pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAY  ) &&
@@ -5504,11 +5539,14 @@ READ_CHUNK (mng_read_jhdr)
   if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
   {
-    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
+    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 )
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
         (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
-        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 ) &&
-        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 ) &&
-        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)    )
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 )
+#ifndef MNG_NO_16BIT_SUPPORT
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
+#endif
+        )
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
     if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
@@ -6439,6 +6477,7 @@ READ_CHUNK (mng_read_ordr)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MAGN
 READ_CHUNK (mng_read_magn)
 {
   mng_uint16 iFirstid, iLastid;
@@ -6631,6 +6670,7 @@ READ_CHUNK (mng_read_magn)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 

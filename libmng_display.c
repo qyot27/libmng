@@ -198,6 +198,8 @@
 /* *             - replaced nested switches with simple init setup function * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added conditionals around non-VLC chunk support          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -671,6 +673,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
           return iRetcode;
       }
 #endif
+#ifndef MNG_SKIPCHUNK_BACK
                                        /* background image ? */
       if ((pData->bHasBACK) && (pData->iBACKmandatory & 0x02) && (pData->iBACKimageid))
       {
@@ -883,6 +886,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
           }
         }
       }
+#endif
     }
 
     pData->iDestl       = iDestl;      /* restore values */
@@ -1004,6 +1008,7 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
   {
     mng_uint8 iOldmode = pData->iFramemode;
                                        /* interframe delay required ? */
+#ifndef MNG_SKIPCHUNK_FRAM
     if ((iOldmode == 2) || (iOldmode == 4))
     {
       if ((pData->iFrameseq) && (iFramemode != 1) && (iFramemode != 3))
@@ -1103,6 +1108,7 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
       pData->iFrameclipt    = pData->iFRAMclipt;
       pData->iFrameclipb    = pData->iFRAMclipb;
     }
+#endif
   }
 
   if (!pData->bTimerset)               /* timer still off ? */
@@ -2375,12 +2381,20 @@ mng_retcode mng_process_display (mng_datap pData)
     {
       switch (pData->iBreakpoint)      /* return to broken display routine */
       {
+#ifndef MNG_SKIPCHUNK_FRAM
         case  1 : { iRetcode = mng_process_display_fram2 (pData); break; }
+#endif
+#ifndef MNG_SKIPCHUNK_SHOW
         case  3 : ;                    /* same as 4 !!! */
         case  4 : { iRetcode = mng_process_display_show  (pData); break; }
+#endif
+#ifndef MNG_SKIPCHUNK_CLON
         case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
+#endif
+#ifndef MNG_SKIPCHUNK_MAGN
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
         case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
+#endif
 #ifndef MNG_SKIPCHUNK_PAST
         case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
 #endif
@@ -3267,6 +3281,7 @@ mng_retcode mng_process_display_mend2 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DEFI
 mng_retcode mng_process_display_defi (mng_datap pData)
 {
   mng_imagep pImage;
@@ -3353,9 +3368,11 @@ mng_retcode mng_process_display_defi (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_BASI
 mng_retcode mng_process_display_basi (mng_datap  pData,
                                       mng_uint16 iRed,
                                       mng_uint16 iGreen,
@@ -3844,9 +3861,11 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_CLON
 mng_retcode mng_process_display_clon (mng_datap  pData,
                                       mng_uint16 iSourceid,
                                       mng_uint16 iCloneid,
@@ -3950,9 +3969,11 @@ mng_retcode mng_process_display_clon2 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DISC
 mng_retcode mng_process_display_disc (mng_datap   pData,
                                       mng_uint32  iCount,
                                       mng_uint16p pIds)
@@ -4010,9 +4031,11 @@ mng_retcode mng_process_display_disc (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_FRAM
 mng_retcode mng_process_display_fram (mng_datap  pData,
                                       mng_uint8  iFramemode,
                                       mng_uint8  iChangedelay,
@@ -4065,9 +4088,11 @@ mng_retcode mng_process_display_fram2 (mng_datap pData)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MOVE
 mng_retcode mng_process_display_move (mng_datap  pData,
                                       mng_uint16 iFromid,
                                       mng_uint16 iToid,
@@ -4113,9 +4138,11 @@ mng_retcode mng_process_display_move (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_CLIP
 mng_retcode mng_process_display_clip (mng_datap  pData,
                                       mng_uint16 iFromid,
                                       mng_uint16 iToid,
@@ -4169,9 +4196,11 @@ mng_retcode mng_process_display_clip (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SHOW
 mng_retcode mng_process_display_show (mng_datap pData)
 {
   mng_int16  iX, iS, iFrom, iTo;
@@ -4374,6 +4403,7 @@ mng_retcode mng_process_display_show (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5529,6 +5559,7 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MAGN
 mng_retcode mng_process_display_magn (mng_datap  pData,
                                       mng_uint16 iFirstid,
                                       mng_uint16 iLastid,
@@ -5668,6 +5699,7 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5699,7 +5731,7 @@ mng_retcode mng_process_display_past (mng_datap  pData,
                                        /* it's gotta be abstract !!! */
     if (pTargetimg->pImgbuf->bConcrete)
       MNG_ERROR (pData, MNG_OBJNOTABSTRACT)
-                                       /* whe want 32-/64-bit RGBA to play with ! */
+                                       /* we want 32-/64-bit RGBA to play with ! */
     if ((pTargetimg->pImgbuf->iBitdepth <= MNG_BITDEPTH_8)          ||
         (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_GRAY)    ||
         (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_RGB)     ||

@@ -179,15 +179,8 @@ mng_retcode mng_retrieve_rgba16        (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode mng_store_g1               (mng_datap  pData);
-mng_retcode mng_store_g2               (mng_datap  pData);
-mng_retcode mng_store_g4               (mng_datap  pData);
-mng_retcode mng_store_g8               (mng_datap  pData);
-mng_retcode mng_store_rgb8             (mng_datap  pData);
-mng_retcode mng_store_idx1             (mng_datap  pData);
-mng_retcode mng_store_idx2             (mng_datap  pData);
-mng_retcode mng_store_idx4             (mng_datap  pData);
 mng_retcode mng_store_idx8             (mng_datap  pData);
+mng_retcode mng_store_rgb8             (mng_datap  pData);
 mng_retcode mng_store_ga8              (mng_datap  pData);
 mng_retcode mng_store_rgba8            (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
@@ -220,30 +213,26 @@ mng_retcode mng_store_jpeg_rgba12      (mng_datap  pData);
 mng_retcode mng_store_jpeg_g8_alpha    (mng_datap  pData);
 mng_retcode mng_store_jpeg_rgb8_alpha  (mng_datap  pData);
 
-mng_retcode mng_store_jpeg_g8_a1       (mng_datap  pData);
-mng_retcode mng_store_jpeg_g8_a2       (mng_datap  pData);
-mng_retcode mng_store_jpeg_g8_a4       (mng_datap  pData);
 mng_retcode mng_store_jpeg_g8_a8       (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_store_jpeg_g8_a16      (mng_datap  pData);
+#endif
 
-mng_retcode mng_store_jpeg_rgb8_a1     (mng_datap  pData);
-mng_retcode mng_store_jpeg_rgb8_a2     (mng_datap  pData);
-mng_retcode mng_store_jpeg_rgb8_a4     (mng_datap  pData);
 mng_retcode mng_store_jpeg_rgb8_a8     (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_store_jpeg_rgb8_a16    (mng_datap  pData);
+#endif
 
 #ifdef MNG_SUPPORT_JPEG12
-mng_retcode mng_store_jpeg_g12_a1      (mng_datap  pData);
-mng_retcode mng_store_jpeg_g12_a2      (mng_datap  pData);
-mng_retcode mng_store_jpeg_g12_a4      (mng_datap  pData);
 mng_retcode mng_store_jpeg_g12_a8      (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_store_jpeg_g12_a16     (mng_datap  pData);
+#endif
 
-mng_retcode mng_store_jpeg_rgb12_a1    (mng_datap  pData);
-mng_retcode mng_store_jpeg_rgb12_a2    (mng_datap  pData);
-mng_retcode mng_store_jpeg_rgb12_a4    (mng_datap  pData);
 mng_retcode mng_store_jpeg_rgb12_a8    (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_store_jpeg_rgb12_a16   (mng_datap  pData);
+#endif
 #endif
 #endif
 
@@ -255,21 +244,19 @@ mng_retcode mng_store_jpeg_rgb12_a16   (mng_datap  pData);
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_retcode mng_delta_g1               (mng_datap  pData);
-mng_retcode mng_delta_g2               (mng_datap  pData);
-mng_retcode mng_delta_g4               (mng_datap  pData);
 mng_retcode mng_delta_g8               (mng_datap  pData);
 mng_retcode mng_delta_g16              (mng_datap  pData);
 mng_retcode mng_delta_rgb8             (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_delta_rgb16            (mng_datap  pData);
-mng_retcode mng_delta_idx1             (mng_datap  pData);
-mng_retcode mng_delta_idx2             (mng_datap  pData);
-mng_retcode mng_delta_idx4             (mng_datap  pData);
+#endif
 mng_retcode mng_delta_idx8             (mng_datap  pData);
 mng_retcode mng_delta_ga8              (mng_datap  pData);
-mng_retcode mng_delta_ga16             (mng_datap  pData);
 mng_retcode mng_delta_rgba8            (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
+mng_retcode mng_delta_ga16             (mng_datap  pData);
 mng_retcode mng_delta_rgba16           (mng_datap  pData);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -277,11 +264,10 @@ mng_retcode mng_delta_rgba16           (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode mng_delta_g1_g1            (mng_datap  pData);
-mng_retcode mng_delta_g2_g2            (mng_datap  pData);
-mng_retcode mng_delta_g4_g4            (mng_datap  pData);
 mng_retcode mng_delta_g8_g8            (mng_datap  pData);
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_delta_g16_g16          (mng_datap  pData);
+#endif
 mng_retcode mng_delta_ga8_ga8          (mng_datap  pData);
 mng_retcode mng_delta_ga8_g8           (mng_datap  pData);
 mng_retcode mng_delta_ga8_a8           (mng_datap  pData);
@@ -309,32 +295,14 @@ mng_retcode mng_delta_rgba16_rgba16    (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode mng_scale_g1_g2            (mng_datap  pData);
-mng_retcode mng_scale_g1_g4            (mng_datap  pData);
-mng_retcode mng_scale_g1_g8            (mng_datap  pData);
-mng_retcode mng_scale_g2_g4            (mng_datap  pData);
-mng_retcode mng_scale_g2_g8            (mng_datap  pData);
-mng_retcode mng_scale_g4_g8            (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
-mng_retcode mng_scale_g1_g16           (mng_datap  pData);
-mng_retcode mng_scale_g2_g16           (mng_datap  pData);
-mng_retcode mng_scale_g4_g16           (mng_datap  pData);
 mng_retcode mng_scale_g8_g16           (mng_datap  pData);
 mng_retcode mng_scale_ga8_ga16         (mng_datap  pData);
 mng_retcode mng_scale_rgb8_rgb16       (mng_datap  pData);
 mng_retcode mng_scale_rgba8_rgba16     (mng_datap  pData);
 #endif
 
-mng_retcode mng_scale_g2_g1            (mng_datap  pData);
-mng_retcode mng_scale_g4_g1            (mng_datap  pData);
-mng_retcode mng_scale_g8_g1            (mng_datap  pData);
-mng_retcode mng_scale_g4_g2            (mng_datap  pData);
-mng_retcode mng_scale_g8_g2            (mng_datap  pData);
-mng_retcode mng_scale_g8_g4            (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
-mng_retcode mng_scale_g16_g1           (mng_datap  pData);
-mng_retcode mng_scale_g16_g2           (mng_datap  pData);
-mng_retcode mng_scale_g16_g4           (mng_datap  pData);
 mng_retcode mng_scale_g16_g8           (mng_datap  pData);
 mng_retcode mng_scale_ga16_ga8         (mng_datap  pData);
 mng_retcode mng_scale_rgb16_rgb8       (mng_datap  pData);
@@ -348,32 +316,14 @@ mng_retcode mng_scale_rgba16_rgba8     (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_uint8   mng_promote_replicate_1_2  (mng_uint8  iB);
-mng_uint8   mng_promote_replicate_1_4  (mng_uint8  iB);
-mng_uint8   mng_promote_replicate_1_8  (mng_uint8  iB);
-mng_uint8   mng_promote_replicate_2_4  (mng_uint8  iB);
-mng_uint8   mng_promote_replicate_2_8  (mng_uint8  iB);
-mng_uint8   mng_promote_replicate_4_8  (mng_uint8  iB);
 #ifndef MNG_NO_16BIT_SUPPORT
-mng_uint16  mng_promote_replicate_1_16 (mng_uint8  iB);
-mng_uint16  mng_promote_replicate_2_16 (mng_uint8  iB);
-mng_uint16  mng_promote_replicate_4_16 (mng_uint8  iB);
 mng_uint16  mng_promote_replicate_8_16 (mng_uint8  iB);
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_uint8   mng_promote_zerofill_1_2   (mng_uint8  iB);
-mng_uint8   mng_promote_zerofill_1_4   (mng_uint8  iB);
-mng_uint8   mng_promote_zerofill_1_8   (mng_uint8  iB);
-mng_uint8   mng_promote_zerofill_2_4   (mng_uint8  iB);
-mng_uint8   mng_promote_zerofill_2_8   (mng_uint8  iB);
-mng_uint8   mng_promote_zerofill_4_8   (mng_uint8  iB);
 #ifndef MNG_NO_16BIT_SUPPORT
-mng_uint16  mng_promote_zerofill_1_16  (mng_uint8  iB);
-mng_uint16  mng_promote_zerofill_2_16  (mng_uint8  iB);
-mng_uint16  mng_promote_zerofill_4_16  (mng_uint8  iB);
 mng_uint16  mng_promote_zerofill_8_16  (mng_uint8  iB);
 #endif
 #endif /* MNG_NO_DELTA_PNG */
@@ -446,14 +396,8 @@ mng_retcode mng_promote_rgba8_rgba16   (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode mng_process_g1             (mng_datap  pData);
-mng_retcode mng_process_g2             (mng_datap  pData);
-mng_retcode mng_process_g4             (mng_datap  pData);
 mng_retcode mng_process_g8             (mng_datap  pData);
 mng_retcode mng_process_rgb8           (mng_datap  pData);
-mng_retcode mng_process_idx1           (mng_datap  pData);
-mng_retcode mng_process_idx2           (mng_datap  pData);
-mng_retcode mng_process_idx4           (mng_datap  pData);
 mng_retcode mng_process_idx8           (mng_datap  pData);
 mng_retcode mng_process_ga8            (mng_datap  pData);
 mng_retcode mng_process_rgba8          (mng_datap  pData);
@@ -472,25 +416,13 @@ mng_retcode mng_process_rgba16         (mng_datap  pData);
 /* ************************************************************************** */
 
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
-mng_retcode mng_init_g1_i              (mng_datap  pData);
-mng_retcode mng_init_g2_i              (mng_datap  pData);
-mng_retcode mng_init_g4_i              (mng_datap  pData);
 mng_retcode mng_init_g8_i              (mng_datap  pData);
 mng_retcode mng_init_rgb8_i            (mng_datap  pData);
-mng_retcode mng_init_idx1_i            (mng_datap  pData);
-mng_retcode mng_init_idx2_i            (mng_datap  pData);
-mng_retcode mng_init_idx4_i            (mng_datap  pData);
 mng_retcode mng_init_idx8_i            (mng_datap  pData);
 mng_retcode mng_init_ga8_i             (mng_datap  pData);
 mng_retcode mng_init_rgba8_i           (mng_datap  pData);
-mng_retcode mng_init_g1_ni             (mng_datap  pData);
-mng_retcode mng_init_g2_ni             (mng_datap  pData);
-mng_retcode mng_init_g4_ni             (mng_datap  pData);
 mng_retcode mng_init_g8_ni             (mng_datap  pData);
 mng_retcode mng_init_rgb8_ni           (mng_datap  pData);
-mng_retcode mng_init_idx1_ni           (mng_datap  pData);
-mng_retcode mng_init_idx2_ni           (mng_datap  pData);
-mng_retcode mng_init_idx4_ni           (mng_datap  pData);
 mng_retcode mng_init_idx8_ni           (mng_datap  pData);
 mng_retcode mng_init_ga8_ni            (mng_datap  pData);
 mng_retcode mng_init_rgba8_ni          (mng_datap  pData);
@@ -515,9 +447,6 @@ mng_retcode mng_init_rgba16_ni         (mng_datap  pData);
 
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
 #ifdef MNG_INCLUDE_JNG
-mng_retcode mng_init_jpeg_a1_ni        (mng_datap  pData);
-mng_retcode mng_init_jpeg_a2_ni        (mng_datap  pData);
-mng_retcode mng_init_jpeg_a4_ni        (mng_datap  pData);
 mng_retcode mng_init_jpeg_a8_ni        (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_init_jpeg_a16_ni       (mng_datap  pData);

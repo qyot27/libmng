@@ -123,6 +123,8 @@
 /* *             - fixed invalid test in promote_imageobject                * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added conditionals around MAGN chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -530,6 +532,7 @@ mng_retcode mng_create_imageobject (mng_datap  pData,
   pImage->iClipr           = iClipr;
   pImage->iClipt           = iClipt;
   pImage->iClipb           = iClipb;
+#ifndef MNG_SKIPCHUNK_MAGN
   pImage->iMAGN_MethodX    = 0;
   pImage->iMAGN_MethodY    = 0;
   pImage->iMAGN_MX         = 0;
@@ -538,6 +541,7 @@ mng_retcode mng_create_imageobject (mng_datap  pData,
   pImage->iMAGN_MR         = 0;
   pImage->iMAGN_MT         = 0;
   pImage->iMAGN_MB         = 0;
+#endif
 #ifndef MNG_SKIPCHUNK_PAST
   pImage->iPastx           = 0;
   pImage->iPasty           = 0;
@@ -664,6 +668,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_CLONE_IMGOBJECT, MNG_LC_START)
 #endif
 
+#ifndef MNG_SKIPCHUNK_MAGN
   if ((pSource->iId) &&                /* needs magnification ? */
       ((pSource->iMAGN_MethodX) || (pSource->iMAGN_MethodY)))
   {
@@ -672,6 +677,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
+#endif
                                        /* get a buffer */
   MNG_ALLOC (pData, pNew, sizeof (mng_image))
                                        /* fill or copy the appropriate fields */
@@ -707,6 +713,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   pNew->iClipr           = pSource->iClipr;
   pNew->iClipt           = pSource->iClipt;
   pNew->iClipb           = pSource->iClipb;
+#ifndef MNG_SKIPCHUNK_MAGN
                                        /* copy magnification info */
 /*  pNew->iMAGN_MethodX    = pSource->iMAGN_MethodX;     LET'S NOT !!!!!!
   pNew->iMAGN_MethodY    = pSource->iMAGN_MethodY;
@@ -716,6 +723,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   pNew->iMAGN_MR         = pSource->iMAGN_MR;
   pNew->iMAGN_MT         = pSource->iMAGN_MT;
   pNew->iMAGN_MB         = pSource->iMAGN_MB; */
+#endif
 
 #ifndef MNG_SKIPCHUNK_PAST
   pNew->iPastx           = 0;          /* initialize PAST info */
@@ -999,6 +1007,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
     pImage->iClipb   = iHeight;
   }
 
+#ifndef MNG_SKIPCHUNK_MAGN
   if (pImage->iId)                     /* reset magnification info ? */
   {
     pImage->iMAGN_MethodX = 0;
@@ -1010,6 +1019,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
     pImage->iMAGN_MT      = 0;
     pImage->iMAGN_MB      = 0;
   }
+#endif
 
   if (bResetall)                       /* reset the other characteristics ? */
   {
@@ -1092,6 +1102,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#if !defined(MNG_NO_DELTA_PNG) || !defined(MNG_SKIPCHUNK_PAST) || !defined(MNG_SKIPCHUNK_MAGN)
 mng_retcode mng_promote_imageobject (mng_datap  pData,
                                      mng_imagep pImage,
                                      mng_uint8  iBitdepth,
@@ -1681,9 +1692,11 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MAGN
 mng_retcode mng_magnify_imageobject (mng_datap  pData,
                                      mng_imagep pImage)
 {
@@ -1708,7 +1721,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_MAGNIFY_IMGOBJECT, MNG_LC_START)
 #endif
 
-  if (pBuf->iColortype == 3)           /* indexed color ? */
+  if (pBuf->iColortype == MNG_COLORTYPE_INDEXED)           /* indexed color ? */
   {                                    /* concrete buffer ? */
     if ((pBuf->bConcrete) && (pImage->iId))
       MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
@@ -2085,6 +2098,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2598,6 +2612,7 @@ mng_retcode mng_process_ani_trns (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_gAMA
 mng_retcode mng_create_ani_gama (mng_datap  pData,
                                  mng_bool   bEmpty,
                                  mng_uint32 iGamma)
@@ -2674,6 +2689,7 @@ mng_retcode mng_process_ani_gama (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -2788,6 +2804,7 @@ mng_retcode mng_process_ani_chrm (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sRGB
 mng_retcode mng_create_ani_srgb (mng_datap pData,
                                  mng_bool  bEmpty,
                                  mng_uint8 iRenderingintent)
@@ -2864,6 +2881,7 @@ mng_retcode mng_process_ani_srgb (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -3051,6 +3069,7 @@ mng_retcode mng_process_ani_bkgd (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_LOOP
 mng_retcode mng_create_ani_loop (mng_datap   pData,
                                  mng_uint8   iLevel,
                                  mng_uint32  iRepeatcount,
@@ -3272,10 +3291,11 @@ mng_retcode mng_process_ani_endl (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DEFI
 mng_retcode mng_create_ani_defi (mng_datap pData)
 {               
   mng_ani_defip pDEFI;
@@ -3370,10 +3390,12 @@ mng_retcode mng_process_ani_defi (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_BASI
 mng_retcode mng_create_ani_basi (mng_datap  pData,
                                  mng_uint16 iRed,
                                  mng_uint16 iGreen,
@@ -3451,10 +3473,11 @@ mng_retcode mng_process_ani_basi (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_CLON
 mng_retcode mng_create_ani_clon (mng_datap  pData,
                                  mng_uint16 iCloneid,
                                  mng_uint16 iSourceid,
@@ -3543,10 +3566,11 @@ mng_retcode mng_process_ani_clon (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_BACK
 mng_retcode mng_create_ani_back (mng_datap  pData,
                                  mng_uint16 iRed,
                                  mng_uint16 iGreen,
@@ -3627,10 +3651,11 @@ mng_retcode mng_process_ani_back (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_FRAM
 mng_retcode mng_create_ani_fram (mng_datap  pData,
                                  mng_uint8  iFramemode,
                                  mng_uint8  iChangedelay,
@@ -3728,10 +3753,11 @@ mng_retcode mng_process_ani_fram (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MOVE
 mng_retcode mng_create_ani_move (mng_datap  pData,
                                  mng_uint16 iFirstid,
                                  mng_uint16 iLastid,
@@ -3807,10 +3833,11 @@ mng_retcode mng_process_ani_move (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_CLIP
 mng_retcode mng_create_ani_clip (mng_datap  pData,
                                  mng_uint16 iFirstid,
                                  mng_uint16 iLastid,
@@ -3891,10 +3918,11 @@ mng_retcode mng_process_ani_clip (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SHOW
 mng_retcode mng_create_ani_show (mng_datap  pData,
                                  mng_uint16 iFirstid,
                                  mng_uint16 iLastid,
@@ -3976,10 +4004,11 @@ mng_retcode mng_process_ani_show (mng_datap   pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_TERM
 mng_retcode mng_create_ani_term (mng_datap  pData,
                                  mng_uint8  iTermaction,
                                  mng_uint8  iIteraction,
@@ -4049,8 +4078,8 @@ mng_retcode mng_process_ani_term (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
-/* ************************************************************************** */
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SAVE
@@ -4633,8 +4662,8 @@ mng_retcode mng_process_ani_pplt (mng_datap   pData,
 #endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MAGN
 mng_retcode mng_create_ani_magn (mng_datap  pData,
                                  mng_uint16 iFirstid,
                                  mng_uint16 iLastid,
@@ -4725,6 +4754,7 @@ mng_retcode mng_process_ani_magn (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4827,8 +4857,8 @@ mng_retcode mng_process_ani_past (mng_datap   pData,
 #endif
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DISC
 mng_retcode mng_create_ani_disc (mng_datap   pData,
                                  mng_uint32  iCount,
                                  mng_uint16p pIds)
@@ -4910,6 +4940,7 @@ mng_retcode mng_process_ani_disc (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */

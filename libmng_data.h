@@ -134,6 +134,8 @@
 /* *             - optionally use zlib's crc32() function                   * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added iPNGdepth member to pData structure                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -778,8 +780,9 @@ typedef struct mng_data_struct {
            png_imgtype       ePng_imgtype;
 #endif
 
-#ifdef MNG_NO_16BIT_SUPPORT
-           mng_uint8         iPNGmult;     /* Real input depth */
+#if defined(MNG_NO_16BIT_SUPPORT)
+           mng_uint8         iPNGdepth;     /* Real input depth */
+           mng_uint8         iPNGmult;
 #endif
 
         } mng_data;

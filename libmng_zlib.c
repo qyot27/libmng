@@ -198,11 +198,10 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
   if (pData->sZlib.next_out == 0)      /* initialize output variables ? */
   {                                    /* let zlib know where to store stuff */
     pData->sZlib.next_out  = pData->pWorkrow;
+    pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
 #ifdef MNG_NO_16BIT_SUPPORT
-      pData->sZlib.avail_out = (uInt)(pData->iPNGmult*pData->iRowsize +
-           pData->iPixelofs);
-#else
-      pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+    if (pData->iPNGdepth > 8)
+       pData->sZlib.avail_out = (uInt)(2*pData->iRowsize + pData->iPixelofs);
 #endif
   }
 
@@ -216,7 +215,7 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
       if (pData->iRow < (mng_int32)pData->iDataheight)
       {
 #ifdef MNG_NO_16BIT_SUPPORT
-        if (pData->iPNGmult > 1)
+        if (pData->iPNGdepth > 8)
         {
           /* Reduce Workrow to 8-bit */
           mng_int32  iX;
@@ -302,11 +301,10 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
       }
                                        /* let zlib know where to store next output */
       pData->sZlib.next_out  = pData->pWorkrow;
+      pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
 #ifdef MNG_NO_16BIT_SUPPORT
-        pData->sZlib.avail_out = (uInt)(pData->iPNGmult*pData->iRowsize +
-           pData->iPixelofs);
-#else
-        pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+      if (pData->iPNGdepth > 8)
+        pData->sZlib.avail_out = (uInt)(2*pData->iRowsize + pData->iPixelofs);
 #endif
     }
   }                                    /* until some error or EOI

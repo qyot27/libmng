@@ -149,6 +149,8 @@
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
 /* *             - fixed "FOOTPRINT_COMPOSEIV" typo (now "FOOTPRINT_DIV")   * */
+/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             - added more conditionals around "promote" functions       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 #include "libmng.h"
@@ -7586,9 +7588,11 @@ mng_uint16 mng_promote_replicate_4_16 (mng_uint8 iB)
   iB = (mng_uint8)((iB << 4) + iB);
   return (mng_uint16)(((mng_uint16)iB << 8) + (mng_uint16)iB);
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_uint16 mng_promote_replicate_8_16 (mng_uint8 iB)
 {
   return (mng_uint16)(((mng_uint16)iB << 8) + (mng_uint16)iB);
@@ -7663,9 +7667,11 @@ mng_uint16 mng_promote_zerofill_4_16 (mng_uint8 iB)
 {
   return (mng_uint16)((mng_uint16)iB << 12);
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_16BIT_SUPPORT
 mng_uint16 mng_promote_zerofill_8_16 (mng_uint8 iB)
 {
   return (mng_uint16)((mng_uint16)iB << 8);
@@ -7679,6 +7685,7 @@ mng_uint16 mng_promote_zerofill_8_16 (mng_uint8 iB)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#if !defined(MNG_NO_DELTA_PNG) || !defined(MNG_SKIPCHUNK_PAST) || !defined(MNG_SKIPCHUNK_MAGN)
 mng_retcode mng_promote_g8_g8 (mng_datap pData)
 {
   mng_uint8p pSrcline = (mng_uint8p)pData->pPromSrc;
@@ -8771,6 +8778,7 @@ mng_retcode mng_promote_rgba8_rgba16 (mng_datap pData)
   return MNG_NOERROR;
 }
 #endif
+#endif /* !defined(MNG_NO_DELTA_PNG) || !defined(MNG_SKIPCHUNK_PAST) || !defined(MNG_SKIPCHUNK_MAGN) */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -12425,6 +12433,7 @@ mng_retcode mng_next_jpeg_row (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_MAGN
 #ifndef MNG_OPTIMIZE_FOOTPRINT_MAGN
 mng_retcode mng_magnify_g8_x1 (mng_datap  pData,
                                mng_uint16 iMX,
@@ -17121,6 +17130,7 @@ mng_retcode mng_magnify_rgba16_y5 (mng_datap  pData,
 }
 #endif /* MNG_NO_16BIT_SUPPORT */
 #endif /* MNG_OPTIMIZE_FOOTPRINT_MAGN */
+#endif /* MNG_SKIPCHUNK_MAGN */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -17128,6 +17138,7 @@ mng_retcode mng_magnify_rgba16_y5 (mng_datap  pData,
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_composeover_rgba8 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
@@ -17432,6 +17443,7 @@ mng_retcode mng_composeunder_rgba16 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
