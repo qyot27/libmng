@@ -35,6 +35,7 @@ core:
 - changed file-prefixes
 - added function to set simplicity field              
 - added trace-code/-string for updatemngsimplicity
+- fixed putchunk_unknown() function                      
 
 samples:
 

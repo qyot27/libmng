@@ -40,6 +40,7 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *             - added function to set simplicity field                   * */
+/* *             - fixed putchunk_unknown() function                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4777,7 +4778,8 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* fill the chunk */
-  ((mng_unknown_chunkp)pChunk)->iDatasize = iRawlen;
+  ((mng_unknown_chunkp)pChunk)->sHeader.iChunkname = iChunkname;
+  ((mng_unknown_chunkp)pChunk)->iDatasize          = iRawlen;
 
   if (iRawlen)
   {
