@@ -282,6 +282,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
 /* *             - added function to retrieve current FRAM delay            * */
+/* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
+/* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2483,6 +2485,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_RGBA565   0x00001005L
 #define MNG_CANVAS_BGR565    0x00000006L
 #define MNG_CANVAS_BGRA565   0x00001006L
+#define MNG_CANVAS_BGR565_A8 0x00004006L
 
 #define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000FFL)
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)

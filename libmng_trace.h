@@ -148,6 +148,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
 /* *             - added function to retrieve current FRAM delay            * */
+/* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
+/* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -606,6 +608,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_RGBA8_PM      1131
 #define MNG_FN_DISPLAY_ARGB8_PM      1132
 #define MNG_FN_DISPLAY_ABGR8_PM      1133
+#define MNG_FN_DISPLAY_BGR565_A8     1134
 
 /* ************************************************************************** */
 

@@ -215,6 +215,8 @@
 /* *             - revised some SKIPCHUNK conditionals                      * */
 /* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
+/* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
+/* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -501,6 +503,9 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #endif
 #ifndef MNG_SKIPCANVAS_BGRA565
       case MNG_CANVAS_BGRA565 : { pData->fDisplayrow = (mng_fptr)mng_display_bgra565;  break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565_A8
+      case MNG_CANVAS_BGR565_A8 : { pData->fDisplayrow = (mng_fptr)mng_display_bgr565_a8;  break; }
 #endif
 
 #ifndef MNG_NO_16BIT_SUPPORT

@@ -106,6 +106,8 @@
 /* *             - added some MNG_SUPPORT_WRITE conditionals                * */
 /* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
 /* *             - added function to retrieve current FRAM delay            * */
+/* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
+/* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -207,6 +209,9 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
 #endif
 #ifndef MNG_SKIPCANVAS_BGRA565
     case MNG_CANVAS_BGRA565 : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565_A8
+    case MNG_CANVAS_BGR565_A8 : break;
 #endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_RGBA16  : break; */
