@@ -222,6 +222,8 @@
 /* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
 /* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
+/* *             1.0.9 - 01/17/2005 - G.Juyn                                * */
+/* *             - fixed problem with global PLTE/tRNS                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 

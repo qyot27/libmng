@@ -33,6 +33,7 @@ core:
 - added conditional MNG_OPTIMIZE_OBJCLEANUP
 - added conditional MNG_OPTIMIZE_CHUNKASSIGN
 - added conditional MNG_OPTIMIZE_CHUNKREADER
+- fixed problem with global PLTE/tRNS
 
 samples:
 

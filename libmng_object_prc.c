@@ -208,7 +208,7 @@ MNG_LOCAL mng_retcode create_obj_general (mng_datap          pData,
                                           mng_size_t         iObjsize,
                                           mng_cleanupobject  fCleanup,
                                           mng_processobject  fProcess,
-                                          mng_ptr *          ppObject)
+                                          mng_ptr            *ppObject)
 {
   mng_object_headerp pWork;
 
@@ -252,6 +252,7 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
                                         mng_uint8      iInterlace,
                                         mng_imagedatap *ppObject)
 {
+  mng_ptr pTemp;
   mng_imagedatap pImagedata;
   mng_uint32 iSamplesize = 0;
 
@@ -263,9 +264,10 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   {
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_imagedata),
                                                (mng_cleanupobject)mng_free_imagedataobject,
-                                               MNG_NULL, &pImagedata);
+                                               MNG_NULL, &pTemp);
     if (iRetcode)
       return iRetcode;
+    pImagedata = (mng_imagedatap)pTemp;
   }
 #else
   MNG_ALLOC (pData, pImagedata, sizeof (mng_imagedata));
@@ -715,6 +717,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
                                    mng_imagep pSource,
                                    mng_imagep *ppClone)
 {
+  mng_ptr        pTemp;
   mng_imagep     pNew;
   mng_imagep     pPrev, pNext;
   mng_retcode    iRetcode;
@@ -739,9 +742,10 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   {
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_image),
                                                (mng_cleanupobject)mng_free_imageobject,
-                                               MNG_NULL, &pNew);
+                                               MNG_NULL, &pTemp);
     if (iRetcode)
       return iRetcode;
+    pNew = (mng_imagep)pTemp;
   }
 #else
   MNG_ALLOC (pData, pNew, sizeof (mng_image));
@@ -2552,6 +2556,7 @@ mng_retcode mng_create_ani_plte (mng_datap      pData,
 mng_retcode mng_create_ani_plte (mng_datap      pData)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_pltep pPLTE;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2564,9 +2569,10 @@ mng_retcode mng_create_ani_plte (mng_datap      pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_plte),
                                                mng_free_obj_general,
                                                mng_process_ani_plte,
-                                               &pPLTE);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pPLTE = (mng_ani_pltep)pTemp;
 #else
     MNG_ALLOC (pData, pPLTE, sizeof (mng_ani_plte));
 
@@ -2646,6 +2652,7 @@ mng_retcode mng_create_ani_trns (mng_datap    pData,
 mng_retcode mng_create_ani_trns (mng_datap    pData)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_trnsp pTRNS;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2658,9 +2665,10 @@ mng_retcode mng_create_ani_trns (mng_datap    pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_trns),
                                                mng_free_obj_general,
                                                mng_process_ani_trns,
-                                               &pTRNS);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pTRNS = (mng_ani_trnsp)pTemp;
 #else
     MNG_ALLOC (pData, pTRNS, sizeof (mng_ani_trns));
 
@@ -2742,6 +2750,7 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_gamap pGAMA;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2754,9 +2763,10 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_gama),
                                                mng_free_obj_general,
                                                mng_process_ani_gama,
-                                               &pGAMA);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pGAMA = (mng_ani_gamap)pTemp;
 #else
     MNG_ALLOC (pData, pGAMA, sizeof (mng_ani_gama));
 
@@ -2852,6 +2862,7 @@ mng_retcode mng_create_ani_chrm (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_chrmp pCHRM;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2864,9 +2875,10 @@ mng_retcode mng_create_ani_chrm (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_chrm),
                                                mng_free_obj_general,
                                                mng_process_ani_chrm,
-                                               &pCHRM);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pCHRM = (mng_ani_chrmp)pTemp;
 #else
     MNG_ALLOC (pData, pCHRM, sizeof (mng_ani_chrm));
 
@@ -2983,6 +2995,7 @@ mng_retcode mng_create_ani_srgb (mng_datap pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_srgbp pSRGB;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2995,9 +3008,10 @@ mng_retcode mng_create_ani_srgb (mng_datap pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_srgb),
                                                mng_free_obj_general,
                                                mng_process_ani_srgb,
-                                               &pSRGB);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pSRGB = (mng_ani_srgbp)pTemp;
 #else
     MNG_ALLOC (pData, pSRGB, sizeof (mng_ani_srgb));
 
@@ -3087,6 +3101,7 @@ mng_retcode mng_create_ani_iccp (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_iccpp pICCP;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3099,9 +3114,10 @@ mng_retcode mng_create_ani_iccp (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_iccp),
                                                mng_free_ani_iccp,
                                                mng_process_ani_iccp,
-                                               &pICCP);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pICCP = (mng_ani_iccpp)pTemp;
 #else
     MNG_ALLOC (pData, pICCP, sizeof (mng_ani_iccp));
 
@@ -3222,6 +3238,7 @@ mng_retcode mng_create_ani_bkgd (mng_datap  pData,
 mng_retcode mng_create_ani_bkgd (mng_datap  pData)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_bkgdp pBKGD;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3234,9 +3251,10 @@ mng_retcode mng_create_ani_bkgd (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_bkgd),
                                                mng_free_obj_general,
                                                mng_process_ani_bkgd,
-                                               &pBKGD);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pBKGD = (mng_ani_bkgdp)pTemp;
 #else
     MNG_ALLOC (pData, pBKGD, sizeof (mng_ani_bkgd));
 
@@ -3326,6 +3344,7 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
                                  mng_chunkp  pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_loopp pLOOP;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3338,9 +3357,10 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_loop),
                                                mng_free_ani_loop,
                                                mng_process_ani_loop,
-                                               &pLOOP);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pLOOP = (mng_ani_loopp)pTemp;
 #else
     MNG_ALLOC (pData, pLOOP, sizeof (mng_ani_loop));
 
@@ -3454,6 +3474,7 @@ mng_retcode mng_process_ani_loop (mng_datap   pData,
 mng_retcode mng_create_ani_endl (mng_datap pData,
                                  mng_uint8 iLevel)
 {
+  mng_ptr       pTemp;
   mng_ani_endlp pENDL;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3467,9 +3488,10 @@ mng_retcode mng_create_ani_endl (mng_datap pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_endl),
                                                mng_free_obj_general,
                                                mng_process_ani_endl,
-                                               &pENDL);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pENDL = (mng_ani_endlp)pTemp;
 #else
     MNG_ALLOC (pData, pENDL, sizeof (mng_ani_endl));
 
@@ -3595,6 +3617,7 @@ mng_retcode mng_process_ani_endl (mng_datap   pData,
 #ifndef MNG_SKIPCHUNK_DEFI
 mng_retcode mng_create_ani_defi (mng_datap pData)
 {               
+  mng_ptr       pTemp;
   mng_ani_defip pDEFI;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3607,9 +3630,10 @@ mng_retcode mng_create_ani_defi (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_defi),
                                                mng_free_obj_general,
                                                mng_process_ani_defi,
-                                               &pDEFI);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pDEFI = (mng_ani_defip)pTemp;
 #else
     MNG_ALLOC (pData, pDEFI, sizeof (mng_ani_defi));
 
@@ -3717,6 +3741,7 @@ mng_retcode mng_create_ani_basi (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_basip pBASI;
   mng_retcode   iRetcode;
 
@@ -3730,9 +3755,10 @@ mng_retcode mng_create_ani_basi (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_basi),
                                    mng_free_obj_general,
                                    mng_process_ani_basi,
-                                   &pBASI);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pBASI = (mng_ani_basip)pTemp;
 #else
     MNG_ALLOC (pData, pBASI, sizeof (mng_ani_basi));
 
@@ -3873,6 +3899,7 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_clonp pCLON;
   mng_retcode   iRetcode;
 
@@ -3886,9 +3913,10 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_clon),
                                    mng_free_obj_general,
                                    mng_process_ani_clon,
-                                   &pCLON);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pCLON = (mng_ani_clonp)pTemp;
 #else
     MNG_ALLOC (pData, pCLON, sizeof (mng_ani_clon));
 
@@ -4052,6 +4080,7 @@ mng_retcode mng_create_ani_back (mng_datap  pData,
 mng_retcode mng_create_ani_back (mng_datap  pData)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_backp pBACK;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4064,9 +4093,10 @@ mng_retcode mng_create_ani_back (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_back),
                                                mng_free_obj_general,
                                                mng_process_ani_back,
-                                               &pBACK);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pBACK = (mng_ani_backp)pTemp;
 #else
     MNG_ALLOC (pData, pBACK, sizeof (mng_ani_back));
 
@@ -4167,6 +4197,7 @@ mng_retcode mng_create_ani_fram (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_framp pFRAM;
   mng_retcode   iRetcode;
 
@@ -4180,9 +4211,10 @@ mng_retcode mng_create_ani_fram (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_fram),
                                    mng_free_obj_general,
                                    mng_process_ani_fram,
-                                   &pFRAM);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pFRAM = (mng_ani_framp)pTemp;
 #else
     MNG_ALLOC (pData, pFRAM, sizeof (mng_ani_fram));
 
@@ -4364,6 +4396,7 @@ mng_retcode mng_create_ani_move (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_movep pMOVE;
   mng_retcode   iRetcode;
 
@@ -4377,9 +4410,10 @@ mng_retcode mng_create_ani_move (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_move),
                                    mng_free_obj_general,
                                    mng_process_ani_move,
-                                   &pMOVE);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pMOVE = (mng_ani_movep)pTemp;
 #else
     MNG_ALLOC (pData, pMOVE, sizeof (mng_ani_move));
 
@@ -4511,6 +4545,7 @@ mng_retcode mng_create_ani_clip (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_clipp pCLIP;
   mng_retcode   iRetcode;
 
@@ -4524,9 +4559,10 @@ mng_retcode mng_create_ani_clip (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_clip),
                                    mng_free_obj_general,
                                    mng_process_ani_clip,
-                                   &pCLIP);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pCLIP = (mng_ani_clipp)pTemp;
 #else
     MNG_ALLOC (pData, pCLIP, sizeof (mng_ani_clip));
 
@@ -4667,6 +4703,7 @@ mng_retcode mng_create_ani_show (mng_datap  pData,
 mng_retcode mng_create_ani_show (mng_datap  pData)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_showp pSHOW;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4679,9 +4716,10 @@ mng_retcode mng_create_ani_show (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_show),
                                                mng_free_obj_general,
                                                mng_process_ani_show,
-                                               &pSHOW);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pSHOW = (mng_ani_showp)pTemp;
 #else
     MNG_ALLOC (pData, pSHOW, sizeof (mng_ani_show));
 
@@ -4776,6 +4814,7 @@ mng_retcode mng_create_ani_term (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_termp pTERM;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4788,9 +4827,10 @@ mng_retcode mng_create_ani_term (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_term),
                                                mng_free_obj_general,
                                                mng_process_ani_term,
-                                               &pTERM);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pTERM = (mng_ani_termp)pTemp;
 #else
     MNG_ALLOC (pData, pTERM, sizeof (mng_ani_term));
 
@@ -4864,6 +4904,7 @@ mng_retcode mng_process_ani_term (mng_datap   pData,
 #ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_create_ani_save (mng_datap pData)
 {
+  mng_ptr       pTemp;
   mng_ani_savep pSAVE;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4876,9 +4917,10 @@ mng_retcode mng_create_ani_save (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_save),
                                                mng_free_obj_general,
                                                mng_process_ani_save,
-                                               &pSAVE);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pSAVE = (mng_ani_savep)pTemp;
 #else
     MNG_ALLOC (pData, pSAVE, sizeof (mng_ani_save));
 
@@ -4953,6 +4995,7 @@ mng_retcode mng_create_ani_seek (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_seekp pSEEK;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4965,9 +5008,10 @@ mng_retcode mng_create_ani_seek (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_seek),
                                                mng_free_ani_seek,
                                                mng_process_ani_seek,
-                                               &pSEEK);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pSEEK = (mng_ani_seekp)pTemp;
 #else
     MNG_ALLOC (pData, pSEEK, sizeof (mng_ani_seek));
 
@@ -5099,6 +5143,7 @@ mng_retcode mng_create_ani_dhdr (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_dhdrp pDHDR;
   mng_retcode   iRetcode;
 
@@ -5112,9 +5157,10 @@ mng_retcode mng_create_ani_dhdr (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_dhdr),
                                    mng_free_obj_general,
                                    mng_process_ani_dhdr,
-                                   &pDHDR);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pDHDR = (mng_ani_dhdrp)pTemp;
 #else
     MNG_ALLOC (pData, pDHDR, sizeof (mng_ani_dhdr));
 
@@ -5260,6 +5306,7 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_promp pPROM=NULL;
   mng_retcode   iRetcode;
 
@@ -5273,9 +5320,10 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_prom),
                                    mng_free_obj_general,
                                    mng_process_ani_prom,
-                                   &pPROM);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pPROM = (mng_ani_promp)pTemp;
 #else
     MNG_ALLOC (pData, pPROM, sizeof (mng_ani_prom));
 
@@ -5298,8 +5346,8 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
 
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
 #ifndef MNG_OPTIMIZE_CHUNKREADER
-  iRetcode = mng_process_display_prom (pData, pPROM->iBitdepth,
-                                       pPROM->iColortype, pPROM->iFilltype);
+  iRetcode = mng_process_display_prom (pData, iBitdepth,
+                                       iColortype, iFilltype);
 #else
   iRetcode = mng_process_display_prom (pData,
                                        ((mng_promp)pChunk)->iSampledepth,
@@ -5383,6 +5431,7 @@ mng_retcode mng_process_ani_prom (mng_datap   pData,
 #ifndef MNG_NO_DELTA_PNG
 mng_retcode mng_create_ani_ipng (mng_datap pData)
 {
+  mng_ptr       pTemp;
   mng_ani_ipngp pIPNG;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -5395,9 +5444,10 @@ mng_retcode mng_create_ani_ipng (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ipng),
                                                mng_free_obj_general,
                                                mng_process_ani_ipng,
-                                               &pIPNG);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pIPNG = (mng_ani_ipngp)pTemp;
 #else
     MNG_ALLOC (pData, pIPNG, sizeof (mng_ani_ipng));
 
@@ -5465,6 +5515,7 @@ mng_retcode mng_process_ani_ipng (mng_datap   pData,
 #ifdef MNG_INCLUDE_JNG
 mng_retcode mng_create_ani_ijng (mng_datap pData)
 {
+  mng_ptr       pTemp;
   mng_ani_ijngp pIJNG;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -5477,9 +5528,10 @@ mng_retcode mng_create_ani_ijng (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ijng),
                                                mng_free_obj_general,
                                                mng_process_ani_ijng,
-                                               &pIJNG);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pIJNG = (mng_ani_ijngp)pTemp;
 #else
     MNG_ALLOC (pData, pIJNG, sizeof (mng_ani_ijng));
 
@@ -5552,6 +5604,7 @@ mng_retcode mng_create_ani_pplt (mng_datap      pData,
                                  mng_uint8p     paAlphaentries,
                                  mng_uint8p     paUsedentries)
 {
+  mng_ptr       pTemp;
   mng_ani_ppltp pPPLT;
   mng_retcode   iRetcode;
 
@@ -5565,9 +5618,10 @@ mng_retcode mng_create_ani_pplt (mng_datap      pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_pplt),
                                    mng_free_obj_general,
                                    mng_process_ani_pplt,
-                                   &pPPLT);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pPPLT = (mng_ani_ppltp)pTemp;
 #else
     MNG_ALLOC (pData, pPPLT, sizeof (mng_ani_pplt));
 
@@ -5679,6 +5733,7 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_magnp pMAGN=NULL;
   mng_retcode   iRetcode;
 
@@ -5692,9 +5747,10 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_magn),
                                    mng_free_obj_general,
                                    mng_process_ani_magn,
-                                   &pMAGN);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pMAGN = (mng_ani_magnp)pTemp;
 #else
     MNG_ALLOC (pData, pMAGN, sizeof (mng_ani_magn));
 
@@ -5859,6 +5915,7 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_pastp pPAST;
   mng_retcode   iRetcode;
 
@@ -5872,9 +5929,10 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_past),
                                    mng_free_ani_past,
                                    mng_process_ani_past,
-                                   &pPAST);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pPAST = (mng_ani_pastp)pTemp;
 #else
     MNG_ALLOC (pData, pPAST, sizeof (mng_ani_past));
 
@@ -6033,6 +6091,7 @@ mng_retcode mng_create_ani_disc (mng_datap   pData,
                                  mng_chunkp  pChunk)
 #endif
 {
+  mng_ptr       pTemp;
   mng_ani_discp pDISC;
   mng_retcode   iRetcode;
 
@@ -6046,9 +6105,10 @@ mng_retcode mng_create_ani_disc (mng_datap   pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_disc),
                                    mng_free_ani_disc,
                                    mng_process_ani_disc,
-                                   &pDISC);
+                                   &pTemp);
     if (iRetcode)
       return iRetcode;
+    pDISC = (mng_ani_discp)pTemp;
 #else
     MNG_ALLOC (pData, pDISC, sizeof (mng_ani_disc));
 
@@ -6187,6 +6247,7 @@ mng_retcode mng_create_event (mng_datap  pData,
                               mng_ptr    pEntry)
 #endif
 {
+  mng_ptr    pTemp;
   mng_eventp pEvent;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -6201,9 +6262,10 @@ mng_retcode mng_create_event (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_event),
                                                mng_free_event,
                                                mng_process_event,
-                                               &pEvent);
+                                               &pTemp);
     if (iRetcode)
       return iRetcode;
+    pEvent = (mng_eventp)pTemp;
 #else
     MNG_ALLOC (pData, pEvent, sizeof (mng_event));
 

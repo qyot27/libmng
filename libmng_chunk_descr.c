@@ -20,6 +20,8 @@
 /* *             - made all constants 'static'                              * */
 /* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
+/* *             1.0.9 - 01/17/2005 - G.Juyn                                * */
+/* *             - fixed problem with global PLTE/tRNS                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2223,6 +2225,9 @@ MNG_F_SPECIALFUNC (mng_debunk_trns)
     pTRNS->iType   = 0;
     pTRNS->iRawlen = iRawlen;
     MNG_COPY (pTRNS->aRawdata, pRawdata, iRawlen);
+
+    pData->iGlobalTRNSrawlen = iRawlen;
+    MNG_COPY (pData->aGlobalTRNSrawdata, pRawdata, iRawlen);
   }
 
   *piRawlen = 0;

@@ -130,8 +130,8 @@ typedef mng_field_descriptor * mng_field_descp;
 
 #define MNG_DESCR_GLOBAL      0x0001
 #define MNG_DESCR_EMPTY       0x0002
-#define MNG_DESCR_EMPTYEMBED  0x0004
-#define MNG_DESCR_EMPTYGLOBAL 0x0008
+#define MNG_DESCR_EMPTYEMBED  0x0006
+#define MNG_DESCR_EMPTYGLOBAL 0x000A
 
 #define MNG_DESCR_GenHDR      0x0001   /* IHDR/JHDR/BASI/DHDR */
 #define MNG_DESCR_JngHDR      0x0002   /* JHDR/DHDR */
