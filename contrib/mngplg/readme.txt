@@ -1,7 +1,7 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>
-Version 0.4.0  June 2000
+Version 0.4.1  June 29, 2000
 Web site: <http://pobox.com/~jason1/imaging/mngplg/>
 
 
@@ -131,4 +131,5 @@ TARGET attribute in the EMBED tag. For example:
 SOURCE CODE
 
 The C source code is included. I don't have any instructions for it yet. 
-It's compatible with libmng 0.5.1 and 0.5.2 (probably also later versions).
+It's compatible with libmng 0.5.1 and 0.5.2 (probably also later versions, 
+possibly with minor changes).
