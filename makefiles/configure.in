@@ -115,29 +115,17 @@ AC_ARG_WITH(lcms,
     _restore=0
   fi
 
-  dnl is there a better way?
-  AC_CHECK_HEADERS(lcms.h, have_lcms_h="yes",
-    AC_CHECK_FILE(/usr/include/lcms/lcms.h, [
-      CPPFLAGS="$CPPFLAGS -I/usr/include/lcms"
-      have_lcms_h="yes"],
-      AC_CHECK_FILE(/usr/local/include/lcms/lcms.h, [
-        CPPFLAGS="$CPPFLAGS -I/usr/local/include/lcms"
-	have_lcms_h="yes"],
-        AC_MSG_WARN([lcms header not found])
-      )
-    )
-  )
-
-  AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
-    if test x$have_lcms_h = xyes; then
+  AC_CHECK_HEADER(lcms/lcms.h,
+    AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
       LIBS="$LIBS -llcms"
       AC_DEFINE(MNG_INCLUDE_LCMS)
       AC_DEFINE(MNG_FULL_CMS)
-    fi
-  ], [
-    AC_MSG_WARN(lcms library not found)
-  ])
-  
+    ],[
+      AC_MSG_WARN([lcms not found...disabling])
+      _restore=1
+    ])
+  )
+
   test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
 ])
 

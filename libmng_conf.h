@@ -126,7 +126,7 @@
 /* if you want your own app (or the OS) to handle color-management
    select MNG_APP_CMS */
 
-#ifdef MNG_INCLUDE_LCMS
+#if defined(MNG_INCLUDE_LCMS) && !defined(MNG_FULL_CMS)
 #define MNG_FULL_CMS
 #endif
 
