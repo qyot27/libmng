@@ -55,7 +55,9 @@
 #ifndef _libmng_conf_h_
 #define _libmng_conf_h_
 
-#include "mozlibmngconf.h"
+#ifdef MNG_MOZILLA_CFG
+#include "special\mozcfg\mozlibmngconf.h"
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */

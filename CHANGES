@@ -33,6 +33,9 @@ core:
 - removed some redundant checks for iRawlen==0
 - optionally use zlib's crc32 function instead of local mng_update_crc                                     
 - bugfix empty "if" statement when 16-bit code is enabled
+- restored two misplaced #else/#endif blocks
+- added conditionals around "mng_display_go*" and other unused functions
+- added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional
 
 samples:
 
