@@ -2715,7 +2715,7 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
 
   return MNG_NOERROR;
 }
-#endif MNG_SKIPCANVAS_ABGR8_PM
+#endif /* MNG_SKIPCANVAS_ABGR8_PM */
 
 /* ************************************************************************** */
 
