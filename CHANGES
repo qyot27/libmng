@@ -1,5 +1,32 @@
 -----------------------------------------------------------
 
+1.0.10 (xxx xxth 2005)
+----------------------
+
+in short:
+
+intermediate CVS
+
+-------------------
+
+bugfixes:
+
+core:
+- fixed some compiler-warnings
+- fixed display routines called twice for FULL_MNG support in mozlibmngconf.h
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.9 (jan 30th 2005)
 ---------------------
 

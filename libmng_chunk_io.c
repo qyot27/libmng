@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_io.c         copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_chunk_io.c         copyright (c) 2000-2005 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -224,6 +224,10 @@
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *             1.0.9 - 01/17/2005 - G.Juyn                                * */
 /* *             - fixed problem with global PLTE/tRNS                      * */
+/* *                                                                        * */
+/* *             1.0.10 - 02/07/2005 - G.Juyn                               * */
+/* *             - fixed display routines called twice for FULL_MNG         * */
+/* *               support in mozlibmngconf.h                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3913,14 +3917,14 @@ READ_CHUNK (mng_read_endl)
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
 
-      {                                /* process it */
+/*      {
         mng_ani_endlp pENDL = (mng_ani_endlp)pData->pLastaniobj;
 
         iRetcode = pENDL->sHeader.fProcess (pData, pENDL);
 
-        if (iRetcode)                  /* on error bail out */
+        if (iRetcode)
           return iRetcode;
-      }
+      } */
     }
     else
       MNG_ERROR (pData, MNG_NOMATCHINGLOOP);
@@ -4235,9 +4239,9 @@ READ_CHUNK (mng_read_basi)
     iRetcode = mng_create_ani_basi (pData, iRed, iGreen, iBlue,
                                     bHasalpha, iAlpha, iViewable);
 
-    if (!iRetcode)                     /* display-processing... */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_basi (pData, iRed, iGreen, iBlue,
-                                           bHasalpha, iAlpha, iViewable);
+                                           bHasalpha, iAlpha, iViewable); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4355,11 +4359,11 @@ READ_CHUNK (mng_read_clon)
                                     bHasdonotshow, iDonotshow, iConcrete,
                                     bHasloca, iLocationtype, iLocationx, iLocationy);
 
-    if (!iRetcode)                     /* do display processing */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_clon (pData, iSourceid, iCloneid, iClonetype,
                                            bHasdonotshow, iDonotshow, iConcrete,
                                            bHasloca, iLocationtype, iLocationx,
-                                           iLocationy);
+                                           iLocationy); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4485,9 +4489,9 @@ READ_CHUNK (mng_read_past)
     iRetcode = mng_create_ani_past (pData, iTargetid, iTargettype, iTargetx,
                                     iTargety, iCount, pSources);
 
-    if (!iRetcode)                     /* do display processing */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_past (pData, iTargetid, iTargettype, iTargetx,
-                                           iTargety, iCount, pSources);
+                                           iTargety, iCount, pSources); */
 
     if (iRetcode)                      /* on error bail out */
     {
@@ -4591,10 +4595,8 @@ READ_CHUNK (mng_read_disc)
   {                                    /* create playback object */
     iRetcode = mng_create_ani_disc (pData, iCount, pIds);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-                                       /* now process it */
-    iRetcode = mng_process_display_disc (pData, iCount, pIds);
+/*    if (!iRetcode)
+      iRetcode = mng_process_display_disc (pData, iCount, pIds); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4870,11 +4872,11 @@ READ_CHUNK (mng_read_fram)
                                     iChangeclipping, iCliptype,
                                     iClipl, iClipr, iClipt, iClipb);
 
-    if (!iRetcode)                     /* now go and do something */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_fram (pData, iFramemode, iChangedelay, iDelay,
                                            iChangetimeout, iTimeout,
                                            iChangeclipping, iCliptype,
-                                           iClipl, iClipr, iClipt, iClipb);
+                                           iClipl, iClipr, iClipt, iClipb); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5024,13 +5026,13 @@ READ_CHUNK (mng_read_move)
                                            mng_get_int32 (pRawdata+5),
                                            mng_get_int32 (pRawdata+9));
 
-    if (!iRetcode)                     /* process the move */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_move (pData,
                                            mng_get_uint16 (pRawdata),
                                            mng_get_uint16 (pRawdata+2),
                                            *(pRawdata+4),
                                            mng_get_int32 (pRawdata+5),
-                                           mng_get_int32 (pRawdata+9));
+                                           mng_get_int32 (pRawdata+9)); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5098,7 +5100,7 @@ READ_CHUNK (mng_read_clip)
                                            mng_get_int32 (pRawdata+13),
                                            mng_get_int32 (pRawdata+17));
 
-    if (!iRetcode)                     /* process the clipping */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_clip (pData,
                                            mng_get_uint16 (pRawdata),
                                            mng_get_uint16 (pRawdata+2),
@@ -5106,7 +5108,7 @@ READ_CHUNK (mng_read_clip)
                                            mng_get_int32 (pRawdata+5),
                                            mng_get_int32 (pRawdata+9),
                                            mng_get_int32 (pRawdata+13),
-                                           mng_get_int32 (pRawdata+17));
+                                           mng_get_int32 (pRawdata+17)); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5192,7 +5194,7 @@ READ_CHUNK (mng_read_show)
     iRetcode = mng_create_ani_show (pData, pData->iSHOWfromid,
                                     pData->iSHOWtoid, pData->iSHOWmode);
 
-    if (!iRetcode)                     /* go and do it! */
+    if (!iRetcode)
       iRetcode = mng_process_display_show (pData);
 
     if (iRetcode)                      /* on error bail out */
@@ -5369,8 +5371,8 @@ READ_CHUNK (mng_read_save)
 
                                        /* create a SAVE animation object */
     iRetcode = mng_create_ani_save (pData);
-                   
-    if (!iRetcode)                     /* process it */
+
+    if (!iRetcode)
       iRetcode = mng_process_display_save (pData);
 
     if (iRetcode)                      /* on error bail out */
@@ -6486,9 +6488,9 @@ READ_CHUNK (mng_read_dhdr)
     iRetcode = mng_create_ani_dhdr (pData, iObjectid, iImagetype, iDeltatype,
                                     iBlockwidth, iBlockheight, iBlockx, iBlocky);
 
-    if (!iRetcode)                     /* display processing ? */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_dhdr (pData, iObjectid, iImagetype, iDeltatype,
-                                           iBlockwidth, iBlockheight, iBlockx, iBlocky);
+                                           iBlockwidth, iBlockheight, iBlockx, iBlocky); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -6585,10 +6587,11 @@ READ_CHUNK (mng_read_prom)
   {
     mng_retcode iRetcode = mng_create_ani_prom (pData, iSampledepth,
                                                 iColortype, iFilltype);
-                               
-    if (!iRetcode)                     /* display processing ? */
+
+/*    if (!iRetcode)
       iRetcode = mng_process_display_prom (pData, iSampledepth,
-                                           iColortype, iFilltype);
+                                           iColortype, iFilltype); */
+                                           
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
@@ -6636,8 +6639,8 @@ READ_CHUNK (mng_read_ipng)
 #ifdef MNG_SUPPORT_DISPLAY
   {
     mng_retcode iRetcode = mng_create_ani_ipng (pData);
-                               
-    if (!iRetcode)                     /* process it */
+
+    if (!iRetcode)
       iRetcode = mng_process_display_ipng (pData);
 
     if (iRetcode)                      /* on error bail out */
@@ -6810,9 +6813,9 @@ READ_CHUNK (mng_read_pplt)
                                                 aIndexentries, aAlphaentries,
                                                 aUsedentries);
 
-    if (!iRetcode)                     /* execute it now ? */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_pplt (pData, iDeltatype, iMax, aIndexentries,
-                                           aAlphaentries, aUsedentries);
+                                           aAlphaentries, aUsedentries); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -6871,8 +6874,8 @@ READ_CHUNK (mng_read_ijng)
 #ifdef MNG_SUPPORT_DISPLAY
   {
     mng_retcode iRetcode = mng_create_ani_ijng (pData);
-                               
-    if (!iRetcode)                     /* process it */
+
+    if (!iRetcode)
       iRetcode = mng_process_display_ijng (pData);
 
     if (iRetcode)                      /* on error bail out */
@@ -7252,9 +7255,9 @@ READ_CHUNK (mng_read_magn)
     iRetcode = mng_create_ani_magn (pData, iFirstid, iLastid, iMethodX,
                                     iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
 
-    if (!iRetcode)                     /* display processing ? */
+/*    if (!iRetcode)
       iRetcode = mng_process_display_magn (pData, iFirstid, iLastid, iMethodX,
-                                           iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
+                                           iMX, iMY, iML, iMR, iMT, iMB, iMethodY); */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
