@@ -26,6 +26,7 @@ contrib:
 
 doc:
 - added README.dll
+- added README.config
 
 makefiles:
 - fixed configure.in for lcms (FreeBSD port by Mikhail Teterin)
