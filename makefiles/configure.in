@@ -109,7 +109,7 @@ AC_ARG_WITH(lcms,
     _ldflags=$LDFLAGS
     _restore=1
 
-    CPPFLAGS="$CPPFLAGS -I$withval/include/lcms"
+    CPPFLAGS="$CPPFLAGS -I$withval/include"
     LDFLAGS="$LDFLAGS -L$withval/lib"
   else
     _restore=0
