@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_prc.c           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (implementation)            * */
 /* *                                                                        * */
@@ -23,6 +23,9 @@
 /* *                                                                        * */
 /* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
 /* *             - fixed creation-code                                      * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - put add_chunk() inside MNG_INCLUDE_WRITE_PROCS wrapper   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -47,6 +50,7 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_WRITE_PROCS
 void add_chunk (mng_datap  pData,
                 mng_chunkp pChunk)
 {
@@ -77,6 +81,7 @@ void add_chunk (mng_datap  pData,
 
   return;
 }
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */

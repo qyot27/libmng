@@ -101,7 +101,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -172,6 +172,9 @@
 /* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
 /* *             - added function to set frame-/layer-count & playtime      * */
 /* *             - added errorcode for updatemngheader if not a MNG         * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - fixed problem with trace-functions improperly wrapped    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -455,7 +458,7 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_errorproc     (mng_handle        hHandle,
 
 /* trace callback */
 /* called to show the currently executing function */
-#ifdef MNG_INTERNAL_TRACE
+#ifdef MNG_SUPPORT_TRACE
 MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc     (mng_handle        hHandle,
                                                       mng_traceproc     fProc);
 #endif
@@ -565,7 +568,7 @@ MNG_EXT mng_writedata     MNG_DECL mng_getcb_writedata     (mng_handle hHandle);
 MNG_EXT mng_errorproc     MNG_DECL mng_getcb_errorproc     (mng_handle hHandle);
 
 /* see _setcb_ */
-#ifdef MNG_INTERNAL_TRACE
+#ifdef MNG_SUPPORT_TRACE
 MNG_EXT mng_traceproc     MNG_DECL mng_getcb_traceproc     (mng_handle hHandle);
 #endif
 

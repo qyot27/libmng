@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_pixels.c              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -59,6 +59,9 @@
 /* *                                                                        * */
 /* *             0.9.1 - 07/05/2000 - G.Juyn                                * */
 /* *             - fixed mandatory BACK color to be opaque                  * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - B110547 - fixed bug in interlace code                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -6935,6 +6938,20 @@ mng_retcode next_row (mng_datap pData)
         else
           pData->iRowsize  = pData->iRowsamples;
 
+      }
+
+      if ((pData->iPass < 7) &&        /* reset previous row to zeroes ? */
+          (pData->iRow  < (mng_int32)pData->iDataheight) &&
+          (pData->iCol  < (mng_int32)pData->iDatawidth )    )
+      {                                /* making sure the filters will work properly! */
+        mng_int32  iX;
+        mng_uint8p pTemp = pData->pPrevrow;
+
+        for (iX = 0; iX < pData->iRowsize; iX++)
+        {
+          *pTemp = 0;
+          pTemp++;
+        }
       }
     }
   }

@@ -181,7 +181,7 @@ library. This may be caused by invalid input, callbacks indicating
 failure, or wrongfully calling functions out of place.
 
 If you do not provide this callback the library will still return
-an errorcode from the called function, and the mng_get_lasterror()
+an errorcode from the called function, and the mng_getlasterror()
 function can be used to retrieve the other parameters.
 
 This function is currently only provided for convenience, but may
@@ -429,7 +429,7 @@ their respective fields of interest: the reading section and displaying
 section respectively.
 
 It is the application's responsibility to check the returncode after
-each call. You can call mng_get_lasterror() to receive the details of
+each call. You can call mng_getlasterror() to receive the details of
 the last detected error. This even includes a discriptive error-message
 if you enabled that option during compilation of the library.
 
@@ -970,7 +970,7 @@ will indicate the library the filetype (eg. PNG, JNG or MNG) and force
 the proper signature when writing the file.
 
 The code above can be simplified, as you can always get the last errorcode
-by using the mng_get_lasterror() function:
+by using the mng_getlasterror() function:
 
     if ( (mng_putchunk_xxxx (myhandle, ...)) or
          (mng_putchunk_xxxx (myhandle, ...)) or
