@@ -208,6 +208,8 @@
 /* *             1.0.9 - 09/28/2004 - G.R-P                                 * */
 /* *             - improved handling of cheap transparency when 16-bit      * */
 /* *               support is disabled                                      * */
+/* *             1.0.9 - 10/04/2004 - G.Juyn                                * */
+/* *             - fixed bug in writing sBIT for indexed color              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -7925,8 +7927,10 @@ WRITE_CHUNK (mng_write_sbit)
                  break;
                }
       case  3: {                       /* indexed */
-                 iRawlen       = 1;    /* fill the size & output buffer */
+                 iRawlen       = 3;    /* fill the size & output buffer */
                  *pRawdata     = pSBIT->aBits[0];
+                 *pRawdata     = pSBIT->aBits[1];
+                 *pRawdata     = pSBIT->aBits[2];
 
                  break;
                }

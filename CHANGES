@@ -11,6 +11,7 @@ intermediate cvs
 
 bugfixes:
 - fixed chunk pushing mechanism
+- fixed bug in writing sBIT for indexed color
 
 core:
 - added more SKIPCHUNK conditionals
