@@ -47,6 +47,8 @@
 /* *             - fixed inconsistancy with freeing global iCCP profile     * */
 /* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
 /* *             - added delta-image field initialization                   * */
+/* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
+/* *             - added initialization of the buffer-suspend parameter     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -564,6 +566,8 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bRunning              = MNG_FALSE;
   pData->bTimerset             = MNG_FALSE;
   pData->iBreakpoint           = 0;
+  pData->bSuspended            = MNG_FALSE;
+  pData->iSuspendpoint         = 0;
 
   pData->pCurrentobj           = 0;    /* these don't exist yet */
   pData->pCurraniobj           = 0;
@@ -864,11 +868,53 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   else
     iRetcode = read_graphic (pData);
 
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  if (pData->bEOF)                     /* already at EOF ? */
+    pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_END)
 #endif
 
-  return iRetcode;                     /* wow, that was easy */
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
+{
+  mng_datap   pData;                   /* local vars */
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = ((mng_datap)hHandle);        /* and make it addressable */
+                                       /* can we expect this call ? */
+  if ((!pData->bReading) || (!pData->bSuspended))
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
+  pData->bSuspended = MNG_FALSE;       /* reset the flag */
+
+  iRetcode = read_graphic (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  if (pData->bEOF)                     /* at EOF ? */
+    pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_READ */
 
@@ -1006,14 +1052,17 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   else
     iRetcode = read_graphic (pData);
 
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
   if (pData->bEOF)                     /* already at EOF ? */
-    pData->bReading  = MNG_FALSE;      /* then we're no longer reading */
+    pData->bReading = MNG_FALSE;       /* then we're no longer reading */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_DISPLAY && MNG_SUPPORT_READ */
 
@@ -1146,7 +1195,7 @@ mng_retcode MNG_DECL mng_display_freeze (mng_handle hHandle)
   if (!pData->bDisplaying)             /* can we expect this call ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
-  pData->bRunning = MNG_FALSE;         /* indicate it's frozen */
+  pData->bRunning = MNG_FALSE;         /* indicate it's frozen */          
                                        /* need to finish reading the stream ? */
   if ((pData->bReading) && (!pData->bEOF))
   {

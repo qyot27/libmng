@@ -41,6 +41,8 @@
 /* *             - changed SWAP_ENDIAN to BIGENDIAN_SUPPORTED               * */
 /* *               (contributed by Tim Rowley)                              * */
 /* *             - added getalphaline callback for RGB8_A8 canvasstyle      * */
+/* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
+/* *             - added parameter for delayed buffer-processing            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -326,6 +328,11 @@ typedef struct mng_data_struct {
                                                     mng_display_resume! */
            mng_uint8         iBreakpoint;        /* indicates at which point the
                                                     flow was broken to run the timer */
+           mng_bool          bSuspended;         /* input-reading has been suspended;
+                                                    we're expecting a call to
+                                                    mng_read_resume! */
+           mng_uint8         iSuspendpoint;      /* indicates at which point the flow
+                                                    was broken to suspend input-reading */
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */

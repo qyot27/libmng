@@ -33,6 +33,8 @@
 /* *             - added tracestrings for getalphaline callback             * */
 /* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
 /* *             - added tracestring for RGB8_A8 canvasstyle                * */
+/* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
+/* *             - added tracestring for mng_read_resume HLAPI function     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -72,6 +74,7 @@
     {MNG_FN_DISPLAY_GOLAYER,           "display_golayer"},
     {MNG_FN_DISPLAY_GOTIME,            "display_gotime"},
     {MNG_FN_GETLASTERROR,              "getlasterror"},
+    {MNG_FN_READ_RESUME,               "read_resume"},
 
     {MNG_FN_SETCB_MEMALLOC,            "setcb_memalloc"},
     {MNG_FN_SETCB_MEMFREE,             "setcb_memfree"},

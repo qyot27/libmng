@@ -24,6 +24,8 @@
 /* *             - added errorstrings for delta-image processing            * */
 /* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
 /* *             - fixed up punctuation (contributed by Tim Rowley)         * */
+/* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
+/* *             - added errorstring for delayed buffer-processing          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -58,6 +60,7 @@
     {MNG_FUNCTIONINVALID,  "Function is invalid at this point"},
     {MNG_OUTPUTERROR,      "Writing was unsuccessful; disk full?"},
     {MNG_JPEGBUFTOOSMALL,  "Internal buffer for JPEG processing too small"},
+    {MNG_NEEDMOREDATA,     "Reading suspended; waiting for I/O to catch up"},
 
     {MNG_APPIOERROR,       "Application signalled I/O error"},
     {MNG_APPTIMERERROR,    "Application signalled timing error"},

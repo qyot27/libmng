@@ -206,11 +206,11 @@ mng_retcode read_chunk (mng_datap  pData)
   mng_uint32  iBufmax   = pData->iReadbufsize;
   mng_uint8p  pBuf      = pData->pReadbuf;
   mng_uint8p  pExtra;                  /* on-demand read-buffer (size > iBufmax) */
-  mng_uint32  iBuflen;                 /* number of bytes requested */
-  mng_uint32  iRead;                   /* number of bytes read */
+  mng_uint32  iBuflen   = 0;           /* number of bytes requested */
+  mng_uint32  iRead     = 0;           /* number of bytes read */
   mng_uint32  iChunklen;               /* chunk length */
   mng_uint32  iCrc;                    /* calculated CRC */
-  mng_retcode iRetcode  = MNG_NOERROR; 
+  mng_retcode iRetcode  = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START)
@@ -264,12 +264,27 @@ mng_retcode read_chunk (mng_datap  pData)
   if (!pData->bEOF)
 #endif
   {
-    iBuflen = sizeof (iChunklen);      /* read length */
+    if (pData->iSuspendpoint <= 2)
+    {
+      iBuflen = sizeof (iChunklen);    /* read length */
 
-    if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
-      iRetcode = MNG_APPIOERROR;
-    else
-    if (iRead == iBuflen)              /* not eof ? */
+      if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
+      {
+        if (iRead == 0)                /* suspension required ? */
+        {
+          pData->bSuspended    = MNG_TRUE;
+          pData->iSuspendpoint = 2;
+
+          return MNG_NEEDMOREDATA;     /* not a real error !!!! */
+        }
+        else
+          MNG_ERROR (pData, MNG_APPIOERROR);
+      }
+
+      pData->iSuspendpoint = 0;
+    }
+                                       /* previously suspended or not eof ? */
+    if ((pData->iSuspendpoint > 2) || (iRead == iBuflen))
     {                                  /* determine chunklength */
       iChunklen = mng_get_uint32 (pBuf);
                                        /* read chunkname + data + crc */
@@ -280,8 +295,20 @@ mng_retcode read_chunk (mng_datap  pData)
                                           so there's always a zero-byte at the
                                           very end !!! */
         if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
-          iRetcode = MNG_APPIOERROR;
-        else
+        {
+          if (iRead == 0)              /* suspension required ? */
+          {
+            pData->bSuspended    = MNG_TRUE;
+            pData->iSuspendpoint = 3;
+
+            return MNG_NEEDMOREDATA;   /* not a real error !!!! */
+          }
+          else
+            MNG_ERROR (pData, MNG_APPIOERROR);
+        }
+
+        pData->iSuspendpoint = 0;
+        
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
@@ -301,8 +328,22 @@ mng_retcode read_chunk (mng_datap  pData)
         MNG_ALLOC (pData, pExtra, iBuflen+1)
 
         if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pExtra), iBuflen, &iRead))
-          iRetcode = MNG_APPIOERROR;
-        else
+        {                              /* don't forget to free the temp buffer */
+          MNG_FREEX (pData, pExtra, iBuflen+1)
+
+          if (iRead == 0)              /* suspension required ? */
+          {
+            pData->bSuspended    = MNG_TRUE;
+            pData->iSuspendpoint = 4;
+
+            return MNG_NEEDMOREDATA;   /* not a real error */
+          }
+          else
+            MNG_ERROR (pData, MNG_APPIOERROR);
+        }
+
+        pData->iSuspendpoint = 0;
+        
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
@@ -318,8 +359,8 @@ mng_retcode read_chunk (mng_datap  pData)
         MNG_FREEX (pData, pExtra, iBuflen+1)
       }
 
-      if (iRetcode)                    /* found local error ? */
-        MNG_ERROR (pData, iRetcode);
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
 
     }
     else
@@ -340,7 +381,7 @@ mng_retcode read_chunk (mng_datap  pData)
   MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
@@ -360,32 +401,43 @@ mng_retcode read_graphic (mng_datap pData)
     pData->iReadbufsize = 1024;        /* allocate a default read buffer of 1024 */
     MNG_ALLOC (pData, pData->pReadbuf, pData->iReadbufsize)
   }
-
-  if (!pData->bHavesig)                /* haven't processed the signature ? */
+                                       /* haven't processed the signature ? */
+  if ((!pData->bHavesig) || (pData->iSuspendpoint == 1))
   {
     iBuflen = 2 * sizeof (mng_uint32); /* read signature */
 
-    if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pData->pReadbuf), iBuflen, &iRead))
-      MNG_ERROR (pData, MNG_APPIOERROR)
+    if (!pData->fReaddata ((mng_handle)pData, (mng_ptr)pData->pReadbuf, iBuflen, &iRead))
+    {
+      if (iRead == 0)                  /* input suspension required ? */
+      {
+        pData->bSuspended    = MNG_TRUE;
+        pData->iSuspendpoint = 1;
+
+        return MNG_NEEDMOREDATA;       /* not a real error!!!! */
+      }
+      else
+        MNG_ERROR (pData, MNG_APPIOERROR)
+    }
 
     if (iRead != iBuflen)              /* full signature received ? */
       MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
                                        /* is it a valid signature ? */
-    if (mng_get_uint32(pData->pReadbuf) == PNG_SIG)
+    if (mng_get_uint32 (pData->pReadbuf) == PNG_SIG)
       pData->eSigtype = mng_it_png;
     else
-    if (mng_get_uint32(pData->pReadbuf) == JNG_SIG)
+    if (mng_get_uint32 (pData->pReadbuf) == JNG_SIG)
       pData->eSigtype = mng_it_jng;
     else
-    if (mng_get_uint32(pData->pReadbuf) == MNG_SIG)
+    if (mng_get_uint32 (pData->pReadbuf) == MNG_SIG)
       pData->eSigtype = mng_it_mng;
     else
       MNG_ERROR (pData, MNG_INVALIDSIG);
                                        /* all of it ? */
-    if (mng_get_uint32(pData->pReadbuf+4) != POST_SIG)
+    if (mng_get_uint32 (pData->pReadbuf+4) != POST_SIG)
       MNG_ERROR (pData, MNG_INVALIDSIG);
 
-    pData->bHavesig = MNG_TRUE;
+    pData->bHavesig      = MNG_TRUE;
+    pData->iSuspendpoint = 0;
   }
 
   do
@@ -400,10 +452,10 @@ mng_retcode read_graphic (mng_datap pData)
         MNG_ERROR (pData, MNG_APPIOERROR)
 
   }
-#ifdef MNG_SUPPORT_DISPLAY             /* until EOF or the timer has been set */
-  while ((!pData->bEOF) && (!pData->bTimerset));
-#else
-  while (!pData->bEOF);                /* until EOF */
+#ifdef MNG_SUPPORT_DISPLAY             /* until EOF or timer or I/O-suspension */
+  while ((!pData->bEOF) && (!pData->bTimerset) && (!pData->bSuspended));
+#else                                  /* until EOF or I/O-suspension */
+  while ((!pData->bEOF) && (!pData->bSuspended));
 #endif
 
 #ifdef MNG_SUPPORT_TRACE

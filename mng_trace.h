@@ -40,6 +40,8 @@
 /* *             - added tracecodes for getalphaline callback               * */
 /* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
 /* *             - added tracecode for RGB8_A8 canvasstyle                  * */
+/* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
+/* *             - added tracecode for mng_read_resume HLAPI function       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -56,7 +58,7 @@
 
 /* ************************************************************************** */
 
-/* TODO: add a trace-level so frequently called functions can be skipped */
+/* TODO: add a trace-mask so certain functions can be excluded */
 
 mng_retcode mng_trace (mng_datap  pData,
                        mng_uint32 iFunction,
@@ -95,6 +97,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_GOLAYER         13
 #define MNG_FN_DISPLAY_GOTIME          14
 #define MNG_FN_GETLASTERROR            15
+#define MNG_FN_READ_RESUME             16
 
 #define MNG_FN_SETCB_MEMALLOC         101
 #define MNG_FN_SETCB_MEMFREE          102
