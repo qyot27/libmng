@@ -485,7 +485,7 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #ifndef MNG_SKIPCANVAS_BGR565
       case MNG_CANVAS_BGR565  : { pData->fDisplayrow = (mng_fptr)mng_display_bgr565;   break; }
 #endif
-#ifndef MNT_SKIPCANVAS_BGRA565
+#ifndef MNG_SKIPCANVAS_BGRA565
       case MNG_CANVAS_BGRA565 : { pData->fDisplayrow = (mng_fptr)mng_display_bgra565;  break; }
 #endif
 

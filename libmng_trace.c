@@ -689,7 +689,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RGBA565,           "display_rgba565"},
     {MNG_FN_DISPLAY_BGR565,            "display_bgr565"},
     {MNG_FN_DISPLAY_BGRA565,           "display_bgra565"},
-    {MNG_FN_DISPLAY_RGBA8_PM,          "display_rgba8_pm"},
+    {MNG_FN_DISPLAY_RGBA8_PM,          "display_rgba8_pm"},
     {MNG_FN_DISPLAY_ARGB8_PM,          "display_argb8_pm"},
     {MNG_FN_DISPLAY_ABGR8_PM,          "display_abgr8_pm"},
 
