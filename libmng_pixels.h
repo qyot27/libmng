@@ -755,6 +755,7 @@ mng_retcode mng_magnify_rgb16_x3       (mng_datap  pData,
                                         mng_uint32 iWidth,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_x1        (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
@@ -762,7 +763,6 @@ mng_retcode mng_magnify_ga16_x1        (mng_datap  pData,
                                         mng_uint32 iWidth,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
-#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_x2        (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
