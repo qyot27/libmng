@@ -739,8 +739,10 @@ MNG_EXT mng_retcode MNG_DECL mng_set_zlib_maxidat    (mng_handle        hHandle,
 /* set to your liking; usually the defaults will suffice though! */
 /* check the documentation for IJGSRC6B for details on these parameters */
 #ifdef MNG_INCLUDE_JNG
+#ifdef MNG_INCLUDE_IJG6B
 MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_dctmethod  (mng_handle        hHandle,
                                                       mngjpeg_dctmethod eJPEGdctmethod);
+#endif
 MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_quality    (mng_handle        hHandle,
                                                       mng_int32         iJPEGquality);
 MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_smoothing  (mng_handle        hHandle,
@@ -841,8 +843,10 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_zlib_maxidat    (mng_handle        hHandle)
 
 /* see _set_ */
 #ifdef MNG_INCLUDE_JNG
+#ifdef MNG_INCLUDE_IJG6B
 MNG_EXT mngjpeg_dctmethod
                     MNG_DECL mng_get_jpeg_dctmethod  (mng_handle        hHandle);
+#endif
 MNG_EXT mng_int32   MNG_DECL mng_get_jpeg_quality    (mng_handle        hHandle);
 MNG_EXT mng_int32   MNG_DECL mng_get_jpeg_smoothing  (mng_handle        hHandle);
 MNG_EXT mng_bool    MNG_DECL mng_get_jpeg_progressive(mng_handle        hHandle);

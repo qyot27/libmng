@@ -77,6 +77,8 @@
 /* *             - added export of zlib functions from windows dll          * */
 /* *             - fixed inclusion parameters once again to make those      * */
 /* *               external libs work together                              * */
+/* *             - re-fixed fixed inclusion parameters                      * */
+/* *               (these freeking libraries make me mad)                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -104,8 +106,19 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef WIN32
+#ifdef WIN32                           /* only include needed stuff */
 #define WIN32_LEAN_AND_MEAN
+#endif
+#ifdef MNG_USE_DLL
+#ifdef MNG_SKIP_ZLIB
+#undef MNG_INCLUDE_ZLIB
+#endif
+#ifdef MNG_SKIP_LCMS
+#undef MNG_INCLUDE_LCMS
+#endif
+#ifdef MNG_SKIP_IJG6B
+#undef MNG_INCLUDE_IJG6B
+#endif
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB                /* zlib by Mark Adler & Jean-loup Gailly */

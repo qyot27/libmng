@@ -22,7 +22,6 @@
 /* *             - fixed frame_delay misalignment                           * */
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - added sanity check for frozen status                     * */
-/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *             0.5.1 - 05/13/2000 - G.Juyn                                * */
 /* *             - changed display_mend to reset state to initial or SAVE   * */
@@ -96,10 +95,11 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed problem with no refresh after TERM                 * */
-/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
 /* *             0.9.3 - 09/16/2000 - G.Juyn                                * */
 /* *             - fixed timing & refresh behavior for single PNG/JNG       * */
+/* *             0.9.3 - 09/19/2000 - G.Juyn                                * */
+/* *             - refixed timing & refresh behavior for single PNG/JNG     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1901,12 +1901,6 @@ mng_retcode process_display_iend (mng_datap pData)
           pData->iBreakpoint = 8;
       }
     }
-    else
-    {                                  /* if the image was displayed on the fly, */
-                                       /* we'll have to make the app refresh */
-      if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
-        pData->bNeedrefresh = MNG_TRUE;
-    }
   }
 
   if (!pData->bTimerset)               /* can we continue ? */
@@ -1961,6 +1955,11 @@ mng_retcode process_display_iend (mng_datap pData)
       pData->bHasBKGD = MNG_FALSE;
       pData->bHasIDAT = MNG_FALSE;
     }
+                                       /* if the image was displayed on the fly, */
+                                       /* we'll have to make the app refresh */
+    if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
+      pData->bNeedrefresh = MNG_TRUE;
+     
   }
 
 #ifdef MNG_SUPPORT_TRACE
