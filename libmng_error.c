@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_error.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error routines (implementation)                            * */
 /* *                                                                        * */
@@ -38,6 +38,9 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/09/2000 - G.Juyn                                * */
+/* *             - added check for simplicity-bits in MHDR                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -118,6 +121,7 @@
     {MNG_INVFILLMETHOD,    "The fill_method is invalid"},
     {MNG_OBJNOTCONCRETE,   "Target object for DHDR must be concrete"},
     {MNG_TARGETNOALPHA,    "Target object must have alpha-channel"},
+    {MNG_MNGTOOCOMPLEX,    "MHDR simplicity-bit not supported"},
 
     {MNG_INVALIDCNVSTYLE,  "Canvas_style is invalid"},
     {MNG_WRONGCHUNK,       "Attempt to access the wrong chunk"},

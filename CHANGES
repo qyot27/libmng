@@ -16,6 +16,7 @@ bugfixes:
 
 core:
 - fixed compiler-warnings from Mozilla               
+- added check for simplicity-bits in MHDR                 
 
 samples:
 

@@ -100,7 +100,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -178,6 +178,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *             - added function to set simplicity field                   * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/09/2000 - G.Juyn                                * */
+/* *             - added check for simplicity-bits in MHDR                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1889,6 +1892,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_INVFILLMETHOD    (mng_retcode)1057 /* invalid fill_method         */
 #define MNG_OBJNOTCONCRETE   (mng_retcode)1058 /* object must be concrete     */
 #define MNG_TARGETNOALPHA    (mng_retcode)1059 /* object has no alpha-channel */
+#define MNG_MNGTOOCOMPLEX    (mng_retcode)1060 /* can't handle complexity     */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */

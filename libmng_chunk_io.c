@@ -102,6 +102,8 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/08/2000 - G.Juyn                                * */
 /* *             - fixed compiler-warnings from Mozilla                     * */
+/* *             0.9.3 - 08/09/2000 - G.Juyn                                * */
+/* *             - added check for simplicity-bits in MHDR                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2833,6 +2835,9 @@ READ_CHUNK (read_mhdr)
 
     pData->bPreDraft48  = MNG_TRUE;
   }
+
+  if (pData->iSimplicity & 0x0000FFC0) /* can we handle the complexity ? */
+    MNG_ERROR (pData, MNG_MNGTOOCOMPLEX)
                                        /* fits on maximum canvas ? */
   if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
     MNG_WARNING (pData, MNG_IMAGETOOLARGE)
