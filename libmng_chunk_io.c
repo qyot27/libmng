@@ -999,21 +999,25 @@ READ_CHUNK (mng_read_general)
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
       iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
+#ifdef MNG_INCLUDE_JNG
     else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT)
       iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
     else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)
       iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
+#endif
 #else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
       iRetcode = mng_process_display_idat (pData);
+#ifdef MNG_INCLUDE_JNG
     else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT)
       iRetcode = mng_process_display_jdat (pData);
     else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)
       iRetcode = mng_process_display_jdaa (pData);
+#endif
 #endif
 
     if (iRetcode)
