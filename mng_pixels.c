@@ -396,7 +396,7 @@ mng_retcode display_rgba8 (mng_datap pData)
             }
             else
             {
-              if (iBGa16 == 0xFF)      /* background fully opaque ? */
+              if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
                 MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
@@ -591,7 +591,7 @@ mng_retcode display_argb8 (mng_datap pData)
             }
             else
             {
-              if (iBGa16 == 0xFF)      /* background fully opaque ? */
+              if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do simple alpha composing */
                                        /* alpha itself remains fully opaque !!! */
                 MNG_COMPOSE8 (*(pScanline+1), *pDataline,     iFGa8, *(pScanline+1))
@@ -794,7 +794,7 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
             }
             else
             {
-              if (iBGa16 == 0xFF)      /* background fully opaque ? */
+              if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
                 MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
@@ -1142,7 +1142,7 @@ mng_retcode display_bgra8 (mng_datap pData)
             }
             else
             {
-              if (iBGa16 == 0xFF)      /* background fully opaque ? */
+              if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
                 MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
@@ -1336,7 +1336,7 @@ mng_retcode display_abgr8 (mng_datap pData)
             }
             else
             {
-              if (iBGa16 == 0xFF)      /* background fully opaque ? */
+              if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do simple alpha composing */
                                        /* alpha itself remains fully opaque !!! */
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+2), iFGa8, *(pScanline+1))
