@@ -374,6 +374,7 @@ MNG_EXT mng_uint8 MNG_DECL mng_version_release (void);
 #define MNG_MNG_VERSION     "1.0"
 #define MNG_MNG_VERSION_MAJ 1
 #define MNG_MNG_VERSION_MIN 0
+#define MNG_MNG_DRAFT       99
 
 /* ************************************************************************** */
 /* *                                                                        * */
