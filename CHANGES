@@ -1,11 +1,14 @@
 -----------------------------------------------------------
 
-0.9.4 (xxxx nnth 2000)
+0.9.4 (Jan 19th 2001)
 ----------------------
 
 in short:
 
-intermediate for now
+Now that the MNG spec is at 1.0, this should be the last beta. There's a few
+small changes to make it inline with the spec, and a couple of bug-fixes.
+This is a serious release-candidate for libmng-1.0!!
+Please... test test test test!!
 
 -------------------
 
@@ -17,7 +20,6 @@ B124910 - fixed definition for WIN32_LEAN_AND_MEAN (thanks Chad)
 B125750 - fixed by Ralph
 B125756 - fixed mixup of data- & function-pointers (thanks Dimitri)
 B127517 - changed inclusion of the lcms header file for non-windows platforms
-B127518 -
 
 core:
 - version numbers
@@ -32,11 +34,11 @@ core:
 - changed callback convention for MSVC (Thanks Chad)
 - fixed mixup of data- & function-pointers (thanks Dimitri)
 - added support for "nEED MNG-1.0"
-- added errorcode for MAGN methods                        
-- added errorchecking for MAGN methods                     
+- added errorcode for MAGN methods
+- added errorchecking for MAGN methods
 - removed "old" MAGN methods 3 & 4
-- added "new" MAGN methods 3, 4 & 5                       
-- removed test filter-methods 1 & 65                      
+- added "new" MAGN methods 3, 4 & 5
+- removed test filter-methods 1 & 65
 - set default level-set for filtertype=64 to all zeroes
 
 samples:

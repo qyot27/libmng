@@ -7,7 +7,7 @@ EXTRA_DIST = makefiles doc contrib Unix
 
 
 # libmng release @VERSION@
-libmng_la_LDFLAGS = -version-info 0:9:3
+libmng_la_LDFLAGS = -version-info 0:9:0
 
 lib_LTLIBRARIES = libmng.la
 

@@ -1,11 +1,11 @@
-libmng - Multiple-image Network Graphics (MNG) Reference Library 0.9.2
+libmng - Multiple-image Network Graphics (MNG) Reference Library 0.9.4
 
 DESCRIPTION
 The libmng library supports decoding, displaying, encoding, and various
 other manipulations of the Multiple-image Network Graphics (MNG) format
 image files. It uses the zlib compression library, and optionally the
 JPEG library by the Independant JPEG Group (IJG) and/or
-lcms (little cms), a color-management library by Marti Maria Saguar.
+lcms (little cms), a color-management library by Marti Maria Saguer.
 
 
 I. Introduction
@@ -19,7 +19,7 @@ INSTALL.README file for instructions on how to install libmng.
 
 Libmng was written to support and promote the MNG specification.
 
-The MNG-0.97 (draft 70) specification is available at
+The MNG-1.0 specification should be shortly available at
   http://www.libpng.org/pub/mng
 
 Other information about MNG can be found at the MNG home page,
@@ -53,7 +53,7 @@ Further information about the IJG JPEG library and the latest sources
 can be found at <http://www.ijg.org>.
 
 Libmng can also optionally use the lcms (little CMS) library by
-Marti Maria Saguar. This library provides an excellent color-management
+Marti Maria Saguer. This library provides an excellent color-management
 system (CMS), which gives libmng the ability to provide full
 color-correction for images with the proper color-information encoded.
 Further information and the latest sources can be found at
@@ -99,7 +99,7 @@ with the given size. A typical implementation would be:
 
 Note that the library requires you to zero-out the memory-block!!!
 
-- void mng_memfree (mng_ptr    pPtr, 
+- void mng_memfree (mng_ptr    pPtr,
                     mng_size_t iLen)
 
 Counterpart of the previous function. Typically:
@@ -736,7 +736,7 @@ difference in recording and display devices used.
 This document does not address the specifics of color-management.
 See the PNG specification for a more detailed description.
 
-> Using little cms by Marti Maria Saguar
+> Using little cms by Marti Maria Saguer
 
 This is the easiest method, providing you can compile the lcms package.
 Select the MNG_FULL_CMS directive during compilation, and sit back and
@@ -1038,7 +1038,7 @@ zlib :
 IJG JPEG library :
   http://www.ijg.org
 
-lcms (little CMS) by Marti Maria Saguar :
+lcms (little CMS) by Marti Maria Saguer :
   http://www.abaforum.es/martim/lcms.htm
 
 MNG specification:
@@ -1062,7 +1062,6 @@ For the purposes of this copyright and license, "Contributing Authors"
 is defined as the following set of individuals:
 
    Gerard Juyn
-   Tim Rowley
 
 The MNG Library is supplied "AS IS".  The Contributing Authors
 disclaim all warranties, expressed or implied, including, without
@@ -1097,7 +1096,7 @@ Parts of this software have been adapted from the libpng library.
 Although this library supports all features from the PNG specification
 (as MNG descends from it) it does not require the libpng library.
 It does require the zlib library and optionally the IJG JPEG library,
-and/or the "little-cms" library by Marti Maria Saguar (depending on the
+and/or the "little-cms" library by Marti Maria Saguer (depending on the
 inclusion of support for JNG and Full-Color-Management respectively.
 
 This library's function is primarily to read and display MNG
@@ -1105,3 +1104,4 @@ animations. It is not meant as a full-featured image-editing
 component! It does however offer creation and editing functionality
 at the chunk level. (future modifications may include some more
 support for creation and or editing)
+
