@@ -22,6 +22,7 @@ core:
 - added restore of object 0 to TERM processing (B123314)
 - fixed TERM delay processing (B123314)
 - fixed TERM end processing when count = 0 (B123314)                   
+- changed callback convention for MSVC (Thanks Chad)
 
 samples:
 
