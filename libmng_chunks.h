@@ -37,6 +37,8 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added JDAA chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -610,6 +612,11 @@ typedef struct {                       /* JHDR */
            mng_uint8         iAlphainterlace;
         } mng_jhdr;
 typedef mng_jhdr * mng_jhdrp;
+
+/* ************************************************************************** */
+
+typedef mng_idat mng_jdaa;             /* JDAA */
+typedef mng_jdaa * mng_jdaap;
 
 /* ************************************************************************** */
 

@@ -1,20 +1,30 @@
 -----------------------------------------------------------
 
-0.9.3 (xxxxxx nth 2000)
------------------------
+0.9.3 (October nth 2000)
+------------------------
 
 in short:
 
-Intermediate for the moment.
+Another beta release. The number of changes in the MNG specification have
+resulted in a lot of new code and some changed code. At the same time I saw
+no need to withhold some new functionality as it was pretty clear there was
+going to be another beta-round. If things go well, I'm going to try to release
+libmng 1.0.0 very shortly after this one.
 
 - fixed bug 111300
 - added workaround for faulty PhotoShop iCCP chunk
-- added MAGN chunk
+- added MAGN/JDAA chunks
 - added support for new filter_types
-- fixed other assorted stuff
+- added PNG/MNG spec version indicators
 - added BCB mngview contribution by Andy Protano
 - added BCB mngdump; a GUI-based MNG dumping utility (by Andy Protano)
+- implemented support for nEED "draft nn"
+- implemented app-defined support for bKGD for PNG images
 - removed trace-options from default SO/DLL builds (!!!)
+- raised initial maximum canvas size to 10000x10000 (!!!)
+  (an App that wants to protect from overly large images should call
+   mng_set_maxcanvassize() with appropriate values)
+- fixed other assorted stuff
 
 -------------------
 
@@ -31,7 +41,6 @@ core:
 - fixed read-code for iTXt
 - added MAGN chunk
 - fixed sRGB precedence for gamma_only corection
-- fixed internal alpha-blending
 - added support for new filter_types
 - fixed problem with no refresh after TERM
 - fixed DEFI behavior
@@ -42,7 +51,17 @@ core:
 - fixed MAGN rounding errors (thanks Matthias!)
 - fixed small timing problem when FRAM delay = 0
 - fixed simplicity-check in compliance with draft 81/0.98a
-- fixed alpha-blending for RGBA canvas                  
+- fixed alpha-blending for all alpha-canvasstyles
+- added support for alpha-depth prediction
+- fixed processing of unknown critical chunks
+- removed test-MaGN
+- added PNG/MNG spec version indicators
+- implemented support for nEED
+- added support for JDAA
+- added functions to retrieve PNG/JNG specific header-info
+- added optional support for bKGD for PNG images
+- raised initial maximum canvas size to 10000x10000
+- added support for delta-JNG                             
 
 samples:
 - added BCB mngview contribution by Andy Protano

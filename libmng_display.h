@@ -33,6 +33,8 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added JDAA chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -133,6 +135,10 @@ mng_retcode process_display_show  (mng_datap      pData);
 mng_retcode process_display_save  (mng_datap      pData);
 mng_retcode process_display_seek  (mng_datap      pData);
 mng_retcode process_display_jhdr  (mng_datap      pData);
+
+mng_retcode process_display_jdaa  (mng_datap      pData,
+                                   mng_uint32     iRawlen,
+                                   mng_uint8p     pRawdata);
 
 mng_retcode process_display_jdat  (mng_datap      pData,
                                    mng_uint32     iRawlen,

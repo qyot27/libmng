@@ -27,6 +27,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -92,6 +94,7 @@ READ_CHUNK (read_expi) ;
 READ_CHUNK (read_fpri) ;
 READ_CHUNK (read_phyg) ;
 READ_CHUNK (read_jhdr) ;
+READ_CHUNK (read_jdaa) ;
 READ_CHUNK (read_jdat) ;
 READ_CHUNK (read_jsep) ;
 READ_CHUNK (read_dhdr) ;
@@ -148,6 +151,7 @@ READ_CHUNK (read_unknown) ;
 #define read_fpri 0
 #define read_phyg 0
 #define read_jhdr 0
+#define read_jdaa 0
 #define read_jdat 0
 #define read_jsep 0
 #define read_dhdr 0
@@ -209,6 +213,7 @@ WRITE_CHUNK (write_expi) ;
 WRITE_CHUNK (write_fpri) ;
 WRITE_CHUNK (write_phyg) ;
 WRITE_CHUNK (write_jhdr) ;
+WRITE_CHUNK (write_jdaa) ;
 WRITE_CHUNK (write_jdat) ;
 WRITE_CHUNK (write_jsep) ;
 WRITE_CHUNK (write_dhdr) ;
@@ -265,6 +270,7 @@ WRITE_CHUNK (write_unknown) ;
 #define write_fpri 0
 #define write_phyg 0
 #define write_jhdr 0
+#define write_jdaa 0
 #define write_jdat 0
 #define write_jsep 0
 #define write_dhdr 0

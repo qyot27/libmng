@@ -75,6 +75,14 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
 /* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 10/10/2000 - G.Juyn                                * */
+/* *             - added support for alpha-depth prediction                 * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - added JDAA chunk                                         * */
+/* *             - added support for nEED                                   * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added functions to retrieve PNG/JNG specific header-info * */
+/* *             - added optional support for bKGD for PNG images           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -166,6 +174,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_GETALPHALINE     121
 #define MNG_FN_SETCB_PROCESSSAVE      122
 #define MNG_FN_SETCB_PROCESSSEEK      123
+#define MNG_FN_SETCB_PROCESSNEED      124
 
 #define MNG_FN_GETCB_MEMALLOC         201
 #define MNG_FN_GETCB_MEMFREE          202
@@ -190,6 +199,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_GETALPHALINE     221
 #define MNG_FN_GETCB_PROCESSSAVE      222
 #define MNG_FN_GETCB_PROCESSSEEK      223
+#define MNG_FN_GETCB_PROCESSNEED      224
 
 #define MNG_FN_SET_USERDATA           301
 #define MNG_FN_SET_CANVASSTYLE        302
@@ -262,6 +272,16 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_CURRENTLAYER       439
 #define MNG_FN_GET_CURRENTPLAYTIME    440
 #define MNG_FN_GET_SECTIONBREAKS      441
+#define MNG_FN_GET_ALPHADEPTH         442
+#define MNG_FN_GET_BITDEPTH           443
+#define MNG_FN_GET_COLORTYPE          444
+#define MNG_FN_GET_COMPRESSION        445
+#define MNG_FN_GET_FILTER             446
+#define MNG_FN_GET_INTERLACE          447
+#define MNG_FN_GET_ALPHABITDEPTH      448
+#define MNG_FN_GET_ALPHACOMPRESSION   449
+#define MNG_FN_GET_ALPHAFILTER        450
+#define MNG_FN_GET_ALPHAINTERLACE     451
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482
@@ -328,6 +348,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCHUNK_ORDR          750
 #define MNG_FN_GETCHUNK_UNKNOWN       751
 #define MNG_FN_GETCHUNK_MAGN          752
+#define MNG_FN_GETCHUNK_JDAA          753
 
 #define MNG_FN_GETCHUNK_PAST_SRC      781
 #define MNG_FN_GETCHUNK_SAVE_ENTRY    782
@@ -386,6 +407,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PUTCHUNK_ORDR          850
 #define MNG_FN_PUTCHUNK_UNKNOWN       851
 #define MNG_FN_PUTCHUNK_MAGN          852
+#define MNG_FN_PUTCHUNK_JDAA          853
 
 #define MNG_FN_PUTCHUNK_PAST_SRC      881
 #define MNG_FN_PUTCHUNK_SAVE_ENTRY    882
@@ -718,6 +740,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_RESTORE_BGCOLOR       2103
 #define MNG_FN_RESTORE_RGB8          2104
 #define MNG_FN_RESTORE_BGR8          2105
+#define MNG_FN_RESTORE_BKGD          2106
 
 /* ************************************************************************** */
 
@@ -773,6 +796,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_INIT_ORDR             2250
 #define MNG_FN_INIT_UNKNOWN          2251
 #define MNG_FN_INIT_MAGN             2252
+#define MNG_FN_INIT_JDAA             2253
 
 /* ************************************************************************** */
 
@@ -828,6 +852,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ORDR             2450
 #define MNG_FN_FREE_UNKNOWN          2451
 #define MNG_FN_FREE_MAGN             2452
+#define MNG_FN_FREE_JDAA             2453
 
 /* ************************************************************************** */
 
@@ -883,6 +908,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_READ_ORDR             2650
 #define MNG_FN_READ_UNKNOWN          2651
 #define MNG_FN_READ_MAGN             2652
+#define MNG_FN_READ_JDAA             2653
 
 /* ************************************************************************** */
 
@@ -938,6 +964,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_WRITE_ORDR            2850
 #define MNG_FN_WRITE_UNKNOWN         2851
 #define MNG_FN_WRITE_MAGN            2852
+#define MNG_FN_WRITE_JDAA            2853
 
 /* ************************************************************************** */
 
@@ -1001,6 +1028,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_DISPLAY_DBYK  3245
 #define MNG_FN_PROCESS_DISPLAY_ORDR  3246
 #define MNG_FN_PROCESS_DISPLAY_MAGN  3247
+#define MNG_FN_PROCESS_DISPLAY_JDAA  3248
 
 /* ************************************************************************** */
 

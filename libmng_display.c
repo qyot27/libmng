@@ -103,6 +103,8 @@
 /* *             0.9.3 - 10/02/2000 - G.Juyn                                * */
 /* *             - fixed timing again (this is getting boring...)           * */
 /* *             - refixed problem with no refresh after TERM               * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added JDAA chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -372,6 +374,9 @@ mng_retcode load_bkgdlayer (mng_datap pData)
     set_display_routine (pData);       /* determine display routine */
                                        /* default restore using preset BG color */
     pData->fRestbkgdrow = (mng_ptr)restore_bkgd_bgcolor;
+
+    if ((pData->eImagetype == mng_it_png) && (pData->bUseBKGD) && (pData->bHasBKGD))
+      pData->fRestbkgdrow = (mng_ptr)restore_bkgd_bkgd;
 
     if (pData->fGetbkgdline)           /* background-canvas-access callback set ? */
     {
@@ -1847,11 +1852,12 @@ mng_retcode process_display_iend (mng_datap pData)
 #endif
 
 #ifdef MNG_INCLUDE_JNG                 /* progressive+alpha JNG can be displayed now */
-  if ((pData->bHasJHDR) && (pData->bJPEGprogressive) &&
-      ((pData->eImagetype == mng_it_jng         ) ||
-       (((mng_imagep)pData->pStoreobj)->bVisible)    ) &&
-      ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
-       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    ))
+  if ( (pData->bHasJHDR                                         ) &&
+       ( (pData->bJPEGprogressive) || (pData->bJPEGprogressive2)) &&
+       ( (pData->eImagetype == mng_it_jng         ) ||
+         (((mng_imagep)pData->pStoreobj)->bVisible)             ) &&
+       ( (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+         (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )    )
     bDodisplay = MNG_TRUE;
 #endif
 
@@ -1928,11 +1934,23 @@ mng_retcode process_display_iend (mng_datap pData)
     }
 
 #ifdef MNG_INCLUDE_JNG
-    if (pData->bJPEGdecompress)        /* if we've been decompressing */
+    if (pData->bJPEGdecompress)        /* if we've been decompressing JDAT */
     {                                  /* cleanup row-processing, */
       iRetcode  = cleanup_rowproc (pData);
                                        /* also cleanup decompress! */
       iRetcode2 = mngjpeg_decompressfree (pData);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+      if (iRetcode2)
+        return iRetcode2;
+    }
+
+    if (pData->bJPEGdecompress2)       /* if we've been decompressing JDAA */
+    {                                  /* cleanup row-processing, */
+      iRetcode  = cleanup_rowproc (pData);
+                                       /* also cleanup decompress! */
+      iRetcode2 = mngjpeg_decompressfree2 (pData);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1949,6 +1967,7 @@ mng_retcode process_display_iend (mng_datap pData)
 #ifdef MNG_INCLUDE_JNG
       pData->bHasJHDR = MNG_FALSE;
       pData->bHasJSEP = MNG_FALSE;
+      pData->bHasJDAA = MNG_FALSE;
       pData->bHasJDAT = MNG_FALSE;
 #endif
       pData->bHasPLTE = MNG_FALSE;
@@ -3164,6 +3183,7 @@ mng_retcode process_display_jhdr (mng_datap pData)
     pData->fProcessrow   = MNG_NULL;
     pData->fDifferrow    = MNG_NULL;
     pData->fStorerow2    = MNG_NULL;
+    pData->fStorerow3    = MNG_NULL;
 
     pData->pStoreobj     = MNG_NULL;   /* initialize important work-parms */
 
@@ -3185,7 +3205,9 @@ mng_retcode process_display_jhdr (mng_datap pData)
                                          pData->iJHDRalphacompression, pData->iJHDRalphafilter,
                                          pData->iJHDRalphainterlace, MNG_TRUE);
 
-        ((mng_imagep)pData->pDeltaImage)->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+        ((mng_imagep)pData->pDeltaImage)->pImgbuf->iAlphabitdepth   = pData->iJHDRalphabitdepth;
+        ((mng_imagep)pData->pDeltaImage)->pImgbuf->iJHDRcompression = pData->iJHDRimgcompression;
+        ((mng_imagep)pData->pDeltaImage)->pImgbuf->iJHDRinterlace   = pData->iJHDRimginterlace;
       }
     }
     else
@@ -3198,7 +3220,9 @@ mng_retcode process_display_jhdr (mng_datap pData)
                                          pData->iJHDRalphacompression, pData->iJHDRalphafilter,
                                          pData->iJHDRalphainterlace, MNG_TRUE);
 
-        pImage->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+        pImage->pImgbuf->iAlphabitdepth   = pData->iJHDRalphabitdepth;
+        pImage->pImgbuf->iJHDRcompression = pData->iJHDRimgcompression;
+        pImage->pImgbuf->iJHDRinterlace   = pData->iJHDRimginterlace;
       }
       else                             /* update object 0 */
       {
@@ -3209,6 +3233,8 @@ mng_retcode process_display_jhdr (mng_datap pData)
                                          pData->iJHDRalphainterlace, MNG_TRUE);
 
         ((mng_imagep)pData->pObjzero)->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+        ((mng_imagep)pData->pObjzero)->pImgbuf->iJHDRcompression = pData->iJHDRimgcompression;
+        ((mng_imagep)pData->pObjzero)->pImgbuf->iJHDRinterlace   = pData->iJHDRimginterlace;
       }
     }
 
@@ -3296,15 +3322,35 @@ mng_retcode process_display_jhdr (mng_datap pData)
         /* TODO: 8- + 12-bit JPEG (eg. type=20) */
 
       }
-                                       /* determine alpha processing routine */
-      switch (pData->iJHDRalphabitdepth)
+                                       /* possible IDAT alpha-channel ? */
+      if (pData->iJHDRalphacompression == MNG_COMPRESSION_DEFLATE)
       {
-        case  1 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a1_ni;  break; }
-        case  2 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a2_ni;  break; }
-        case  4 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a4_ni;  break; }
-        case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
-        case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
+                                       /* determine alpha processing routine */
+        switch (pData->iJHDRalphabitdepth)
+        {
+          case  1 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a1_ni;  break; }
+          case  2 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a2_ni;  break; }
+          case  4 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a4_ni;  break; }
+          case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
+          case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
+        }
       }
+      else                             /* possible IDAT alpha-channel ? */
+      if (pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG)
+      {                                /* 8-bit JPEG ? */
+        if (pData->iJHDRimgbitdepth == 8)
+        {
+          if (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA)
+            pData->fStorerow3 = (mng_ptr)store_jpeg_g8_alpha;
+          else
+          if (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)
+            pData->fStorerow3 = (mng_ptr)store_jpeg_rgb8_alpha;
+        }
+        else
+        {
+          /* TODO: 12-bit JPEG with 8-bit JDAA */
+        }
+      }  
                                        /* initialize JPEG library */
       iRetcode = mngjpeg_initialize (pData);
 
@@ -3350,6 +3396,41 @@ mng_retcode process_display_jhdr (mng_datap pData)
 #endif
 
   return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+mng_retcode process_display_jdaa (mng_datap  pData,
+                                  mng_uint32 iRawlen,
+                                  mng_uint8p pRawdata)
+{
+  mng_retcode iRetcode = MNG_NOERROR;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAA, MNG_LC_START)
+#endif
+
+  if (!pData->bJPEGdecompress2)        /* if we're not decompressing already */
+  {
+    if (pData->fInitrowproc)           /* initialize row-processing */
+      iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
+    else
+      iRetcode = init_rowproc (pData); /* this still if no alpha present ! */
+
+    if (!iRetcode)                     /* initialize decompress */
+      iRetcode = mngjpeg_decompressinit2 (pData);
+  }
+
+  if (!iRetcode)                       /* all ok? then decompress, my man */
+    iRetcode = mngjpeg_decompressdata2 (pData, iRawlen, pRawdata);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAA, MNG_LC_END)
+#endif
+
+  return iRetcode;
 }
 #endif /* MNG_INCLUDE_JNG */
 
@@ -3432,26 +3513,37 @@ mng_retcode process_display_dhdr (mng_datap  pData,
           return iRetcode;
       }
                                        /* save delta fields */
-      pData->pDeltaImage       = (mng_ptr)pImage;
-      pData->iDeltaImagetype   = iImagetype;
-      pData->iDeltatype        = iDeltatype;
-      pData->iDeltaBlockwidth  = iBlockwidth;
-      pData->iDeltaBlockheight = iBlockheight;
-      pData->iDeltaBlockx      = iBlockx;
-      pData->iDeltaBlocky      = iBlocky;
+      pData->pDeltaImage           = (mng_ptr)pImage;
+      pData->iDeltaImagetype       = iImagetype;
+      pData->iDeltatype            = iDeltatype;
+      pData->iDeltaBlockwidth      = iBlockwidth;
+      pData->iDeltaBlockheight     = iBlockheight;
+      pData->iDeltaBlockx          = iBlockx;
+      pData->iDeltaBlocky          = iBlocky;
                                        /* restore target-object fields */
-      pData->iDatawidth        = pImage->pImgbuf->iWidth;
-      pData->iDataheight       = pImage->pImgbuf->iHeight;
-      pData->iBitdepth         = pImage->pImgbuf->iBitdepth;
-      pData->iColortype        = pImage->pImgbuf->iColortype;
-      pData->iCompression      = pImage->pImgbuf->iCompression;
-      pData->iFilter           = pImage->pImgbuf->iFilter;
-      pData->iInterlace        = pImage->pImgbuf->iInterlace;
+      pData->iDatawidth            = pImage->pImgbuf->iWidth;
+      pData->iDataheight           = pImage->pImgbuf->iHeight;
+      pData->iBitdepth             = pImage->pImgbuf->iBitdepth;
+      pData->iColortype            = pImage->pImgbuf->iColortype;
+      pData->iCompression          = pImage->pImgbuf->iCompression;
+      pData->iFilter               = pImage->pImgbuf->iFilter;
+      pData->iInterlace            = pImage->pImgbuf->iInterlace;
+
+#ifdef MNG_INCLUDE_JNG
+      pData->iJHDRimgbitdepth      = pImage->pImgbuf->iBitdepth;
+      pData->iJHDRcolortype        = pImage->pImgbuf->iColortype;
+      pData->iJHDRimgcompression   = pImage->pImgbuf->iJHDRcompression;
+      pData->iJHDRimginterlace     = pImage->pImgbuf->iJHDRinterlace;
+      pData->iJHDRalphacompression = pImage->pImgbuf->iCompression;
+      pData->iJHDRalphafilter      = pImage->pImgbuf->iFilter;
+      pData->iJHDRalphainterlace   = pImage->pImgbuf->iInterlace;
+      pData->iJHDRalphabitdepth    = pImage->pImgbuf->iAlphabitdepth;
+#endif
                                        /* block size specified ? */
       if (iDeltatype != MNG_DELTATYPE_NOCHANGE)
       {
-        pData->iDatawidth      = iBlockwidth;
-        pData->iDataheight     = iBlockheight;
+        pData->iDatawidth          = iBlockwidth;
+        pData->iDataheight         = iBlockheight;
       }
 
       switch (iDeltatype)              /* determine nr of delta-channels */

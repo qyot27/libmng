@@ -23,6 +23,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -84,6 +86,7 @@ INIT_CHUNK_HDR (init_fpri) ;
 INIT_CHUNK_HDR (init_need) ;
 INIT_CHUNK_HDR (init_phyg) ;
 INIT_CHUNK_HDR (init_jhdr) ;
+INIT_CHUNK_HDR (init_jdaa) ;
 INIT_CHUNK_HDR (init_jdat) ;
 INIT_CHUNK_HDR (init_jsep) ;
 INIT_CHUNK_HDR (init_dhdr) ;
@@ -142,6 +145,7 @@ FREE_CHUNK_HDR (free_fpri) ;
 FREE_CHUNK_HDR (free_need) ;
 FREE_CHUNK_HDR (free_phyg) ;
 FREE_CHUNK_HDR (free_jhdr) ;
+FREE_CHUNK_HDR (free_jdaa) ;
 FREE_CHUNK_HDR (free_jdat) ;
 FREE_CHUNK_HDR (free_jsep) ;
 FREE_CHUNK_HDR (free_dhdr) ;

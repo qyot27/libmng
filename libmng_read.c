@@ -50,6 +50,10 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - removed test-MaGN                                        * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -282,16 +286,17 @@ mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_IJNG, init_ijng, free_ijng, read_ijng, write_ijng, 0, 0},
     {MNG_UINT_IPNG, init_ipng, free_ipng, read_ipng, write_ipng, 0, 0},
 #ifdef MNG_INCLUDE_JNG
+    {MNG_UINT_JDAA, init_jdaa, free_jdaa, read_jdaa, write_jdaa, 0, 0},
     {MNG_UINT_JDAT, init_jdat, free_jdat, read_jdat, write_jdat, 0, 0},
     {MNG_UINT_JHDR, init_jhdr, free_jhdr, read_jhdr, write_jhdr, 0, 0},
     {MNG_UINT_JSEP, init_jsep, free_jsep, read_jsep, write_jsep, 0, 0},
+    {MNG_UINT_JdAA, init_jdaa, free_jdaa, read_jdaa, write_jdaa, 0, 0},
 #endif
     {MNG_UINT_LOOP, init_loop, free_loop, read_loop, write_loop, 0, 0},
     {MNG_UINT_MAGN, init_magn, free_magn, read_magn, write_magn, 0, 0},
     {MNG_UINT_MEND, init_mend, free_mend, read_mend, write_mend, 0, 0},
     {MNG_UINT_MHDR, init_mhdr, free_mhdr, read_mhdr, write_mhdr, 0, 0},
     {MNG_UINT_MOVE, init_move, free_move, read_move, write_move, 0, 0},
-    {MNG_UINT_MaGN, init_magn, free_magn, read_magn, write_magn, 0, 0},
     {MNG_UINT_ORDR, init_ordr, free_ordr, read_ordr, write_ordr, 0, 0},
     {MNG_UINT_PAST, init_past, free_past, read_past, write_past, 0, 0},
     {MNG_UINT_PLTE, init_plte, free_plte, read_plte, write_plte, 0, 0},

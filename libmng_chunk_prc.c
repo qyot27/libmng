@@ -33,6 +33,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -811,6 +813,26 @@ INIT_CHUNK_HDR (init_jhdr)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INIT_JHDR, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+INIT_CHUNK_HDR (init_jdaa)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JDAA, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, *ppChunk, sizeof (mng_jdaa))
+  ((mng_jdaap)*ppChunk)->sHeader = *((mng_chunk_headerp)pHeader);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INIT_JDAA, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1817,6 +1839,29 @@ FREE_CHUNK_HDR (free_jhdr)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_JHDR, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+FREE_CHUNK_HDR (free_jdaa)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_JDAA, MNG_LC_START)
+#endif
+
+  if (((mng_jdaap)pHeader)->iDatasize)
+    MNG_FREEX (pData, ((mng_jdaap)pHeader)->pData,
+                      ((mng_jdaap)pHeader)->iDatasize)
+
+  MNG_FREEX (pData, pHeader, sizeof (mng_jdaa))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_JDAA, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

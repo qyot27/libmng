@@ -34,6 +34,9 @@
 /* *             - added MAGN support                                       * */
 /* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
 /* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added optional support for bKGD for PNG images           * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -84,6 +87,7 @@ mng_retcode display_abgr8          (mng_datap  pData);
 
 mng_retcode restore_bkgd_backimage (mng_datap  pData);
 mng_retcode restore_bkgd_backcolor (mng_datap  pData);
+mng_retcode restore_bkgd_bkgd      (mng_datap  pData);
 mng_retcode restore_bkgd_bgcolor   (mng_datap  pData);
 mng_retcode restore_bkgd_rgb8      (mng_datap  pData);
 mng_retcode restore_bkgd_bgr8      (mng_datap  pData);
@@ -144,6 +148,9 @@ mng_retcode store_jpeg_g12         (mng_datap  pData);
 mng_retcode store_jpeg_rgb12       (mng_datap  pData);
 mng_retcode store_jpeg_ga12        (mng_datap  pData);
 mng_retcode store_jpeg_rgba12      (mng_datap  pData);
+
+mng_retcode store_jpeg_g8_alpha    (mng_datap  pData);
+mng_retcode store_jpeg_rgb8_alpha  (mng_datap  pData);
 
 mng_retcode store_jpeg_g8_a1       (mng_datap  pData);
 mng_retcode store_jpeg_g8_a2       (mng_datap  pData);

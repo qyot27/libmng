@@ -79,6 +79,8 @@
 /* *               external libs work together                              * */
 /* *             - re-fixed fixed inclusion parameters                      * */
 /* *               (these freeking libraries make me mad)                   * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - added support for nEED                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -398,6 +400,8 @@ typedef mng_bool   MNG_DECL (*mng_processtext)   (mng_handle  hHandle,
 typedef mng_bool   MNG_DECL (*mng_processsave)   (mng_handle  hHandle);
 typedef mng_bool   MNG_DECL (*mng_processseek)   (mng_handle  hHandle,
                                                   mng_pchar   zName);
+typedef mng_bool   MNG_DECL (*mng_processneed)   (mng_handle  hHandle,
+                                                  mng_pchar   zKeywords);
 
                                        /* display processing callbacks */
 typedef mng_ptr    MNG_DECL (*mng_getcanvasline) (mng_handle  hHandle,

@@ -43,6 +43,8 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for delta-JNG                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -94,6 +96,8 @@ typedef struct {                                 /* MNG specification "object-bu
            mng_uint8         iFilter;
            mng_uint8         iInterlace;
            mng_uint8         iAlphabitdepth;     /* used only for JNG images */
+           mng_uint8         iJHDRcompression;
+           mng_uint8         iJHDRinterlace;
 
            mng_bool          bHasPLTE;           /* PLTE chunk present */
            mng_bool          bHasTRNS;           /* tRNS chunk present */

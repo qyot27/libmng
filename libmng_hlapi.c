@@ -96,6 +96,12 @@
 /* *             - added support for new filter_types                       * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - added support for nEED                                   * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added optional support for bKGD for PNG images           * */
+/* *             - raised initial maximum canvas size                       * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -368,6 +374,8 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->iBGgreen              = 0;
   pData->iBGblue               = 0;
 
+  pData->bUseBKGD              = MNG_TRUE;
+
 #ifdef MNG_FULL_CMS
   pData->bIssRGB               = MNG_TRUE;
   pData->hProf1                = 0;    /* no profiles yet */
@@ -386,37 +394,38 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
                                        /* normal animation-speed ! */
   pData->iSpeed                = mng_st_normal;
                                        /* initial image limits */
-  pData->iMaxwidth             = 1600;
-  pData->iMaxheight            = 1200;
+  pData->iMaxwidth             = 10000;
+  pData->iMaxheight            = 10000;
 
-#ifdef MNG_INTERNAL_MEMMNGMT
-  pData->fMemalloc             = 0;    /* internal management */
-  pData->fMemfree              = 0;
+#ifdef MNG_INTERNAL_MEMMNGMT           /* internal management */
+  pData->fMemalloc             = MNG_NULL;
+  pData->fMemfree              = MNG_NULL;
 #else                                  /* keep callbacks */
   pData->fMemalloc             = fMemalloc;
   pData->fMemfree              = fMemfree;
 #endif
-
-  pData->fOpenstream           = 0;    /* no value (yet) */
-  pData->fClosestream          = 0;
-  pData->fReaddata             = 0;
-  pData->fWritedata            = 0;
-  pData->fErrorproc            = 0;
-  pData->fProcessheader        = 0;
-  pData->fProcesstext          = 0;
-  pData->fProcesssave          = 0;
-  pData->fProcessseek          = 0;
-  pData->fGetcanvasline        = 0;
-  pData->fGetbkgdline          = 0;
-  pData->fGetalphaline         = 0;
-  pData->fRefresh              = 0;
-  pData->fGettickcount         = 0;
-  pData->fSettimer             = 0;
-  pData->fProcessgamma         = 0;
-  pData->fProcesschroma        = 0;
-  pData->fProcesssrgb          = 0;
-  pData->fProcessiccp          = 0;
-  pData->fProcessarow          = 0;
+                                       /* no value (yet) */
+  pData->fOpenstream           = MNG_NULL;
+  pData->fClosestream          = MNG_NULL;
+  pData->fReaddata             = MNG_NULL;
+  pData->fWritedata            = MNG_NULL;
+  pData->fErrorproc            = MNG_NULL;
+  pData->fProcessheader        = MNG_NULL;
+  pData->fProcesstext          = MNG_NULL;
+  pData->fProcesssave          = MNG_NULL;
+  pData->fProcessseek          = MNG_NULL;
+  pData->fProcessneed          = MNG_NULL;
+  pData->fGetcanvasline        = MNG_NULL;
+  pData->fGetbkgdline          = MNG_NULL;
+  pData->fGetalphaline         = MNG_NULL;
+  pData->fRefresh              = MNG_NULL;
+  pData->fGettickcount         = MNG_NULL;
+  pData->fSettimer             = MNG_NULL;
+  pData->fProcessgamma         = MNG_NULL;
+  pData->fProcesschroma        = MNG_NULL;
+  pData->fProcesssrgb          = MNG_NULL;
+  pData->fProcessiccp          = MNG_NULL;
+  pData->fProcessarow          = MNG_NULL;
 
 #if defined(MNG_SUPPORT_DISPLAY) && (defined(MNG_GAMMA_ONLY) || defined(MNG_FULL_CMS))
   pData->dLastgamma            = 0;    /* lookup table needs first-time calc */
@@ -553,6 +562,8 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iLayercount           = 0;
   pData->iFramecount           = 0;
   pData->iPlaytime             = 0;
+  pData->iSimplicity           = 0;
+  pData->iAlphadepth           = 16;   /* assume the worst! */
 
   pData->iImagelevel           = 0;    /* no image encountered */
 
@@ -585,6 +596,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #ifdef MNG_INCLUDE_JNG
   pData->bHasJHDR              = MNG_FALSE;
   pData->bHasJSEP              = MNG_FALSE;
+  pData->bHasJDAA              = MNG_FALSE;
   pData->bHasJDAT              = MNG_FALSE;
 #endif
   pData->bHasPLTE              = MNG_FALSE;

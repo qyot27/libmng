@@ -119,6 +119,12 @@
 /* *             - fixed DEFI behavior                                      * */
 /* *             0.9.3 - 10/02/2000 - G.Juyn                                * */
 /* *             - fixed simplicity-check in compliance with draft 81/0.98a * */
+/* *             0.9.3 - 10/10/2000 - G.Juyn                                * */
+/* *             - added support for alpha-depth prediction                 * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - added support for nEED                                   * */
+/* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
+/* *             - added support for JDAA                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -608,6 +614,15 @@ READ_CHUNK (read_ihdr)
     pData->eImagetype = mng_it_png;    /* then this must be a PNG */
     pData->iWidth     = pData->iDatawidth;
     pData->iHeight    = pData->iDataheight;
+                                       /* predict alpha-depth ! */
+    if ((pData->iColortype == MNG_COLORTYPE_GRAYA  ) ||
+        (pData->iColortype == MNG_COLORTYPE_RGBA   )    )
+      pData->iAlphadepth = pData->iBitdepth;
+    else
+    if (pData->iColortype == MNG_COLORTYPE_INDEXED)
+      pData->iAlphadepth = 8;          /* worst case scenario */
+    else
+      pData->iAlphadepth = 0;
                                        /* fits on maximum canvas ? */
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
       MNG_WARNING (pData, MNG_IMAGETOOLARGE)
@@ -615,7 +630,7 @@ READ_CHUNK (read_ihdr)
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
         MNG_ERROR (pData, MNG_APPMISCERROR)
-        
+
   }
 
   if (!pData->bHasDHDR)
@@ -849,6 +864,10 @@ READ_CHUNK (read_idat)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
+  if ((pData->bHasJHDR) &&
+      (pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE))
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
   if (pData->bHasJSEP)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #endif
@@ -948,6 +967,7 @@ READ_CHUNK (read_iend)
 #ifdef MNG_INCLUDE_JNG
     pData->bHasJHDR         = MNG_FALSE;
     pData->bHasJSEP         = MNG_FALSE;
+    pData->bHasJDAA         = MNG_FALSE;
     pData->bHasJDAT         = MNG_FALSE;
 #endif
     pData->bHasPLTE         = MNG_FALSE;
@@ -1240,7 +1260,7 @@ READ_CHUNK (read_gama)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if ((pData->bHasIDAT) || (pData->bHasPLTE))
 #endif
@@ -1353,7 +1373,7 @@ READ_CHUNK (read_chrm)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if ((pData->bHasIDAT) || (pData->bHasPLTE))
 #endif
@@ -1521,7 +1541,7 @@ READ_CHUNK (read_srgb)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if ((pData->bHasIDAT) || (pData->bHasPLTE))
 #endif
@@ -1641,7 +1661,7 @@ READ_CHUNK (read_iccp)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasPLTE) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if ((pData->bHasIDAT) || (pData->bHasPLTE))
 #endif
@@ -2308,7 +2328,7 @@ READ_CHUNK (read_bkgd)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if (pData->bHasIDAT)
 #endif
@@ -2487,7 +2507,7 @@ READ_CHUNK (read_phys)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIDAT) || (pData->bHasJDAT))
+  if ((pData->bHasIDAT) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if (pData->bHasIDAT)
 #endif
@@ -2551,7 +2571,7 @@ READ_CHUNK (read_sbit)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasPLTE) || (pData->bHasIDAT) || (pData->bHasJDAT))
+  if ((pData->bHasPLTE) || (pData->bHasIDAT) || (pData->bHasJDAT) || (pData->bHasJDAA))
 #else
   if ((pData->bHasPLTE) || (pData->bHasIDAT))
 #endif
@@ -2900,6 +2920,17 @@ READ_CHUNK (read_mhdr)
 
     pData->bPreDraft48  = MNG_TRUE;
   }
+                                       /* predict alpha-depth */
+  if ((pData->iSimplicity & 0x00000001) == 0)
+    pData->iAlphadepth = 16;           /* no indicators = assume the worst */
+  else
+  if ((pData->iSimplicity & 0x00000008) == 0)
+    pData->iAlphadepth = 0;            /* no transparency at all */
+  else
+  if ((pData->iSimplicity & 0x00000140) == 0x00000040)
+    pData->iAlphadepth = 1;            /* no semi-transparency guaranteed */
+  else
+    pData->iAlphadepth = 16;           /* anything else = assume the worst */
 
 #ifdef MNG_INCLUDE_JNG                 /* can we handle the complexity ? */
   if (pData->iSimplicity & 0x0000FC00)
@@ -4851,6 +4882,41 @@ READ_CHUNK (read_fpri)
 
 /* ************************************************************************** */
 
+mng_bool CheckKeyword (mng_datap  pData,
+                       mng_uint8p pKeyword)
+{
+  mng_bool bOke = MNG_FALSE;
+
+  if (pData->fProcessneed)             /* does the app handle it ? */
+    bOke = pData->fProcessneed ((mng_handle)pData, (mng_pchar)pKeyword);
+
+  if (!bOke)
+  {
+    mng_uint8p pNull = find_null (pKeyword);
+
+    if (pNull - pKeyword == 4)         /* test a chunk ? */
+    {
+
+
+    }
+                                       /* test draft ? */
+    if ((!bOke) && (pNull - pKeyword == 8) &&
+        (*pKeyword     == 'd') && (*(pKeyword+1) == 'r') &&
+        (*(pKeyword+2) == 'a') && (*(pKeyword+3) == 'f') &&
+        (*(pKeyword+4) == 't') && (*(pKeyword+5) == ' '))
+    {
+      mng_uint32 iDraft;
+
+      iDraft = (*(pKeyword+6) - '0') * 10 + (*(pKeyword+7) - '0');
+      bOke   = (mng_bool)(iDraft <= MNG_MNG_DRAFT);
+    }
+  }
+
+  return bOke;
+}
+
+/* ************************************************************************** */
+
 READ_CHUNK (read_need)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4870,16 +4936,34 @@ READ_CHUNK (read_need)
   if (iRawlen < 1)                     /* check the length */
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-#ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
-  {
+  {                                    /* let's check it */
+    mng_bool   bOke = MNG_TRUE;
+    mng_pchar  zKeywords;
+    mng_uint8p pNull, pTemp;
 
+    MNG_ALLOC (pData, zKeywords, iRawlen + 1)
 
-    /* TODO: something !!! */
+    if (iRawlen)
+      MNG_COPY (zKeywords, pRawdata, iRawlen)
 
+    pTemp = (mng_uint8p)zKeywords;
+    pNull = find_null (pTemp);
 
+    while ((bOke) && (pNull < (mng_uint8p)zKeywords + iRawlen))
+    {
+      bOke  = CheckKeyword (pData, pTemp);
+      pTemp = pNull + 1;
+      pNull = find_null (pTemp);
+    }
+
+    if (bOke)
+      bOke = CheckKeyword (pData, pTemp);
+
+    MNG_FREEX (pData, zKeywords, iRawlen + 1)
+
+    if (!bOke)
+      MNG_ERROR (pData, MNG_UNSUPPORTEDNEED)
   }
-#endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
@@ -5009,11 +5093,11 @@ READ_CHUNK (read_jhdr)
       (pData->iJHDRimgbitdepth != 20)    )
     MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
-  if (pData->iJHDRimgcompression !=  MNG_COMPRESSION_BASELINEJPEG)
+  if (pData->iJHDRimgcompression != MNG_COMPRESSION_BASELINEJPEG)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  if ((pData->iJHDRimginterlace !=  MNG_INTERLACE_SEQUENTIAL ) &&
-      (pData->iJHDRimginterlace !=  MNG_INTERLACE_PROGRESSIVE)    )
+  if ((pData->iJHDRimginterlace != MNG_INTERLACE_SEQUENTIAL ) &&
+      (pData->iJHDRimginterlace != MNG_INTERLACE_PROGRESSIVE)    )
     MNG_ERROR (pData, MNG_INVALIDINTERLACE)
 
   if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
@@ -5026,14 +5110,19 @@ READ_CHUNK (read_jhdr)
         (pData->iJHDRalphabitdepth != 16)    )
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
-    if (pData->iJHDRalphacompression !=  MNG_COMPRESSION_DEFLATE)
+    if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
+        (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)    )
       MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+
+    if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
+        (pData->iJHDRalphabitdepth    !=  8                          )    )
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
     if (pData->iJHDRalphafilter & (~MNG_FILTER_MASK))
       MNG_ERROR (pData, MNG_INVALIDFILTER)
 
-    if ((pData->iJHDRalphainterlace !=  MNG_INTERLACE_NONE ) &&
-        (pData->iJHDRalphainterlace !=  MNG_INTERLACE_ADAM7)    )
+    if ((pData->iJHDRalphainterlace != MNG_INTERLACE_NONE ) &&
+        (pData->iJHDRalphainterlace != MNG_INTERLACE_ADAM7)    )
       MNG_ERROR (pData, MNG_INVALIDINTERLACE)
 
   }
@@ -5050,7 +5139,7 @@ READ_CHUNK (read_jhdr)
 
     if (pData->iJHDRalphainterlace   != 0)
       MNG_ERROR (pData, MNG_INVALIDINTERLACE)
-      
+
   }
 
   if (!pData->bHasheader)              /* first chunk ? */
@@ -5059,6 +5148,12 @@ READ_CHUNK (read_jhdr)
     pData->eImagetype = mng_it_jng;    /* then this must be a JNG */
     pData->iWidth     = mng_get_uint32 (pRawdata);
     pData->iHeight    = mng_get_uint32 (pRawdata+4);
+                                       /* predict alpha-depth ! */
+  if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+      (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+      pData->iAlphadepth = pData->iJHDRalphabitdepth;
+    else
+      pData->iAlphadepth = 0;
                                        /* fits on maximum canvas ? */
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
       MNG_WARNING (pData, MNG_IMAGETOOLARGE)
@@ -5109,7 +5204,69 @@ READ_CHUNK (read_jhdr)
   return MNG_NOERROR;                  /* done */
 }
 #else
-#define read_jhdr 0;
+#define read_jhdr 0
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+READ_CHUNK (read_jdaa)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_JDAA, MNG_LC_START)
+#endif
+                                       /* sequence checks */
+  if ((!pData->bHasJHDR) && (!pData->bHasDHDR))
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  if (pData->bHasJSEP)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+    
+  if (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  if (iRawlen == 0)                    /* can never be empty */
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+  pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
+
+#ifdef MNG_SUPPORT_DISPLAY
+  if (iRawlen)
+  {                                    /* display processing for non-empty chunks */
+    mng_retcode iRetcode = process_display_jdaa (pData, iRawlen, pRawdata);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_STORE_CHUNKS
+  if (pData->bStorechunks)
+  {                                    /* initialize storage */
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* store the fields */
+    ((mng_jdaap)*ppChunk)->bEmpty    = (mng_bool)(iRawlen == 0);
+    ((mng_jdaap)*ppChunk)->iDatasize = iRawlen;
+
+    if (iRawlen != 0)                  /* is there any data ? */
+    {
+      MNG_ALLOC (pData, ((mng_jdaap)*ppChunk)->pData, iRawlen)
+      MNG_COPY  (((mng_jdaap)*ppChunk)->pData, pRawdata, iRawlen)
+    }
+  }
+#endif /* MNG_STORE_CHUNKS */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_JDAA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+#else
+#define read_jdaa 0
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
@@ -5120,8 +5277,8 @@ READ_CHUNK (read_jdat)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAT, MNG_LC_START)
 #endif
-
-  if (!pData->bHasJHDR)                /* sequence checks */
+                                       /* sequence checks */
+  if ((!pData->bHasJHDR) && (!pData->bHasDHDR))
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
   if (iRawlen == 0)                    /* can never be empty */
@@ -5165,7 +5322,7 @@ READ_CHUNK (read_jdat)
   return MNG_NOERROR;                  /* done */
 }
 #else
-#define read_jdat 0;
+#define read_jdat 0
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
@@ -5203,7 +5360,7 @@ READ_CHUNK (read_jsep)
   return MNG_NOERROR;                  /* done */
 }
 #else
-#define read_jsep 0;
+#define read_jsep 0
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
@@ -6002,6 +6159,9 @@ READ_CHUNK (read_unknown)
       (!pData->bHasBASI) && (!pData->bHasDHDR)    )
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* critical chunk ? */
+  if ((((mng_chunk_headerp)pHeader)->iChunkname & 0x10000000) == 0)
+    MNG_ERROR (pData, MNG_UNKNOWNCRITICAL)
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
@@ -8010,9 +8170,41 @@ WRITE_CHUNK (write_jhdr)
 
   return iRetcode;
 }
+#else
+#define write_jhdr 0
 /* B004 */
 #endif /* MNG_INCLUDE_JNG */
 /* B004 */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+WRITE_CHUNK (write_jdaa)
+{
+  mng_jdatp   pJDAA;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_JDAA, MNG_LC_START)
+#endif
+
+  pJDAA = (mng_jdaap)pChunk;           /* address the proper chunk */
+
+  if (pJDAA->bEmpty)                   /* and write it */
+    iRetcode = write_raw_chunk (pData, pJDAA->sHeader.iChunkname, 0, 0);
+  else
+    iRetcode = write_raw_chunk (pData, pJDAA->sHeader.iChunkname,
+                                pJDAA->iDatasize, pJDAA->pData);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_JDAA, MNG_LC_END)
+#endif
+
+  return iRetcode;
+}
+#else
+#define write_jdaa 0
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 
@@ -8042,6 +8234,8 @@ WRITE_CHUNK (write_jdat)
 
   return iRetcode;
 }
+#else
+#define write_jdat 0
 /* B004 */
 #endif /* MNG_INCLUDE_JNG */
 /* B004 */
@@ -8070,6 +8264,8 @@ WRITE_CHUNK (write_jsep)
 
   return iRetcode;
 }
+#else
+#define write_jsep 0
 /* B004 */
 #endif /* MNG_INCLUDE_JNG */
 /* B004 */

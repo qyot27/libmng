@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_callback_xs.c      copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -31,6 +31,9 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
+/* *             - added support for nEED                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -294,6 +297,27 @@ mng_retcode MNG_DECL mng_setcb_processseek (mng_handle      hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSEEK, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_setcb_processneed (mng_handle      hHandle,
+                                            mng_processneed fProc)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSNEED, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->fProcessneed = fProc;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSNEED, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
