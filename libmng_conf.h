@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_conf.h             copyright (c) G.Juyn             * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : main configuration file                                    * */
 /* *                                                                        * */
@@ -38,9 +38,6 @@
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
 /* *             - added 'supports' call to check function availability     * */
-/* *                                                                        * */
-/* *             1.0.6 - 11/04/2003 - G.Juyn                                * */
-/* *             - B719420 - fixed several MNG_APP_CMS problems             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -154,10 +151,6 @@
 #endif
 /* #define MNG_NO_CMS */
 /* #define MNG_APP_CMS */
-#endif
-
-#if defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
-#include <math.h>                      /* pow() */
 #endif
 
 /* ************************************************************************** */
