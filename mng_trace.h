@@ -27,6 +27,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - added JNG tracecodes                                     * */
+/* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
+/* *             - added trace-table entry definition                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -851,6 +853,18 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_NEXT_JPEG_ALPHAROW    3591
 #define MNG_FN_NEXT_JPEG_ROW         3592
 #define MNG_FN_DISPLAY_JPEG_ROWS     3593
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Trace string-table entry                                               * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+typedef struct {
+           mng_uint32 iFunction;
+           mng_pchar  zTracetext;
+        } mng_trace_entry;
+typedef mng_trace_entry * mng_trace_entryp;
 
 /* ************************************************************************** */
 

@@ -26,6 +26,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - added JNG errorcodes                                     * */
+/* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
+/* *             - added error tell-tale definition                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -152,6 +154,18 @@ mng_bool mng_process_error (mng_datap   pData,
                                 return 0; }
 #define MNG_VALIDCB(D,C)    { if (!((mng_datap)D)->C) \
                                 MNG_ERROR (((mng_datap)D), MNG_NOCALLBACK) }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Error string-table entry                                               * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+typedef struct {
+           mng_retcode iError;
+           mng_pchar   zErrortext;
+        } mng_error_entry;
+typedef mng_error_entry * mng_error_entryp;
 
 /* ************************************************************************** */
 
