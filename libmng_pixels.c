@@ -144,6 +144,8 @@
 /* *             - reversed many loops to use decrementing counter          * */
 /* *             - combined init functions                                  * */
 /* *             - converted some switches to array references              * */
+/* *             1.0.6 - 29/07/2003 - G.Juyn                                * */
+/* *             - fixed duplicate for-loop                                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 #include "libmng.h"
@@ -5918,7 +5920,6 @@ mng_retcode mng_delta_rgb8_rgb8 (mng_datap pData)
   else
   if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
   {
-    for (iX = 0; iX < (pData->iRowsamples * 3); iX++)
 #ifdef MNG_DECREMENT_LOOPS
     for (iX = pData->iRowsamples*3; iX > 0; iX--)
 #else

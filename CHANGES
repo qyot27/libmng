@@ -36,6 +36,8 @@ core:
 - restored two misplaced #else/#endif blocks
 - added conditionals around "mng_display_go*" and other unused functions
 - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional
+- fixed duplicate for-loop
+- fixed invalid test in promote_imageobject
 
 samples:
 

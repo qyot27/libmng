@@ -119,6 +119,8 @@
 /* *             - added conditionals around delta-png and 16-bit code      * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
+/* *             1.0.6 - 29/14/2003 - G.Juyn                                * */
+/* *             - fixed invalid test in promote_imageobject                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1627,7 +1629,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
 #endif /* JNG */
 
   /* found a proper promotion ? */
-  if (pData->fPromoterow && pData->fPromBitdepth)
+  if (pData->fPromoterow)
   {
     pData->pPromBuf    = (mng_ptr)pBuf;
     pData->iPromWidth  = pBuf->iWidth;
@@ -1717,7 +1719,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 #ifdef MNG_OPTIMIZE_FOOTPRINT_MAGN
   /* Promote everything to RGBA, using fill method 0 (LBR) */
   iRetcode = mng_promote_imageobject (pData, pImage, 8, 6, 0);           
-  if (iRetcode)                      /* on error bail out */
+  if (iRetcode)                        /* on error bail out */
     return iRetcode;
 #endif
 
