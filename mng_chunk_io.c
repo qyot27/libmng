@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_io.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -51,6 +51,8 @@
 /* *             - implemented JNG support                                  * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added support for global color-chunks in animation       * */
+/* *             - added support for global PLTE,tRNS,bKGD in animation     * */
+/* *             - added support for SAVE & SEEK in animation               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -682,6 +684,16 @@ READ_CHUNK (read_plte)
 
       pRawdata2 += 3;
     }
+
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_pltep pPLTE;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_plte (pData, pData->iGlobalPLTEcount,
+                                              pData->aGlobalPLTEentries, &pPLTE);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -989,6 +1001,16 @@ READ_CHUNK (read_trns)
   {
     pData->iGlobalTRNSrawlen = iRawlen;
     MNG_COPY (&pData->aGlobalTRNSrawdata, pRawdata, iRawlen)
+
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_trnsp pTRNS;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_trns (pData, pData->iGlobalTRNSrawlen,
+                                              pData->aGlobalTRNSrawdata, &pTRNS);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2126,6 +2148,18 @@ READ_CHUNK (read_bkgd)
       pData->iGlobalBKGDred   = mng_get_uint16 (pRawdata);
       pData->iGlobalBKGDgreen = mng_get_uint16 (pRawdata+2);
       pData->iGlobalBKGDblue  = mng_get_uint16 (pRawdata+4);
+    }
+
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_bkgdp pBKGD;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_bkgd (pData, pData->iGlobalBKGDred,
+                                              pData->iGlobalBKGDgreen,
+                                              pData->iGlobalBKGDblue,
+                                              &pBKGD);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
     }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
@@ -4139,13 +4173,21 @@ READ_CHUNK (read_save)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    mng_retcode iRetcode;
+    mng_retcode iRetcode = MNG_NOERROR;
 
 
     /* TODO: something with the parameters */
 
-                                       /* process it */
-    iRetcode = process_display_save (pData);
+
+    if (pData->bHasTERM)               /* are we processing a term ? */
+    {
+      mng_ani_savep pSAVE;
+                                       /* create a SAVE animation object */
+      iRetcode = create_ani_save (pData, &pSAVE);
+    }
+
+    if (!iRetcode)                     /* process it */
+      iRetcode = process_display_save (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4336,13 +4378,22 @@ READ_CHUNK (read_seek)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    mng_retcode iRetcode;
+    mng_retcode iRetcode = MNG_NOERROR;
 
 
     /* TODO: something with the parameters */
 
-                                       /* process it */
-    iRetcode = process_display_seek (pData);
+
+
+    if (pData->bHasTERM)               /* are we processing a term ? */
+    {
+      mng_ani_seekp pSEEK;
+                                       /* create a SEEK animation object */
+      iRetcode = create_ani_seek (pData, &pSEEK);
+    }
+
+    if (!iRetcode)                     /* process it */
+      iRetcode = process_display_seek (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;

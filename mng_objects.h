@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_objects.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Internal object structures (definition)                    * */
 /* *                                                                        * */
@@ -24,6 +24,8 @@
 /* *             - changed inclusion to DISPLAY_PROCS                       * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added global color-chunks for animations                 * */
+/* *             - added global PLTE,tRNS,bKGD chunks for animation         * */
+/* *             - added SAVE & SEEK animation objects                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -144,6 +146,24 @@ typedef mng_ani_image * mng_ani_imagep;          /* that's actualy crucial, so d
 
 /* ************************************************************************** */
 
+typedef struct {                                 /* global PLTE object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint32        iEntrycount;
+           mng_rgbpaltab     aEntries;
+        } mng_ani_plte;
+typedef mng_ani_plte * mng_ani_pltep;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* global tRNS object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint32        iRawlen;
+           mng_uint8arr      aRawdata;
+        } mng_ani_trns;
+typedef mng_ani_trns * mng_ani_trnsp;
+
+/* ************************************************************************** */
+
 typedef struct {                                 /* global gAMA object */
            mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
            mng_bool          bEmpty;
@@ -185,6 +205,16 @@ typedef struct {                                 /* global iCCP object */
            mng_ptr           pProfile;
         } mng_ani_iccp;
 typedef mng_ani_iccp * mng_ani_iccpp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* global bKGD object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint16        iRed;
+           mng_uint16        iGreen;
+           mng_uint16        iBlue;
+        } mng_ani_bkgd;
+typedef mng_ani_bkgd * mng_ani_bkgdp;
 
 /* ************************************************************************** */
 
@@ -337,6 +367,20 @@ typedef struct {                                 /* TERM object */
            mng_uint32        iItermax;
         } mng_ani_term;
 typedef mng_ani_term * mng_ani_termp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* SAVE object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+        } mng_ani_save;
+typedef mng_ani_save * mng_ani_savep;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* SEEK object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+        } mng_ani_seek;
+typedef mng_ani_seek * mng_ani_seekp;
 
 /* ************************************************************************** */
 

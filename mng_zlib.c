@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_zlib.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : ZLIB library interface (implementation)                    * */
 /* *                                                                        * */
@@ -196,18 +196,28 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
         else
           iRslt = MNG_NOERROR;
 
-                                       /* now process this row */
-        if ((!iRslt) && (pData->fProcessrow))
-          iRslt = ((mng_processrow)pData->fProcessrow) (pData);
+        if (!iRslt)
+        {
+          if (pData->bHasJHDR)         /* is JNG alpha-channel ? */
+          {                            /* just store in object ? */
+            if ((!iRslt) && (pData->fStorerow))
+              iRslt = ((mng_storerow)pData->fStorerow)     (pData);
+          }
+          else
+          {                            /* process this row */
+            if ((!iRslt) && (pData->fProcessrow))
+              iRslt = ((mng_processrow)pData->fProcessrow) (pData);
                                        /* store in object ? */
-        if ((!iRslt) && (pData->fStorerow))
-          iRslt = ((mng_correctrow)pData->fStorerow)   (pData);
+            if ((!iRslt) && (pData->fStorerow))
+              iRslt = ((mng_storerow)pData->fStorerow)     (pData);
                                        /* color correction ? */
-        if ((!iRslt) && (pData->fCorrectrow))
-          iRslt = ((mng_correctrow)pData->fCorrectrow) (pData);
+            if ((!iRslt) && (pData->fCorrectrow))
+              iRslt = ((mng_correctrow)pData->fCorrectrow) (pData);
                                        /* slap onto canvas ? */
-        if ((!iRslt) && (pData->fDisplayrow))
-          iRslt = ((mng_displayrow)pData->fDisplayrow) (pData);
+            if ((!iRslt) && (pData->fDisplayrow))
+              iRslt = ((mng_displayrow)pData->fDisplayrow) (pData);
+          }
+        }
 
         if (iRslt)                     /* on error bail out */
           MNG_ERROR (pData, iRslt);

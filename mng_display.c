@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_display.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -2460,7 +2460,8 @@ mng_retcode process_display_seek (mng_datap pData)
 #ifdef MNG_INCLUDE_JNG
 mng_retcode process_display_jhdr (mng_datap pData)
 {                                      /* address the current "object" if any */
-  mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
+  mng_imagep  pImage = (mng_imagep)pData->pCurrentobj;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_START);
@@ -2481,8 +2482,6 @@ mng_retcode process_display_jhdr (mng_datap pData)
 
   if (!pData->iBreakpoint)             /* not previously broken ? */
   {
-    mng_retcode iRetcode;
-
     if (pImage)                        /* update object buffer ? */
       iRetcode = reset_object_details (pData, pImage,
                                        pData->iDatawidth, pData->iDataheight,
@@ -2578,6 +2577,11 @@ mng_retcode process_display_jhdr (mng_datap pData)
       case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
       case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
     }
+                                       /* initialize JPEG library */
+    iRetcode = mngjpeg_initialize (pData);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2607,9 +2611,6 @@ mng_retcode process_display_jdat (mng_datap  pData,
       iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
     else
       iRetcode = init_rowproc (pData); /* this still if no alpha present ! */   
-
-    if (!iRetcode)                     /* initialize JPEG library */
-      iRetcode = mngjpeg_initialize (pData);
 
     if (!iRetcode)                     /* initialize decompress */
       iRetcode = mngjpeg_decompressinit (pData);

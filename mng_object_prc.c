@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -24,6 +24,8 @@
 /* *             - fixed to support JNG objects                             * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added support for global color-chunks in animation       * */
+/* *             - added support for global PLTE,tRNS,bKGD in animation     * */
+/* *             - added SAVE & SEEK animation objects                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -962,6 +964,156 @@ mng_retcode process_ani_image (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+mng_retcode create_ani_plte (mng_datap     pData,
+                             mng_uint32    iEntrycount,
+                             mng_rgbpaltab aEntries,
+                             mng_ani_pltep *ppObject)
+{
+  mng_ani_pltep pPLTE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_PLTE, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pPLTE, sizeof (mng_ani_plte))
+
+  pPLTE->sHeader.fCleanup = free_ani_plte;
+  pPLTE->sHeader.fProcess = process_ani_plte;
+
+  add_ani_object (pData, (mng_object_headerp)pPLTE);
+
+  pPLTE->iEntrycount      = iEntrycount;
+
+  MNG_COPY (&pPLTE->aEntries, &aEntries, sizeof (aEntries))
+
+  *ppObject = pPLTE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_PLTE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_plte (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_PLTE, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_plte))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_PLTE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_plte (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_pltep pPLTE = (mng_ani_pltep)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_PLTE, MNG_LC_START)
+#endif
+
+  pData->bHasglobalPLTE   = MNG_TRUE;
+  pData->iGlobalPLTEcount = pPLTE->iEntrycount;
+
+  MNG_COPY (&pData->aGlobalPLTEentries, &pPLTE->aEntries, sizeof (pPLTE->aEntries))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_PLTE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_trns (mng_datap     pData,
+                             mng_uint32    iRawlen,
+                             mng_uint8arr  aRawdata,
+                             mng_ani_trnsp *ppObject)
+{
+  mng_ani_trnsp pTRNS;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_TRNS, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pTRNS, sizeof (mng_ani_trns))
+
+  pTRNS->sHeader.fCleanup = free_ani_trns;
+  pTRNS->sHeader.fProcess = process_ani_trns;
+
+  add_ani_object (pData, (mng_object_headerp)pTRNS);
+
+  pTRNS->iRawlen          = iRawlen;
+
+  MNG_COPY (&pTRNS->aRawdata, &aRawdata, sizeof (aRawdata))
+
+  *ppObject = pTRNS;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_TRNS, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_trns (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_TRNS, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_trns))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_TRNS, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_trns (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_trnsp pTRNS = (mng_ani_trnsp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TRNS, MNG_LC_START)
+#endif
+
+  pData->bHasglobalTRNS    = MNG_TRUE;
+  pData->iGlobalTRNSrawlen = pTRNS->iRawlen;
+
+  MNG_COPY (&pData->aGlobalTRNSrawdata, &pTRNS->aRawdata, sizeof (pTRNS->aRawdata))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TRNS, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
 mng_retcode create_ani_gama (mng_datap     pData,
                              mng_bool      bEmpty,
                              mng_uint32    iGamma,
@@ -1320,11 +1472,87 @@ mng_retcode process_ani_iccp (mng_datap   pData,
     {
       MNG_ALLOC (pData, pData->pGlobalProfile, pICCP->iProfilesize)
       MNG_COPY (pData->pGlobalProfile, pICCP->pProfile, pICCP->iProfilesize)
-    }    
+    }
   }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ICCP, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_bkgd (mng_datap     pData,
+                             mng_uint16    iRed,
+                             mng_uint16    iGreen,
+                             mng_uint16    iBlue,
+                             mng_ani_bkgdp *ppObject)
+{
+  mng_ani_bkgdp pBKGD;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BKGD, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pBKGD, sizeof (mng_ani_bkgd))
+
+  pBKGD->sHeader.fCleanup = free_ani_bkgd;
+  pBKGD->sHeader.fProcess = process_ani_bkgd;
+
+  add_ani_object (pData, (mng_object_headerp)pBKGD);
+
+  pBKGD->iRed             = iRed;
+  pBKGD->iGreen           = iGreen;
+  pBKGD->iBlue            = iBlue;
+
+  *ppObject = pBKGD;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BKGD, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_bkgd (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BKGD, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_bkgd))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BKGD, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_bkgd (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_bkgdp pBKGD = (mng_ani_bkgdp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BKGD, MNG_LC_START)
+#endif
+
+  pData->bHasglobalBKGD   = MNG_TRUE;
+  pData->iGlobalBKGDred   = pBKGD->iRed;
+  pData->iGlobalBKGDgreen = pBKGD->iGreen;
+  pData->iGlobalBKGDblue  = pBKGD->iBlue;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BKGD, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2323,6 +2551,144 @@ mng_retcode process_ani_term (mng_datap   pData,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TERM, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_save (mng_datap     pData,
+                             mng_ani_savep *ppObject)
+{
+  mng_ani_savep pSAVE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SAVE, MNG_LC_START);
+#endif
+
+  MNG_ALLOC (pData, pSAVE, sizeof (mng_ani_save))
+
+  pSAVE->sHeader.fCleanup = free_ani_save;
+  pSAVE->sHeader.fProcess = process_ani_save;
+
+  add_ani_object (pData, (mng_object_headerp)pSAVE);
+
+  *ppObject               = pSAVE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SAVE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_save (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SAVE, MNG_LC_START);
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_save))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SAVE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_save (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SAVE, MNG_LC_START);
+#endif
+
+  iRetcode = process_display_save (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SAVE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_seek (mng_datap     pData,
+                             mng_ani_seekp *ppObject)
+{
+  mng_ani_seekp pSEEK;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SEEK, MNG_LC_START);
+#endif
+
+  MNG_ALLOC (pData, pSEEK, sizeof (mng_ani_seek))
+
+  pSEEK->sHeader.fCleanup = free_ani_seek;
+  pSEEK->sHeader.fProcess = process_ani_seek;
+
+  add_ani_object (pData, (mng_object_headerp)pSEEK);
+
+  *ppObject               = pSEEK;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SEEK, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_seek (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SEEK, MNG_LC_START);
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_seek))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SEEK, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_seek (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SEEK, MNG_LC_START);
+#endif
+
+  iRetcode = process_display_seek (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SEEK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

@@ -25,6 +25,7 @@
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added tracestrings for global animation color-chunks     * */
 /* *             - added tracestrings for get/set of default ZLIB/IJG parms * */
+/* *             - added tracestrings for global PLTE,tRNS,bKGD             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -460,6 +461,9 @@
     {MNG_FN_CREATE_ANI_CHRM,           "create_ani_chrm"},
     {MNG_FN_CREATE_ANI_SRGB,           "create_ani_srgb"},
     {MNG_FN_CREATE_ANI_ICCP,           "create_ani_iccp"},
+    {MNG_FN_CREATE_ANI_PLTE,           "create_ani_plte"},
+    {MNG_FN_CREATE_ANI_TRNS,           "create_ani_trns"},
+    {MNG_FN_CREATE_ANI_BKGD,           "create_ani_bkgd"},
 
     {MNG_FN_CREATE_ANI_IMAGE,          "create_ani_image"},
 
@@ -482,6 +486,9 @@
     {MNG_FN_FREE_ANI_CHRM,             "free_ani_chrm"},
     {MNG_FN_FREE_ANI_SRGB,             "free_ani_srgb"},
     {MNG_FN_FREE_ANI_ICCP,             "free_ani_iccp"},
+    {MNG_FN_FREE_ANI_PLTE,             "free_ani_plte"},
+    {MNG_FN_FREE_ANI_TRNS,             "free_ani_trns"},
+    {MNG_FN_FREE_ANI_BKGD,             "free_ani_bkgd"},
 
     {MNG_FN_FREE_ANI_IMAGE,            "free_ani_image"},
 
@@ -504,6 +511,9 @@
     {MNG_FN_PROCESS_ANI_CHRM,          "process_ani_chrm"},
     {MNG_FN_PROCESS_ANI_SRGB,          "process_ani_srgb"},
     {MNG_FN_PROCESS_ANI_ICCP,          "process_ani_iccp"},
+    {MNG_FN_PROCESS_ANI_PLTE,          "process_ani_plte"},
+    {MNG_FN_PROCESS_ANI_TRNS,          "process_ani_trns"},
+    {MNG_FN_PROCESS_ANI_BKGD,          "process_ani_bkgd"},
 
     {MNG_FN_PROCESS_ANI_IMAGE,         "process_ani_image"},
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -32,6 +32,7 @@
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added tracecodes for global animation color-chunks       * */
 /* *             - added tracecodes for get/set of default ZLIB/IJG parms   * */
+/* *             - added tracecodes for global PLTE,tRNS,bKGD               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -505,6 +506,9 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_CHRM       1817
 #define MNG_FN_CREATE_ANI_SRGB       1818
 #define MNG_FN_CREATE_ANI_ICCP       1819
+#define MNG_FN_CREATE_ANI_PLTE       1820
+#define MNG_FN_CREATE_ANI_TRNS       1821
+#define MNG_FN_CREATE_ANI_BKGD       1822
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 
@@ -529,6 +533,9 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_CHRM         1917
 #define MNG_FN_FREE_ANI_SRGB         1918
 #define MNG_FN_FREE_ANI_ICCP         1919
+#define MNG_FN_FREE_ANI_PLTE         1920
+#define MNG_FN_FREE_ANI_TRNS         1921
+#define MNG_FN_FREE_ANI_BKGD         1922
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 
@@ -553,6 +560,9 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_CHRM      2017
 #define MNG_FN_PROCESS_ANI_SRGB      2018
 #define MNG_FN_PROCESS_ANI_ICCP      2019
+#define MNG_FN_PROCESS_ANI_PLTE      2020
+#define MNG_FN_PROCESS_ANI_TRNS      2021
+#define MNG_FN_PROCESS_ANI_BKGD      2022
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 

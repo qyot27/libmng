@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_data.h                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -31,6 +31,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
 /* *             - added fields for JNG support (IJG-based)                 * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - changed global tRNS definition                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -108,7 +110,7 @@ typedef struct mng_savedata_struct {
            mng_rgbpaltab     aGlobalPLTEentries;
 
            mng_uint32        iGlobalTRNSrawlen;  /* global tRNS fields */
-           mng_uint8         aGlobalTRNSrawdata[256];
+           mng_uint8arr      aGlobalTRNSrawdata;
 
            mng_uint32        iGlobalGamma;       /* global gAMA fields */
 
@@ -437,7 +439,7 @@ typedef struct mng_data_struct {
            mng_rgbpaltab     aGlobalPLTEentries;
 
            mng_uint32        iGlobalTRNSrawlen;  /* global tRNS fields */
-           mng_uint8         aGlobalTRNSrawdata[256];
+           mng_uint8arr      aGlobalTRNSrawdata;
 
            mng_uint32        iGlobalGamma;       /* global gAMA fields */
 

@@ -20,6 +20,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added support for global color-chunks in animation       * */
+/* *             - added support for global PLTE,tRNS,bKGD in animation     * */
+/* *             - added SAVE & SEEK animation objects                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -113,6 +115,16 @@ mng_retcode reset_object_details (mng_datap  pData,
 mng_retcode create_ani_image  (mng_datap      pData,
                                mng_ani_imagep *ppObject);
 
+mng_retcode create_ani_plte   (mng_datap      pData,
+                               mng_uint32     iEntrycount,
+                               mng_rgbpaltab  aEntries,
+                               mng_ani_pltep  *ppObject);
+
+mng_retcode create_ani_trns   (mng_datap      pData,
+                               mng_uint32     iRawlen,
+                               mng_uint8arr   aRawdata,
+                               mng_ani_trnsp  *ppObject);
+
 mng_retcode create_ani_gama   (mng_datap      pData,
                                mng_bool       bEmpty,
                                mng_uint32     iGamma,
@@ -140,6 +152,12 @@ mng_retcode create_ani_iccp   (mng_datap      pData,
                                mng_uint32     iProfilesize,
                                mng_ptr        pProfile,
                                mng_ani_iccpp  *ppObject);
+
+mng_retcode create_ani_bkgd   (mng_datap      pData,
+                               mng_uint16     iRed,
+                               mng_uint16     iGreen,
+                               mng_uint16     iBlue,
+                               mng_ani_bkgdp  *ppObject);
 
 mng_retcode create_ani_loop   (mng_datap      pData,
                                mng_uint8      iLevel,
@@ -237,11 +255,21 @@ mng_retcode create_ani_term   (mng_datap      pData,
                                mng_uint32     iItermax,
                                mng_ani_termp  *ppObject);
                              
+mng_retcode create_ani_save   (mng_datap      pData,
+                               mng_ani_savep  *ppObject);
+
+mng_retcode create_ani_seek   (mng_datap      pData,
+                               mng_ani_seekp  *ppObject);
+
 /* ************************************************************************** */
 
 mng_retcode free_ani_image    (mng_datap    pData,
                                mng_objectp  pObject);
 
+mng_retcode free_ani_plte     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_trns     (mng_datap    pData,
+                               mng_objectp  pObject);
 mng_retcode free_ani_gama     (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode free_ani_chrm     (mng_datap    pData,
@@ -249,6 +277,8 @@ mng_retcode free_ani_chrm     (mng_datap    pData,
 mng_retcode free_ani_srgb     (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode free_ani_iccp     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_bkgd     (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode free_ani_loop     (mng_datap    pData,
                                mng_objectp  pObject);
@@ -272,12 +302,20 @@ mng_retcode free_ani_show     (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode free_ani_term     (mng_datap    pData,
                                mng_objectp  pObject);
+mng_retcode free_ani_save     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_seek     (mng_datap    pData,
+                               mng_objectp  pObject);
 
 /* ************************************************************************** */
 
 mng_retcode process_ani_image (mng_datap    pData,
                                mng_objectp  pObject);
 
+mng_retcode process_ani_plte  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_trns  (mng_datap    pData,
+                               mng_objectp  pObject);
 mng_retcode process_ani_gama  (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode process_ani_chrm  (mng_datap    pData,
@@ -285,6 +323,8 @@ mng_retcode process_ani_chrm  (mng_datap    pData,
 mng_retcode process_ani_srgb  (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode process_ani_iccp  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_bkgd  (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode process_ani_loop  (mng_datap    pData,
                                mng_objectp  pObject);
@@ -307,6 +347,10 @@ mng_retcode process_ani_clip  (mng_datap    pData,
 mng_retcode process_ani_show  (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode process_ani_term  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_save  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_seek  (mng_datap    pData,
                                mng_objectp  pObject);
 
 /* ************************************************************************** */

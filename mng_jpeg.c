@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_jpeg.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : JPEG library interface (implementation)                    * */
 /* *                                                                        * */
@@ -404,9 +404,7 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
 
         MNG_ALLOC (pData, pData->pJPEGrow, pData->iJPEGrowlen)
 
-        pData->iJPEGalpharow = 0;      /* quite empty up to now */
-        pData->iJPEGrgbrow   = 0;
-        pData->iJPEGdisprow  = 0;
+        pData->iJPEGrgbrow = 0;        /* quite empty up to now */
       }
 
       pData->pJPEGcurrent   = (mng_uint8p)pData->pJPEGdinfo->src->next_input_byte;
