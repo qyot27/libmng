@@ -17,6 +17,7 @@ core:
 - upgraded to zlib 1.2.1
 - upgraded to lcms 1.11
 - added premultiplied alpha canvas' for RGBA, ARGB, ABGR (thx to John Stiles)
+- fixed inclusion of IJNG chunk for non-JNG use (J.S)
 
 samples:
 

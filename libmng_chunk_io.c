@@ -195,6 +195,8 @@
 /* *             - revised JDAA and JDAT readers to avoid compiler bug      * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 01/27/2004 - J.S                                   * */
+/* *             - fixed inclusion of IJNG chunk for non-JNG use            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5210,7 +5212,9 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
     MNG_UINT_IEND,
     MNG_UINT_IHDR,
 #ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
     MNG_UINT_IJNG,
+#endif    
     MNG_UINT_IPNG,
 #endif
 #ifdef MNG_INCLUDE_JNG
@@ -6257,6 +6261,7 @@ READ_CHUNK (mng_read_pplt)
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_ijng)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -6298,6 +6303,7 @@ READ_CHUNK (mng_read_ijng)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
