@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_conf.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : main configuration file                                    * */
 /* *                                                                        * */
@@ -25,6 +25,8 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
+/* *             - Added workaround for faulty PhotoShop iCCP chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 

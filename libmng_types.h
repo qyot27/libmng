@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_types.h            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : type specifications                                        * */
 /* *                                                                        * */
@@ -71,6 +71,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
 /* *             - B111300 - fixup for improved portability                 * */
+/* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
+/* *             - added workaround for faulty PhotoShop iCCP chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -134,6 +136,9 @@
 #include <memory.h>                    /* defines "memcpy" for other win32 platforms */
 #endif
 /* B003 */
+#ifdef MNG_CHECK_BAD_ICCP
+#include <string.h>                    /* strncmp() */
+#endif
 #else
 #ifdef BSD
 #include <strings.h>                   /* defines "memcpy" for BSD (?) */

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -104,6 +104,10 @@
 /* *             - fixed compiler-warnings from Mozilla                     * */
 /* *             0.9.3 - 08/09/2000 - G.Juyn                                * */
 /* *             - added check for simplicity-bits in MHDR                  * */
+/* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
+/* *             - fixed check for simplicity-bits in MHDR (JNG)            * */
+/* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
+/* *             - added workaround for faulty PhotoShop iCCP chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -117,6 +121,9 @@
 #include "libmng_objects.h"
 #include "libmng_object_prc.h"
 #include "libmng_chunks.h"
+#ifdef MNG_CHECK_BAD_ICCP
+#include "libmng_chunk_prc.h"
+#endif
 #include "libmng_memory.h"
 #include "libmng_display.h"
 #include "libmng_zlib.h"
@@ -1588,7 +1595,7 @@ READ_CHUNK (read_srgb)
     if (iRawlen)
       ((mng_srgbp)*ppChunk)->iRenderingintent = *pRawdata;
 
-  }    
+  }
 #endif /* MNG_STORE_CHUNKS */
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1602,13 +1609,11 @@ READ_CHUNK (read_srgb)
 
 READ_CHUNK (read_iccp)
 {
-#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  mng_retcode iRetcode;
   mng_uint8p  pTemp;
   mng_uint32  iCompressedsize;
   mng_uint32  iProfilesize;
   mng_uint32  iBufsize = 0;
-  mng_retcode iRetcode;
-#endif
   mng_uint8p  pBuf = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1646,16 +1651,6 @@ READ_CHUNK (read_iccp)
       MNG_ERROR (pData, MNG_INVALIDLENGTH)
   }
 
-#ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
-#else
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
-#endif
-    pData->bHasICCP = MNG_TRUE;        /* indicate we've got it */
-  else
-    pData->bHasglobalICCP = (mng_bool)(iRawlen != 0);
-
-#ifdef MNG_SUPPORT_DISPLAY
   pTemp = find_null (pRawdata);        /* find null-separator */
                                        /* not found inside input-data ? */
   if ((pTemp - pRawdata) > (mng_int32)iRawlen)
@@ -1666,133 +1661,168 @@ READ_CHUNK (read_iccp)
   iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
                              &pBuf, &iBufsize, &iProfilesize);
 
-  if (iRetcode)                        /* on error bail out */
+#ifdef MNG_CHECK_BAD_ICCP              /* Check for bad iCCP chunk */
+  if ((iRetcode) && (!strncmp ((char *)pRawdata, "Photoshop ICC profile", 21)))
   {
-    MNG_FREE (pData, pBuf, iBufsize)   /* don't forget to drop the temp buffer */
-    return iRetcode;
-  }
-
-#ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
-#else
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
-#endif
-  {
-    mng_imagep pImage;
-
-    if (pData->bHasDHDR)               /* update delta image ? */
-    {                                  /* store in object 0 ! */
-      pImage = (mng_imagep)pData->pObjzero;
-
-      if (pImage->pImgbuf->pProfile)   /* profile existed ? */
-        MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
-                                       /* allocate a buffer & copy it */
-      MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
-      MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
-                                       /* store it's length as well */
-      pImage->pImgbuf->iProfilesize = iProfilesize;
-      pImage->pImgbuf->bHasICCP     = MNG_TRUE;
-    }
-    else
+    if (iRawlen == 2615)               /* is it the sRGB profile ? */
     {
-      pImage = (mng_imagep)pData->pCurrentobj;
+      mng_chunk_header chunk_srgb = {MNG_UINT_sRGB, init_srgb, free_srgb,
+                                     read_srgb, write_srgb, 0, 0};
+                                       /* pretend it's an sRGB chunk then ! */
+      iRetcode = read_srgb (pData, &chunk_srgb, 1, (mng_ptr)"0", ppChunk);
 
-      if (!pImage)                     /* no object then dump it in obj 0 */
-        pImage = (mng_imagep)pData->pObjzero;
-
-      if (pImage->pImgbuf->pProfile)   /* profile existed ? */
-        MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
-                                       /* allocate a buffer & copy it */
-      MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
-      MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
-                                       /* store it's length as well */
-      pImage->pImgbuf->iProfilesize = iProfilesize;
-      pImage->pImgbuf->bHasICCP     = MNG_TRUE;
+      if (iRetcode)                    /* on error bail out */
+      {                                /* don't forget to drop the temp buffer */
+        MNG_FREEX (pData, pBuf, iBufsize)
+        return iRetcode;
+      }
     }
   }
   else
-  {                                    /* store as global */
-    if (iRawlen == 0)                  /* empty chunk ? */
-    {
-      if (pData->pGlobalProfile)       /* did we have a global profile ? */
-        MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+  {
+#endif /* MNG_CHECK_BAD_ICCP */
 
-      pData->iGlobalProfilesize = 0;   /* reset to null */
-      pData->pGlobalProfile     = MNG_NULL; 
+    if (iRetcode)                      /* on error bail out */
+    {                                  /* don't forget to drop the temp buffer */
+      MNG_FREEX (pData, pBuf, iBufsize)
+      return iRetcode;
+    }
+
+#ifdef MNG_INCLUDE_JNG
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
+#else
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
+#endif
+      pData->bHasICCP = MNG_TRUE;      /* indicate we've got it */
+    else
+      pData->bHasglobalICCP = (mng_bool)(iRawlen != 0);
+
+#ifdef MNG_SUPPORT_DISPLAY
+#ifdef MNG_INCLUDE_JNG
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
+#else
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
+#endif
+    {
+      mng_imagep pImage;
+
+      if (pData->bHasDHDR)             /* update delta image ? */
+      {                                /* store in object 0 ! */
+        pImage = (mng_imagep)pData->pObjzero;
+
+        if (pImage->pImgbuf->pProfile) /* profile existed ? */
+          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
+                                       /* allocate a buffer & copy it */
+        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
+        MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
+                                       /* store it's length as well */
+        pImage->pImgbuf->iProfilesize = iProfilesize;
+        pImage->pImgbuf->bHasICCP     = MNG_TRUE;
+      }
+      else
+      {
+        pImage = (mng_imagep)pData->pCurrentobj;
+
+        if (!pImage)                   /* no object then dump it in obj 0 */
+          pImage = (mng_imagep)pData->pObjzero;
+
+        if (pImage->pImgbuf->pProfile) /* profile existed ? */
+          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
+                                       /* allocate a buffer & copy it */
+        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
+        MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
+                                       /* store it's length as well */
+        pImage->pImgbuf->iProfilesize = iProfilesize;
+        pImage->pImgbuf->bHasICCP     = MNG_TRUE;
+      }
     }
     else
-    {                                  /* allocate a global buffer & copy it */
-      MNG_ALLOC (pData, pData->pGlobalProfile, iProfilesize)
-      MNG_COPY  (pData->pGlobalProfile, pBuf, iProfilesize)
+    {                                  /* store as global */
+      if (iRawlen == 0)                /* empty chunk ? */
+      {
+        if (pData->pGlobalProfile)     /* did we have a global profile ? */
+          MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+
+        pData->iGlobalProfilesize = 0; /* reset to null */
+        pData->pGlobalProfile     = MNG_NULL; 
+      }
+      else
+      {                                /* allocate a global buffer & copy it */
+        MNG_ALLOC (pData, pData->pGlobalProfile, iProfilesize)
+        MNG_COPY  (pData->pGlobalProfile, pBuf, iProfilesize)
                                        /* store it's length as well */
-      pData->iGlobalProfilesize = iProfilesize;
-    }
+        pData->iGlobalProfilesize = iProfilesize;
+      }
 
                                        /* create an animation object */
-    iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
-                                pData->iGlobalProfilesize,
-                                pData->pGlobalProfile);
+      iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
+                                  pData->iGlobalProfilesize,
+                                  pData->pGlobalProfile);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
-#endif /* MNG_SUPPORT_DISPLAY */  
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+#endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
-  if (pData->bStorechunks)
-  {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    if (pData->bStorechunks)
+    {                                  /* initialize storage */
+      iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
-    if (iRetcode)                      /* on error bail out */
-    {
-      MNG_FREE (pData, pBuf, iBufsize) /* don't forget to drop the temp buffer */
-      return iRetcode;
-    }
+      if (iRetcode)                    /* on error bail out */
+      {                                /* don't forget to drop the temp buffer */
+        MNG_FREEX (pData, pBuf, iBufsize)
+        return iRetcode;
+      }
                                        /* store the fields */
-    ((mng_iccpp)*ppChunk)->bEmpty = (mng_bool)(iRawlen == 0);
+      ((mng_iccpp)*ppChunk)->bEmpty = (mng_bool)(iRawlen == 0);
 
-    if (iRawlen)                       /* not empty ? */
-    {
-      if (!pBuf)                       /* hasn't been unpuzzled it yet ? */
+      if (iRawlen)                     /* not empty ? */
       {
-        pTemp = find_null (pRawdata);  /* find null-separator */
+        if (!pBuf)                     /* hasn't been unpuzzled it yet ? */
+        {                              /* find null-separator */
+          pTemp = find_null (pRawdata);
                                        /* not found inside input-data ? */
-        if ((pTemp - pRawdata) > (mng_int32)iRawlen)
-          MNG_ERROR (pData, MNG_NULLNOTFOUND)
+          if ((pTemp - pRawdata) > (mng_int32)iRawlen)
+            MNG_ERROR (pData, MNG_NULLNOTFOUND)
                                        /* determine size of compressed profile */
-        iCompressedsize = iRawlen - (pTemp - pRawdata) - 2;
+          iCompressedsize = iRawlen - (pTemp - pRawdata) - 2;
                                        /* decompress the profile */
-        iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
-                                   &pBuf, &iBufsize, &iProfilesize);
+          iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
+                                     &pBuf, &iBufsize, &iProfilesize);
 
-        if (iRetcode)                  /* on error bail out */
-        {                              /* don't forget to drop the temp buffer */
-          MNG_FREE (pData, pBuf, iBufsize)
-          return iRetcode;
+          if (iRetcode)                /* on error bail out */
+          {                            /* don't forget to drop the temp buffer */
+            MNG_FREEX (pData, pBuf, iBufsize)
+            return iRetcode;
+          }
         }
+
+        ((mng_iccpp)*ppChunk)->iNamesize = (mng_uint32)(pTemp - pRawdata);
+
+        if (((mng_iccpp)*ppChunk)->iNamesize)
+        {
+          MNG_ALLOC (pData, ((mng_iccpp)*ppChunk)->zName,
+                            ((mng_iccpp)*ppChunk)->iNamesize + 1)
+          MNG_COPY  (((mng_iccpp)*ppChunk)->zName, pRawdata,
+                     ((mng_iccpp)*ppChunk)->iNamesize)
+        }
+
+        ((mng_iccpp)*ppChunk)->iCompression = *(pTemp+1);
+        ((mng_iccpp)*ppChunk)->iProfilesize = iProfilesize;
+
+        MNG_ALLOC (pData, ((mng_iccpp)*ppChunk)->pProfile, iProfilesize)
+        MNG_COPY  (((mng_iccpp)*ppChunk)->pProfile, pBuf, iProfilesize)
       }
-
-      ((mng_iccpp)*ppChunk)->iNamesize = (mng_uint32)(pTemp - pRawdata);
-
-      if (((mng_iccpp)*ppChunk)->iNamesize)
-      {
-        MNG_ALLOC (pData, ((mng_iccpp)*ppChunk)->zName,
-                          ((mng_iccpp)*ppChunk)->iNamesize + 1)
-        MNG_COPY  (((mng_iccpp)*ppChunk)->zName, pRawdata,
-                   ((mng_iccpp)*ppChunk)->iNamesize)
-      }
-
-      ((mng_iccpp)*ppChunk)->iCompression = *(pTemp+1);
-      ((mng_iccpp)*ppChunk)->iProfilesize = iProfilesize;
-
-      MNG_ALLOC (pData, ((mng_iccpp)*ppChunk)->pProfile, iProfilesize)
-      MNG_COPY  (((mng_iccpp)*ppChunk)->pProfile, pBuf, iProfilesize)
     }
-  }
 #endif /* MNG_STORE_CHUNKS */
 
-  if (pBuf)
-    MNG_FREE (pData, pBuf, iBufsize)   /* free the temporary buffer */
+    if (pBuf)                          /* free the temporary buffer */
+      MNG_FREEX (pData, pBuf, iBufsize)
+
+#ifdef MNG_CHECK_BAD_ICCP
+  }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_ICCP, MNG_LC_END)
@@ -2836,7 +2866,11 @@ READ_CHUNK (read_mhdr)
     pData->bPreDraft48  = MNG_TRUE;
   }
 
-  if (pData->iSimplicity & 0x0000FFC0) /* can we handle the complexity ? */
+#ifdef MNG_INCLUDE_JNG                 /* can we handle the complexity ? */
+  if (pData->iSimplicity & 0x0000FFC0)
+#else
+  if (pData->iSimplicity & 0x0000FFD0)
+#endif
     MNG_ERROR (pData, MNG_MNGTOOCOMPLEX)
                                        /* fits on maximum canvas ? */
   if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))

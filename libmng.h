@@ -181,6 +181,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/09/2000 - G.Juyn                                * */
 /* *             - added check for simplicity-bits in MHDR                  * */
+/* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
+/* *             - added workaround for faulty PhotoShop iCCP chunk         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -196,6 +198,8 @@
 #include "libmng_conf.h"               /* user-specific configuration options */
 
 /* ************************************************************************** */
+
+#define MNG_CHECK_BAD_ICCP             /* let's catch that sucker !!! */
 
 #ifdef MNG_SUPPORT_READ                /* dependencies based on user-configuration */
 #define MNG_INCLUDE_READ_PROCS

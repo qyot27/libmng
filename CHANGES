@@ -17,6 +17,7 @@ bugfixes:
 core:
 - fixed compiler-warnings from Mozilla               
 - added check for simplicity-bits in MHDR                 
+- added workaround for faulty PhotoShop iCCP chunk      
 
 samples:
 

@@ -143,8 +143,8 @@ libmng_chunk_prc.o libmng_chunk_prc.pic.o: libmng_chunk_prc.c libmng.h libmng_co
     libmng_error.h libmng_trace.h
 libmng_chunk_io.o libmng_chunk_io.pic.o: libmng_chunk_io.c libmng.h libmng_conf.h \
     libmng_types.h libmng_data.h libmng_objects.h libmng_object_prc.h \
-    libmng_chunks.h libmng_chunk_io.h libmng_memory.h libmng_error.h libmng_trace.h \
-    libmng_display.h libmng_zlib.h libmng_pixels.h
+    libmng_chunks.h libmng_chunk_io.h libmng_chunk_prc.h libmng_memory.h libmng_error.h \
+    libmng_trace.h libmng_display.h libmng_zlib.h libmng_pixels.h
 libmng_error.o libmng_error.pic.o: libmng_error.c libmng.h libmng_conf.h libmng_types.h \
 	libmng_data.h libmng_error.h libmng_trace.h
 libmng_trace.o libmng_trace.pic.o: libmng_trace.c libmng.h libmng_conf.h libmng_types.h \
