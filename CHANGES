@@ -1,5 +1,29 @@
 -----------------------------------------------------------
 
+0.9.4 (xxxx nnth 2000)
+----------------------
+
+in short:
+
+intermediate for now
+
+-------------------
+
+bugfixes:
+
+core:
+
+samples:
+
+contrib:
+- added GTK mng-view example by Vova Babin
+
+doc:
+
+makefiles:
+
+-----------------------------------------------------------
+
 0.9.3 (October 29th 2000)
 -------------------------
 

@@ -38,3 +38,13 @@ detailed information of the contents of any MNG file.
 Requires libmng.dll
 
 ----------------------------------------------------------------------
+
+mng-view - A GTK-based MNG viewer - by Vova Babin
+
+Vova has been hacking away with the libmng code and has come up with
+this nice little sample how to write a MNG viewer using GTK.
+Thanks mate!
+Source-code only
+Requires GTK+ (1.2 or higher) and libmng (0.9.2 or higher)
+
+----------------------------------------------------------------------
