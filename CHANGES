@@ -16,7 +16,8 @@ core:
 - fixed possible loop in display_resume() (Thanks Vova!)
 - fixed unwanted repetition in mng_readdisplay()
 - changed inclusion of the lcms header file for non-windows platforms
-
+- by default configure includes CMS support if lcms is present
+ 
 samples:
 
 contrib:

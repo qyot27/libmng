@@ -89,13 +89,13 @@ AC_DEFINE(MNG_ERROR_TELLTALE)
 dnl The libraries libz and libpng are required.
 AC_ARG_WITH(png,
 [  --with-png[=DIR]        use png include/library files in DIR],[
-  if test -x "$withval"; then
+  if test -d "$withval"; then
     CPPFLAGS="$CPPFLAGS -I$withval/include"
     LDFLAGS="$LDFLAGS -L$withval/lib"
   fi
 ])
 AC_CHECK_HEADER(png.h,
-    AC_CHECK_LIB(png, png_check_sig, [],
+    AC_CHECK_LIB(png, png_check_sig, [LIBS="$LIBS -lpng"],
         AC_MSG_ERROR(png library not found)),
     AC_MSG_ERROR(png library header not found)
 )
@@ -114,7 +114,9 @@ AC_CHECK_HEADER(zlib.h,
 
 dnl check for jpeg library
 AC_ARG_WITH(jpeg,
-[  --with-jpeg[=DIR]       use jpeg include/library files in DIR], [
+[  --with-jpeg[=DIR]       use jpeg include/library files in DIR],
+[with_jpeg=$withval],[with_jpeg=auto])
+
   if test "$withval" != "no" -a "$withval" != "yes"; then
     # Save in case test with directory specified fails
     _cppflags=${CPPFLAGS}
@@ -126,19 +128,18 @@ AC_ARG_WITH(jpeg,
   fi
 
   AC_CHECK_HEADER(jpeglib.h,
-    AC_CHECK_LIB(jpeg, jpeg_read_header, [
-      LIBS="$LIBS -ljpeg"], [
-      test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-      AC_MSG_WARN(jpeg library not found)]),
-    test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
+    AC_CHECK_LIB(jpeg, jpeg_read_header, [LIBS="$LIBS -ljpeg"],
+      AC_MSG_WARN(jpeg library not found)),
     AC_MSG_WARN(jpeg header not found)
   )
-])
+
+  test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
 
 dnl check for lcms library
 AC_ARG_WITH(lcms,
 [  --with-lcms[=DIR]       use lcms include/library files in DIR], 
-[
+[with_lcms=$withval],[with_lcms=auto])
+
   if test "$withval" != "no" -a "$withval" != "yes"; then
     # Save in case test with directory specified fails
     _cppflags=$CPPFLAGS
@@ -151,18 +152,19 @@ AC_ARG_WITH(lcms,
     _restore=0
   fi
 
-  AC_CHECK_HEADER(lcms/lcms.h,
-    AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
-      LIBS="$LIBS -llcms"
-      dnl for now this implies MNG_INCLUDE_LCMS in the headers:
-      AC_DEFINE(MNG_FULL_CMS)
-    ],[
-      AC_MSG_WARN([lcms not found...disabling])
-      _restore=1
-    ])
-  )
+  if test "x$with_lcms" != "xno"; then
+    AC_CHECK_HEADER(lcms/lcms.h,
+      AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
+        LIBS="$LIBS -llcms"
+        dnl for now this implies MNG_INCLUDE_LCMS in the headers:
+        AC_DEFINE(MNG_FULL_CMS)
+      ],[
+        AC_MSG_WARN([lcms not found...disabling])
+        _restore=1
+      ])
+    )
+  fi
 
   test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-])
 
 AC_OUTPUT(Makefile)
