@@ -441,9 +441,11 @@ mng_retcode display_rgba8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - (mng_uint16)((0xFFFF - iFGa16) * (0xFFFF - iBGa16)));
+                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
+                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
                 iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - iFGa16) * iBGa16 / iCa16);
+                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
+                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
                 iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
                 iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
                 iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
@@ -487,9 +489,11 @@ mng_retcode display_rgba8 (mng_datap pData)
               }
               else
               {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - (mng_uint8)((0xFF - iFGa8) * (0xFF - iBGa8)));
+                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
+                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
                 iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - iFGa8) * iBGa8 / iCa8);
+                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
+                                   (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
                 iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*pScanline    ));
                 iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+1)));
                 iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*(pScanline+2)));
@@ -638,9 +642,11 @@ mng_retcode display_argb8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - (mng_uint16)((0xFFFF - iFGa16) * (0xFFFF - iBGa16)));
+                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
+                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
                 iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - iFGa16) * iBGa16 / iCa16);
+                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
+                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
                 iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
                 iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
                 iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
@@ -684,9 +690,11 @@ mng_retcode display_argb8 (mng_datap pData)
               }
               else
               {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - (mng_uint8)((0xFF - iFGa8) * (0xFF - iBGa8)));
+                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
+                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
                 iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - iFGa8) * iBGa8 / iCa8);
+                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
+                                   (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
                 iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*(pScanline+1)));
                 iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+2)));
                 iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*(pScanline+3)));
@@ -842,9 +850,11 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - (mng_uint16)((0xFFFF - iFGa16) * (0xFFFF - iBGa16)));
+                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
+                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
                 iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - iFGa16) * iBGa16 / iCa16);
+                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
+                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
                 iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
                 iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
                 iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
@@ -889,9 +899,11 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
               }
               else
               {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - (mng_uint8)((0xFF - iFGa8) * (0xFF - iBGa8)));
+                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
+                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
                 iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - iFGa8) * iBGa8 / iCa8);
+                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
+                                   (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
                 iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*pScanline    ));
                 iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+1)));
                 iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*(pScanline+2)));
@@ -1178,9 +1190,11 @@ mng_retcode display_bgra8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - (mng_uint16)((0xFFFF - iFGa16) * (0xFFFF - iBGa16)));
+                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
+                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
                 iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - iFGa16) * iBGa16 / iCa16);
+                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
+                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
                 iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
                 iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
                 iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
@@ -1224,9 +1238,11 @@ mng_retcode display_bgra8 (mng_datap pData)
               }
               else
               {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - (mng_uint8)((0xFF - iFGa8) * (0xFF - iBGa8)));
+                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
+                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
                 iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - iFGa8) * iBGa8 / iCa8);
+                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
+                                           (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
                 iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*(pScanline+2)));
                 iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+1)));
                 iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*pScanline    ));
@@ -1374,9 +1390,11 @@ mng_retcode display_abgr8 (mng_datap pData)
                 iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
                                        /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - (mng_uint16)((0xFFFF - iFGa16) * (0xFFFF - iBGa16)));
+                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
+                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
                 iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - iFGa16) * iBGa16 / iCa16);
+                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
+                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
                 iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
                 iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
                 iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
@@ -1420,9 +1438,11 @@ mng_retcode display_abgr8 (mng_datap pData)
               }
               else
               {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - (mng_uint8)((0xFF - iFGa8) * (0xFF - iBGa8)));
+                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
+                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
                 iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - iFGa8) * iBGa8 / iCa8);
+                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
+                                   (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
                 iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*(pScanline+3)));
                 iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+2)));
                 iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*(pScanline+1)));
