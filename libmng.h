@@ -280,6 +280,9 @@
 /* *             1.0.8 - 06/05/2004 - G.R-P                                 * */
 /* *             - define MNG_INCLUDE_ZLIB when MNG_USE_ZLIB_CRC is defined * */
 /* *                                                                        * */
+/* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
+/* *             - added function to retrieve current FRAM delay            * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -422,7 +425,7 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.9"
+#define MNG_VERSION_TEXT    "1.0.9-cvs"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
@@ -1262,6 +1265,14 @@ MNG_EXT mng_retcode MNG_DECL mng_get_lastbackchunk   (mng_handle        hHandle,
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_retcode MNG_DECL mng_get_lastseekname    (mng_handle        hHandle,
                                                       mng_pchar         zSegmentname);
+#endif
+
+/* FRAM info */
+/* can be used to retrieve the current FRAM delay; this may be useful when
+   retrieving a stream of frames with their corresponding delays by "fake"
+   reading and displaying the file */
+#ifdef MNG_SUPPORT_DISPLAY
+MNG_EXT mng_uint32 MNG_DECL mng_get_currframdelay    (mng_handle        hHandle);
 #endif
 
 /* Display status variables */

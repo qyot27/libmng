@@ -96,7 +96,7 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
-/* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
+/* *             1.0.7 - 03/07/2004 - G.R-P.                                * */
 /* *             - put gamma, cms-related functions inside #ifdef           * */
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
@@ -104,6 +104,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/18/2004 - G.R-P.                                * */
 /* *             - added some MNG_SUPPORT_WRITE conditionals                * */
+/* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
+/* *             - added function to retrieve current FRAM delay            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2373,6 +2375,35 @@ mng_retcode MNG_DECL mng_get_lastseekname (mng_handle hHandle,
 #endif
 
   return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_currframdelay (mng_handle hHandle)
+{
+  mng_datap  pData;
+  mng_uint32 iRslt;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRFRAMDELAY, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+
+  pData = (mng_datap)hHandle;
+                                       /* only allowed for MNG ! */
+  if (pData->eImagetype != mng_it_mng)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
+  iRslt = pData->iFramedelay;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRFRAMDELAY, MNG_LC_END)
+#endif
+
+  return iRslt;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
 

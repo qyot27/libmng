@@ -3180,7 +3180,7 @@ mng_retcode mng_process_display_mend (mng_datap pData)
   }
 #endif
 
-#ifdef MNG_SKIPCHUNK_TERM
+#ifndef MNG_SKIPCHUNK_TERM
                                        /* TERM processed ? */
   if ((pData->bDisplaying) && (pData->bRunning) &&
       (pData->bHasTERM) && (pData->pTermaniobj))

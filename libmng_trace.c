@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.c            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -142,6 +142,9 @@
 /* *             - added CRC existence & checking flags                     * */
 /* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
+/* *             - added function to retrieve current FRAM delay            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -374,6 +377,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_TOTALPLAYTIME,         "get_totalplaytime"},
 #endif
     {MNG_FN_GET_CRCMODE,               "get_crcmode"},
+    {MNG_FN_GET_CURRFRAMDELAY,         "get_currframdelay"},
 
     {MNG_FN_STATUS_ERROR,              "status_error"},
     {MNG_FN_STATUS_READING,            "status_reading"},

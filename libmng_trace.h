@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.h            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -145,6 +145,9 @@
 /* *             - added CRC existence & checking flags                     * */
 /* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
+/* *             - added function to retrieve current FRAM delay            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -380,6 +383,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_TOTALLAYERS        459
 #define MNG_FN_GET_TOTALPLAYTIME      460
 #define MNG_FN_GET_CRCMODE            461
+#define MNG_FN_GET_CURRFRAMDELAY      462
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482

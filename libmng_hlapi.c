@@ -183,6 +183,8 @@
 /* *             - added more SKIPCHUNK conditionals                        * */
 /* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
+/* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
+/* *             - added function to retrieve current FRAM delay            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -656,6 +658,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_currentlayer",       1, 0, 0},
     {"mng_get_currentplaytime",    1, 0, 0},
 #endif
+    {"mng_get_currframdelay",      1, 0, 9},
 #ifndef MNG_NO_DFLT_INFO
     {"mng_get_dfltimggamma",       1, 0, 0},
     {"mng_get_dfltimggammaint",    1, 0, 0},

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
