@@ -216,6 +216,8 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
+/* *             1.0.9 - 12/07/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -413,12 +415,12 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 /* ************************************************************************** */
 
 #if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || !defined(MNG_SKIPCHUNK_iTXt)
-MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
-                                      mng_uint8p pInbuf,
-                                      mng_uint32 iInsize,
-                                      mng_uint8p *pOutbuf,
-                                      mng_uint32 *iOutsize,
-                                      mng_uint32 *iRealsize)
+mng_retcode mng_inflate_buffer (mng_datap  pData,
+                                mng_uint8p pInbuf,
+                                mng_uint32 iInsize,
+                                mng_uint8p *pOutbuf,
+                                mng_uint32 *iOutsize,
+                                mng_uint32 *iRealsize)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -647,6 +649,350 @@ MNG_LOCAL mng_retcode write_raw_chunk (mng_datap   pData,
 
 /* ************************************************************************** */
 
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+
+/* ************************************************************************** */
+
+mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
+                                            mng_chunkp      pHeader,
+                                            mng_uint32      iRawlen,
+                                            mng_uint8p      pRawdata,
+                                            mng_field_descp pField,
+                                            mng_uint16      iFields,
+                                            mng_chunkp*     ppChunk,
+                                            mng_bool        bWorkcopy)
+{
+  mng_field_descp pTempfield  = pField;
+  mng_uint16      iFieldcount = iFields;
+  mng_uint8p      pTempdata   = pRawdata;
+  mng_uint32      iTemplen    = iRawlen;
+  mng_uint8       iLastgroup  = 0;
+  mng_uint8p      pChunkdata;
+  mng_uint32      iDatalen;
+  mng_uint8       iColortype;
+  mng_bool        bProcess;
+                                       /* initialize storage */
+  mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  if ((((mng_chunk_headerp)pHeader)->iChunkname != MNG_UINT_IDAT) || (!bWorkcopy))
+  {
+    pChunkdata = (mng_uint8p)(*ppChunk);
+
+#ifdef MNG_INCLUDE_JNG                 /* determine current colortype */
+    if (pData->bHasJHDR)
+      iColortype = (mng_uint8)(pData->iJHDRcolortype - 8);
+    else
+#endif /* MNG_INCLUDE_JNG */
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
+      iColortype = pData->iColortype;
+    else
+      iColortype = 6;
+
+    if (iTemplen)                      /* not empty ? */
+    {                                  /* then go fill the fields */
+      while ((iFieldcount) && (iTemplen))
+      {
+        if (pTempfield->iOffsetchunk)
+        {
+          if (pTempfield->iFlags & MNG_FIELD_PUTIMGTYPE)
+          {
+            *(pChunkdata+pTempfield->iOffsetchunk) = iColortype;
+            bProcess = MNG_FALSE;
+          }
+          else
+          if (pTempfield->iFlags & MNG_FIELD_IFIMGTYPES)
+            bProcess = (mng_bool)(((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE0) && (iColortype == 0)) ||
+                                  ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE2) && (iColortype == 2)) ||
+                                  ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE3) && (iColortype == 3)) ||
+                                  ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE4) && (iColortype == 4)) ||
+                                  ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE6) && (iColortype == 6))   );
+          else
+            bProcess = MNG_TRUE;
+
+          if (bProcess)
+          {
+            iLastgroup = pTempfield->iGroupid;
+                                      /* numeric field ? */
+            if (pTempfield->eFieldtype == mng_field_int)
+            {
+              if (iTemplen < pTempfield->iLengthmax)
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+              switch (pTempfield->iLengthmax)
+              {
+                case 1 : { mng_uint8 iNum = *pTempdata;
+                           if (((mng_uint32)iNum < pTempfield->iMinvalue) || ((mng_uint32)iNum > pTempfield->iMaxvalue))
+                             MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
+                           *(pChunkdata+pTempfield->iOffsetchunk) = iNum;
+                           break; }
+                case 2 : { mng_uint16 iNum = mng_get_uint16 (pTempdata);
+                           if (((mng_uint32)iNum < pTempfield->iMinvalue) || ((mng_uint32)iNum > pTempfield->iMaxvalue))
+                             MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
+                           *((mng_uint16p)(pChunkdata+pTempfield->iOffsetchunk)) = iNum;
+                           break; }
+                case 4 : { mng_uint32 iNum = mng_get_uint32 (pTempdata);
+                           if ((iNum < pTempfield->iMinvalue) || (iNum > pTempfield->iMaxvalue))
+                             MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
+                           *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk)) = iNum;
+                           break; }
+                case 8 : { *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk  )) = mng_get_uint32 (pTempdata+4);
+                           *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk+4)) = mng_get_uint32 (pTempdata);
+                           break; }
+              }
+
+              pTempdata += pTempfield->iLengthmax;
+              iTemplen  -= pTempfield->iLengthmax;
+
+            } else {                   /* not numeric so it's a bunch of bytes */
+
+              if (!pTempfield->iOffsetchunklen)    /* big fat NONO */
+                MNG_ERROR (pData, MNG_INTERNALERROR)
+                                       /* with terminating 0 ? */
+              if (pTempfield->iFlags & MNG_FIELD_TERMINATOR)
+              {
+                mng_uint8p pWork = pTempdata;
+                while (*pWork)         /* find the zero */
+                  pWork++;
+                iDatalen = (mng_uint32)(pWork - pTempdata);
+              } else {                 /* no terminator, so everything that's left ! */
+                iDatalen = iTemplen;
+              }
+
+              if ((pTempfield->iLengthmax) && (iDatalen > pTempfield->iLengthmax))
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                                       /* needs decompression ? */
+              if (pTempfield->iFlags & MNG_FIELD_DEFLATED)
+              {
+                mng_uint8p pBuf = 0;
+                mng_uint32 iBufsize = 0;
+                mng_uint32 iRealsize;
+                mng_ptr    pWork;
+
+                iRetcode = mng_inflate_buffer (pData, pTempdata, iDatalen,
+                                               &pBuf, &iBufsize, &iRealsize);
+
+#ifdef MNG_CHECK_BAD_ICCP              /* Check for bad iCCP chunk */
+                if ((iRetcode) && (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_iCCP))
+                {
+                  *((mng_ptr *)(pChunkdata+pTempfield->iOffsetchunk))      = MNG_NULL;
+                  *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunklen)) = iDatalen;
+                }
+                else
+#endif
+                {
+                  if (iRetcode)
+                    return iRetcode;
+                                       /* don't forget to generate null terminator */
+                  MNG_ALLOC (pData, pWork, iRealsize+1)
+                  MNG_COPY (pWork, pBuf, iRealsize)
+
+                  *((mng_ptr *)(pChunkdata+pTempfield->iOffsetchunk))      = pWork;
+                  *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunklen)) = iRealsize;
+                }
+
+                if (pBuf)              /* free the temporary buffer */
+                  MNG_FREEX (pData, pBuf, iBufsize)
+
+              } else {                 /* no decompression, so just copy */
+
+                mng_ptr pWork;
+                                       /* don't forget to generate null terminator */
+                MNG_ALLOC (pData, pWork, iDatalen+1)
+                MNG_COPY (pWork, pTempdata, iDatalen)
+
+                *((mng_ptr *)(pChunkdata+pTempfield->iOffsetchunk))      = pWork;
+                *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunklen)) = iDatalen;
+              }
+
+              if (pTempfield->iFlags & MNG_FIELD_TERMINATOR)
+                iDatalen++;            /* skip the terminating zero as well !!! */
+
+              iTemplen  -= iDatalen;
+              pTempdata += iDatalen;
+            }
+                                       /* need to set an indicator ? */
+            if (pTempfield->iOffsetchunkind)
+              *((mng_uint8p)(pChunkdata+pTempfield->iOffsetchunkind)) = MNG_TRUE;
+          }
+        }
+
+        pTempfield++;                  /* Neeeeeeexxxtt */
+        iFieldcount--;
+      }
+
+      if (iTemplen)                    /* extra data ??? */
+        MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+      while (iFieldcount)              /* not enough data ??? */
+      {
+        if (pTempfield->iFlags & MNG_FIELD_IFIMGTYPES)
+          bProcess = (mng_bool)(((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE0) && (iColortype == 0)) ||
+                                ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE2) && (iColortype == 2)) ||
+                                ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE3) && (iColortype == 3)) ||
+                                ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE4) && (iColortype == 4)) ||
+                                ((pTempfield->iFlags & MNG_FIELD_IFIMGTYPE6) && (iColortype == 6))   );
+        else
+          bProcess = MNG_TRUE;
+
+        if (bProcess)
+        {
+          if (!(pTempfield->iFlags & MNG_FIELD_OPTIONAL))
+            MNG_ERROR (pData, MNG_INVALIDLENGTH)
+          if ((pTempfield->iGroupid) && (pTempfield->iGroupid = iLastgroup))
+            MNG_ERROR (pData, MNG_INVALIDLENGTH)
+        }
+
+        pTempfield++;
+        iFieldcount--;
+      }
+    }
+  }
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+READ_CHUNK (mng_read_general)
+{
+  mng_chunk_descp pDescr  = ((mng_chunk_headerp)pHeader)->pChunkdescr;
+  mng_field_descp pField  = pDescr->pFielddesc;
+  mng_uint16      iFields = pDescr->iFielddesc;
+  mng_retcode     iRetcode;
+
+  if (!pDescr)                         /* this is a bad booboo !!! */
+    MNG_ERROR (pData, MNG_INTERNALERROR)
+                                       /* check chunk against signature */
+  if ((pDescr->eImgtype == mng_it_mng) && (pData->eSigtype != mng_it_mng))
+    MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
+  else
+  if ((pDescr->eImgtype == mng_it_jng) && (pData->eSigtype == mng_it_png))
+    MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
+                                       /* empties allowed ? */
+  if ((iRawlen == 0) && (!(pDescr->iAllowed & MNG_DESCR_EMPTY)))
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+  if ((pData->eImagetype != mng_it_mng) || (!(pDescr->iAllowed & MNG_DESCR_GLOBAL)))
+  {                                    /* *a* header required ? */
+    if ((pDescr->iMusthaves & MNG_DESCR_GenHDR) &&
+#ifdef MNG_INCLUDE_JNG
+        (!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR) && (!pData->bHasJHDR))
+#else
+        (!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR))
+#endif
+      MNG_ERROR (pData, MNG_SEQUENCEERROR)
+  }
+                                       /* specific chunk pre-requisite ? */
+  if (((pDescr->iMusthaves & MNG_DESCR_IHDR) && (!pData->bHasIHDR)) ||
+#ifdef MNG_INCLUDE_JNG
+      ((pDescr->iMusthaves & MNG_DESCR_JHDR) && (!pData->bHasJHDR)) ||
+#endif
+      ((pDescr->iMusthaves & MNG_DESCR_DHDR) && (!pData->bHasDHDR)) ||
+      ((pDescr->iMusthaves & MNG_DESCR_LOOP) && (!pData->bHasLOOP)) ||
+      ((pDescr->iMusthaves & MNG_DESCR_PLTE) && (!pData->bHasPLTE)) ||
+      ((pDescr->iMusthaves & MNG_DESCR_MHDR) && (!pData->bHasMHDR)) ||
+      ((pDescr->iMusthaves & MNG_DESCR_SAVE) && (!pData->bHasSAVE))   )
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* specific chunk undesired ? */
+  if (((pDescr->iMustNOThaves & MNG_DESCR_NOIHDR) && (pData->bHasIHDR)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOBASI) && (pData->bHasBASI)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NODHDR) && (pData->bHasDHDR)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOIDAT) && (pData->bHasIDAT)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOPLTE) && (pData->bHasPLTE)) ||
+#ifdef MNG_INCLUDE_JNG
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOJHDR) && (pData->bHasJHDR)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOJDAT) && (pData->bHasJDAT)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOJDAA) && (pData->bHasJDAA)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOJSEP) && (pData->bHasJSEP)) ||
+#endif
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOMHDR) && (pData->bHasMHDR)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOLOOP) && (pData->bHasLOOP)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOTERM) && (pData->bHasTERM))   )
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  if (pData->eSigtype == mng_it_mng)   /* check global and embedded empty chunks */  
+  {
+#ifdef MNG_INCLUDE_JNG
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
+#else
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
+#endif
+    {
+      if ((iRawlen == 0) && (!(pDescr->iAllowed & MNG_DESCR_EMPTYEMBED)))
+        MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    } else {
+      if ((iRawlen == 0) && (!(pDescr->iAllowed & MNG_DESCR_EMPTYGLOBAL)))
+        MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    }
+  }
+
+  if (pDescr->pSpecialfunc)            /* need special processing ? */
+  {
+    iRetcode = create_chunk_storage (pData, pHeader, iRawlen, pRawdata,
+                                     pField, iFields, ppChunk, MNG_TRUE);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* empty indicator ? */
+    if ((!iRawlen) && (pDescr->iOffsetempty))
+      *(((mng_uint8p)*ppChunk)+pDescr->iOffsetempty) = MNG_TRUE;
+
+    iRetcode = pDescr->pSpecialfunc(pData, *ppChunk);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
+    {
+      iRetcode = ((mng_chunk_headerp)*ppChunk)->fCleanup (pData, *ppChunk);
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+      *ppChunk = MNG_NULL;
+    } else {
+#ifdef MNG_STORE_CHUNKS
+      if (!pData->bStorechunks)
+#endif
+      {
+        iRetcode = ((mng_chunk_headerp)*ppChunk)->fCleanup (pData, *ppChunk);
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+        *ppChunk = MNG_NULL;
+      }
+    }
+  }
+
+#ifdef MNG_SUPPORT_DISPLAY
+  if ((((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT) && (iRawlen))
+  {                                    /* display processing */
+    iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_STORE_CHUNKS
+  if ((pData->bStorechunks) && (!(*ppChunk)))
+  {
+    iRetcode = create_chunk_storage (pData, pHeader, iRawlen, pRawdata,
+                                     pField, iFields, ppChunk, MNG_FALSE);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* empty indicator ? */
+    if ((!iRawlen) && (pDescr->iOffsetempty))
+      *(((mng_uint8p)*ppChunk)+pDescr->iOffsetempty) = MNG_TRUE;
+  }
+#endif /* MNG_STORE_CHUNKS */
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
+
+/* ************************************************************************** */
+
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_ihdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -676,7 +1022,7 @@ READ_CHUNK (mng_read_ihdr)
     pData->iDatawidth  = mng_get_uint32 (pRawdata);
     pData->iDataheight = mng_get_uint32 (pRawdata+4);
   }
-  
+
   pData->iBitdepth     = *(pRawdata+8);
   pData->iColortype    = *(pRawdata+9);
   pData->iCompression  = *(pRawdata+10);
@@ -832,6 +1178,7 @@ READ_CHUNK (mng_read_ihdr)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
 
 /* ************************************************************************** */
 
@@ -1015,6 +1362,7 @@ READ_CHUNK (mng_read_plte)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_idat)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1085,9 +1433,11 @@ READ_CHUNK (mng_read_idat)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_iend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1147,7 +1497,7 @@ READ_CHUNK (mng_read_iend)
     pData->bHasIDAT         = MNG_FALSE;
 #ifdef MNG_SUPPORT_DISPLAY
   }
-#endif  
+#endif
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
@@ -1165,6 +1515,7 @@ READ_CHUNK (mng_read_iend)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1453,6 +1804,7 @@ READ_CHUNK (mng_read_trns)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_gama)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1565,9 +1917,11 @@ READ_CHUNK (mng_read_gama)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_cHRM
 READ_CHUNK (mng_read_chrm)
 {
@@ -1726,7 +2080,7 @@ READ_CHUNK (mng_read_chrm)
       ((mng_chrmp)*ppChunk)->iGreeny      = mng_get_uint32 (pRawdata+20);
       ((mng_chrmp)*ppChunk)->iBluex       = mng_get_uint32 (pRawdata+24);
       ((mng_chrmp)*ppChunk)->iBluey       = mng_get_uint32 (pRawdata+28);
-    }  
+    }
   }
 #endif /* MNG_STORE_CHUNKS */
 
@@ -1737,9 +2091,11 @@ READ_CHUNK (mng_read_chrm)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_srgb)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1852,9 +2208,11 @@ READ_CHUNK (mng_read_srgb)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_iCCP
 READ_CHUNK (mng_read_iccp)
 {
@@ -1907,8 +2265,8 @@ READ_CHUNK (mng_read_iccp)
                                        /* determine size of compressed profile */
   iCompressedsize = (mng_uint32)(iRawlen - (pTemp - pRawdata) - 2);
                                        /* decompress the profile */
-  iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
-                             &pBuf, &iBufsize, &iProfilesize);
+  iRetcode = mng_inflate_buffer (pData, pTemp+2, iCompressedsize,
+                                 &pBuf, &iBufsize, &iProfilesize);
 
 #ifdef MNG_CHECK_BAD_ICCP              /* Check for bad iCCP chunk */
   if ((iRetcode) && (!strncmp ((char *)pRawdata, "Photoshop ICC profile", 21)))
@@ -2043,8 +2401,8 @@ READ_CHUNK (mng_read_iccp)
                                        /* determine size of compressed profile */
           iCompressedsize = iRawlen - (pTemp - pRawdata) - 2;
                                        /* decompress the profile */
-          iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
-                                     &pBuf, &iBufsize, &iProfilesize);
+          iRetcode = mng_inflate_buffer (pData, pTemp+2, iCompressedsize,
+                                         &pBuf, &iBufsize, &iProfilesize);
 
           if (iRetcode)                /* on error bail out */
           {                            /* don't forget to drop the temp buffer */
@@ -2086,9 +2444,11 @@ READ_CHUNK (mng_read_iccp)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_tEXt
 READ_CHUNK (mng_read_text)
 {
@@ -2183,9 +2543,11 @@ READ_CHUNK (mng_read_text)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_zTXt
 READ_CHUNK (mng_read_ztxt)
 {
@@ -2232,8 +2594,8 @@ READ_CHUNK (mng_read_ztxt)
 
   if (pData->fProcesstext)             /* inform the application ? */
   {                                    /* decompress the text */
-    iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
-                               &pBuf, &iBufsize, &iTextlen);
+    iRetcode = mng_inflate_buffer (pData, pTemp+2, iCompressedsize,
+                                   &pBuf, &iBufsize, &iTextlen);
 
     if (iRetcode)                      /* on error bail out */
     {                                  /* don't forget to drop the temp buffers */
@@ -2276,8 +2638,8 @@ READ_CHUNK (mng_read_ztxt)
 
     if ((!pBuf) && (iCompressedsize))  /* did we not get a text-buffer yet ? */
     {                                  /* decompress the text */
-      iRetcode = inflate_buffer (pData, pTemp+2, iCompressedsize,
-                                 &pBuf, &iBufsize, &iTextlen);
+      iRetcode = mng_inflate_buffer (pData, pTemp+2, iCompressedsize,
+                                     &pBuf, &iBufsize, &iTextlen);
 
       if (iRetcode)                    /* on error bail out */
       {                                /* don't forget to drop the temp buffers */
@@ -2326,9 +2688,11 @@ READ_CHUNK (mng_read_ztxt)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_iTXt
 READ_CHUNK (mng_read_itxt)
 {
@@ -2391,8 +2755,8 @@ READ_CHUNK (mng_read_itxt)
   {
     if (iCompressionflag)              /* decompress the text ? */
     {
-      iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
-                                 &pBuf, &iBufsize, &iTextlen);
+      iRetcode = mng_inflate_buffer (pData, pNull3+1, iCompressedsize,
+                                     &pBuf, &iBufsize, &iTextlen);
 
       if (iRetcode)                    /* on error bail out */
       {                                /* don't forget to drop the temp buffer */
@@ -2462,8 +2826,8 @@ READ_CHUNK (mng_read_itxt)
     {
       if (iCompressionflag)            /* decompress the text ? */
       {
-        iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
-                                   &pBuf, &iBufsize, &iTextlen);
+        iRetcode = mng_inflate_buffer (pData, pNull3+1, iCompressedsize,
+                                       &pBuf, &iBufsize, &iTextlen);
 
         if (iRetcode)                  /* on error bail out */
         {                              /* don't forget to drop the temp buffers */
@@ -2535,9 +2899,11 @@ READ_CHUNK (mng_read_itxt)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_bKGD
 READ_CHUNK (mng_read_bkgd)
 {
@@ -2723,9 +3089,11 @@ READ_CHUNK (mng_read_bkgd)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_pHYs
 READ_CHUNK (mng_read_phys)
 {
@@ -2909,6 +3277,7 @@ READ_CHUNK (mng_read_sbit)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
@@ -3069,6 +3438,7 @@ READ_CHUNK (mng_read_hist)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_tIME
 READ_CHUNK (mng_read_time)
 {
@@ -3118,9 +3488,11 @@ READ_CHUNK (mng_read_time)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_mhdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3229,9 +3601,11 @@ READ_CHUNK (mng_read_mhdr)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_mend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3278,6 +3652,7 @@ READ_CHUNK (mng_read_mend)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3449,6 +3824,7 @@ READ_CHUNK (mng_read_loop)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_LOOP
 READ_CHUNK (mng_read_endl)
 {
@@ -3514,9 +3890,11 @@ READ_CHUNK (mng_read_endl)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_DEFI
 READ_CHUNK (mng_read_defi)
 {
@@ -3663,9 +4041,11 @@ READ_CHUNK (mng_read_defi)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_BASI
 READ_CHUNK (mng_read_basi)
 {
@@ -3851,9 +4231,13 @@ READ_CHUNK (mng_read_basi)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
+#ifndef MNG_SKIPCHUNK_CLON
 READ_CHUNK (mng_read_clon)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3966,6 +4350,7 @@ READ_CHUNK (mng_read_clon)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -4189,6 +4574,7 @@ READ_CHUNK (mng_read_disc)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_BACK
 READ_CHUNK (mng_read_back)
 {
@@ -4272,6 +4658,7 @@ READ_CHUNK (mng_read_back)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -4543,6 +4930,7 @@ READ_CHUNK (mng_read_fram)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_MOVE
 READ_CHUNK (mng_read_move)
 {
@@ -4610,9 +4998,11 @@ READ_CHUNK (mng_read_move)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_CLIP
 READ_CHUNK (mng_read_clip)
 {
@@ -4686,9 +5076,11 @@ READ_CHUNK (mng_read_clip)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_SHOW
 READ_CHUNK (mng_read_show)
 {
@@ -4778,9 +5170,11 @@ READ_CHUNK (mng_read_show)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_TERM
 READ_CHUNK (mng_read_term)
 {
@@ -4869,6 +5263,7 @@ READ_CHUNK (mng_read_term)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -5086,6 +5481,7 @@ READ_CHUNK (mng_read_save)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_SEEK
 READ_CHUNK (mng_read_seek)
 {
@@ -5164,6 +5560,7 @@ READ_CHUNK (mng_read_seek)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */

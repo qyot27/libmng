@@ -398,7 +398,7 @@ typedef enum mng_speedtypes mng_speedtype;
 
 #ifdef MNG_OPTIMIZE_CHUNKREADER
                                        /* enumeration object-creation indicators */
-enum mng_createobjtypes {mng_create_always, mng_create_ifglobal};
+enum mng_createobjtypes {mng_create_none, mng_create_always, mng_create_ifglobal};
 typedef enum mng_createobjtypes mng_createobjtype;
 
                                        /* enumeration field types */

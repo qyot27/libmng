@@ -85,53 +85,86 @@
 
 #ifdef MNG_OPTIMIZE_CHUNKREADER
 
+typedef mng_retcode (*mng_f_specialfunc)  (mng_datap  pData,
+                                           mng_chunkp pChunk,
+                                           mng_uint32 iRawlen,
+                                           mng_uint8p pRawdata);
+                                           
+typedef mng_retcode (*mng_c_specialfunc)  (mng_datap  pData,
+                                           mng_chunkp pChunk);
+
+#define MNG_FIELD_OPTIONAL    0x0001
+#define MNG_FIELD_TERMINATOR  0x0002
+#define MNG_FIELD_REPETITIVE  0x0004
+#define MNG_FIELD_DEFLATED    0x0008
+#define MNG_FIELD_PUTIMGTYPE  0x0010
+#define MNG_FIELD_IFIMGTYPES  0x1F00   /* image-type mask */ 
+#define MNG_FIELD_IFIMGTYPE0  0x0100
+#define MNG_FIELD_IFIMGTYPE2  0x0200
+#define MNG_FIELD_IFIMGTYPE3  0x0400
+#define MNG_FIELD_IFIMGTYPE4  0x0800
+#define MNG_FIELD_IFIMGTYPE6  0x1000
+
 typedef struct {                       /* chunk-field descriptor */
            mng_fieldtype     eFieldtype;
-           mng_ptr           pSpecialfunc;
-           mng_ptr           aAllowedvalues;
-           mng_int32         iOffsetchunk;
-           mng_int32         iOffsetchunkind;
-           mng_int32         iOffsetobject;
-           mng_int32         iOffsetobjectind;
-           mng_int32         iOffsetglobal;
-           mng_int32         iOffsetglobalind;
+           mng_f_specialfunc pSpecialfunc;
+           mng_uint16        iOffsetchunk;
+           mng_uint16        iOffsetobject;
+           mng_uint16        iOffsetchunkind;
+           mng_uint16        iOffsetobjectind;
+           mng_uint16        iOffsetchunklen;
+           mng_uint16        iOffsetobjectlen;
+           mng_uint32        iMinvalue;
+           mng_uint32        iMaxvalue;
            mng_uint16        iLengthmin;
            mng_uint16        iLengthmax;
-           mng_uint16        iMinvalue;
-           mng_uint16        iMaxvalue;
+           mng_uint16        iFlags;
+           mng_uint16        iMaxrepeat;
            mng_uint8         iGroupid;
            mng_uint8         iValidatesgroup;
-           mng_bool          bOptional;
-           mng_bool          bTerminatorzero;
-           mng_bool          bRepetitive;
-           mng_bool          bDeflated;
         } mng_field_descriptor;
 typedef mng_field_descriptor * mng_field_descp;
+
+#define MNG_DESCR_GLOBAL      0x0001
+#define MNG_DESCR_EMPTY       0x0002
+#define MNG_DESCR_EMPTYEMBED  0x0004
+#define MNG_DESCR_EMPTYGLOBAL 0x0008
+
+#define MNG_DESCR_GenHDR      0x0001   /* IHDR/JHDR/BASI/DHDR */
+#define MNG_DESCR_MHDR        0x0002
+#define MNG_DESCR_IHDR        0x0004
+#define MNG_DESCR_JHDR        0x0008
+#define MNG_DESCR_DHDR        0x0010
+#define MNG_DESCR_LOOP        0x0020
+#define MNG_DESCR_PLTE        0x0040
+#define MNG_DESCR_SAVE        0x0080
+
+#define MNG_DESCR_NOIHDR      0x0001
+#define MNG_DESCR_NOJHDR      0x0002
+#define MNG_DESCR_NOBASI      0x0004
+#define MNG_DESCR_NODHDR      0x0008
+#define MNG_DESCR_NOIDAT      0x0010
+#define MNG_DESCR_NOJDAT      0x0020
+#define MNG_DESCR_NOJDAA      0x0040
+#define MNG_DESCR_NOPLTE      0x0080
+#define MNG_DESCR_NOJSEP      0x0100
+#define MNG_DESCR_NOMHDR      0x0200
+#define MNG_DESCR_NOTERM      0x0400
+#define MNG_DESCR_NOLOOP      0x0800
 
 typedef struct {                       /* chunk descriptor */
            mng_imgtype       eImgtype;
            mng_createobjtype eCreateobject;
-           mng_size_t        iObjsize;
+           mng_uint16        iObjsize;
+           mng_uint16        iOffsetempty;
            mng_ptr           pObjcleanup;
            mng_ptr           pObjprocess;
-           mng_ptr           pSpecialfunc;
-           mng_field_descp   pFirstfielddesc;
-           mng_field_descp   pLastfielddesc;
-           mng_bool          bAllowglobal;
-           mng_bool          bAllowempty;
-           mng_bool          bAllowglobalempty;
-           mng_bool          bMusthaveImghdr;    /* IHDR/JHDR/BASI/DHDR */
-           mng_bool          bMusthaveIHDR;
-           mng_bool          bMusthaveJHDR;
-           mng_bool          bMusthaveDHDR;
-           mng_bool          bMusthaveLOOP;
-           mng_bool          bMustNOThaveIHDR;
-           mng_bool          bMustNOThaveJHDR;
-           mng_bool          bMustNOThaveBASI;
-           mng_bool          bMustNOThaveDHDR;
-           mng_bool          bMustNOThaveIDAT;
-           mng_bool          bMustNOThaveJDAT;
-           mng_bool          bMustNOThaveJDAA;
+           mng_c_specialfunc pSpecialfunc;
+           mng_field_descp   pFielddesc;
+           mng_uint16        iFielddesc;
+           mng_uint16        iAllowed;
+           mng_uint16        iMusthaves;
+           mng_uint16        iMustNOThaves;
         } mng_chunk_descriptor;
 typedef mng_chunk_descriptor * mng_chunk_descp;
 
@@ -172,6 +205,9 @@ typedef struct {                       /* generic header */
            mng_chunkp        pPrev;
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
            mng_size_t        iChunksize;
+#endif
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_chunk_descp   pChunkdescr;
 #endif
         } mng_chunk_header;
 typedef mng_chunk_header * mng_chunk_headerp;
@@ -493,6 +529,9 @@ typedef struct {                       /* BASI */
            mng_uint16        iBlue;
            mng_uint16        iAlpha;
            mng_uint8         iViewable;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_bool          bHasalpha;
+#endif
         } mng_basi;
 typedef mng_basi * mng_basip;
 
@@ -509,6 +548,9 @@ typedef struct {                       /* CLON */
            mng_uint8         iLocationtype;
            mng_int32         iLocationx;
            mng_int32         iLocationy;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_bool          bHasdonotshow;
+#endif
         } mng_clon;
 typedef mng_clon * mng_clonp;
 
@@ -622,6 +664,9 @@ typedef struct {                       /* SHOW */
            mng_uint16        iFirstid;
            mng_uint16        iLastid;
            mng_uint8         iMode;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_bool          bHaslastid;
+#endif
         } mng_show;
 typedef mng_show * mng_showp;
 

@@ -6788,3 +6788,5 @@ mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle hHandle,
 /* * end of file                                                            * */
 /* ************************************************************************** */
 
+
+
