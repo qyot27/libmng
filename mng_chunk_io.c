@@ -42,6 +42,12 @@
 /* *             - added TERM animation object pointer (easier reference)   * */
 /* *             - supplemented the SAVE & SEEK display processing          * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
+/* *             - B004 - fixed problem with MNG_SUPPORT_WRITE not defined  * */
+/* *               also for MNG_SUPPORT_WRITE without MNG_SUPPORT_JNG       * */
+/* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
+/* *             - Cleaned up some code regarding mixed support             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -209,6 +215,10 @@ void mng_put_uint16 (mng_uint8p pBuf,
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_READ_PROCS
+
+/* ************************************************************************** */
+
 mng_uint8p find_null (mng_uint8p pIn)
 {
   mng_uint8p pOut = pIn;
@@ -283,9 +293,17 @@ mng_retcode inflate_buffer (mng_datap  pData,
 }
 
 /* ************************************************************************** */
+
+#endif /* MNG_INCLUDE_READ_PROCS */
+
+/* ************************************************************************** */
 /* *                                                                        * */
 /* * Helper routines to simplify chunk writing                              * */
 /* *                                                                        * */
+/* ************************************************************************** */
+/* B004 */
+#ifdef MNG_INCLUDE_WRITE_PROCS
+/* B004 */
 /* ************************************************************************** */
 
 mng_retcode deflate_buffer (mng_datap  pData,
@@ -411,6 +429,10 @@ mng_retcode write_raw_chunk (mng_datap   pData,
   return MNG_NOERROR;
 }
 
+/* ************************************************************************** */
+/* B004 */
+#endif /* MNG_INCLUDE_WRITE_PROCS */
+/* B004 */
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * chunk read functions                                                   * */
@@ -545,9 +567,6 @@ READ_CHUNK (read_ihdr)
 
 READ_CHUNK (read_plte)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
 #if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
   mng_uint32  iX;
   mng_uint8p  pRawdata2;
@@ -665,7 +684,7 @@ READ_CHUNK (read_plte)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -696,10 +715,6 @@ READ_CHUNK (read_plte)
 
 READ_CHUNK (read_idat)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IDAT, MNG_LC_START);
 #endif
@@ -730,7 +745,7 @@ READ_CHUNK (read_idat)
   {
     if (pData->bRunning)               /* running animation ? */
     {                                  /* display processing for non-empty chunks */
-      iRetcode = process_display_idat (pData, iRawlen, pRawdata);
+      mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
 
       if (iRetcode)                      /* on error bail out */
         return iRetcode;
@@ -741,7 +756,7 @@ READ_CHUNK (read_idat)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -768,10 +783,6 @@ READ_CHUNK (read_idat)
 
 READ_CHUNK (read_iend)
 {
-#if defined (MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IEND, MNG_LC_START);
 #endif
@@ -792,7 +803,9 @@ READ_CHUNK (read_iend)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
-  {                                    /* save object for animation later ? */
+  {
+    mng_retcode iRetcode = MNG_NOERROR;
+                                       /* save object for animation later ? */
     if ((pData->bHasLOOP) || (pData->bHasTERM))
     {
       mng_ani_imagep pImage;           /* create an animation object then */
@@ -827,7 +840,7 @@ READ_CHUNK (read_iend)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -845,10 +858,6 @@ READ_CHUNK (read_iend)
 
 READ_CHUNK (read_trns)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TRNS, MNG_LC_START);
 #endif
@@ -984,7 +993,7 @@ READ_CHUNK (read_trns)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1043,10 +1052,6 @@ READ_CHUNK (read_trns)
 
 READ_CHUNK (read_gama)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_GAMA, MNG_LC_START);
 #endif
@@ -1116,7 +1121,7 @@ READ_CHUNK (read_gama)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1140,10 +1145,6 @@ READ_CHUNK (read_gama)
 
 READ_CHUNK (read_chrm)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CHRM, MNG_LC_START);
 #endif
@@ -1232,7 +1233,7 @@ READ_CHUNK (read_chrm)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1264,10 +1265,6 @@ READ_CHUNK (read_chrm)
 
 READ_CHUNK (read_srgb)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SRGB, MNG_LC_START);
 #endif
@@ -1337,7 +1334,7 @@ READ_CHUNK (read_srgb)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1536,10 +1533,6 @@ READ_CHUNK (read_iccp)
 
 READ_CHUNK (read_text)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
   mng_uint32 iKeywordlen, iTextlen;
   mng_pchar  zKeyword, zText;
   mng_uint8p pTemp;
@@ -1602,7 +1595,7 @@ READ_CHUNK (read_text)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1963,9 +1956,6 @@ READ_CHUNK (read_bkgd)
   mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
   mng_imagedatap pBuf;
 #endif
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_BKGD, MNG_LC_START);
@@ -2092,7 +2082,7 @@ READ_CHUNK (read_bkgd)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2137,10 +2127,6 @@ READ_CHUNK (read_bkgd)
 
 READ_CHUNK (read_phys)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PHYS, MNG_LC_START);
 #endif
@@ -2178,7 +2164,7 @@ READ_CHUNK (read_phys)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2205,10 +2191,6 @@ READ_CHUNK (read_phys)
 
 READ_CHUNK (read_sbit)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SBIT, MNG_LC_START);
 #endif
@@ -2286,7 +2268,7 @@ READ_CHUNK (read_sbit)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2333,9 +2315,6 @@ READ_CHUNK (read_splt)
   mng_uint32 iNamelen;
   mng_uint8  iSampledepth;
   mng_uint32 iRemain;
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SPLT, MNG_LC_START);
@@ -2382,7 +2361,7 @@ READ_CHUNK (read_splt)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2425,10 +2404,6 @@ READ_CHUNK (read_splt)
 
 READ_CHUNK (read_hist)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_HIST, MNG_LC_START);
 #endif
@@ -2458,7 +2433,7 @@ READ_CHUNK (read_hist)
   {
     mng_uint32 iX;
                                        /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2484,10 +2459,6 @@ READ_CHUNK (read_hist)
 
 READ_CHUNK (read_time)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TIME, MNG_LC_START);
 #endif
@@ -2513,7 +2484,7 @@ READ_CHUNK (read_time)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2538,10 +2509,6 @@ READ_CHUNK (read_time)
 
 READ_CHUNK (read_mhdr)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MHDR, MNG_LC_START);
 #endif
@@ -2591,7 +2558,7 @@ READ_CHUNK (read_mhdr)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2617,10 +2584,6 @@ READ_CHUNK (read_mhdr)
 
 READ_CHUNK (read_mend)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MEND, MNG_LC_START);
 #endif
@@ -2636,7 +2599,7 @@ READ_CHUNK (read_mend)
   {
     if (pData->bRunning)
     {                                  /* do something */
-      iRetcode = process_display_mend (pData);
+      mng_retcode iRetcode = process_display_mend (pData);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2649,7 +2612,7 @@ READ_CHUNK (read_mend)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2667,10 +2630,6 @@ READ_CHUNK (read_mend)
 
 READ_CHUNK (read_loop)
 {
-#if defined(MNG_STORE_CHUNKS) || defined (MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_LOOP, MNG_LC_START);
 #endif
@@ -2705,6 +2664,7 @@ READ_CHUNK (read_loop)
     mng_uint32    iItermin     = 1;
     mng_uint32    iItermax     = 0x7fffffffL;
     mng_ani_loopp pLOOP;
+    mng_retcode   iRetcode;
 
     pData->bHasLOOP = MNG_TRUE;        /* indicate we're inside a loop */
 
@@ -2749,7 +2709,7 @@ READ_CHUNK (read_loop)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2822,10 +2782,6 @@ READ_CHUNK (read_loop)
 
 READ_CHUNK (read_endl)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_ENDL, MNG_LC_START);
 #endif
@@ -2851,7 +2807,7 @@ READ_CHUNK (read_endl)
       mng_uint8     iLevel = *pRawdata;
       mng_ani_endlp pENDL;
                                        /* create an ENDL animation object */
-      iRetcode = create_ani_endl (pData, iLevel, &pENDL);
+      mng_retcode iRetcode = create_ani_endl (pData, iLevel, &pENDL);
                                        /* still oke ? then process it */
       if ((!iRetcode) && (pData->bRunning))
         iRetcode = pENDL->sHeader.fProcess (pData, pENDL);
@@ -2871,7 +2827,7 @@ READ_CHUNK (read_endl)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2891,10 +2847,6 @@ READ_CHUNK (read_endl)
 
 READ_CHUNK (read_defi)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DEFI, MNG_LC_START);
 #endif
@@ -2916,6 +2868,8 @@ READ_CHUNK (read_defi)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
+    mng_retcode iRetcode = MNG_NOERROR;
+
     pData->iDEFIobjectid    = mng_get_uint16 (pRawdata);
 
     if (iRawlen > 2)
@@ -2966,7 +2920,7 @@ READ_CHUNK (read_defi)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3013,10 +2967,6 @@ READ_CHUNK (read_defi)
 
 READ_CHUNK (read_basi)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_BASI, MNG_LC_START);
 #endif
@@ -3080,12 +3030,13 @@ READ_CHUNK (read_basi)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    mng_uint16 iRed      = 0;
-    mng_uint16 iGreen    = 0;
-    mng_uint16 iBlue     = 0;
-    mng_bool   bHasalpha = MNG_FALSE;
-    mng_uint16 iAlpha    = 0xFFFF;
-    mng_uint8  iViewable = 0;
+    mng_uint16  iRed      = 0;
+    mng_uint16  iGreen    = 0;
+    mng_uint16  iBlue     = 0;
+    mng_bool    bHasalpha = MNG_FALSE;
+    mng_uint16  iAlpha    = 0xFFFF;
+    mng_uint8   iViewable = 0;
+    mng_retcode iRetcode  = MNG_NOERROR;
 
     if (iRawlen > 13)                  /* get remaining fields, if any */
     {
@@ -3122,7 +3073,7 @@ READ_CHUNK (read_basi)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3162,10 +3113,6 @@ READ_CHUNK (read_basi)
 
 READ_CHUNK (read_clon)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CLON, MNG_LC_START);
 #endif
@@ -3187,15 +3134,16 @@ READ_CHUNK (read_clon)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    mng_uint16 iSourceid, iCloneid;
-    mng_uint8  iClonetype    = 0;
-    mng_bool   bHasdonotshow = MNG_FALSE;
-    mng_uint8  iDonotshow    = 0;
-    mng_uint8  iConcrete     = 0;
-    mng_bool   bHasloca      = MNG_FALSE;
-    mng_uint8  iLocationtype = 0;
-    mng_int32  iLocationx    = 0;
-    mng_int32  iLocationy    = 0;
+    mng_uint16  iSourceid, iCloneid;
+    mng_uint8   iClonetype    = 0;
+    mng_bool    bHasdonotshow = MNG_FALSE;
+    mng_uint8   iDonotshow    = 0;
+    mng_uint8   iConcrete     = 0;
+    mng_bool    bHasloca      = MNG_FALSE;
+    mng_uint8   iLocationtype = 0;
+    mng_int32   iLocationx    = 0;
+    mng_int32   iLocationy    = 0;
+    mng_retcode iRetcode      = MNG_NOERROR;
 
     iSourceid       = mng_get_uint16 (pRawdata);
     iCloneid        = mng_get_uint16 (pRawdata+2);
@@ -3242,7 +3190,7 @@ READ_CHUNK (read_clon)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3286,10 +3234,6 @@ READ_CHUNK (read_past)
 {
   mng_uint32 iCount;
 
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PAST, MNG_LC_START);
 #endif
@@ -3327,7 +3271,7 @@ READ_CHUNK (read_past)
     mng_uint32       iX;
     mng_past_sourcep pSource;
                                        /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3375,10 +3319,6 @@ READ_CHUNK (read_past)
 
 READ_CHUNK (read_disc)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DISC, MNG_LC_START);
 #endif
@@ -3413,7 +3353,7 @@ READ_CHUNK (read_disc)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3451,10 +3391,6 @@ READ_CHUNK (read_disc)
 
 READ_CHUNK (read_back)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_BACK, MNG_LC_START);
 #endif
@@ -3498,10 +3434,10 @@ READ_CHUNK (read_back)
     if ((pData->bHasLOOP) || (pData->bHasTERM))
     {
       mng_ani_backp pBACK;             /* create an animation object */
-      iRetcode = create_ani_back (pData, pData->iBACKred, pData->iBACKgreen,
-                                  pData->iBACKblue, pData->iBACKmandatory,
-                                  pData->iBACKimageid, pData->iBACKtile,
-                                  &pBACK);
+      mng_retcode iRetcode = create_ani_back (pData, pData->iBACKred, pData->iBACKgreen,
+                                              pData->iBACKblue, pData->iBACKmandatory,
+                                              pData->iBACKimageid, pData->iBACKtile,
+                                              &pBACK);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -3512,7 +3448,7 @@ READ_CHUNK (read_back)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3799,10 +3735,6 @@ READ_CHUNK (read_fram)
 
 READ_CHUNK (read_move)
 {
-#if defined(MNG_STORE_CHUNKS) || defined (MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MOVE, MNG_LC_START);
 #endif
@@ -3822,7 +3754,9 @@ READ_CHUNK (read_move)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
-  {                                    /* are we processing a loop/term ? */
+  {
+    mng_retcode iRetcode = MNG_NOERROR;
+                                       /* are we processing a loop/term ? */
     if ((pData->bHasLOOP) || (pData->bHasTERM))
     {
       mng_ani_movep pMOVE;
@@ -3851,7 +3785,7 @@ READ_CHUNK (read_move)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3875,10 +3809,6 @@ READ_CHUNK (read_move)
 
 READ_CHUNK (read_clip)
 {
-#if defined(MNG_STORE_CHUNKS) || defined (MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CLIP, MNG_LC_START);
 #endif
@@ -3898,7 +3828,9 @@ READ_CHUNK (read_clip)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
-  {                                    /* are we processing a loop/term ? */
+  {
+    mng_retcode iRetcode = MNG_NOERROR;
+                                       /* are we processing a loop/term ? */
     if ((pData->bHasLOOP) || (pData->bHasTERM))
     {
       mng_ani_clipp pCLIP;
@@ -3931,7 +3863,7 @@ READ_CHUNK (read_clip)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3957,10 +3889,6 @@ READ_CHUNK (read_clip)
 
 READ_CHUNK (read_show)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode = MNG_NOERROR;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SHOW, MNG_LC_START);
 #endif
@@ -3981,6 +3909,8 @@ READ_CHUNK (read_show)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
+    mng_retcode iRetcode = MNG_NOERROR;
+
     if (iRawlen)                       /* determine parameters if any */
     {
       pData->iSHOWfromid = mng_get_uint16 (pRawdata);
@@ -4021,7 +3951,7 @@ READ_CHUNK (read_show)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4052,10 +3982,6 @@ READ_CHUNK (read_show)
 
 READ_CHUNK (read_term)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TERM, MNG_LC_START);
 #endif
@@ -4092,6 +4018,7 @@ READ_CHUNK (read_term)
     mng_uint32    iDelay      = 0;
     mng_uint32    iItermax    = 0;
     mng_ani_termp pTERM;
+    mng_retcode   iRetcode;
 
     iTermaction = *pRawdata;           /* get the fields */
 
@@ -4115,7 +4042,7 @@ READ_CHUNK (read_term)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4142,10 +4069,6 @@ READ_CHUNK (read_term)
 
 READ_CHUNK (read_save)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SAVE, MNG_LC_START);
 #endif
@@ -4165,6 +4088,8 @@ READ_CHUNK (read_save)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
+    mng_retcode iRetcode;
+
 
     /* TODO: something with the parameters */
 
@@ -4179,7 +4104,7 @@ READ_CHUNK (read_save)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4343,10 +4268,6 @@ READ_CHUNK (read_save)
 
 READ_CHUNK (read_seek)
 {
-#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SEEK, MNG_LC_START);
 #endif
@@ -4364,6 +4285,8 @@ READ_CHUNK (read_seek)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
+    mng_retcode iRetcode;
+
 
     /* TODO: something with the parameters */
 
@@ -4378,7 +4301,7 @@ READ_CHUNK (read_seek)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4404,10 +4327,6 @@ READ_CHUNK (read_seek)
 
 READ_CHUNK (read_expi)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_EXPI, MNG_LC_START);
 #endif
@@ -4439,7 +4358,7 @@ READ_CHUNK (read_expi)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4468,10 +4387,6 @@ READ_CHUNK (read_expi)
 
 READ_CHUNK (read_fpri)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_FPRI, MNG_LC_START);
 #endif
@@ -4503,7 +4418,7 @@ READ_CHUNK (read_fpri)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4524,10 +4439,6 @@ READ_CHUNK (read_fpri)
 
 READ_CHUNK (read_need)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_NEED, MNG_LC_START);
 #endif
@@ -4559,7 +4470,7 @@ READ_CHUNK (read_need)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4585,10 +4496,6 @@ READ_CHUNK (read_need)
 
 READ_CHUNK (read_phyg)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PHYG, MNG_LC_START);
 #endif
@@ -4620,7 +4527,7 @@ READ_CHUNK (read_phyg)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4648,10 +4555,6 @@ READ_CHUNK (read_phyg)
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (read_jhdr)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JHDR, MNG_LC_START);
 #endif
@@ -4818,7 +4721,7 @@ READ_CHUNK (read_jhdr)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4849,10 +4752,6 @@ READ_CHUNK (read_jhdr)
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (read_jdat)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAT, MNG_LC_START);
 #endif
@@ -4879,7 +4778,7 @@ READ_CHUNK (read_jdat)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4908,10 +4807,6 @@ READ_CHUNK (read_jdat)
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (read_jsep)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JSEP, MNG_LC_START);
 #endif
@@ -4927,7 +4822,7 @@ READ_CHUNK (read_jsep)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4948,10 +4843,6 @@ READ_CHUNK (read_jsep)
 READ_CHUNK (read_dhdr)
 {
   mng_uint8 iImagetype, iDeltatype;
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DHDR, MNG_LC_START);
 #endif
@@ -5006,8 +4897,8 @@ READ_CHUNK (read_dhdr)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
-                                                                  
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* store the fields */
@@ -5040,10 +4931,6 @@ READ_CHUNK (read_dhdr)
 
 READ_CHUNK (read_prom)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PROM, MNG_LC_START);
 #endif
@@ -5068,7 +4955,7 @@ READ_CHUNK (read_prom)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5090,10 +4977,6 @@ READ_CHUNK (read_prom)
 
 READ_CHUNK (read_ipng)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IPNG, MNG_LC_START);
 #endif
@@ -5118,7 +5001,7 @@ READ_CHUNK (read_ipng)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5140,9 +5023,6 @@ READ_CHUNK (read_pplt)
   mng_uint8p pTemp;
   mng_uint32 iLen;
   mng_uint8  iX, iM;
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PPLT, MNG_LC_START);
@@ -5207,7 +5087,7 @@ READ_CHUNK (read_pplt)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5287,10 +5167,6 @@ READ_CHUNK (read_pplt)
 
 READ_CHUNK (read_ijng)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IJNG, MNG_LC_START);
 #endif
@@ -5315,7 +5191,7 @@ READ_CHUNK (read_ijng)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5333,10 +5209,6 @@ READ_CHUNK (read_ijng)
 
 READ_CHUNK (read_drop)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DROP, MNG_LC_START);
 #endif
@@ -5361,7 +5233,7 @@ READ_CHUNK (read_drop)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5400,10 +5272,6 @@ READ_CHUNK (read_drop)
 
 READ_CHUNK (read_dbyk)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DBYK, MNG_LC_START);
 #endif
@@ -5428,7 +5296,7 @@ READ_CHUNK (read_dbyk)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5456,10 +5324,6 @@ READ_CHUNK (read_dbyk)
 
 READ_CHUNK (read_ordr)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_ORDR, MNG_LC_START);
 #endif
@@ -5484,7 +5348,7 @@ READ_CHUNK (read_ordr)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5524,10 +5388,6 @@ READ_CHUNK (read_ordr)
 
 READ_CHUNK (read_unknown)
 {
-#ifdef MNG_STORE_CHUNKS
-  mng_retcode iRetcode;
-#endif
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_UNKNOWN, MNG_LC_START);
 #endif
@@ -5544,7 +5404,7 @@ READ_CHUNK (read_unknown)
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
-    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -7488,6 +7348,9 @@ WRITE_CHUNK (write_phyg)
 
 /* ************************************************************************** */
 
+/* B004 */
+#ifdef MNG_INCLUDE_JNG
+/* B004 */
 WRITE_CHUNK (write_jhdr)
 {
   mng_jhdrp   pJHDR;
@@ -7523,9 +7386,15 @@ WRITE_CHUNK (write_jhdr)
 
   return iRetcode;
 }
+/* B004 */
+#endif /* MNG_INCLUDE_JNG */
+/* B004 */
 
 /* ************************************************************************** */
 
+/* B004 */
+#ifdef MNG_INCLUDE_JNG
+/* B004 */
 WRITE_CHUNK (write_jdat)
 {
   mng_jdatp   pJDAT;
@@ -7549,9 +7418,15 @@ WRITE_CHUNK (write_jdat)
 
   return iRetcode;
 }
+/* B004 */
+#endif /* MNG_INCLUDE_JNG */
+/* B004 */
 
 /* ************************************************************************** */
 
+/* B004 */
+#ifdef MNG_INCLUDE_JNG
+/* B004 */
 WRITE_CHUNK (write_jsep)
 {
   mng_jsepp   pJSEP;
@@ -7571,6 +7446,9 @@ WRITE_CHUNK (write_jsep)
 
   return iRetcode;
 }
+/* B004 */
+#endif /* MNG_INCLUDE_JNG */
+/* B004 */
 
 /* ************************************************************************** */
 

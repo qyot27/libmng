@@ -31,6 +31,10 @@
 /* *             - moved standard header includes into this file            * */
 /* *               (stdlib/mem for mem-mngmt & math for fp gamma-calc)      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/18/2000 - G.Juyn                                * */
+/* *             - B003 - fixed problem with <mem.h> being proprietary      * */
+/* *               to Borland platform                                      * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #ifndef _mng_types_h_
@@ -79,7 +83,13 @@
 #include <stdlib.h>                    /* "calloc" & "free" */
 #endif
 
-#include <mem.h>                       /* defines "memcpy" */
+/* B003 */
+#if defined __BORLANDC__
+#include <mem.h>                       /* defines "memcpy" for BCB */
+#else
+#include <memory.h>                    /* defines "memcpy" for other platforms */
+#endif
+/* B003 */
 
 #if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY)
 #include <math.h>                      /* fp gamma-calculation */

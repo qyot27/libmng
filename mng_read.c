@@ -22,6 +22,9 @@
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
+/* *             - Cleaned up some code regarding mixed support             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -209,6 +212,7 @@ mng_retcode read_chunk (mng_datap  pData)
   MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START);
 #endif
 
+#ifdef MNG_SUPPORT_DISPLAY
   if (pData->pCurraniobj)              /* processing an animation object ? */
   {
     do                                 /* process it then */
@@ -244,9 +248,15 @@ mng_retcode read_chunk (mng_datap  pData)
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
+
+#endif /* MNG_SUPPORT_DISPLAY */
                                        /* can we continue processing now, or do we */
                                        /* need to wait for the timer to finish (again) ? */
+#ifdef MNG_SUPPORT_DISPLAY
   if ((!pData->bTimerset) && (!pData->bEOF))
+#else
+  if (!pData->bEOF)
+#endif
   {
     iBuflen = sizeof (iChunklen);      /* read length */
 

@@ -37,6 +37,9 @@
 /* *             - moved the actual write_graphic functionality from here   * */
 /* *               to it's appropriate function in the mng_write module     * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
+/* *             - Cleaned up some code regarding mixed support             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -402,10 +405,12 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #ifdef MNG_INCLUDE_ZLIB
   if (pData->bInflating)               /* if we've been inflating */
   {
+#ifdef MNG_INCLUDE_DISPLAY_PROCS
     cleanup_rowproc (pData);           /* cleanup row-processing, */
+#endif
     mngzlib_inflatefree (pData);       /* cleanup inflate! */
   }
-#endif /* MNG_SUPPORT_DISPLAY */
+#endif /* MNG_INCLUDE_ZLIB */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
   mng_drop_chunks  (pData);            /* drop stored chunks (if any) */
@@ -731,10 +736,12 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
 #ifdef MNG_INCLUDE_ZLIB
   if (pData->bInflating)               /* if we've been inflating */
   {
+#ifdef MNG_INCLUDE_DISPLAY_PROCS
     cleanup_rowproc (pData);           /* cleanup row-processing, */
+#endif    
     mngzlib_inflatefree (pData);       /* cleanup inflate! */
   }
-#endif /* MNG_SUPPORT_DISPLAY */
+#endif /* MNG_INCLUDE_ZLIB */
 
 #ifdef MNG_INCLUDE_ZLIB
   mngzlib_cleanup (pData);             /* cleanup zlib stuff */

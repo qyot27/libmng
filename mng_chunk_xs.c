@@ -29,6 +29,11 @@
 /* *             0.5.1 - 05/15/2000 - G.Juyn                                * */
 /* *             - added getimgdata & putimgdata functions                  * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
+/* *             - B004 - fixed problem with MNG_SUPPORT_WRITE not defined  * */
+/* *               also for MNG_SUPPORT_WRITE without MNG_SUPPORT_JNG       * */
+/* *             - Cleaned up some code regarding mixed support             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -1607,7 +1612,9 @@ mng_retcode MNG_DECL mng_getchunk_phyg (mng_handle hHandle,
 }
 
 /* ************************************************************************** */
-
+/* B004 */
+#ifdef MNG_SUPPORT_JNG
+/* B004 */
 mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iWidth,
@@ -1652,9 +1659,13 @@ mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-
+/* B004 */
+#endif /* MNG_SUPPORT_JNG */
+/* B004 */
 /* ************************************************************************** */
-
+/* B004 */
+#ifdef MNG_SUPPORT_JNG
+/* B004 */
 mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iRawlen,
@@ -1683,7 +1694,9 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-
+/* B004 */
+#endif /* MNG_SUPPORT_JNG */
+/* B004 */
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
@@ -1998,6 +2011,10 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
 }
 
 /* ************************************************************************** */
+/* ************************************************************************** */
+/* B004 */
+#ifdef MNG_INCLUDE_WRITE_PROCS
+/* B004 */
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
@@ -4127,7 +4144,9 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
 }
 
 /* ************************************************************************** */
-
+/* B004 */
+#ifdef MNG_SUPPORT_JNG
+/* B004 */
 mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
                                         mng_uint32 iWidth,
                                         mng_uint32 iHeight,
@@ -4183,9 +4202,13 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-
+/* B004 */
+#endif /* MNG_SUPPORT_JNG */
+/* B004 */
 /* ************************************************************************** */
-
+/* B004 */
+#ifdef MNG_SUPPORT_JNG
+/* B004 */
 mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
                                         mng_uint32 iRawlen,
                                         mng_ptr    pRawdata)
@@ -4231,9 +4254,13 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-
+/* B004 */
+#endif /*  MNG_SUPPORT_JNG */
+/* B004 */
 /* ************************************************************************** */
-
+/* B004 */
+#ifdef MNG_SUPPORT_JNG
+/* B004 */
 mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 {
   mng_datap        pData;
@@ -4269,7 +4296,9 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 
   return MNG_NOERROR;
 }
-
+/* B004 */
+#endif /* MNG_SUPPORT_JNG */
+/* B004 */
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
@@ -4767,6 +4796,10 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
 }
 
 /* ************************************************************************** */
+/* B004 */
+#endif /* MNG_INCLUDE_WRITE_PROCS */
+/* B004 */
+/* ************************************************************************** */
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_getimgdata_seq (mng_handle        hHandle,
@@ -4829,6 +4862,10 @@ mng_retcode MNG_DECL mng_getimgdata_chunk (mng_handle        hHandle,
 
 /* ************************************************************************** */
 /* ************************************************************************** */
+/* B004 */
+#ifdef MNG_INCLUDE_WRITE_PROCS
+/* B004 */
+/* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putimgdata_ihdr (mng_handle        hHandle,
                                           mng_uint32        iWidth,
@@ -4883,6 +4920,10 @@ mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
   return MNG_NOERROR;
 }
 
+/* ************************************************************************** */
+/* B004 */
+#endif /* MNG_INCLUDE_WRITE_PROCS */
+/* B004 */
 /* ************************************************************************** */
 
 #endif /* MNG_ACCESS_CHUNKS */

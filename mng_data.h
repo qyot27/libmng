@@ -263,6 +263,10 @@ typedef struct mng_data_struct {
            mng_uint8         iFilter;
            mng_uint8         iInterlace;
 
+           mng_uint32        iPLTEcount;         /* PLTE fields */
+
+           mng_bool          bEMNGMAhack;        /* TODO: to be removed in 1.0.0 !!! */
+
 #ifdef MNG_INCLUDE_JNG
            mng_uint8         iJHDRcolortype;     /* JHDR fields */
            mng_uint8         iJHDRimgbitdepth;   /* valid if inside JHDR-IEND */
@@ -318,8 +322,6 @@ typedef struct mng_data_struct {
            mng_objectp       pRetrieveobj;       /* current retrieve object for row routines */
            mng_savedatap     pSavedata;          /* pointer to saved data (after SAVE) */
 
-           mng_bool          bEMNGMAhack;        /* TODO: to be removed in 1.0.0 !!! */
-
            mng_int8          iPass;              /* current interlacing pass;
                                                     negative value means no interlace */
            mng_int32         iRow;               /* current row counter */
@@ -373,8 +375,6 @@ typedef struct mng_data_struct {
                                                     uncompressed row of data */
            mng_ptr           fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
-
-           mng_uint32        iPLTEcount;         /* PLTE fields */
 
            mng_uint16        iDEFIobjectid;      /* DEFI fields */
            mng_uint8         iDEFIdonotshow;
