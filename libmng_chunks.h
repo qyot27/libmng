@@ -44,6 +44,8 @@
 /* *             - added HLAPI function to copy chunks                      * */
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
+/* *             1.0.5 - 11/28/2002 - G.Juyn                                * */
+/* *             - fixed definition of iMethodX/Y for MAGN chunk            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -740,14 +742,14 @@ typedef struct {                       /* MAGN */
            mng_chunk_header  sHeader;
            mng_uint16        iFirstid;
            mng_uint16        iLastid;
-           mng_uint16        iMethodX;
+           mng_uint8         iMethodX;
            mng_uint16        iMX;
            mng_uint16        iMY;
            mng_uint16        iML;
            mng_uint16        iMR;
            mng_uint16        iMT;
            mng_uint16        iMB;
-           mng_uint16        iMethodY;
+           mng_uint8         iMethodY;
         } mng_magn;
 typedef mng_magn * mng_magnp;
 

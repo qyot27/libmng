@@ -152,6 +152,8 @@
 /* *             - changed FRAMECOUNT/LAYERCOUNT/PLAYTIME error to warning  * */
 /* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
 /* *             - added support to get totals after mng_read()             * */
+/* *             1.0.5 - 11/29/2002 - G.Juyn                                * */
+/* *             - fixed goxxxxx() support for zero values                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2199,13 +2201,16 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
       return iRetcode;
   }
 
-  pData->iRequestframe = iFramenr;     /* go find the requested frame then */
-  iRetcode = mng_process_display (pData);
+  if (iFramenr)
+  {
+    pData->iRequestframe = iFramenr;   /* go find the requested frame then */
+    iRetcode = mng_process_display (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
 
-  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
+    pData->bTimerset = MNG_FALSE;      /* reset just to be safe */
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_END)
@@ -2255,13 +2260,16 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
       return iRetcode;
   }
 
-  pData->iRequestlayer = iLayernr;     /* go find the requested layer then */
-  iRetcode = mng_process_display (pData);
+  if (iLayernr)
+  {
+    pData->iRequestlayer = iLayernr;   /* go find the requested layer then */
+    iRetcode = mng_process_display (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
 
-  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
+    pData->bTimerset = MNG_FALSE;      /* reset just to be safe */
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_END)
@@ -2311,13 +2319,16 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
       return iRetcode;
   }
 
-  pData->iRequesttime = iPlaytime;     /* go find the requested playtime then */
-  iRetcode = mng_process_display (pData);
+  if (iPlaytime)
+  {
+    pData->iRequesttime = iPlaytime;   /* go find the requested playtime then */
+    iRetcode = mng_process_display (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
 
-  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
+    pData->bTimerset = MNG_FALSE;      /* reset just to be safe */
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_END)

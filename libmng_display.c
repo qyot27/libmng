@@ -220,7 +220,11 @@ MNG_LOCAL mng_retcode set_delay (mng_datap  pData,
     if (!pData->fSettimer ((mng_handle)pData, iInterval))
       MNG_ERROR (pData, MNG_APPTIMERERROR)
 
+#ifdef MNG_SUPPORT_DYNAMICMNG
   if ((!pData->bDynamic) || (pData->bRunning))
+#else
+  if (pData->bRunning)
+#endif
     pData->bTimerset = MNG_TRUE;       /* and indicate so */
 
   return MNG_NOERROR;

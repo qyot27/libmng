@@ -20,6 +20,7 @@ core:
 - fixed magnification bug with object 0
 - added support to get totals for frames/layers/playtime after mng_read()
 - fixed some issues in init_app_cms()
+- fixed goxxxxx() support for zero values
 
 samples:
 

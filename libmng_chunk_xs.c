@@ -61,6 +61,8 @@
 /* *             - added event handling for dynamic MNG                     * */
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - added check for TERM placement during create/write       * */
+/* *             1.0.5 - 11/28/2002 - G.Juyn                                * */
+/* *             - fixed definition of iMethodX/Y for MAGN chunk            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2095,14 +2097,14 @@ mng_retcode MNG_DECL mng_getchunk_magn (mng_handle hHandle,
 
   *iFirstid = pChunk->iFirstid;        /* fill the fields */
   *iLastid  = pChunk->iLastid;
-  *iMethodX = pChunk->iMethodX;
+  *iMethodX = (mng_uint16)pChunk->iMethodX;
   *iMX      = pChunk->iMX;
   *iMY      = pChunk->iMY;
   *iML      = pChunk->iML;
   *iMR      = pChunk->iMR;
   *iMT      = pChunk->iMT;
   *iMB      = pChunk->iMB;
-  *iMethodY = pChunk->iMethodY;
+  *iMethodY = (mng_uint16)pChunk->iMethodY;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MAGN, MNG_LC_END)
@@ -5172,14 +5174,14 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
                                        /* fill the chunk */
   ((mng_magnp)pChunk)->iFirstid = iFirstid;
   ((mng_magnp)pChunk)->iLastid  = iLastid;
-  ((mng_magnp)pChunk)->iMethodX = iMethodX;
+  ((mng_magnp)pChunk)->iMethodX = (mng_uint8)iMethodX;
   ((mng_magnp)pChunk)->iMX      = iMX;
   ((mng_magnp)pChunk)->iMY      = iMY;
   ((mng_magnp)pChunk)->iML      = iML;
   ((mng_magnp)pChunk)->iMR      = iMR;
   ((mng_magnp)pChunk)->iMT      = iMT;
   ((mng_magnp)pChunk)->iMB      = iMB;
-  ((mng_magnp)pChunk)->iMethodY = iMethodY;
+  ((mng_magnp)pChunk)->iMethodY = (mng_uint8)iMethodY;
 
   mng_add_chunk (pData, pChunk);       /* add it to the list */
 
