@@ -14,6 +14,8 @@ bugfixes:
 
 core:
 - added missing get-/put-chunk-jdaa
+- added CRC existence & checking flags
+- added data-push mechanisms for specialized decoders
 
 samples:
 

@@ -4,7 +4,7 @@ unit libmng;
 {*                                                                          *}
 {*  COPYRIGHT NOTICE:                                                       *}
 {*                                                                          *}
-{*  Copyright (c) 2000-2002 Gerard Juyn (gerard@libmng.com)                 *}
+{*  Copyright (c) 2000-2004 Gerard Juyn (gerard@libmng.com)                 *}
 {*  [You may insert additional notices after this sentence if you modify    *}
 {*   this source]                                                           *}
 {*                                                                          *}
@@ -43,14 +43,14 @@ unit libmng;
 {****************************************************************************}
 {*                                                                          *}
 {*  project   : libmng                                                      *}
-{*  file      : libmng.pas                copyright (c) 2000-2002 G.Juyn    *}
-{*  version   : 1.0.5                                                       *}
+{*  file      : libmng.pas                copyright (c) 2000-2004 G.Juyn    *}
+{*  version   : 1.0.8                                                       *}
 {*                                                                          *}
 {*  purpose   : libmng.dll wrapper unit                                     *}
 {*                                                                          *}
 {*  author    : G.Juyn                                                      *}
 {*  web       : http://www.3-t.com                                          *}
-{*  email     : mailto:info@3-t.com                                         *}
+{*  email     : mailto:info (at) 3-t (dot) com                              *}
 {*                                                                          *}
 {*  comment   : contains the pascal-translation of libmng.h                 *}
 {*              can be used by Delphi programs to access the libmng.dll     *}
@@ -108,6 +108,10 @@ unit libmng;
 {*              1.0.5 - 09/16/2002 - G.Juyn                                 *}
 {*              - added dynamic MNG features                                *}
 {*                                                                          *}
+{*              1.0.8 - 04/12/2004 - G.Juyn                                 *}
+{*              - added CRC existence & checking flags                      *}
+{*              - added push mechanisms                                     *}
+{*                                                                          *}
 {****************************************************************************}
 
 interface
@@ -158,8 +162,12 @@ type  mng_uint32     = cardinal;
 {****************************************************************************}
 
 type mng_memalloc      = function  (    iLen         : mng_size_t) : mng_ptr; stdcall;
-     mng_memfree       = procedure (    iPtr         : mng_ptr;
+type mng_memfree       = procedure (    pPtr         : mng_ptr;
                                         iLen         : mng_size_t); stdcall;
+
+type mng_releasedata   = procedure (    pUserData    : mng_ptr;
+                                        pData        : mng_ptr;
+                                        iLength      : mng_size_t); stdcall;
 
 type mng_openstream    = function  (    hHandle      : mng_handle) : mng_bool; stdcall;
 type mng_closestream   = function  (    hHandle      : mng_handle) : mng_bool; stdcall;
@@ -263,6 +271,16 @@ function  mng_reset               (    hHandle         : mng_handle       ) : mn
 function  mng_cleanup             (var hHandle         : mng_handle       ) : mng_retcode;       stdcall;
 
 function  mng_read                (    hHandle         : mng_handle       ) : mng_retcode;       stdcall;
+function  mng_read_pushdata       (    hHandle         : mng_handle;
+                                       pData           : mng_ptr;
+                                       iLength         : mng_uint32;
+                                       bTakeownership  : mng_bool         ) : mng_retcode;       stdcall;
+function  mng_read_pushsig        (    hHandle         : mng_handle;
+                                       eSigtype        : mng_imgtype      ) : mng_retcode;       stdcall;
+function  mng_read_pushchunk      (    hHandle         : mng_handle;
+                                       pData           : mng_ptr;
+                                       iLength         : mng_uint32;
+                                       bTakeownership  : mng_bool         ) : mng_retcode;       stdcall;
 function  mng_read_resume         (    hHandle         : mng_handle       ) : mng_retcode;       stdcall;
 function  mng_write               (    hHandle         : mng_handle       ) : mng_retcode;       stdcall;
 function  mng_create              (    hHandle         : mng_handle       ) : mng_retcode;       stdcall;
@@ -298,6 +316,8 @@ function  mng_setcb_memalloc      (    hHandle         : mng_handle;
                                        fProc           : mng_memalloc     ) : mng_retcode;       stdcall;
 function  mng_setcb_memfree       (    hHandle         : mng_handle;
                                        fProc           : mng_memfree      ) : mng_retcode;       stdcall;
+function  mng_setcb_releasedata   (    hHandle         : mng_handle;
+                                       fProc           : mng_releasedata  ) : mng_retcode;       stdcall;
 
 function  mng_setcb_openstream    (    hHandle         : mng_handle;
                                        fProc           : mng_openstream   ) : mng_retcode;       stdcall;
@@ -349,6 +369,7 @@ function  mng_setcb_processarow   (    hHandle         : mng_handle;
 
 function  mng_getcb_memalloc      (    hHandle         : mng_handle       ) : mng_memalloc;      stdcall;
 function  mng_getcb_memfree       (    hHandle         : mng_handle       ) : mng_memfree;       stdcall;
+function  mng_getcb_releasedata   (    hHandle         : mng_handle       ) : mng_releasedata;   stdcall;
 
 function  mng_getcb_openstream    (    hHandle         : mng_handle       ) : mng_openstream;    stdcall;
 function  mng_getcb_closestream   (    hHandle         : mng_handle       ) : mng_closestream;   stdcall;
@@ -434,6 +455,9 @@ function  mng_set_suspensionmode  (    hHandle         : mng_handle;
 
 function  mng_set_speed           (    hHandle         : mng_handle;
                                        iSpeed          : mng_speedtype    ) : mng_retcode;       stdcall;
+
+function  mng_set_crcmode         (    hHandle         : mng_handle;
+                                       iCrcmode        : mng_uint32       ) : mng_retcode;       stdcall;
 
 {****************************************************************************}
 
@@ -1486,6 +1510,9 @@ function mng_reset;                external mngdll;
 function mng_cleanup;              external mngdll;
 
 function mng_read;                 external mngdll;
+function mng_read_pushdata;        external mngdll;
+function mng_read_pushsig;         external mngdll;
+function mng_read_pushchunk;       external mngdll;
 function mng_read_resume;          external mngdll;
 function mng_write;                external mngdll;
 function mng_create;               external mngdll;
@@ -1507,6 +1534,7 @@ function mng_getlasterror;         external mngdll;
 
 function mng_setcb_memalloc;       external mngdll;
 function mng_setcb_memfree;        external mngdll;
+function mng_setcb_releasedata;    external mngdll;
 
 function mng_setcb_openstream;     external mngdll;
 function mng_setcb_closestream;    external mngdll;
@@ -1539,6 +1567,7 @@ function mng_setcb_processarow;    external mngdll;
 
 function mng_getcb_memalloc;       external mngdll;
 function mng_getcb_memfree;        external mngdll;
+function mng_getcb_releasedata;    external mngdll;
 
 function mng_getcb_openstream;     external mngdll;
 function mng_getcb_closestream;    external mngdll;
@@ -1598,8 +1627,8 @@ function mng_set_maxcanvasheight;  external mngdll;
 function mng_set_maxcanvassize;    external mngdll;
 
 function mng_set_suspensionmode;   external mngdll;
-
 function mng_set_speed;            external mngdll;
+function mng_set_crcmode;          external mngdll;           
 
 {****************************************************************************}
 

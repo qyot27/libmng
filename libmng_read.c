@@ -199,43 +199,54 @@ MNG_LOCAL mng_retcode read_data (mng_datap    pData,
                                  mng_uint32   iSize,
                                  mng_uint32 * iRead)
 {
-  mng_retcode iRetcode;
-  mng_uint32  iTempsize = iSize;
-  mng_uint8p  pTempbuf  = pBuf;
-  *iRead                = 0;           /* nothing yet */
+  mng_retcode   iRetcode;
+  mng_uint32    iTempsize = iSize;
+  mng_uint8p    pTempbuf  = pBuf;
+  mng_pushdatap pPush     = pData->pFirstpushdata;
+  mng_uint32    iPushsize = 0;
+  *iRead                  = 0;         /* nothing yet */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_START)
 #endif
-                                       /* got any pushed data? */
-  while ((iTempsize) && (pData->pFirstpushdata))
+
+  while (pPush)                        /* calculate size of pushed data */
   {
-    mng_pushdatap pPush = pData->pFirstpushdata;
-                                       /* enough data remaining? */
-    if (pPush->iRemaining <= iTempsize)
-    {                                  /* no: then copy what we've got */
-      MNG_COPY (pTempbuf, pPush->pDatanext, pPush->iRemaining)
-
-      iTempsize -= pPush->iRemaining;  /* move pointers & lengths */
-      pTempbuf  += pPush->iRemaining;
-      *iRead    += pPush->iRemaining;
-                                       /* release the depleted buffer */
-      iRetcode = mng_release_pushdata (pData);
-      if (iRetcode)
-        return iRetcode;
-    }
-    else
-    {                                  /* copy the needed bytes */
-      MNG_COPY (pTempbuf, pPush->pDatanext, iTempsize)
-
-      pPush->iRemaining -= iTempsize;  /* move pointers & lengths */
-      pPush->pDatanext  += iTempsize;
-      *iRead            += iTempsize;
-      iTempsize         = 0;           /* all done!!! */
-    }
+    iPushsize += pPush->iRemaining;
+    pPush      = pPush->pNext;
   }
 
-  if (iTempsize)                       /* need more still? */
+  if (iTempsize <= iPushsize)          /* got enough push data? */
+  {
+    while (iTempsize)
+    {
+      pPush = pData->pFirstpushdata;
+                                       /* enough data remaining in this buffer? */
+      if (pPush->iRemaining <= iTempsize)
+      {                                /* no: then copy what we've got */
+        MNG_COPY (pTempbuf, pPush->pDatanext, pPush->iRemaining)
+                                       /* move pointers & lengths */
+        pTempbuf  += pPush->iRemaining;
+        *iRead    += pPush->iRemaining;
+        iTempsize -= pPush->iRemaining;
+                                       /* release the depleted buffer */
+        iRetcode = mng_release_pushdata (pData);
+        if (iRetcode)
+          return iRetcode;
+      }
+      else
+      {                                /* copy the needed bytes */
+        MNG_COPY (pTempbuf, pPush->pDatanext, iTempsize)
+                                       /* move pointers & lengths */
+        pPush->iRemaining -= iTempsize;
+        pPush->pDatanext  += iTempsize;
+        pTempbuf          += iTempsize;
+        *iRead            += iTempsize;
+        iTempsize         = 0;         /* all done!!! */
+      }
+    }
+  }
+  else
   {
     mng_uint32 iTempread = 0;
                                        /* get it from the app then */
@@ -845,19 +856,18 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
                                        /* do we have enough data in the current push buffer ? */
         if ((pData->pFirstpushdata) && (iBuflen <= pData->pFirstpushdata->iRemaining))
         {
-          mng_pushdatap pPush = pData->pFirstpushdata;
-          pBuf                = pPush->pDatanext;
-          pPush->pDatanext   += iBuflen;
-          pPush->iRemaining  -= iBuflen;
-
-          if (!pPush->iRemaining)      /* nothing left; then release this buffer */
-          {
-            iRetcode = mng_release_pushdata (pData);
-            if (iRetcode)              /* on error bail out */
-              return iRetcode;
-          }
+          mng_pushdatap pPush  = pData->pFirstpushdata;
+          pBuf                 = pPush->pDatanext;
+          pPush->pDatanext    += iBuflen;
+          pPush->iRemaining   -= iBuflen;
+          pData->iSuspendpoint = 0;    /* safely reset this here ! */
 
           iRetcode = check_chunk_crc (pData, pBuf, iBuflen);
+          if (iRetcode)
+            return iRetcode;
+
+          if (!pPush->iRemaining)      /* buffer depleted? then release it */
+            iRetcode = mng_release_pushdata (pData);
         }
         else
         {
