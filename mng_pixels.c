@@ -39,6 +39,8 @@
 /* *             - implemented app bkgd restore routines                    * */
 /* *             - implemented RGBA8, ARGB8, BGRA8 & ABGR8 display routines * */
 /* *             - added support for RGB8_A8 canvasstyle                    * */
+/* *             0.5.2 - 06/09/2000 - G.Juyn                                * */
+/* *             - fixed alpha-handling for alpha canvasstyles              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 

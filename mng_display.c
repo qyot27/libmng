@@ -45,6 +45,10 @@
 /* *             - fixed makeup for Linux gcc compile                       * */
 /* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
 /* *             - added support for RGB8_A8 canvasstyle                    * */
+/* *             0.5.2 - 06/09/2000 - G.Juyn                                * */
+/* *             - fixed timer-handling to run with Mozilla (Tim Rowley)    * */
+/* *             0.5.2 - 06/10/2000 - G.Juyn                                * */
+/* *             - fixed some compilation-warnings (contrib Jason Morris)   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1685,7 +1689,7 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  pBuf->bHasTRNS         = MNG_TRUE;
                  pBuf->iTRNScount       = 1;
-                 pBuf->aTRNSentries [0] = iAlpha;
+                 pBuf->aTRNSentries [0] = (mng_uint8)iAlpha;
                }
 
                break;

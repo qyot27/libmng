@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_cms.c                 copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : color management routines (implementation)                 * */
 /* *                                                                        * */
@@ -27,6 +27,9 @@
 /* *             - added callback error-reporting support                   * */
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
+/* *                                                                        * */
+/* *             0.5.2 - 06/10/2000 - G.Juyn                                * */
+/* *             - fixed some compilation-warnings (contrib Jason Morris)   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -483,7 +486,7 @@ mng_retcode init_gamma_only (mng_datap pData)
     pData->aGammatab [0] = 0;
 
     for (iX = 1; iX <= 255; iX++)
-      pData->aGammatab [iX] = pow (iX / 255.0, dGamma) * 255 + 0.5;
+      pData->aGammatab [iX] = (mng_uint8)(pow (iX / 255.0, dGamma) * 255 + 0.5);
 
     pData->dLastgamma = dGamma;        /* keep for next time */
   }
@@ -527,7 +530,7 @@ mng_retcode init_gamma_only_object (mng_datap pData)
     pData->aGammatab [0] = 0;
 
     for (iX = 1; iX <= 255; iX++)
-      pData->aGammatab [iX] = pow (iX / 255.0, dGamma) * 255 + 0.5;
+      pData->aGammatab [iX] = (mng_uint8)(pow (iX / 255.0, dGamma) * 255 + 0.5);
 
     pData->dLastgamma = dGamma;        /* keep for next time */
   }
