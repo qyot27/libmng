@@ -87,6 +87,19 @@ AC_DEFINE(MNG_ERROR_TELLTALE)
 
 
 dnl The libraries libz and libpng are required.
+AC_ARG_WITH(png,
+[  --with-png[=DIR]        use png include/library files in DIR],[
+  if test -x "$withval"; then
+    CPPFLAGS="$CPPFLAGS -I$withval/include"
+    LDFLAGS="$LDFLAGS -L$withval/lib"
+  fi
+])
+AC_CHECK_HEADER(png.h,
+    AC_CHECK_LIB(png, png_check_sig, [],
+        AC_MSG_ERROR(png library not found)),
+    AC_MSG_ERROR(png library header not found)
+)
+
 AC_ARG_WITH(zlib,
 [  --with-zlib[=DIR]       use zlib include/library files in DIR],[
   if test -d "$withval"; then
@@ -94,10 +107,33 @@ AC_ARG_WITH(zlib,
     LDFLAGS="$LDFLAGS -L$withval/lib"
   fi
 ])
-
 AC_CHECK_HEADER(zlib.h,
     AC_CHECK_LIB(z, gzread, , AC_MSG_ERROR(zlib library not found)),
-    AC_MSG_ERROR(zlib header not found))
+    AC_MSG_ERROR(zlib header not found)
+)
+
+dnl check for jpeg library
+AC_ARG_WITH(jpeg,
+[  --with-jpeg[=DIR]       use jpeg include/library files in DIR], [
+  if test "$withval" != "no" -a "$withval" != "yes"; then
+    # Save in case test with directory specified fails
+    _cppflags=${CPPFLAGS}
+    _ldflags=${LDFLAGS}
+    _restore=1
+
+    CPPFLAGS="${CPPFLAGS} -I$withval/include"
+    LDFLAGS="${LDFLAGS} -L$withval/lib"
+  fi
+
+  AC_CHECK_HEADER(jpeglib.h,
+    AC_CHECK_LIB(jpeg, jpeg_read_header, [
+      LIBS="$LIBS -ljpeg"], [
+      test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
+      AC_MSG_WARN(jpeg library not found)]),
+    test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
+    AC_MSG_WARN(jpeg header not found)
+  )
+])
 
 dnl check for lcms library
 AC_ARG_WITH(lcms,
@@ -128,26 +164,5 @@ AC_ARG_WITH(lcms,
 
   test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
 ])
-
-dnl check for jpeg library
-AC_ARG_WITH(jpeg,
-[  --with-jpeg[=DIR]       use jpeg include/library files in DIR], [
-  if test "$withval" != "no" -a "$withval" != "yes"; then
-    # Save in case test with directory specified fails
-    _cppflags=${CPPFLAGS}
-    _ldflags=${LDFLAGS}
-    _restore=1
-
-    CPPFLAGS="${CPPFLAGS} -I$withval/include"
-    LDFLAGS="${LDFLAGS} -L$withval/lib"
-  fi
-
-  AC_CHECK_HEADER(jpeglib.h,
-    AC_CHECK_LIB(jpeg, jpeg_read_header, [
-      LIBS="$LIBS -ljpeg"], [
-      test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-      AC_MSG_WARN(jpeg library not found)]),
-    test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-    AC_MSG_WARN(jpeg header not found))])
 
 AC_OUTPUT(Makefile)
