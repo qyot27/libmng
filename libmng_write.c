@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_write.c            copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_write.c            copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : Write management (implementation)                          * */
 /* *                                                                        * */
@@ -29,6 +29,10 @@
 /* *                                                                        * */
 /* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
 /* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *                                                                        * */
+/* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
+/* *             - defend against using undefined Open/Closestream function * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -68,9 +72,11 @@ mng_retcode mng_write_graphic (mng_datap pData)
 
   if (pChunk)                          /* is there anything to write ? */
   {                                    /* open the file */
-    if (!pData->fOpenstream ((mng_handle)pData))
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
+    if (pData->fOpenstream && !pData->fOpenstream ((mng_handle)pData))
       MNG_ERROR (pData, MNG_APPIOERROR)
     else
+#endif
     {
       pData->bWriting      = MNG_TRUE; /* indicate writing */
       pData->iWritebufsize = 32768;    /* get a temporary write buffer */
@@ -116,8 +122,10 @@ mng_retcode mng_write_graphic (mng_datap pData)
 
       pData->bWriting = MNG_FALSE;     /* done writing */
                                        /* close the stream now */
-      if (!pData->fClosestream ((mng_handle)pData))
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
+      if (pData->fClosestream && !pData->fClosestream ((mng_handle)pData))
         MNG_ERROR (pData, MNG_APPIOERROR)
+#endif
 
     }
   }

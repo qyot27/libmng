@@ -88,6 +88,8 @@
 /* *             - added CRC existence & checking flags                     * */
 /* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
+/* *             - defend against using undefined closestream function      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -124,8 +126,10 @@ mng_retcode mng_process_eof (mng_datap pData)
     pData->bEOF = MNG_TRUE;            /* now we do! */
 
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
-    if (!pData->fClosestream ((mng_handle)pData))
+    if (pData->fClosestream && !pData->fClosestream ((mng_handle)pData))
+    {
       MNG_ERROR (pData, MNG_APPIOERROR)
+    }
 #endif
   }
 

@@ -174,6 +174,8 @@
 /* *             - added CRC existence & checking flags                     * */
 /* *             1.0.8 - 04/10/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
+/* *             - defend against using undefined openstream function       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1877,7 +1879,8 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   pData->bReading = MNG_TRUE;          /* read only! */
 
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
-  if (!pData->fOpenstream (hHandle))   /* open it and start reading */
+  if (pData->fOpenstream && !pData->fOpenstream (hHandle))
+    /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
 #endif
@@ -2217,7 +2220,8 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   pData->iEndtime      = 0;
 
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
-  if (!pData->fOpenstream (hHandle))   /* open it and start reading */
+  if (pData->fOpenstream && !pData->fOpenstream (hHandle))
+    /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
 #endif
