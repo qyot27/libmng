@@ -21,7 +21,7 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#include <stddef.h>                    // needed for offsetof()
+#include <stddef.h>                    /* needed for offsetof() */
 
 #include "libmng.h"
 #include "libmng_data.h"
@@ -3253,7 +3253,9 @@ MNG_C_SPECIALFUNC (mng_special_mhdr)
   pData->iFramecount  = ((mng_mhdrp)pChunk)->iFramecount;
   pData->iPlaytime    = ((mng_mhdrp)pChunk)->iPlaytime;
   pData->iSimplicity  = ((mng_mhdrp)pChunk)->iSimplicity;
+#ifndef MNG_NO_OLD_VERSIONS
   pData->bPreDraft48  = MNG_FALSE;
+#endif
                                        /* predict alpha-depth */
   if ((pData->iSimplicity & 0x00000001) == 0)
 #ifndef MNG_NO_16BIT_SUPPORT
@@ -5199,6 +5201,8 @@ MNG_C_SPECIALFUNC (mng_special_unknown)
 /* ************************************************************************** */
 /* * end of file                                                            * */
 /* ************************************************************************** */
+
+
 
 
 

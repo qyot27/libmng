@@ -286,6 +286,7 @@ ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 /* ************************************************************************** */
 
 #else /* MNG_INCLUDE_WRITE_PROCS */
+#define mng_assign_general 0
 #define mng_assign_ihdr 0
 #define mng_assign_plte 0
 #define mng_assign_idat 0
