@@ -120,12 +120,12 @@ mng_uint32 const interlace_divider  [7] = { 3, 3, 2, 2, 1, 1, 0 };
 
 mng_retcode display_progressive_check (mng_datap pData)
 {                                      /* approximate the need for progressive display */
-  if (((pData->eImagetype != mng_it_mng) || (pData->iDataheight > 150)) &&
+  if (((pData->eImagetype != mng_it_mng) || (pData->iDataheight > 300)) &&
       (pData->iDestb - pData->iDestt > 50) && (!pData->pCurraniobj))
   {
     mng_int32 iC = pData->iRow + pData->iDestt - pData->iSourcet;
 
-    if (iC % 20 == 0)                  /* every 20th line */
+    if (iC % 50 == 0)                  /* every 20th line */
       pData->bNeedrefresh = MNG_TRUE;
 
   }
@@ -141,18 +141,20 @@ mng_retcode display_progressive_check (mng_datap pData)
 /* ************************************************************************** */
 
 void check_update_region (mng_datap pData)
-{                                      /* check for change in update-region */
+{                                      /* determine actual canvas row */
+  mng_int32 iRow = pData->iRow + pData->iDestt - pData->iSourcet;
+                                       /* check for change in update-region */
   if ((pData->iDestl < (mng_int32)pData->iUpdateleft) || (pData->iUpdateleft == 0))
     pData->iUpdateleft   = pData->iDestl;
 
   if (pData->iDestr > (mng_int32)pData->iUpdateright)
     pData->iUpdateright  = pData->iDestr;
 
-  if ((pData->iRow < (mng_int32)pData->iUpdatetop) || (pData->iUpdatetop == 0))
-    pData->iUpdatetop    = pData->iRow;
+  if ((iRow < (mng_int32)pData->iUpdatetop) || (pData->iUpdatetop == 0))
+    pData->iUpdatetop    = iRow;
 
-  if (pData->iRow > (mng_int32)pData->iUpdatebottom)
-    pData->iUpdatebottom = pData->iRow;
+  if (iRow+1 > (mng_int32)pData->iUpdatebottom)
+    pData->iUpdatebottom = iRow+1;
 
   return;
 }

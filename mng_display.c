@@ -143,10 +143,11 @@ mng_retcode interframe_delay (mng_datap pData)
 
   if (pData->iFramedelay > 0)          /* let the app refresh first */
   {
-    if (!pData->fRefresh (((mng_handle)pData),
-                          pData->iUpdatetop,    pData->iUpdateleft,
-                          pData->iUpdatebottom, pData->iUpdateright))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+    if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
+      if (!pData->fRefresh (((mng_handle)pData),
+                            pData->iUpdatetop,    pData->iUpdateleft,
+                            pData->iUpdatebottom, pData->iUpdateright))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
 
     pData->iUpdateleft   = 0;          /* reset update-region */
     pData->iUpdateright  = 0;
