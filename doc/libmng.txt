@@ -1,4 +1,4 @@
-libmng - Multiple-image Network Graphics (MNG) Reference Library 0.9.4
+libmng - Multiple-image Network Graphics (MNG) Reference Library 1.0.0
 
 DESCRIPTION
 The libmng library supports decoding, displaying, encoding, and various
@@ -19,10 +19,10 @@ INSTALL.README file for instructions on how to install libmng.
 
 Libmng was written to support and promote the MNG specification.
 
-The MNG-1.0 specification should be shortly available at
+The latest MNG specification (currently 1.0) is available at
   http://www.libpng.org/pub/mng
 
-Other information about MNG can be found at the MNG home page,
+Other information about MNG can be found at the MNG home page at
   http://www.libpng.org/pub/mng
 
 The latest version of libmng can be found at its own homepage at
@@ -57,7 +57,7 @@ Marti Maria Saguer. This library provides an excellent color-management
 system (CMS), which gives libmng the ability to provide full
 color-correction for images with the proper color-information encoded.
 Further information and the latest sources can be found at
-<http://www.abaforum.es/martim/lcms.htm>.
+<http://www.littlecms.com/>.
 
 Libmng is thread safe, provided the threads are using different
 handles as returned by the initialization call.
@@ -960,7 +960,7 @@ First you need to tell the library your intentions:
 
 After that you start adding the appropriate chunks:
 
-    myretcode = mng_put1chunk_mhdr (myhandle, ...);
+    myretcode = mng_putchunk_mhdr (myhandle, ...);
     if (myretcode != MNG_NOERROR)
       /* process error */;
 
@@ -1016,15 +1016,15 @@ Again all you need to do is:
 
 VII. Modifying/Customizing libmng:
 
-not finished yet
+to do
 
 > Compilation directives
 
-not finished yet
+to do
 
 > Platform dependant modification
 
-not finished yet
+to do
 
 
 References :
@@ -1039,7 +1039,7 @@ IJG JPEG library :
   http://www.ijg.org
 
 lcms (little CMS) by Marti Maria Saguer :
-  http://www.abaforum.es/martim/lcms.htm
+  http://www.littlecms.com/
 
 MNG specification:
   http://www.libpng.org/pub/mng
@@ -1056,7 +1056,7 @@ possible without all of you!!!
 
 COPYRIGHT NOTICE:
 
-Copyright (c) 2000 Gerard Juyn
+Copyright (c) 2000,2001 Gerard Juyn
 
 For the purposes of this copyright and license, "Contributing Authors"
 is defined as the following set of individuals:

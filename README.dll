@@ -15,7 +15,6 @@ and NOT in the Windows system-directory!!!
 2) Only stable public releases are eligible for distribution! A public release
    is one where the y-value of the x.y.z version-code is an even number.
    Eg. 1.0.0, 1.2.1, 2.4.7, etc.
-   (the only exception are the current beta-versions: 0.9.z)
 
 3) The installation program MUST store the DLL in the Windows system-directory!
    Eg. C:\WinNT\System32, C:\Windows98\System

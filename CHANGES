@@ -1,29 +1,57 @@
 -----------------------------------------------------------
 
-0.9.5 (... ..th 2001)
-----------------------
+1.0.0 (Feb 6th 2001)
+--------------------
 
 in short:
 
-intermediate
+First public release. Finally(!)
+
+This is the 0.9.5 CVS version, which will never be released, because I feel it
+is now ready for a public release. So apart from the version-numbers here and
+there, all other changes are listed under 0.9.5.
+
+This library will work with every MNG/JNG known and available to me. Note that
+there are still parts that need to be coded, and that MNG support is around
+90-95% (JNG at 100%). It is however compliant with the latest and greatest
+MNG 1.0 specification.
+
+I hope to dedicate a bit more time this year to finish up full support and fill
+in the remaining blanks. But this is coming out of my spare time. And extra
+help is always appreciated.
+
+Please enjoy!
+
+Gerard
+
+-----------------------------------------------------------
+
+0.9.5 (no release)
+------------------
+
+in short:
+
+intermediate CVS
 
 -------------------
 
 bugfixes:
-B129681 - fixed compiler warnings SGI/Irix (thanks Dimitri)               
+B129681 - fixed compiler warnings SGI/Irix (thanks Dimitri)
 
 core:
 - fixed compiler-warnings Mozilla (thanks Tim)
-- fixed timing-problem with switching framing_modes       
-- fixed some small compiler warnings (thanks Nikki)        
+- fixed timing-problem with switching framing_modes
+- fixed some small compiler warnings (thanks Nikki)
 
 samples:
 
 contrib:
+- fixed library-paths for MSVC DLL project (thanks Chad)
 
 doc:
 
 makefiles:
+- added makefile for DJGPP (thanks Silvio)
 
 autoconf:
 

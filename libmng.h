@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000 Gerard Juyn (gerard@libmng.com)                     * */
+/* * Copyright (c) 2000,2001 Gerard Juyn (gerard@libmng.com)                * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
@@ -100,7 +100,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.5                                                      * */
+/* * version   : 1.0.0                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -205,9 +205,12 @@
 /* *             0.9.3 - 10/21/2000 - G.Juyn                                * */
 /* *             - added get function for interlace/progressive display     * */
 /* *                                                                        * */
-/* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
+/* *             0.9.4 - 01/18/2001 - G.Juyn                                * */
 /* *             - added errorcode for MAGN methods                         * */
 /* *             - removed test filter-methods 1 & 65                       * */
+/* *                                                                        * */
+/* *             1.0.0 - 02/05/2001 - G.Juyn                                * */
+/* *             - version numbers (obviously)                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -347,12 +350,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "0.9.5"
-#define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test/beta) */
-#define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
-#define MNG_VERSION_MAJOR   0
-#define MNG_VERSION_MINOR   9
-#define MNG_VERSION_RELEASE 5
+#define MNG_VERSION_TEXT    "1.0.0"
+#define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
+#define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
+#define MNG_VERSION_MAJOR   1
+#define MNG_VERSION_MINOR   0
+#define MNG_VERSION_RELEASE 0
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);

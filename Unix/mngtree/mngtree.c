@@ -42,7 +42,7 @@
 /* *                                                                        * */
 /* * project   : mngtree                                                    * */
 /* * file      : mngtree.c                 copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 1.0.0                                                      * */
 /* *                                                                        * */
 /* * purpose   : main project file                                          * */
 /* *                                                                        * */

@@ -49,8 +49,8 @@ RANLIB=ranlib
 #RANLIB=echo
 
 # current version numbers
-MNGMAJ = 0
-MNGMIN = 0.9.4
+MNGMAJ = 1
+MNGMIN = 1.0.0
 MNGVER = $(MNGMAJ).$(MNGMIN)
 
 INCPATH=$(prefix)/include
