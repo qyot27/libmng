@@ -101,25 +101,45 @@ AC_CHECK_HEADER(zlib.h,
 
 dnl check for lcms library
 AC_ARG_WITH(lcms,
-[  --with-lcms[=DIR]       use lcms include/library files in DIR], [
+[  --with-lcms[=DIR]       use lcms include/library files in DIR], 
+[
   if test "$withval" != "no" -a "$withval" != "yes"; then
     # Save in case test with directory specified fails
-    _cppflags=${CPPFLAGS}
-    _ldflags=${LDFLAGS}
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
     _restore=1
 
-    CPPFLAGS="${CPPFLAGS} -I$withval/include/lcms"
-    LDFLAGS="${LDFLAGS} -L$withval/lib"
+    CPPFLAGS="$CPPFLAGS -I$withval/include/lcms"
+    LDFLAGS="$LDFLAGS -L$withval/lib"
+  else
+    _restore=0
   fi
 
-  AC_CHECK_HEADER(lcms.h,
-    AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
+  dnl is there a better way?
+  AC_CHECK_HEADERS(lcms.h, have_lcms_h="yes",
+    AC_CHECK_FILE(/usr/include/lcms/lcms.h, [
+      CPPFLAGS="$CPPFLAGS -I/usr/include/lcms"
+      have_lcms_h="yes"],
+      AC_CHECK_FILE(/usr/local/include/lcms/lcms.h, [
+        CPPFLAGS="$CPPFLAGS -I/usr/local/include/lcms"
+	have_lcms_h="yes"],
+        AC_MSG_WARN([lcms header not found])
+      )
+    )
+  )
+
+  AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
+    if test x$have_lcms_h = xyes; then
       LIBS="$LIBS -llcms"
-      AC_DEFINE(MNG_INCLUDE_LCMS)], [
-      test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-      AC_MSG_WARN(lcms library not found)]),
-    test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
-    AC_MSG_WARN(lcms header not found))])
+      AC_DEFINE(MNG_INCLUDE_LCMS)
+      AC_DEFINE(MNG_FULL_CMS)
+    fi
+  ], [
+    AC_MSG_WARN(lcms library not found)
+  ])
+  
+  test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
+])
 
 dnl check for jpeg library
 AC_ARG_WITH(jpeg,
