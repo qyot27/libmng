@@ -1,7 +1,7 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>
-Version 0.9.1  August 22, 2000
+Version 0.9.2  Nov 18, 2000
 Web site: <http://pobox.com/~jason1/imaging/mngplg/>
 
 
@@ -30,7 +30,7 @@ including commercial applications, and to alter it and redistribute it
 freely.
 
 This software uses several third-party libraries (listed below), some of 
-which are optional. If you redistribute MNGPLB, it is your responsibility to 
+which are optional. If you redistribute MNGPLG, it is your responsibility to 
 comply with the licenses of any libraries used.
 
 This package includes a compiled executable plug-in file, npmngplg.dll. This 
@@ -78,12 +78,18 @@ local hard disk).
 It can also display PNG image files, but it would cause too many problems 
 for it to try to claim the PNG data type.
 
+If you are configuring a web server to support MNG and JNG, the correct
+MIME types to use are "video/x-mng" and "image/x-jng", since the MIME types
+have not, as of this writing, been officially registered.
+
 
 REQUIREMENTS
 
 MNG Requires a 32-bit Windows operating system, and a 32-bit web browser 
-that supports Netscape-style plug-ins. For example, it supports current 
-versions of Netscape, Opera, and (more or less) Microsoft Internet Explorer.
+that supports Netscape-style plug-ins. For example, it works in Netscape
+3 and higher, Opera 3.51 and higher, and (more or less) Microsoft
+Internet Explorer 3 and higher. Netscape 6 includes native support for
+MNG, so it should not be necessary to use a plug-in in most cases.
 
 
 WARNING
@@ -150,6 +156,11 @@ most browsers.
 Right-click on an MNG image as it is being displayed to get a menu with some 
 of the usual features.
 
+If an image contains embedded comments or other text, there will be a "Show
+Image Comments" item on the menu to allow you to view them. For technical
+reasons, some or all of the comments may not be available until the
+animation completes a full loop.
+
 Transparency is not supported, and probably never will be. However, you can 
 supply a background color to use in transparent areas by using the BGCOLOR 
 attribute in the EMBED tag, i.e.:
@@ -168,12 +179,12 @@ TARGET attribute in the EMBED tag. For example:
 
 SOURCE CODE
 
-The C source code is included. It's compatible with libmng 0.9.2 (probably 
-also later versions, possibly with minor changes).
+The C source code is included. It's compatible with libmng 0.9.2 - 0.9.3
+(probably also later versions, possibly with minor changes).
 
 To compile it, you'll need:
 
-- The plug-in interface files from Netscape's plug-in SDK (preferably the 
+- The plug-in interface files from Netscape 4's plug-in SDK (preferably the 
 one named winsdk40.zip). You need the files npapi.cpp and include\*.h. I 
 recommend copying the files to your project directory and adding them to you 
 project, rather than compiling them as a separate library.

@@ -19,6 +19,7 @@ samples:
 contrib:
 - added GTK mng-view example by Vova Babin
 - added MSVC MNGview sample by Nikolaus Brennig
+- updated Jason Summer's mngplg to version 0.9.2
 
 doc:
 - added README.dll
