@@ -85,6 +85,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
 /* *             - added conditionals around canvas update routines         * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added conditionals around some JNG-supporting code       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1246,9 +1248,11 @@ mng_uint8 MNG_DECL mng_get_bitdepth (mng_handle hHandle)
   if (((mng_datap)hHandle)->eImagetype == mng_it_png)
     iRslt = ((mng_datap)hHandle)->iBitdepth;
   else
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRimgbitdepth;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1273,9 +1277,11 @@ mng_uint8 MNG_DECL mng_get_colortype (mng_handle hHandle)
   if (((mng_datap)hHandle)->eImagetype == mng_it_png)
     iRslt = ((mng_datap)hHandle)->iColortype;
   else
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRcolortype;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1300,9 +1306,11 @@ mng_uint8 MNG_DECL mng_get_compression (mng_handle hHandle)
   if (((mng_datap)hHandle)->eImagetype == mng_it_png)
     iRslt = ((mng_datap)hHandle)->iCompression;
   else
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRimgcompression;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1351,9 +1359,11 @@ mng_uint8 MNG_DECL mng_get_interlace (mng_handle hHandle)
   if (((mng_datap)hHandle)->eImagetype == mng_it_png)
     iRslt = ((mng_datap)hHandle)->iInterlace;
   else
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRimginterlace;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1375,9 +1385,11 @@ mng_uint8 MNG_DECL mng_get_alphabitdepth (mng_handle hHandle)
 
   MNG_VALIDHANDLEX (hHandle)
 
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRalphabitdepth;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1444,9 +1456,11 @@ mng_uint8 MNG_DECL mng_get_alphacompression (mng_handle hHandle)
 
   MNG_VALIDHANDLEX (hHandle)
 
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRalphacompression;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1468,9 +1482,11 @@ mng_uint8 MNG_DECL mng_get_alphafilter (mng_handle hHandle)
 
   MNG_VALIDHANDLEX (hHandle)
 
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRalphafilter;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1492,9 +1508,11 @@ mng_uint8 MNG_DECL mng_get_alphainterlace (mng_handle hHandle)
 
   MNG_VALIDHANDLEX (hHandle)
 
+#ifdef MNG_INCLUDE_JNG
   if (((mng_datap)hHandle)->eImagetype == mng_it_jng)
     iRslt = ((mng_datap)hHandle)->iJHDRalphainterlace;
   else
+#endif
     iRslt = 0;
 
 #ifdef MNG_SUPPORT_TRACE

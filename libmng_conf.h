@@ -1,8 +1,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_conf.h             copyright (c) G.Juyn             * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_conf.h             copyright (c) G.Juyn 2000-2003   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : main configuration file                                    * */
 /* *                                                                        * */
@@ -38,6 +38,10 @@
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
 /* *             - added 'supports' call to check function availability     * */
+/* *                                                                        * */
+/* *             1.0.6 - 06/22/2002 - G.R-P                                 * */
+/* *             - added MNG_NO_INCLUDE_JNG conditional                     * */
+/* *             - added MNG_SKIPCHUNK_evNT conditional                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -79,6 +83,7 @@
    so choose the one you've defined in jconfig.h; if you don't know what
    the heck I'm talking about, just leave it at 8-bit support (thank you!) */
 
+#ifndef MNG_NO_INCLUDE_JNG
 #ifdef MNG_SUPPORT_FULL                /* full support includes JNG */
 #define MNG_SUPPORT_IJG6B
 #endif
@@ -101,6 +106,7 @@
 #if defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
 #if defined(MNG_SUPPORT_IJG6B) && defined(__BORLANDC__)
 #define MNG_DEFINE_JPEG_STDCALL
+#endif
 #endif
 #endif
 
@@ -143,15 +149,7 @@
 /* if you want your own app (or the OS) to handle color-management
    select MNG_APP_CMS */
 
-#if !defined(MNG_FULL_CMS) && !defined(MNG_GAMMA_ONLY) && !defined(MNG_NO_CMS) && !defined(MNG_APP_CMS)
-#if defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
-#define MNG_FULL_CMS
-#else
 #define MNG_GAMMA_ONLY
-#endif
-/* #define MNG_NO_CMS */
-/* #define MNG_APP_CMS */
-#endif
 
 /* ************************************************************************** */
 
@@ -237,6 +235,11 @@
 #ifndef MNG_SUPPORT_DYNAMICMNG
 #if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
 #define MNG_SUPPORT_DYNAMICMNG
+#endif
+#endif
+#ifndef MNG_SUPPORT_DYNAMICMNG
+#ifndef MNG_SKIPCHUNK_evNT
+#define MNG_SKIPCHUNK_evNT
 #endif
 #endif
 

@@ -75,6 +75,9 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_DELTA_PNG reduction                         * */
+/* *             - skip additional code when MNG_INCLUDE_JNG is not enabled * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -295,18 +298,30 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_BASI, mng_init_basi, mng_free_basi, mng_read_basi, mng_write_basi, mng_assign_basi, 0, 0},
     {MNG_UINT_CLIP, mng_init_clip, mng_free_clip, mng_read_clip, mng_write_clip, mng_assign_clip, 0, 0},
     {MNG_UINT_CLON, mng_init_clon, mng_free_clon, mng_read_clon, mng_write_clon, mng_assign_clon, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
     {MNG_UINT_DBYK, mng_init_dbyk, mng_free_dbyk, mng_read_dbyk, mng_write_dbyk, mng_assign_dbyk, 0, 0},
+#endif
+#endif
     {MNG_UINT_DEFI, mng_init_defi, mng_free_defi, mng_read_defi, mng_write_defi, mng_assign_defi, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_DHDR, mng_init_dhdr, mng_free_dhdr, mng_read_dhdr, mng_write_dhdr, mng_assign_dhdr, 0, 0},
+#endif
     {MNG_UINT_DISC, mng_init_disc, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_DROP, mng_init_drop, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0},
+#endif
     {MNG_UINT_ENDL, mng_init_endl, mng_free_endl, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0},
     {MNG_UINT_FRAM, mng_init_fram, mng_free_fram, mng_read_fram, mng_write_fram, mng_assign_fram, 0, 0},
     {MNG_UINT_IDAT, mng_init_idat, mng_free_idat, mng_read_idat, mng_write_idat, mng_assign_idat, 0, 0},  /* 12-th element! */
     {MNG_UINT_IEND, mng_init_iend, mng_free_iend, mng_read_iend, mng_write_iend, mng_assign_iend, 0, 0},
     {MNG_UINT_IHDR, mng_init_ihdr, mng_free_ihdr, mng_read_ihdr, mng_write_ihdr, mng_assign_ihdr, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
     {MNG_UINT_IJNG, mng_init_ijng, mng_free_ijng, mng_read_ijng, mng_write_ijng, mng_assign_ijng, 0, 0},
+#endif
     {MNG_UINT_IPNG, mng_init_ipng, mng_free_ipng, mng_read_ipng, mng_write_ipng, mng_assign_ipng, 0, 0},
+#endif
 #ifdef MNG_INCLUDE_JNG
     {MNG_UINT_JDAA, mng_init_jdaa, mng_free_jdaa, mng_read_jdaa, mng_write_jdaa, mng_assign_jdaa, 0, 0},
     {MNG_UINT_JDAT, mng_init_jdat, mng_free_jdat, mng_read_jdat, mng_write_jdat, mng_assign_jdat, 0, 0},
@@ -319,13 +334,23 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_MEND, mng_init_mend, mng_free_mend, mng_read_mend, mng_write_mend, mng_assign_mend, 0, 0},
     {MNG_UINT_MHDR, mng_init_mhdr, mng_free_mhdr, mng_read_mhdr, mng_write_mhdr, mng_assign_mhdr, 0, 0},
     {MNG_UINT_MOVE, mng_init_move, mng_free_move, mng_read_move, mng_write_move, mng_assign_move, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
     {MNG_UINT_ORDR, mng_init_ordr, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0},
+#endif
+#endif
     {MNG_UINT_PAST, mng_init_past, mng_free_past, mng_read_past, mng_write_past, mng_assign_past, 0, 0},
     {MNG_UINT_PLTE, mng_init_plte, mng_free_plte, mng_read_plte, mng_write_plte, mng_assign_plte, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_PPLT, mng_init_pplt, mng_free_pplt, mng_read_pplt, mng_write_pplt, mng_assign_pplt, 0, 0},
     {MNG_UINT_PROM, mng_init_prom, mng_free_prom, mng_read_prom, mng_write_prom, mng_assign_prom, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SAVE
     {MNG_UINT_SAVE, mng_init_save, mng_free_save, mng_read_save, mng_write_save, mng_assign_save, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
     {MNG_UINT_SEEK, mng_init_seek, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0},
+#endif
     {MNG_UINT_SHOW, mng_init_show, mng_free_show, mng_read_show, mng_write_show, mng_assign_show, 0, 0},
     {MNG_UINT_TERM, mng_init_term, mng_free_term, mng_read_term, mng_write_term, mng_assign_term, 0, 0},
 #ifndef MNG_SKIPCHUNK_bKGD
@@ -337,7 +362,9 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 #ifndef MNG_SKIPCHUNK_eXPI
     {MNG_UINT_eXPI, mng_init_expi, mng_free_expi, mng_read_expi, mng_write_expi, mng_assign_expi, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_evNT
     {MNG_UINT_evNT, mng_init_evnt, mng_free_evnt, mng_read_evnt, mng_write_evnt, mng_assign_evnt, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_fPRI
     {MNG_UINT_fPRI, mng_init_fpri, mng_free_fpri, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0},
 #endif
@@ -404,7 +431,11 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 
   /* binary search; with 54 chunks, worst-case is 7 comparisons */
   iLower  = 0;
+#ifndef MNG_NO_DELTA_PNG
   iMiddle = 11;                        /* start with the IDAT entry */
+#else
+  iMiddle = 8;
+#endif
   iUpper  = iTop;
   pEntry  = 0;                         /* no goods yet! */
   pChunk  = 0;
@@ -709,9 +740,11 @@ mng_retcode mng_read_graphic (mng_datap pData)
       if (mng_get_uint32 (pData->pReadbuf) == PNG_SIG)
         pData->eSigtype = mng_it_png;
       else
+#ifdef MNG_INCLUDE_JNG
       if (mng_get_uint32 (pData->pReadbuf) == JNG_SIG)
         pData->eSigtype = mng_it_jng;
       else
+#endif
       if (mng_get_uint32 (pData->pReadbuf) == MNG_SIG)
         pData->eSigtype = mng_it_mng;
       else

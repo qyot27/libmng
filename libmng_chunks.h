@@ -569,6 +569,7 @@ typedef mng_term * mng_termp;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SAVE
 typedef struct {                       /* SAVE entry */
            mng_uint8         iEntrytype;
            mng_uint32arr2    iOffset;            /* 0=MSI, 1=LSI */
@@ -588,19 +589,22 @@ typedef struct {                       /* SAVE */
            mng_save_entryp   pEntries;
         } mng_save;
 typedef mng_save * mng_savep;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SEEK
 typedef struct {                       /* SEEK */
            mng_chunk_header  sHeader;
            mng_uint32        iNamesize;
            mng_pchar         zName;
         } mng_seek;
 typedef mng_seek * mng_seekp;
+#endif
 
 /* ************************************************************************** */
 
-#ifndef MNG_SKIPHUNK_eXPI
+#ifndef MNG_SKIPCHUNK_eXPI
 typedef struct {                       /* eXPI */
            mng_chunk_header  sHeader;
            mng_uint16        iSnapshotid;
@@ -612,7 +616,7 @@ typedef mng_expi * mng_expip;
 
 /* ************************************************************************** */
 
-#ifndef MNG_SKIPHUNK_fPRI
+#ifndef MNG_SKIPCHUNK_fPRI
 typedef struct {                       /* fPRI */
            mng_chunk_header  sHeader;
            mng_uint8         iDeltatype;
@@ -623,7 +627,7 @@ typedef mng_fpri * mng_fprip;
 
 /* ************************************************************************** */
 
-#ifndef MNG_SKIPHUNK_nEED
+#ifndef MNG_SKIPCHUNK_nEED
 typedef struct {                       /* nEED */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordssize;
@@ -745,6 +749,7 @@ typedef mng_drop * mng_dropp;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_DBYK
 typedef struct {                       /* DBYK */
            mng_chunk_header  sHeader;
            mng_chunkid       iChunkname;
@@ -753,9 +758,11 @@ typedef struct {                       /* DBYK */
            mng_pchar         zKeywords;
         } mng_dbyk;
 typedef mng_dbyk * mng_dbykp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_ORDR
 typedef struct {                       /* ORDR entry */
            mng_chunkid       iChunkname;
            mng_uint8         iOrdertype;
@@ -768,6 +775,7 @@ typedef struct mng_ordr_struct {       /* ORDR */
            mng_ordr_entryp   pEntries;
         } mng_ordr;
 typedef mng_ordr * mng_ordrp;
+#endif
 
 /* ************************************************************************** */
 

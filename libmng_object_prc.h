@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_object_prc.h       copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_object_prc.h       copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (definition)                    * */
 /* *                                                                        * */
@@ -51,6 +51,10 @@
 /* *             - added in-memory color-correction of abstract images      * */
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - fixed DISC support                                       * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added conditionals around Delta-PNG code                 * */
+/* *             - added SKIP_CHUNK feature                                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -288,11 +292,15 @@ mng_retcode mng_create_ani_term   (mng_datap      pData,
                                    mng_uint32     iDelay,
                                    mng_uint32     iItermax);
 
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_create_ani_save   (mng_datap      pData);
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_retcode mng_create_ani_seek   (mng_datap      pData,
                                    mng_uint32     iSegmentnamesize,
                                    mng_pchar      zSegmentname);
-
+#endif
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode mng_create_ani_dhdr   (mng_datap      pData,
                                    mng_uint16     iObjectid,
                                    mng_uint8      iImagetype,
@@ -316,6 +324,7 @@ mng_retcode mng_create_ani_pplt   (mng_datap      pData,
                                    mng_palette8ep paIndexentries,
                                    mng_uint8p     paAlphaentries,
                                    mng_uint8p     paUsedentries);
+#endif
 
 mng_retcode mng_create_ani_magn   (mng_datap      pData,
                                    mng_uint16     iFirstid,
@@ -352,14 +361,20 @@ mng_retcode mng_free_ani_trns     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_gama     (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_cHRM
 mng_retcode mng_free_ani_chrm     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_free_ani_srgb     (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode mng_free_ani_iccp     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_bKGD
 mng_retcode mng_free_ani_bkgd     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_free_ani_loop     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_endl     (mng_datap    pData,
@@ -382,10 +397,15 @@ mng_retcode mng_free_ani_show     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_term     (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_free_ani_save     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_free_ani_seek     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode mng_free_ani_dhdr     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_prom     (mng_datap    pData,
@@ -396,6 +416,7 @@ mng_retcode mng_free_ani_ijng     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_pplt     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_free_ani_magn     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_past     (mng_datap    pData,
@@ -414,14 +435,20 @@ mng_retcode mng_process_ani_trns  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_gama  (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_cHRM
 mng_retcode mng_process_ani_chrm  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_process_ani_srgb  (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode mng_process_ani_iccp  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_bKGD
 mng_retcode mng_process_ani_bkgd  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_process_ani_loop  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_endl  (mng_datap    pData,
@@ -444,10 +471,15 @@ mng_retcode mng_process_ani_show  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_term  (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_process_ani_save  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_retcode mng_process_ani_seek  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode mng_process_ani_dhdr  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_prom  (mng_datap    pData,
@@ -458,6 +490,7 @@ mng_retcode mng_process_ani_ijng  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_pplt  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_process_ani_magn  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_past  (mng_datap    pData,

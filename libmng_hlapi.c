@@ -295,6 +295,7 @@ mng_retcode mng_drop_objects (mng_datap pData,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode mng_drop_savedata (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -317,6 +318,7 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
@@ -325,7 +327,9 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 mng_retcode mng_reset_rundata (mng_datap pData)
 {
   mng_drop_invalid_objects (pData);    /* drop invalidly stored objects */
+#ifndef MNG_SKIPCHUNK_SAVE
   mng_drop_savedata        (pData);    /* drop stored savedata */
+#endif
   mng_reset_objzero        (pData);    /* reset object 0 */
                                        /* drop stored objects (if any) */
   mng_drop_objects         (pData, MNG_FALSE);
@@ -1130,7 +1134,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData = ((mng_datap)(hHandle));      /* address main structure */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_SKIPCHUNK_SAVE
   mng_drop_savedata (pData);           /* cleanup saved-data from SAVE/SEEK */
+#endif
 #endif
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
@@ -1202,7 +1208,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
                                        /* let's assume the best scenario */
+#ifndef MNG_NO_OLD_VERSIONS
   pData->bPreDraft48           = MNG_FALSE;
+#endif
                                        /* the unknown chunk */
   pData->iChunkname            = MNG_UINT_HUH;
   pData->iChunkseq             = 0;
@@ -1457,6 +1465,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
   pData->iGlobalGamma          = 0;    /* no global gAMA data */
 
+#ifndef MNG_SKIPCHUNK_cHRM
   pData->iGlobalWhitepointx    = 0;    /* no global cHRM data */
   pData->iGlobalWhitepointy    = 0;
   pData->iGlobalPrimaryredx    = 0;
@@ -1465,16 +1474,20 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iGlobalPrimarygreeny  = 0;
   pData->iGlobalPrimarybluex   = 0;
   pData->iGlobalPrimarybluey   = 0;
+#endif
 
   pData->iGlobalRendintent     = 0;    /* no global sRGB data */
 
   pData->iGlobalProfilesize    = 0;    /* no global iCCP data */
   pData->pGlobalProfile        = MNG_NULL;
 
+#ifndef MNG_SKIPCHUNK_bKGD
   pData->iGlobalBKGDred        = 0;    /* no global bKGD data */
   pData->iGlobalBKGDgreen      = 0;
   pData->iGlobalBKGDblue       = 0;
+#endif
                                        /* no delta-image */
+#ifndef MNG_NO_DELTA_PNG
   pData->pDeltaImage           = MNG_NULL;
   pData->iDeltaImagetype       = 0;
   pData->iDeltatype            = 0;
@@ -1498,6 +1511,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iPromWidth            = 0;
   pData->pPromSrc              = MNG_NULL;
   pData->pPromDst              = MNG_NULL;
+#endif
 
   pData->iMAGNfromid           = 0;
   pData->iMAGNtoid             = 0;

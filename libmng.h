@@ -100,7 +100,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -252,6 +252,12 @@
 /* *             - added beta version function & constant                   * */
 /* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
 /* *             - added support to get totals after mng_read()             * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G. Randers-Pehrson                    * */
+/* *             - added support for reducing the footprint of libmng       * */
+/* *               by macros that optionally skip unused chunks, remove     * */
+/* *               16-bit sample support, remove Delta support, and         * */
+/* *               remove JNG support, to accomodate Mozilla/Firebird.      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_filter.c           copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_filter.c           copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Filtering routines (implementation)                        * */
 /* *                                                                        * */
@@ -30,6 +30,9 @@
 /* *             - added test-option for PNG filter method 193 (=no filter) * */
 /* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
 /* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - reversed some loops to use decrementing counter          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -96,7 +99,11 @@ MNG_LOCAL mng_retcode filter_up (mng_datap pData)
   pRawx   = pData->pWorkrow + pData->iPixelofs;
   pPriorx = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsize - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsize; iX++)
+#endif
   {
     *pRawx = (mng_uint8)(*pRawx + *pPriorx);
     pRawx++;
@@ -129,7 +136,11 @@ MNG_LOCAL mng_retcode filter_average (mng_datap pData)
   pPriorx    = pData->pPrevrow + pData->iPixelofs;
   pRawx_prev = pData->pWorkrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = iBpp - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < iBpp; iX++)
+#endif
   {
     *pRawx = (mng_uint8)(*pRawx + ((*pPriorx) >> 1));
     pRawx++;
@@ -175,7 +186,11 @@ MNG_LOCAL mng_retcode filter_paeth (mng_datap pData)
   pRawx_prev   = pData->pWorkrow + pData->iPixelofs;
   pPriorx_prev = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = iBpp - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < iBpp; iX++)
+#endif
   {
     *pRawx = (mng_uint8)(*pRawx + *pPriorx);
 
@@ -371,7 +386,11 @@ mng_retcode mng_differ_g1 (mng_datap pData)
     pRawi = pData->pWorkrow + pData->iPixelofs;
     pRawo = pData->pPrevrow + pData->iPixelofs;
                                        /* just invert every bit */
+#ifdef MNG_DECREMENT_LOOPS
+    for (iX = pData->iRowsize - 1; iX >= 0; iX--)
+#else
     for (iX = 0; iX < pData->iRowsize; iX++)
+#endif
       *pRawo++ = (mng_uint8)(~(*pRawi++));
 
   }
@@ -403,7 +422,11 @@ mng_retcode mng_differ_g2 (mng_datap pData)
   iN    = 0;
   iS    = 0;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     if (!iC)
     {
@@ -453,7 +476,11 @@ mng_retcode mng_differ_g4 (mng_datap pData)
   iN    = 0;
   iS    = 0;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     if (!iC)
     {
@@ -497,7 +524,11 @@ mng_retcode mng_differ_g8 (mng_datap pData)
   pRawi = pData->pWorkrow + pData->iPixelofs;
   pRawo = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *pRawo++ = (mng_uint8)(((mng_uint16)*pRawi + pData->iLevel0) & 0xFF);
 
@@ -525,7 +556,11 @@ mng_retcode mng_differ_g16 (mng_datap pData)
   pRawi = (mng_uint16p)(pData->pWorkrow + pData->iPixelofs);
   pRawo = (mng_uint16p)(pData->pPrevrow + pData->iPixelofs);
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *pRawo++ = (mng_uint16)(((mng_uint32)*pRawi + (mng_uint32)pData->iLevel0) & 0xFFFF);
 
@@ -553,7 +588,11 @@ mng_retcode mng_differ_rgb8 (mng_datap pData)
   pRawi = pData->pWorkrow + pData->iPixelofs;
   pRawo = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *(pRawo+1) = (mng_uint8)(((mng_uint16)*(pRawi+1) + pData->iLevel1) & 0xFF);
     *pRawo     = (mng_uint8)(((mng_uint16)*pRawi     + pData->iLevel0 +
@@ -586,7 +625,11 @@ mng_retcode mng_differ_rgb16 (mng_datap pData)
   pRawi = (mng_uint16p)(pData->pWorkrow + pData->iPixelofs);
   pRawo = (mng_uint16p)(pData->pPrevrow + pData->iPixelofs);
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *(pRawo+1) = (mng_uint16)(((mng_uint32)*(pRawi+1) + (mng_uint32)pData->iLevel1) & 0xFFFF);
     *pRawo     = (mng_uint16)(((mng_uint32)*pRawi     + (mng_uint32)pData->iLevel0 +
@@ -621,7 +664,11 @@ mng_retcode mng_differ_idx1 (mng_datap pData)
     pRawi = pData->pWorkrow + pData->iPixelofs;
     pRawo = pData->pPrevrow + pData->iPixelofs;
                                        /* just invert every bit */
+#ifdef MNG_DECREMENT_LOOPS
+    for (iX = pData->iRowsize - 1; iX >= 0; iX--)
+#else
     for (iX = 0; iX < pData->iRowsize; iX++)
+#endif
       *pRawo++ = (mng_uint8)(~(*pRawi++));
 
   }
@@ -653,7 +700,11 @@ mng_retcode mng_differ_idx2 (mng_datap pData)
   iN    = 0;
   iS    = 0;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     if (!iC)
     {
@@ -703,7 +754,11 @@ mng_retcode mng_differ_idx4 (mng_datap pData)
   iN    = 0;
   iS    = 0;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     if (!iC)
     {
@@ -747,7 +802,11 @@ mng_retcode mng_differ_idx8 (mng_datap pData)
   pRawi = pData->pWorkrow + pData->iPixelofs;
   pRawo = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *pRawo++ = (mng_uint8)(((mng_uint16)*pRawi + pData->iLevel0) & 0xFF);
 
@@ -775,7 +834,11 @@ mng_retcode mng_differ_ga8 (mng_datap pData)
   pRawi = pData->pWorkrow + pData->iPixelofs;
   pRawo = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *pRawo     = (mng_uint8)(((mng_uint16)*pRawi     + pData->iLevel0) & 0xFF);
     *(pRawo+1) = (mng_uint8)(((mng_uint16)*(pRawi+1) + pData->iLevel1) & 0xFF);
@@ -805,7 +868,11 @@ mng_retcode mng_differ_ga16 (mng_datap pData)
   pRawi = (mng_uint16p)(pData->pWorkrow + pData->iPixelofs);
   pRawo = (mng_uint16p)(pData->pPrevrow + pData->iPixelofs);
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *pRawo     = (mng_uint16)(((mng_uint32)*pRawi     + (mng_uint32)pData->iLevel0) & 0xFFFF);
     *(pRawo+1) = (mng_uint16)(((mng_uint32)*(pRawi+1) + (mng_uint32)pData->iLevel1) & 0xFFFF);
@@ -834,7 +901,11 @@ mng_retcode mng_differ_rgba8 (mng_datap pData)
   pRawi = pData->pWorkrow + pData->iPixelofs;
   pRawo = pData->pPrevrow + pData->iPixelofs;
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *(pRawo+1) = (mng_uint8)(((mng_uint16)*(pRawi+1) + pData->iLevel1) & 0xFF);
     *pRawo     = (mng_uint8)(((mng_uint16)*pRawi     + pData->iLevel0 +
@@ -868,7 +939,11 @@ mng_retcode mng_differ_rgba16 (mng_datap pData)
   pRawi = (mng_uint16p)(pData->pWorkrow + pData->iPixelofs);
   pRawo = (mng_uint16p)(pData->pPrevrow + pData->iPixelofs);
 
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples - 1; iX >= 0; iX--)
+#else
   for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
   {
     *(pRawo+1) = (mng_uint16)(((mng_uint32)*(pRawi+1) + (mng_uint32)pData->iLevel1) & 0xFFFF);
     *pRawo     = (mng_uint16)(((mng_uint32)*pRawi     + (mng_uint32)pData->iLevel0 +

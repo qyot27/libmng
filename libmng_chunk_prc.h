@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_prc.h        copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_chunk_prc.h        copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (definition)                * */
 /* *                                                                        * */
@@ -30,6 +30,9 @@
 /* *             - B597134 - libmng pollutes the linker namespace           * */
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added NO_DELTA_PNG support                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -90,18 +93,24 @@ INIT_CHUNK_HDR (mng_init_expi) ;
 INIT_CHUNK_HDR (mng_init_fpri) ;
 INIT_CHUNK_HDR (mng_init_need) ;
 INIT_CHUNK_HDR (mng_init_phyg) ;
+#ifdef MNG_INCLUDE_JNG
 INIT_CHUNK_HDR (mng_init_jhdr) ;
 INIT_CHUNK_HDR (mng_init_jdaa) ;
 INIT_CHUNK_HDR (mng_init_jdat) ;
 INIT_CHUNK_HDR (mng_init_jsep) ;
+#endif
+#ifndef MNG_NO_DELTA_PNG
 INIT_CHUNK_HDR (mng_init_dhdr) ;
 INIT_CHUNK_HDR (mng_init_prom) ;
 INIT_CHUNK_HDR (mng_init_ipng) ;
 INIT_CHUNK_HDR (mng_init_pplt) ;
+#ifdef MNG_INCLUDE_JNG
 INIT_CHUNK_HDR (mng_init_ijng) ;
+#endif
 INIT_CHUNK_HDR (mng_init_drop) ;
 INIT_CHUNK_HDR (mng_init_dbyk) ;
 INIT_CHUNK_HDR (mng_init_ordr) ;
+#endif
 INIT_CHUNK_HDR (mng_init_magn) ;
 INIT_CHUNK_HDR (mng_init_evnt) ;
 INIT_CHUNK_HDR (mng_init_unknown) ;
@@ -150,18 +159,24 @@ FREE_CHUNK_HDR (mng_free_expi) ;
 FREE_CHUNK_HDR (mng_free_fpri) ;
 FREE_CHUNK_HDR (mng_free_need) ;
 FREE_CHUNK_HDR (mng_free_phyg) ;
+#ifdef MNG_INCLUDE_JNG
 FREE_CHUNK_HDR (mng_free_jhdr) ;
 FREE_CHUNK_HDR (mng_free_jdaa) ;
 FREE_CHUNK_HDR (mng_free_jdat) ;
 FREE_CHUNK_HDR (mng_free_jsep) ;
+#endif
+#ifndef MNG_NO_DELTA_PNG
 FREE_CHUNK_HDR (mng_free_dhdr) ;
 FREE_CHUNK_HDR (mng_free_prom) ;
 FREE_CHUNK_HDR (mng_free_ipng) ;
 FREE_CHUNK_HDR (mng_free_pplt) ;
+#ifdef MNG_INCLUDE_JNG
 FREE_CHUNK_HDR (mng_free_ijng) ;
+#endif
 FREE_CHUNK_HDR (mng_free_drop) ;
 FREE_CHUNK_HDR (mng_free_dbyk) ;
 FREE_CHUNK_HDR (mng_free_ordr) ;
+#endif
 FREE_CHUNK_HDR (mng_free_magn) ;
 FREE_CHUNK_HDR (mng_free_evnt) ;
 FREE_CHUNK_HDR (mng_free_unknown) ;
@@ -213,18 +228,24 @@ ASSIGN_CHUNK_HDR (mng_assign_expi) ;
 ASSIGN_CHUNK_HDR (mng_assign_fpri) ;
 ASSIGN_CHUNK_HDR (mng_assign_need) ;
 ASSIGN_CHUNK_HDR (mng_assign_phyg) ;
+#ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_jhdr) ;
 ASSIGN_CHUNK_HDR (mng_assign_jdaa) ;
 ASSIGN_CHUNK_HDR (mng_assign_jdat) ;
 ASSIGN_CHUNK_HDR (mng_assign_jsep) ;
+#endif
+#ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_dhdr) ;
 ASSIGN_CHUNK_HDR (mng_assign_prom) ;
 ASSIGN_CHUNK_HDR (mng_assign_ipng) ;
 ASSIGN_CHUNK_HDR (mng_assign_pplt) ;
+#ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_ijng) ;
+#endif
 ASSIGN_CHUNK_HDR (mng_assign_drop) ;
 ASSIGN_CHUNK_HDR (mng_assign_dbyk) ;
 ASSIGN_CHUNK_HDR (mng_assign_ordr) ;
+#endif
 ASSIGN_CHUNK_HDR (mng_assign_magn) ;
 ASSIGN_CHUNK_HDR (mng_assign_evnt) ;
 ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
@@ -270,18 +291,24 @@ ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 #define mng_assign_expi 0
 #define mng_assign_fpri 0
 #define mng_assign_phyg 0
+#ifdef MNG_INCLUDE_JNG
 #define mng_assign_jhdr 0
 #define mng_assign_jdaa 0
 #define mng_assign_jdat 0
 #define mng_assign_jsep 0
+#endif
+#ifndef MNG_NO_DELTA_PNG
 #define mng_assign_dhdr 0
 #define mng_assign_prom 0
 #define mng_assign_ipng 0
 #define mng_assign_pplt 0
+#ifdef MNG_INCLUDE_JNG
 #define mng_assign_ijng 0
+#endif
 #define mng_assign_drop 0
 #define mng_assign_dbyk 0
 #define mng_assign_ordr 0
+#endif
 #define mng_assign_magn 0
 #define mng_assign_need 0
 #define mng_assign_evnt 0

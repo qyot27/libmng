@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_error.c            copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_error.c            copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error routines (implementation)                            * */
 /* *                                                                        * */
@@ -70,6 +70,10 @@
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - added check for TERM placement during create/write       * */
 /* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G. R-P                                * */
+/* *             - added MNG_SKIPCHUNK_CHNK, MNG_NO_DELTA_PNG reductions.   * */
+/* *             - skipped more code when MNG_INCLUDE_JNG is not enabled.   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -95,7 +99,9 @@ MNG_LOCAL mng_error_entry const error_table [] =
     {MNG_NOCALLBACK,       "A required callback is not defined"},
     {MNG_UNEXPECTEDEOF,    "Encountered unexpected end-of-file"},
     {MNG_ZLIBERROR,        "zlib encountered an error"},
+#ifdef MNG_INCLUDE_JNG
     {MNG_JPEGERROR,        "ijgsrc6b encountered an error"},
+#endif
     {MNG_LCMSERROR,        "lcms encountered an error"},
     {MNG_NOOUTPUTPROFILE,  "No output-profile defined for CMS"},
     {MNG_NOSRGBPROFILE,    "No sRGB-profile defined for CMS"},
@@ -143,12 +149,18 @@ MNG_LOCAL mng_error_entry const error_table [] =
     {MNG_INVENTRYTYPE,     "The entry_type is invalid"},
     {MNG_ENDWITHNULL,      "Chunk must not end with NULL byte"},
     {MNG_INVIMAGETYPE,     "The image_type is invalid"},
+#ifndef MNG_NO_DELTA_PNG
     {MNG_INVDELTATYPE,     "The delta_type is invalid"},
+#endif
     {MNG_INVALIDINDEX,     "Index-value out of bounds"},
+#ifdef MNG_INCLUDE_JNG
     {MNG_TOOMUCHJDAT,      "Too much data in JDAT chunk(s)"},
     {MNG_JPEGPARMSERR,     "JHDR parameters & JFIF-data do not match"},
+#endif
     {MNG_INVFILLMETHOD,    "The fill_method is invalid"},
+#ifndef MNG_NO_DELTA_PNG
     {MNG_OBJNOTCONCRETE,   "Target object for DHDR must be concrete"},
+#endif
     {MNG_TARGETNOALPHA,    "Target object must have alpha-channel"},
     {MNG_MNGTOOCOMPLEX,    "MHDR simplicity indicates unsupported feature(s)"},
     {MNG_UNKNOWNCRITICAL,  "Unknown critical chunk encountered"},
@@ -160,7 +172,9 @@ MNG_LOCAL mng_error_entry const error_table [] =
     {MNG_INVALIDEVENT,     "Event type is invalid"},
     {MNG_INVALIDMASK,      "Mask type is invalid"},
     {MNG_NOMATCHINGLOOP,   "ENDL without matching LOOP"},
+#ifndef MNG_SKIPCHUNK_evNT
     {MNG_SEEKNOTFOUND,     "evNT points to unknown SEEK"},
+#endif
     {MNG_OBJNOTABSTRACT,   "Destination object for PAST must be abstract"},
     {MNG_TERMSEQERROR,     "TERM misplaced during creation of MNG stream"},
 
@@ -234,7 +248,7 @@ mng_bool mng_store_error (mng_datap   pData,
         pData->zErrortext = pEntry->zErrortext;
       else
         pData->zErrortext = "Unknown error";
-    }
+      }
 #else /* MNG_INCLUDE_ERROR_STRINGS */
     pData->zErrortext = 0;
 #endif /* MNG_INCLUDE_ERROR_STRINGS */

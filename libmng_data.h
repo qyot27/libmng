@@ -130,6 +130,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 04/11/2003 - G.Juyn                                * */
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
+/* *             1.0.6 - 07/05/2003 - G. R-P                                * */
+/* *             - optionally use zlib's crc32() function                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -322,7 +324,9 @@ typedef struct mng_data_struct {
            mng_processarow   fProcessarow;
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+#ifndef MNG_NO_OLD_VERSIONS
            mng_bool          bPreDraft48;        /* flags ancient style draft */
+#endif
 
            mng_chunkid       iChunkname;         /* read/write-state variables */
            mng_uint32        iChunkseq;
@@ -759,8 +763,18 @@ typedef struct mng_data_struct {
 
 #endif /* MNG_INCLUDE_JNG */
 
-           mng_uint32        aCRCtable [256];    /* CRC prefab table */
-           mng_bool          bCRCcomputed;       /* "has been build" indicator */
+#ifndef MNG_USE_ZLIB_CRC
+           mng_uint32        aCRCtable [256];  /* CRC prefab table */
+           mng_bool          bCRCcomputed;     /* "has been built" indicator */
+#endif
+
+#ifdef MNG_OPTIMIZE_FOOTPRINT_INIT
+           png_imgtype       ePng_imgtype;
+#endif
+
+#ifdef MNG_NO_16BIT_SUPPORT
+           mng_uint8         iPNGmult;     /* Real input depth */
+#endif
 
         } mng_data;
 

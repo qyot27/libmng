@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_zlib.c             copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * file      : libmng_zlib.c             copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : ZLIB library interface (implementation)                    * */
 /* *                                                                        * */
@@ -45,6 +45,9 @@
 /* *             - B597134 - libmng pollutes the linker namespace           * */
 /* *             1.0.5 - 09/19/2002 - G.Juyn                                * */
 /* *             - added warning for too much IDAT data                     * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_16BIT_SUPPORT support                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -195,7 +198,12 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
   if (pData->sZlib.next_out == 0)      /* initialize output variables ? */
   {                                    /* let zlib know where to store stuff */
     pData->sZlib.next_out  = pData->pWorkrow;
-    pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#ifdef MNG_NO_16BIT_SUPPORT
+      pData->sZlib.avail_out = (uInt)(pData->iPNGmult*pData->iRowsize +
+           pData->iPixelofs);
+#else
+      pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#endif
   }
 
   do
@@ -207,6 +215,23 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
     {                                  /* image not completed yet ? */
       if (pData->iRow < (mng_int32)pData->iDataheight)
       {
+#ifdef MNG_NO_16BIT_SUPPORT
+        if (pData->iPNGmult > 1)
+        {
+          /* Reduce Workrow to 8-bit */
+          mng_int32  iX;
+          mng_uint8p pSrc = pData->pWorkrow+1;
+          mng_uint8p pDest = pSrc;
+
+          for (iX = pData->iRowsize; iX > 0; iX--)
+          {
+            *pDest = *pSrc;
+            pDest++;
+            pSrc+=2;
+          }
+        }
+#endif
+
 #ifdef FILTER192                       /* has leveling info ? */
         if (pData->iFilterofs == MNG_FILTER_DIFFERING)
           iRslt = init_rowdiffering (pData);
@@ -219,7 +244,7 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
           iRslt = mng_filter_a_row (pData);
         else
           iRslt = MNG_NOERROR;
-                                       /* additonal leveling/differing ? */
+                                       /* additional leveling/differing ? */
         if ((!iRslt) && (pData->fDifferrow))
         {
           iRslt = ((mng_differrow)pData->fDifferrow) (pData);
@@ -277,7 +302,12 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
       }
                                        /* let zlib know where to store next output */
       pData->sZlib.next_out  = pData->pWorkrow;
-      pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#ifdef MNG_NO_16BIT_SUPPORT
+        pData->sZlib.avail_out = (uInt)(pData->iPNGmult*pData->iRowsize +
+           pData->iPixelofs);
+#else
+        pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#endif
     }
   }                                    /* until some error or EOI
                                           or all pixels received */
@@ -341,7 +371,7 @@ mng_retcode mngzlib_inflatefree (mng_datap pData)
 
   pData->bInflating = MNG_FALSE;       /* stopped it */
 
-  iZrslt = inflateEnd (&pData->sZlib); /* let zlib cleanup it's own stuff */
+  iZrslt = inflateEnd (&pData->sZlib); /* let zlib cleanup its own stuff */
 
   if (iZrslt != Z_OK)                  /* on error bail out */
     MNG_ERRORZ (pData, (mng_uint32)iZrslt)

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_callback_xs.c      copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.2                                                      * */
+/* * file      : libmng_callback_xs.c      copyright (c) 2000-2003 G.Juyn   * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -42,6 +42,9 @@
 /* *                                                                        * */
 /* *             1.0.2 - 06/23/2001 - G.Juyn                                * */
 /* *             - added processterm callback                               * */
+/* *                                                                        * */
+/* *             1.0.6 - 07/07/2003 - G. R-P                                * */
+/* *             - added SKIPCHUNK feature                                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -251,6 +254,7 @@ mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_tEXt
 mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
                                             mng_processtext fProc)
 {
@@ -267,11 +271,13 @@ mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode MNG_DECL mng_setcb_processsave (mng_handle      hHandle,
                                             mng_processsave fProc)
 {
@@ -288,11 +294,13 @@ mng_retcode MNG_DECL mng_setcb_processsave (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_retcode MNG_DECL mng_setcb_processseek (mng_handle      hHandle,
                                             mng_processseek fProc)
 {
@@ -309,11 +317,13 @@ mng_retcode MNG_DECL mng_setcb_processseek (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_nEED
 mng_retcode MNG_DECL mng_setcb_processneed (mng_handle      hHandle,
                                             mng_processneed fProc)
 {
@@ -330,6 +340,7 @@ mng_retcode MNG_DECL mng_setcb_processneed (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
@@ -545,6 +556,7 @@ mng_retcode MNG_DECL mng_setcb_processgamma (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
+#ifndef MNG_SKIPCHUNK_cHRM
 mng_retcode MNG_DECL mng_setcb_processchroma (mng_handle        hHandle,
                                               mng_processchroma fProc)
 {
@@ -561,6 +573,7 @@ mng_retcode MNG_DECL mng_setcb_processchroma (mng_handle        hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY && MNG_APP_CMS */
 
 /* ************************************************************************** */
@@ -587,6 +600,7 @@ mng_retcode MNG_DECL mng_setcb_processsrgb (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode MNG_DECL mng_setcb_processiccp (mng_handle      hHandle,
                                             mng_processiccp fProc)
 {
@@ -603,6 +617,7 @@ mng_retcode MNG_DECL mng_setcb_processiccp (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY && MNG_APP_CMS */
 
 /* ************************************************************************** */
@@ -802,6 +817,7 @@ mng_processheader MNG_DECL mng_getcb_processheader (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_tEXt
 mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -816,11 +832,13 @@ mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcesstext;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_processsave MNG_DECL mng_getcb_processsave (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -835,11 +853,13 @@ mng_processsave MNG_DECL mng_getcb_processsave (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcesssave;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_processseek MNG_DECL mng_getcb_processseek (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -854,11 +874,13 @@ mng_processseek MNG_DECL mng_getcb_processseek (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcessseek;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_processneed MNG_DECL mng_getcb_processneed (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -873,6 +895,7 @@ mng_processneed MNG_DECL mng_getcb_processneed (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcessneed;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
@@ -1068,6 +1091,7 @@ mng_processgamma MNG_DECL mng_getcb_processgamma (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
+#ifndef MNG_SKIPCHUNK_cHRM
 mng_processchroma MNG_DECL mng_getcb_processchroma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1082,6 +1106,7 @@ mng_processchroma MNG_DECL mng_getcb_processchroma (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcesschroma;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY && MNG_APP_CMS */
 
 /* ************************************************************************** */
@@ -1106,6 +1131,7 @@ mng_processsrgb MNG_DECL mng_getcb_processsrgb (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_processiccp MNG_DECL mng_getcb_processiccp (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1120,6 +1146,7 @@ mng_processiccp MNG_DECL mng_getcb_processiccp (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcessiccp;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY && MNG_APP_CMS */
 
 /* ************************************************************************** */

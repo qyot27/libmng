@@ -66,6 +66,9 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
+/* *             - added MNG_NO_DELTA_PNG reduction and more SKIPCHUNK      * */
+/* *               optimizations                                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -223,6 +226,8 @@ mng_retcode MNG_DECL mng_getchunk_ihdr (mng_handle hHandle,
   *iCompression = pChunk->iCompression;
   *iFilter      = pChunk->iFilter;
   *iInterlace   = pChunk->iInterlace;
+
+                                       /* fill the chunk */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IHDR, MNG_LC_END)
@@ -1483,6 +1488,7 @@ mng_retcode MNG_DECL mng_getchunk_term (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode MNG_DECL mng_getchunk_save (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_bool   *bEmpty,
@@ -1563,9 +1569,11 @@ mng_retcode MNG_DECL mng_getchunk_save_entry (mng_handle     hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_retcode MNG_DECL mng_getchunk_seek (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iNamesize,
@@ -1594,6 +1602,7 @@ mng_retcode MNG_DECL mng_getchunk_seek (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1821,6 +1830,7 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint16 *iObjectid,
@@ -1859,9 +1869,11 @@ mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_prom (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint8  *iColortype,
@@ -1892,9 +1904,11 @@ mng_retcode MNG_DECL mng_getchunk_prom (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iCount)
@@ -1921,9 +1935,11 @@ mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle hHandle,
                                               mng_handle hChunk,
                                               mng_uint32 iEntry,
@@ -1965,9 +1981,11 @@ mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_drop (mng_handle   hHandle,
                                         mng_handle   hChunk,
                                         mng_uint32   *iCount,
@@ -1996,9 +2014,12 @@ mng_retcode MNG_DECL mng_getchunk_drop (mng_handle   hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
 mng_retcode MNG_DECL mng_getchunk_dbyk (mng_handle  hHandle,
                                         mng_handle  hChunk,
                                         mng_chunkid *iChunkname,
@@ -2031,9 +2052,13 @@ mng_retcode MNG_DECL mng_getchunk_dbyk (mng_handle  hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
 mng_retcode MNG_DECL mng_getchunk_ordr (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iCount)
@@ -2060,9 +2085,13 @@ mng_retcode MNG_DECL mng_getchunk_ordr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
 mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle  hHandle,
                                               mng_handle  hChunk,
                                               mng_uint32  iEntry,
@@ -2098,6 +2127,8 @@ mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle  hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
@@ -2148,6 +2179,7 @@ mng_retcode MNG_DECL mng_getchunk_magn (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_evNT
 mng_retcode MNG_DECL mng_getchunk_evnt (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iCount)
@@ -2228,6 +2260,7 @@ mng_retcode MNG_DECL mng_getchunk_evnt_entry (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2323,7 +2356,6 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
-                                       /* fill the chunk */
   ((mng_ihdrp)pChunk)->iWidth       = iWidth;
   ((mng_ihdrp)pChunk)->iHeight      = iHeight;
   ((mng_ihdrp)pChunk)->iBitdepth    = iBitdepth;
@@ -2598,6 +2630,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_cHRM
 mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
                                         mng_bool   bEmpty,
                                         mng_uint32 iWhitepointx,
@@ -2654,6 +2687,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4195,6 +4229,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SAVE
 mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
                                         mng_bool   bEmpty,
                                         mng_uint8  iOffsettype,
@@ -4303,9 +4338,11 @@ mng_retcode MNG_DECL mng_putchunk_save_entry (mng_handle     hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_SEEK
 mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
                                         mng_uint32 iNamesize,
                                         mng_pchar  zName)
@@ -4353,6 +4390,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4722,6 +4760,7 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
                                         mng_uint16 iObjectid,
                                         mng_uint8  iImagetype,
@@ -4774,9 +4813,11 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
                                         mng_uint8  iColortype,
                                         mng_uint8  iSampledepth,
@@ -4821,9 +4862,11 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
 {
   mng_datap        pData;
@@ -4861,9 +4904,11 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
                                         mng_uint32 iCount)
 {
@@ -4904,9 +4949,11 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
                                               mng_uint32 iEntry,
                                               mng_uint16 iRed,
@@ -4955,9 +5002,12 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
 mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
 {
   mng_datap        pData;
@@ -4995,9 +5045,12 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
                                         mng_uint32   iCount,
                                         mng_chunkidp pChunknames)
@@ -5047,9 +5100,12 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
 mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
                                         mng_chunkid iChunkname,
                                         mng_uint8   iPolarity,
@@ -5101,9 +5157,13 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
 mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
                                         mng_uint32 iCount)
 {
@@ -5147,9 +5207,13 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_ORDR
 mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle  hHandle,
                                               mng_uint32  iEntry,
                                               mng_chunkid iChunkname,
@@ -5191,6 +5255,8 @@ mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle  hHandle,
 
   return MNG_NOERROR;
 }
+#endif
+#endif
 
 /* ************************************************************************** */
 
@@ -5255,6 +5321,7 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_evNT
 mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
                                         mng_uint32 iCount)
 {
@@ -5280,7 +5347,7 @@ mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_evNT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
-  iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_evnt (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5363,6 +5430,7 @@ mng_retcode MNG_DECL mng_putchunk_evnt_entry (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
