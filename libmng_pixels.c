@@ -176,6 +176,9 @@
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
 /* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
+/* *             - added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)  * */
+/* *             - fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3873,15 +3876,30 @@ mng_retcode mng_restore_bkgd_backcolor (mng_datap pData)
 #endif
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
+  // fast way for big endian
   iWrite = (((mng_uint8)(pData->iBACKred   >> 8)) << 24) |
 		   (((mng_uint8)(pData->iBACKgreen >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBACKblue  >> 8)) <<  8) |
            ( 0xFF                                      );
-#else
+#elif defined(MNG_LITTLEENDIAN_SUPPORTED)
+  // fast way for little endian
   iWrite = ( 0xFF                                 << 24) |
            (((mng_uint8)(pData->iBACKblue  >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBACKgreen >> 8)) <<  8) |
 		   (((mng_uint8)(pData->iBACKred   >> 8))      );
+#else
+  // generic way, works on all platforms
+  // put the data in memory in the correct order
+  {
+    mng_uint8 writeBytes[4] = {
+      (mng_uint8)(pData->iBACKred   >> 8),
+      (mng_uint8)(pData->iBACKgreen >> 8),
+      (mng_uint8)(pData->iBACKblue  >> 8),
+      0xFF
+    };
+    // load that data into a register
+    iWrite = *(mng_uint32*) writeBytes;
+  }
 #endif
                                        /* ok; drop the background-color in there */
   for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
@@ -3971,13 +3989,28 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
   }
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
+  // fast way for big endian
   iWrite = (iRed   << 24) |
 		   (iGreen << 16) |
 		   (iBlue  <<  8);
-#else
+#elif defined(MNG_LITTLEENDIAN_SUPPORTED)
+  // fast way for little endian
   iWrite = (iBlue  << 16) |
 		   (iGreen <<  8) |
 		   (iRed        );
+#else
+  // generic way, works on all platforms
+  // put the data in memory in the correct order
+  {
+    mng_uint8 writeBytes[4] = {
+      (mng_uint8)(iRed  ),
+      (mng_uint8)(iGreen),
+      (mng_uint8)(iBlue ),
+      0x00
+    };
+    // load that data into a register
+    iWrite = *(mng_uint32*) writeBytes;
+  }
 #endif
                                        /* ok; drop it in there */
   for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
@@ -4004,13 +4037,28 @@ mng_retcode mng_restore_bkgd_bgcolor (mng_datap pData)
 #endif
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
+  // fast way for big endian
   iWrite = (((mng_uint8)(pData->iBGred   >> 8)) << 24) |
 		   (((mng_uint8)(pData->iBGgreen >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBGblue  >> 8)) <<  8);
-#else
+#elif defined(MNG_LITTLEENDIAN_SUPPORTED)
+  // fast way for little endian
   iWrite = (((mng_uint8)(pData->iBGblue  >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBGgreen >> 8)) <<  8) |
 		   (((mng_uint8)(pData->iBGred   >> 8))      );
+#else
+  // generic way, works on all platforms
+  // put the data in memory in the correct order
+  {
+    mng_uint8 writeBytes[4] = {
+      (mng_uint8)(pData->iBGred   >> 8),
+      (mng_uint8)(pData->iBGgreen >> 8),
+      (mng_uint8)(pData->iBGblue  >> 8),
+      0x00
+    };
+    // load that data into a register
+    iWrite = *(mng_uint32*) writeBytes;
+  }
 #endif
                                        /* ok; drop the background-color in there */
   for (iX = (pData->iSourcer - pData->iSourcel); iX > 0; iX--)
@@ -4269,9 +4317,7 @@ mng_retcode mng_retrieve_g8 (mng_datap pData)
       {
 #ifndef MNG_NO_1_2_4BIT_SUPPORT
         mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1};
-        iG = (mng_uint8)(pBuf->iBKGDgray * multiplier[pBuf->iBitdepth]);
-#else
-        iG = (mng_uint8)pBuf->iBKGDgray;
+        iG = (mng_uint8)(iG * multiplier[pBuf->iBitdepth]);
 #endif
 
         *pRGBArow     = iG;            /* put in intermediate row */

@@ -23,6 +23,8 @@ core:
 - added bgr565_a8 canvas-style (thanks to J. Elvander)
 - standard windows dll upgraded to zlib 1.2.2
 - fixed PPLT getchunk/putchunk routines
+- added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)
+- fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG
 
 samples:
 

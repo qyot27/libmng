@@ -1021,8 +1021,8 @@ MNG_EXT mng_retcode MNG_DECL mng_set_viewgammaint    (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_displaygammaint (mng_handle        hHandle,
                                                       mng_uint32        iGamma);
 MNG_EXT mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle        hHandle,
-#endif
                                                       mng_uint32        iGamma);
+#endif
 
 #ifndef MNG_SKIP_MAXCANVAS
 /* Ultimate clipping size */
