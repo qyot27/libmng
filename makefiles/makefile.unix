@@ -26,6 +26,7 @@ CFLAGS= -O -I. -I$(ZLIB_INC) -I$(JPEG_INC) -I$(LCMS_INC)
 SOURCES= \
 	 libmng_callback_xs.c \
 	 libmng_chunk_io.c \
+	 libmng_chunk_descr.c \
 	 libmng_chunk_prc.c \
 	 libmng_chunk_xs.c \
 	 libmng_cms.c \

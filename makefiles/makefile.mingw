@@ -66,6 +66,7 @@ LIBPATH=$(prefix)/lib
 OBJS = \
 	libmng_callback_xs.o \
 	libmng_chunk_io.o \
+	libmng_chunk_descr.o \
 	libmng_chunk_prc.o \
 	libmng_chunk_xs.o \
 	libmng_cms.o \
@@ -132,6 +133,9 @@ libmng_display.o : libmng_display.c libmng.h libmng_conf.h \
 libmng_object_prc.o : libmng_object_prc.c libmng.h libmng_conf.h \
         libmng_types.h libmng_data.h libmng_objects.h libmng_object_prc.h libmng_memory.h \
         libmng_error.h libmng_trace.h libmng_display.h libmng_pixels.h
+libmng_chunk_descr.o : libmng_chunk_descr.c libmng.h libmng_conf.h \
+        libmng_types.h libmng_data.h libmng_chunks.h libmng_chunk_descr.h \
+        libmng_chunk_prc.h libmng_memory.h libmng_error.h libmng_trace.h
 libmng_chunk_prc.o : libmng_chunk_prc.c libmng.h libmng_conf.h \
         libmng_types.h libmng_data.h libmng_chunks.h libmng_chunk_prc.h libmng_memory.h \
         libmng_error.h libmng_trace.h

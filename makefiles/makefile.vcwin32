@@ -19,7 +19,7 @@ O=.obj
 #ERRFILE= >> mngerrs
 
 # variables
-OBJS1 = libmng_callback_xs$(O) libmng_chunk_io$(O) libmng_chunk_prc$(O)
+OBJS1 = libmng_callback_xs$(O) libmng_chunk_io$(O) libmng_chunk_prc$(O) libmng_chunk_descr$(0)
 OBJS2 = libmng_chunk_xs$(O) libmng_cms$(O) libmng_display$(O) libmng_dither$(O)
 OBJS3 = libmng_error$(O) libmng_filter$(O) libmng_hlapi$(O) libmng_jpeg$(O)
 OBJS4 = libmng_object_prc$(O) libmng_pixels$(O) libmng_prop_xs$(O)
@@ -31,6 +31,9 @@ libmng_callback_xs$(O): libmng.h libmng_data.h libmng_error.h libmng_trace.h
 		  $(CC) -c $(CFLAGS) $*.c $(ERRFILE)
 
 libmng_chunk_io$(O): libmng.h libmng_data.h libmng_error.h libmng_trace.h
+		  $(CC) -c $(CFLAGS) $*.c $(ERRFILE)
+
+libmng_chunk_descr$(O): libmng.h libmng_data.h libmng_error.h libmng_trace.h
 		  $(CC) -c $(CFLAGS) $*.c $(ERRFILE)
 
 libmng_chunk_prc$(O): libmng.h libmng_data.h libmng_error.h libmng_trace.h
@@ -86,7 +89,7 @@ libmng.lib: $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5)
 	del libmng.lib
 	lib /OUT:libmng.lib $(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5)
 
-mngtest.exe: mngtest.obj libmng.lib 
+mngtest.exe: mngtest.obj libmng.lib
 	$(LD) $(LDFLAGS) mngtest.obj libmng.lib ..\zlib\zlib.lib /OUT:mngtest.exe /SUBSYSTEM:CONSOLE
 
 test: mngtest.exe

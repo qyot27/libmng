@@ -1,13 +1,23 @@
 -----------------------------------------------------------
 
-1.0.9 (... .th 2004)
---------------------
+1.0.9 (jan 30th 2005)
+---------------------
 
 in short:
 
-New optimizations save about 21KB on a full-MNG standard Windows DLL build.
+New optimizations save over 20KB on footprint.
+Also a few bugfixes and several patches.
 
-(still intermediate cvs)
+Thanks to those sending in their additions and for testing!
+
+To turn on the optimizations do:
+
+#DEFINE MNG_OPTIMIZE_CHUNKINITFREE
+#DEFINE MNG_OPTIMIZE_OBJCLEANUP
+#DEFINE MNG_OPTIMIZE_CHUNKASSIGN
+#DEFINE MNG_OPTIMIZE_CHUNKREADER
+
+(eg. they're not on by default (yet) !)
 
 -------------------
 
