@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.h           copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
 /* *                                                                        * */
@@ -78,6 +78,9 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -217,13 +220,13 @@ mng_retcode mng_retrieve_rgba16        (mng_datap  pData);
 mng_retcode mng_store_g1               (mng_datap  pData);
 mng_retcode mng_store_g2               (mng_datap  pData);
 mng_retcode mng_store_g4               (mng_datap  pData);
-mng_retcode mng_store_g8               (mng_datap  pData);
 mng_retcode mng_store_idx1             (mng_datap  pData);
 mng_retcode mng_store_idx2             (mng_datap  pData);
 mng_retcode mng_store_idx4             (mng_datap  pData);
 #endif
 mng_retcode mng_store_idx8             (mng_datap  pData);
 mng_retcode mng_store_rgb8             (mng_datap  pData);
+mng_retcode mng_store_g8               (mng_datap  pData);
 mng_retcode mng_store_ga8              (mng_datap  pData);
 mng_retcode mng_store_rgba8            (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
@@ -420,40 +423,32 @@ mng_retcode mng_scale_rgba16_rgba8     (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint8   mng_promote_replicate_1_2  (mng_uint8  iB);
 mng_uint8   mng_promote_replicate_1_4  (mng_uint8  iB);
 mng_uint8   mng_promote_replicate_1_8  (mng_uint8  iB);
 mng_uint8   mng_promote_replicate_2_4  (mng_uint8  iB);
 mng_uint8   mng_promote_replicate_2_8  (mng_uint8  iB);
 mng_uint8   mng_promote_replicate_4_8  (mng_uint8  iB);
-#endif
 #ifndef MNG_NO_16BIT_SUPPORT
-#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint16  mng_promote_replicate_1_16 (mng_uint8  iB);
 mng_uint16  mng_promote_replicate_2_16 (mng_uint8  iB);
 mng_uint16  mng_promote_replicate_4_16 (mng_uint8  iB);
-#endif
 mng_uint16  mng_promote_replicate_8_16 (mng_uint8  iB);
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint8   mng_promote_zerofill_1_2   (mng_uint8  iB);
 mng_uint8   mng_promote_zerofill_1_4   (mng_uint8  iB);
 mng_uint8   mng_promote_zerofill_1_8   (mng_uint8  iB);
 mng_uint8   mng_promote_zerofill_2_4   (mng_uint8  iB);
 mng_uint8   mng_promote_zerofill_2_8   (mng_uint8  iB);
 mng_uint8   mng_promote_zerofill_4_8   (mng_uint8  iB);
-#endif
 #ifndef MNG_NO_16BIT_SUPPORT
-#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint16  mng_promote_zerofill_1_16  (mng_uint8  iB);
 mng_uint16  mng_promote_zerofill_2_16  (mng_uint8  iB);
 mng_uint16  mng_promote_zerofill_4_16  (mng_uint8  iB);
-#endif
 mng_uint16  mng_promote_zerofill_8_16  (mng_uint8  iB);
 #endif
 #endif /* MNG_NO_DELTA_PNG */

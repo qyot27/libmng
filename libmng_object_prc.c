@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.c       copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -123,8 +123,12 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around MAGN chunk support             * */
+/* *                                                                        * */
 /* *             1.0.7 - 03/21/2004 - G.Juyn                                * */
 /* *             - fixed some 64-bit platform compiler warnings             * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/10/2004 - G.R-P                                 * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT support                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1124,6 +1128,12 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROMOTE_IMGOBJECT, MNG_LC_START)
 #endif
 
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (iBitdepth < 8)
+    iBitdepth=8;
+  if (pBuf->iBitdepth < 8)
+    pBuf->iBitdepth=8;
+#endif
 #ifdef MNG_NO_16BIT_SUPPORT
   if (iBitdepth > 8)
     iBitdepth=8;
@@ -1149,6 +1159,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
     {
       switch (iTempdepth)
       {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         case 1 : {
                    switch (iBitdepth)
                    {
@@ -1182,6 +1193,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
                    }
                    break;
                  }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
         case 8 : {
 #ifndef MNG_NO_16BIT_SUPPORT
                    if (iBitdepth == 16)
@@ -1196,6 +1208,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
     {
       switch (iTempdepth)
       {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         case 1 : {
                    switch (iBitdepth)
                    {
@@ -1229,6 +1242,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
                    }
                    break;
                  }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
         case 8 : {
 #ifndef MNG_NO_16BIT_SUPPORT
                    if (iBitdepth == 16)

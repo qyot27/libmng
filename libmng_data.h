@@ -827,7 +827,7 @@ typedef struct mng_data_struct {
            png_imgtype       ePng_imgtype;
 #endif
 
-#if defined(MNG_NO_16BIT_SUPPORT)
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
            mng_uint8         iPNGdepth;     /* Real input depth */
            mng_uint8         iPNGmult;
 #endif

@@ -210,6 +210,8 @@
 /* *               support is disabled                                      * */
 /* *             1.0.9 - 10/04/2004 - G.Juyn                                * */
 /* *             - fixed bug in writing sBIT for indexed color              * */
+/* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -677,10 +679,17 @@ READ_CHUNK (mng_read_ihdr)
   pData->iFilter       = *(pRawdata+11);
   pData->iInterlace    = *(pRawdata+12);
 
-#if defined(MNG_NO_16BIT_SUPPORT)
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
   pData->iPNGmult = 1;
   pData->iPNGdepth = pData->iBitdepth;
+#endif
 
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (pData->iBitdepth < 8)
+      pData->iBitdepth = 8;
+#endif
+
+#ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
@@ -689,9 +698,11 @@ READ_CHUNK (mng_read_ihdr)
 #endif
 
   if ((pData->iBitdepth !=  8)      /* parameter validity checks */
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
       && (pData->iBitdepth !=  1) &&
       (pData->iBitdepth !=  2) &&
       (pData->iBitdepth !=  4)
+#endif
 #ifndef MNG_NO_16BIT_SUPPORT
       && (pData->iBitdepth != 16)   
 #endif
@@ -1234,11 +1245,18 @@ READ_CHUNK (mng_read_trns)
       switch (pData->iColortype)       /* store fields for future reference */
       {
         case 0: {                      /* gray */
+#if defined(MNG_NO_1_2_4BIT_SUPPORT)
+                  mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1,
+                                          0,0,0,0,0,0,0,1};
+#endif
                   pBuf->iTRNSgray  = mng_get_uint16 (pRawdata);
                   pBuf->iTRNSred   = 0;
                   pBuf->iTRNSgreen = 0;
                   pBuf->iTRNSblue  = 0;
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_1_2_4BIT_SUPPORT)
+                  pBuf->iTRNSgray *= multiplier[pData->iPNGdepth];
+#endif
 #if defined(MNG_NO_16BIT_SUPPORT)
                   if (pData->iPNGmult == 2)
                      pBuf->iTRNSgray >>= 8;
@@ -1246,11 +1264,20 @@ READ_CHUNK (mng_read_trns)
                   break;
                 }
         case 2: {                      /* rgb */
+#if defined(MNG_NO_1_2_4BIT_SUPPORT)
+                  mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1,
+                                          0,0,0,0,0,0,0,1};
+#endif
                   pBuf->iTRNSgray  = 0;
                   pBuf->iTRNSred   = mng_get_uint16 (pRawdata);
                   pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
                   pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_1_2_4BIT_SUPPORT)
+                  pBuf->iTRNSred *= multiplier[pData->iPNGdepth];
+                  pBuf->iTRNSgreen *= multiplier[pData->iPNGdepth];
+                  pBuf->iTRNSblue *= multiplier[pData->iPNGdepth];
+#endif
 #if defined(MNG_NO_16BIT_SUPPORT)
                   if (pData->iPNGmult == 2)
                   {
@@ -3663,9 +3690,16 @@ READ_CHUNK (mng_read_basi)
   pData->iInterlace   = *(pRawdata+12);
 
 
-#if defined(MNG_NO_16BIT_SUPPORT)
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
   pData->iPNGmult = 1;
   pData->iPNGdepth = pData->iBitdepth;
+#endif
+
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (pData->iBitdepth < 8)
+    pData->iBitdepth = 8;
+#endif
+#ifdef MNG_NO_16BIT_SUPPORT
   if (pData->iBitdepth > 8)
     {
       pData->iBitdepth = 8;
@@ -3674,9 +3708,11 @@ READ_CHUNK (mng_read_basi)
 #endif
 
   if ((pData->iBitdepth !=  8)      /* parameter validity checks */
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
       && (pData->iBitdepth !=  1) &&
       (pData->iBitdepth !=  2) &&
       (pData->iBitdepth !=  4)
+#endif
 #ifndef MNG_NO_16BIT_SUPPORT
       && (pData->iBitdepth != 16)
 #endif
@@ -5566,9 +5602,14 @@ READ_CHUNK (mng_read_jhdr)
   pData->iJHDRalphainterlace   = *(pRawdata+15);
 
 
-#if defined(MNG_NO_16BIT_SUPPORT)
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
   pData->iPNGmult = 1;
   pData->iPNGdepth = pData->iJHDRalphabitdepth;
+#endif
+
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (pData->iJHDRalphabitdepth < 8)
+    pData->iJHDRalphabitdepth = 8;
 #endif
 
 #ifdef MNG_NO_16BIT_SUPPORT
@@ -5601,9 +5642,11 @@ READ_CHUNK (mng_read_jhdr)
       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
   {
     if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 )
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
         (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
         (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 )
+#endif
 #ifndef MNG_NO_16BIT_SUPPORT
         && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
 #endif

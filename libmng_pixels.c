@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -171,6 +171,9 @@
 /* *             - some speed optimizations (thanks to John Stiles)         * */
 /* *             1.0.8 - 08/01/2004 - G.Juyn                                * */
 /* *             - added support for 3+byte pixelsize for JPEG's            * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3699,18 +3702,20 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
     case 4 : {
                mng_uint8 iGray;
 
+#ifndef MNG_NO_16BIT_SUPPORT
                if (pBuf->iBitdepth > 8)
                  iGray = (mng_uint8)(pBuf->iBKGDgray >> 8);
                else
+#endif
                {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
+                 /* LBR scaling */
+                 mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1};
+                 iGray = multiplier[pBuf->iBitdepth] *
+                    (mng_uint8)pBuf->iBKGDgray;
+#else
                  iGray = (mng_uint8)pBuf->iBKGDgray;
-                                       /* please note how tricky the next code is !! */
-                 switch (pBuf->iBitdepth)
-                 {
-                   case 1 : iGray = (mng_uint8)((iGray << 1) + iGray);
-                   case 2 : iGray = (mng_uint8)((iGray << 2) + iGray);
-                   case 4 : iGray = (mng_uint8)((iGray << 4) + iGray);
-                 }
+#endif
                }
 
                iRed   = iGray;
@@ -3730,6 +3735,7 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
 
     case 2 : ;                         /* rgb types */
     case 6 : {
+#ifndef MNG_NO_16BIT_SUPPORT
                if (pBuf->iBitdepth > 8)
                {
                  iRed   = (mng_uint8)(pBuf->iBKGDred   >> 8);
@@ -3737,6 +3743,7 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
                  iBlue  = (mng_uint8)(pBuf->iBKGDblue  >> 8);
                }
                else
+#endif
                {
                  iRed   = (mng_uint8)(pBuf->iBKGDred  );
                  iGreen = (mng_uint8)(pBuf->iBKGDgreen);
@@ -4044,12 +4051,12 @@ mng_retcode mng_retrieve_g8 (mng_datap pData)
       }
       else
       {
-        switch (pBuf->iBitdepth)       /* LBR to 8-bits ! */
-        {
-          case 1 : iG = (mng_uint8)((iG << 1) + iG);
-          case 2 : iG = (mng_uint8)((iG << 2) + iG);
-          case 4 : iG = (mng_uint8)((iG << 4) + iG);
-        }
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
+        mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1};
+        iG = (mng_uint8)pBuf->iBKGDgray * multiplier[pBuf->iBitdepth];
+#else
+        iG = (mng_uint8)pBuf->iBKGDgray;
+#endif
 
         *pRGBArow     = iG;            /* put in intermediate row */
         *(pRGBArow+1) = iG;
@@ -4069,14 +4076,12 @@ mng_retcode mng_retrieve_g8 (mng_datap pData)
     for (iX = 0; iX < pData->iRowsamples; iX++)
 #endif
     {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
+      mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1};   /* LBR scaling */
+      iG = multiplier[pBuf->iBitdepth] * (mng_uint8)*pWorkrow;
+#else
       iG = *pWorkrow;                  /* get the gray-value */
-
-      switch (pBuf->iBitdepth)         /* LBR to 8-bits ! */
-      {
-        case 1 : iG = (mng_uint8)((iG << 1) + iG);
-        case 2 : iG = (mng_uint8)((iG << 2) + iG);
-        case 4 : iG = (mng_uint8)((iG << 4) + iG);
-      }
+#endif
 
       *pRGBArow     = iG;              /* put in intermediate row */
       *(pRGBArow+1) = iG;
@@ -6158,6 +6163,7 @@ mng_retcode mng_store_jpeg_g12_a16 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_delta_g1 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pDeltaImage)->pImgbuf;
@@ -6422,6 +6428,7 @@ mng_retcode mng_delta_g4 (mng_datap pData)
 
   return mng_store_g4 (pData);
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -8202,6 +8209,7 @@ mng_retcode mng_delta_rgba16_a16 (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_scale_g1_g2 (mng_datap pData)
 {
   mng_uint8p pWorkrow = pData->pRGBArow;
@@ -8484,6 +8492,7 @@ mng_retcode mng_scale_g4_g16 (mng_datap pData)
   return MNG_NOERROR;
 }
 #endif
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -8655,6 +8664,7 @@ mng_retcode mng_scale_rgba8_rgba16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_scale_g2_g1 (mng_datap pData)
 {
   mng_uint8p pWorkrow = pData->pRGBArow;
@@ -8916,6 +8926,7 @@ mng_retcode mng_scale_g16_g4 (mng_datap pData)
   return MNG_NOERROR;
 }
 #endif
+#endif /* NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -10341,6 +10352,7 @@ mng_retcode mng_promote_rgba8_rgba16 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_process_g1 (mng_datap pData)
 {
   mng_uint8p     pWorkrow;
@@ -10673,6 +10685,7 @@ mng_retcode mng_process_g4 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -11002,6 +11015,7 @@ mng_retcode mng_process_rgb16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_process_idx1 (mng_datap pData)
 {
   mng_uint8p     pWorkrow;
@@ -11323,6 +11337,7 @@ mng_retcode mng_process_idx4 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -11539,6 +11554,7 @@ mng_retcode mng_process_rgba16 (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_init_g1_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -11818,6 +11834,7 @@ mng_retcode mng_init_g4_i      (mng_datap pData)
 
   return mng_init_rowproc (pData);
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -12205,6 +12222,7 @@ mng_retcode mng_init_rgb16_i   (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_init_idx1_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -12484,6 +12502,7 @@ mng_retcode mng_init_idx4_i    (mng_datap pData)
 
   return mng_init_rowproc (pData);
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -12817,7 +12836,6 @@ mng_retcode mng_init_rgba8_ni  (mng_datap pData)
 
   return mng_init_rowproc (pData);
 }
-
 /* ************************************************************************** */
 
 mng_retcode mng_init_rgba8_i   (mng_datap pData)
@@ -12974,6 +12992,7 @@ mng_retcode mng_init_rgba16_i  (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_init_jpeg_a1_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -13115,6 +13134,7 @@ mng_retcode mng_init_jpeg_a4_ni     (mng_datap pData)
 
   return mng_init_rowproc (pData);
 }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -13240,6 +13260,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
   if (pData->fDisplayrow)
     switch (pData->ePng_imgtype)
     {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_g1:
       pData->fProcessrow = (mng_fptr)mng_process_g1;
       break;
@@ -13249,9 +13270,11 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_g4:
       pData->fProcessrow = (mng_fptr)mng_process_g4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_g8:
       pData->fProcessrow = (mng_fptr)mng_process_g8;
       break;
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_idx1:
       pData->fProcessrow = (mng_fptr)mng_process_idx1;
       break;
@@ -13261,6 +13284,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_idx4:
       pData->fProcessrow = (mng_fptr)mng_process_idx4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_idx8:
       pData->fProcessrow = (mng_fptr)mng_process_idx8;
       break;
@@ -13297,6 +13321,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
   if ((pData->bHasDHDR) && (pData->bDeltaimmediate))
     switch (pData->ePng_imgtype)
     {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_g1:
       pData->fStorerow = (mng_fptr)mng_delta_g1;
       break;
@@ -13306,9 +13331,11 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_g4:
       pData->fStorerow = (mng_fptr)mng_delta_g4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_g8:
       pData->fStorerow = (mng_fptr)mng_delta_g8;
       break;
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_idx1:
       pData->fStorerow = (mng_fptr)mng_delta_idx1;
       break;
@@ -13318,6 +13345,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_idx4:
       pData->fStorerow = (mng_fptr)mng_delta_idx4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_idx8:
       pData->fStorerow = (mng_fptr)mng_delta_idx8;
       break;
@@ -13351,6 +13379,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
 #endif  /* MNG_NO_DELTA_PNG */
     switch (pData->ePng_imgtype)
     {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_g1:
       pData->fStorerow = (mng_fptr)mng_store_g1;
       break;
@@ -13360,9 +13389,11 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_g4:
       pData->fStorerow = (mng_fptr)mng_store_g4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_g8:
       pData->fStorerow = (mng_fptr)mng_store_g8;
       break;
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_idx1:
       pData->fStorerow = (mng_fptr)mng_store_idx1;
       break;
@@ -13372,6 +13403,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_idx4:
       pData->fStorerow = (mng_fptr)mng_store_idx4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_idx8:
       pData->fStorerow = (mng_fptr)mng_store_idx8;
       break;
@@ -13400,6 +13432,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
 #endif
 
 #ifdef MNG_INCLUDE_JNG
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_jpeg_a1:
 /*  if (pData->iJHDRimgbitdepth == 8) */
       {
@@ -13438,6 +13471,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
         }
       }
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
       /* TODO: bitdepth 12 & 20 */
     case png_jpeg_a8:
 /*  if (pData->iJHDRimgbitdepth == 8) */
@@ -13477,6 +13511,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
   if (pData->iFilter == MNG_FILTER_DIFFERING)
   switch (pData->ePng_imgtype)
   {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_g1:
 #ifdef MNG_INCLUDE_JNG
     case png_jpeg_a1:
@@ -13495,6 +13530,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
 #endif
       pData->fDifferrow  = (mng_fptr)mng_differ_g4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_g8:
 #ifdef MNG_INCLUDE_JNG
     case png_jpeg_a8:
@@ -13504,6 +13540,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_rgb8:
       pData->fDifferrow  = (mng_fptr)mng_differ_rgb8;
       break;
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_idx1:
       pData->fDifferrow  = (mng_fptr)mng_differ_idx1;
       break;
@@ -13513,6 +13550,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
     case png_idx4:
       pData->fDifferrow  = (mng_fptr)mng_differ_idx4;
       break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_idx8:
       pData->fDifferrow  = (mng_fptr)mng_differ_idx8;
       break;
@@ -13549,6 +13587,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
 
   switch (pData->ePng_imgtype)
   {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
     case png_g1:
     case png_idx1:
 #ifdef MNG_INCLUDE_JNG
@@ -13579,6 +13618,7 @@ mng_retcode mng_init_rowproc (mng_datap pData)
         pData->iSamplediv  = 1;
         pData->iFilterbpp  = 1;
         break;
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
     case png_g8:
     case png_idx8:
 #ifdef MNG_INCLUDE_JNG

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_zlib.c             copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_zlib.c             copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : ZLIB library interface (implementation)                    * */
 /* *                                                                        * */
@@ -46,6 +46,9 @@
 /* *                                                                        * */
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_16BIT_SUPPORT support                       * */
+/* *                                                                        * */
+/* *             1.0.9 - 10/09/2004 - G.R-P                                 * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT support                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -197,6 +200,11 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
   {                                    /* let zlib know where to store stuff */
     pData->sZlib.next_out  = pData->pWorkrow;
     pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+    if (pData->iPNGdepth < 8)
+       pData->sZlib.avail_out = (uInt)((pData->iPNGdepth*pData->iRowsize + 7)/8
+           + pData->iPixelofs);
+#endif
 #ifdef MNG_NO_16BIT_SUPPORT
     if (pData->iPNGdepth > 8)
        pData->sZlib.avail_out = (uInt)(2*pData->iRowsize + pData->iPixelofs);
@@ -212,6 +220,111 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
     {                                  /* image not completed yet ? */
       if (pData->iRow < (mng_int32)pData->iDataheight)
       {
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+        if (pData->iPNGdepth == 1)
+        {
+          /* Inflate Workrow to 8-bit */
+          mng_int32  iX;
+          mng_uint8p pSrc = pData->pWorkrow+1;
+          mng_uint8p pDest = pSrc + pData->iRowsize - (pData->iRowsize+7)/8;
+
+          for (iX = ((pData->iRowsize+7)/8) ; iX > 0 ; iX--)
+             *pDest++ = *pSrc++;
+
+          pDest = pData->pWorkrow+1;
+          pSrc = pDest + pData->iRowsize - (pData->iRowsize+7)/8;
+          for (iX = pData->iRowsize; ;)
+          {
+            *pDest++ = (((*pSrc)>>7)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>6)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>5)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>4)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>3)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>2)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>1)&1);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)   )&1);
+            if (iX-- <= 0)
+              break;
+            pSrc++;
+          }
+        }
+        else if (pData->iPNGdepth == 2)
+        {
+          /* Inflate Workrow to 8-bit */
+          mng_int32  iX;
+          mng_uint8p pSrc = pData->pWorkrow+1;
+          mng_uint8p pDest = pSrc + pData->iRowsize - (2*pData->iRowsize+7)/8;
+
+          for (iX = ((2*pData->iRowsize+7)/8) ; iX > 0 ; iX--)
+             *pDest++ = *pSrc++;
+
+          pDest = pData->pWorkrow+1;
+          pSrc = pDest + pData->iRowsize - (2*pData->iRowsize+7)/8;
+          for (iX = pData->iRowsize; ;)
+          {
+            *pDest++ = (((*pSrc)>>6)&3);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>4)&3);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)>>2)&3);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)   )&3);
+            if (iX-- <= 0)
+              break;
+            pSrc++;
+          }
+        }
+        else if (pData->iPNGdepth == 4)
+        {
+          /* Inflate Workrow to 8-bit */
+          mng_int32  iX;
+          mng_uint8p pSrc = pData->pWorkrow+1;
+          mng_uint8p pDest = pSrc + pData->iRowsize - (4*pData->iRowsize+7)/8;
+
+          for (iX = ((4*pData->iRowsize+7)/8) ; iX > 0 ; iX--)
+             *pDest++ = *pSrc++;
+
+          pDest = pData->pWorkrow+1;
+          pSrc = pDest + pData->iRowsize - (4*pData->iRowsize+7)/8;
+          for (iX = pData->iRowsize; ;)
+          {
+            *pDest++ = (((*pSrc)>>4)&0x0f);
+            if (iX-- <= 0)
+              break;
+            *pDest++ = (((*pSrc)   )&0x0f);
+            if (iX-- <= 0)
+              break;
+            pSrc++;
+          }
+        }
+        if (pData->iPNGdepth < 8 && pData->iColortype == 0)
+        {
+          /* Expand samples to 8-bit by LBR */
+          mng_int32  iX;
+          mng_uint8p pSrc = pData->pWorkrow+1;
+          mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1};
+
+          for (iX = pData->iRowsize; iX > 0; iX--)
+              *pSrc++ *= multiplier[pData->iPNGdepth];
+        }
+#endif
 #ifdef MNG_NO_16BIT_SUPPORT
         if (pData->iPNGdepth > 8)
         {
@@ -300,6 +413,11 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
                                        /* let zlib know where to store next output */
       pData->sZlib.next_out  = pData->pWorkrow;
       pData->sZlib.avail_out = (uInt)(pData->iRowsize + pData->iPixelofs);
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+    if (pData->iPNGdepth < 8)
+       pData->sZlib.avail_out = (uInt)((pData->iPNGdepth*pData->iRowsize + 7)/8
+           + pData->iPixelofs);
+#endif
 #ifdef MNG_NO_16BIT_SUPPORT
       if (pData->iPNGdepth > 8)
         pData->sZlib.avail_out = (uInt)(2*pData->iRowsize + pData->iPixelofs);

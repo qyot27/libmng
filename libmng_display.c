@@ -213,6 +213,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/18/2004 - G.R-P.                                * */
 /* *             - revised some SKIPCHUNK conditionals                      * */
+/* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
+/* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1685,11 +1687,13 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
 
       switch (pBufdelta->iBitdepth)    /* determine scaling routine */
       {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         case  1 : {
                     switch (pBuftarget->iBitdepth)
                     {
                       case  2 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g2;  break; }
                       case  4 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g4;  break; }
+
                       case  8 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g8;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
                       case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g16; break; }
@@ -1723,6 +1727,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                     }
                     break;
                   }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
         case  8 : {
                     switch (pBufdelta->iColortype)
@@ -1732,9 +1737,11 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                       case  8 : {
                                   switch (pBuftarget->iBitdepth)
                                   {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                                     case  1 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g1;  break; }
                                     case  2 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g2;  break; }
                                     case  4 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g4;  break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 #ifndef MNG_NO_16BIT_SUPPORT
                                     case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g16; break; }
 #endif
@@ -1778,9 +1785,11 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                       case  8 : {
                                   switch (pBuftarget->iBitdepth)
                                   {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                                     case 1 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g1; break; }
                                     case 2 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g2; break; }
                                     case 4 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g4; break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                                     case 8 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g8; break; }
                                   }
                                   break;
@@ -1825,9 +1834,11 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                           case  1 : { pData->fDeltarow = (mng_fptr)mng_delta_g1_g1;   break; }
                           case  2 : { pData->fDeltarow = (mng_fptr)mng_delta_g2_g2;   break; }
                           case  4 : { pData->fDeltarow = (mng_fptr)mng_delta_g4_g4;   break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                           case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_g8_g8;   break; }
 #ifndef MNG_NO_16BIT_SUPPORT
                           case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_g16_g16; break; }
@@ -1869,9 +1880,11 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                           case  1 : { pData->fDeltarow = (mng_fptr)mng_delta_g1_g1; break; }
                           case  2 : { pData->fDeltarow = (mng_fptr)mng_delta_g2_g2; break; }
                           case  4 : { pData->fDeltarow = (mng_fptr)mng_delta_g4_g4; break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                           case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_g8_g8; break; }
                         }
                       }
@@ -2726,6 +2739,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       case 0 : {                       /* gray */
                  switch (pData->iBitdepth)
                  {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                    case  1 : {
                                if (!pData->iInterlace)
                                  pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
@@ -2749,6 +2763,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
                                  pData->fInitrowproc = (mng_fptr)mng_init_g4_i;
                                break;
                              }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                    case  8 : {
                                if (!pData->iInterlace)
                                  pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
@@ -2798,6 +2813,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       case 3 : {                       /* indexed */
                  switch (pData->iBitdepth)
                  {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                    case  1 : {
                                if (!pData->iInterlace)
                                  pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
@@ -2822,6 +2838,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
 
                                break;
                              }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                    case  8 : {
                                if (!pData->iInterlace)
                                  pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
@@ -3714,6 +3731,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
     case 0 : {                         /* gray */
                switch (pData->iBitdepth)
                {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                  case  1 : {
                              if (!pData->iInterlace)
                                pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
@@ -3738,6 +3756,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 
                              break;
                            }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                  case  8 : {
                              if (!pData->iInterlace)
                                pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
@@ -3788,6 +3807,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
     case 3 : {                         /* indexed */
                switch (pData->iBitdepth)
                {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                  case  1 : {
                              if (!pData->iInterlace)
                                pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
@@ -3812,6 +3832,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 
                              break;
                            }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                  case  8 : {
                              if (!pData->iInterlace)
                                pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
@@ -4763,17 +4784,21 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
         switch (pData->iJHDRalphabitdepth)
         {
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
           case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a1_ni;  break; }
           case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a2_ni;  break; }
           case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a4_ni;  break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
           case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a8_ni;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
           case 16 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a16_ni; break; }
 #endif
 #else
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
           case  1 : { pData->ePng_imgtype = png_jpeg_a1;  break; }
           case  2 : { pData->ePng_imgtype = png_jpeg_a2;  break; }
           case  4 : { pData->ePng_imgtype = png_jpeg_a4;  break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
           case  8 : { pData->ePng_imgtype = png_jpeg_a8;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
           case 16 : { pData->ePng_imgtype = png_jpeg_a16; break; }
@@ -4815,17 +4840,21 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
       switch (pData->iJHDRalphabitdepth)
       {
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;  break; }
         case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;  break; }
         case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;  break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
         case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
         case 16 : { pData->fInitrowproc = (mng_fptr)mng_init_g16_ni; break; }
 #endif
 #else
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
         case  1 : { pData->ePng_imgtype = png_jpeg_a1;  break; }
         case  2 : { pData->ePng_imgtype = png_jpeg_a2;  break; }
         case  4 : { pData->ePng_imgtype = png_jpeg_a4;  break; }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
         case  8 : { pData->ePng_imgtype = png_jpeg_a8;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
         case 16 : { pData->ePng_imgtype = png_jpeg_a16; break; }
@@ -5193,6 +5222,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
         case 0 : {                     /* gray */
                    switch (pData->iBitdepth)
                    {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                      case  1 : {
                                  if (!pData->iInterlace)
                                    pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
@@ -5217,6 +5247,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
 
                                  break;
                                }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                      case  8 : {
                                  if (!pData->iInterlace)
                                    pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
@@ -5267,6 +5298,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
         case 3 : {                     /* indexed */
                    switch (pData->iBitdepth)
                    {
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
                      case  1 : {
                                  if (!pData->iInterlace)
                                    pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
@@ -5291,6 +5323,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
 
                                  break;
                                }
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
                      case  8 : {
                                  if (!pData->iInterlace)
                                    pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
