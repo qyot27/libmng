@@ -53,6 +53,12 @@
 /* Eliminate unused zlib and jpeg "get" and "set" accessors */
 #define MNG_NO_ACCESS_ZLIB
 #define MNG_NO_ACCESS_JPEG
+/* Eliminate other unused features */
+#define MNG_NO_SUPPORT_FUNCQUERY
+#define MNG_NO_DISPLAY_GO_SUPPORTED
+#define MNG_NO_CURRENT_INFO
+#define MNG_NO_DFLT_INFO
+#define MNG_NO_LOOP_SIGNALS_SUPPORTED
 #endif
 
 #if 1
