@@ -277,6 +277,8 @@
 /* *             - added CRC existence & checking flags                     * */
 /* *             1.0.8 - 04/12/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *             1.0.8 - 06/05/2004 - G.R-P                                 * */
+/* *             - define MNG_INCLUDE_ZLIB when MNG_USE_ZLIB_CRC is defined * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -301,6 +303,10 @@
 
 #ifdef MNG_SUPPORT_WRITE
 #define MNG_INCLUDE_WRITE_PROCS
+#endif
+
+#ifdef MNG_USE_ZLIB_CRC
+#define MNG_INCLUDE_ZLIB
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY
