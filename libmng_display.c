@@ -1049,8 +1049,8 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
-                                       /* timer still off ? */
-  if ((pData->bRunning) && (!pData->bTimerset))
+
+  if (!pData->bTimerset)               /* timer still off ? */
   {
     if (!pData->iLayerseq)             /* restore background for the very first layer ? */
     {                                  /* wait till IDAT/JDAT for PNGs & JNGs !!! */
@@ -4235,8 +4235,8 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
       }
     }
   }
-                                       /* still running & no timer break ? */
-  if ((pData->bRunning) && (!pData->bTimerset))
+
+  if (!pData->bTimerset)               /* no timer break ? */
   {                                    /* default row initialization ! */
     pData->fInitrowproc = (mng_fptr)mng_init_rowproc;
 
