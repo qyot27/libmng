@@ -167,6 +167,8 @@
 /* *             - misplaced TERM is now treated as warning                 * */
 /* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
 /* *             - added support for PAST                                   * */
+/* *             1.0.5 - 10/03/2002 - G.Juyn                                * */
+/* *             - fixed chunk-storage for evNT chunk                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -6696,13 +6698,13 @@ READ_CHUNK (mng_read_evnt)
           else
           {
             iNamesize = pNull - pTemp; /* should be another entry */
-            iLen     -= iNamesize;
+            iLen      = iLen - iNamesize - 1;
 
             if (!iLen)                 /* must not end with a null ! */
               MNG_ERROR (pData, MNG_ENDWITHNULL)
           }
 
-          if (!pEntry)
+          if (!iX)
           {
             iCount++;
           }
@@ -6727,7 +6729,7 @@ READ_CHUNK (mng_read_evnt)
             pEntry++;
           }
 
-          pTemp += iNamesize;
+          pTemp = pTemp + iNamesize + 1;
         }
       }
     }

@@ -1,5 +1,31 @@
 -----------------------------------------------------------
 
+1.0.5-.. (... ..th 2002)
+------------------------
+
+in short:
+
+cvs only
+
+-------------------
+
+bugfixes:
+
+core:
+- fixed chunk-storage for evNT chunk
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.5-b1 (sep 24th 2002)
 ------------------------
 
@@ -61,7 +87,7 @@ samples:
 
 contrib:
 - added xmngview by Winfried Szukalski (Vielen dank!)
-- Updated the Delphi mngview sample to handle dynamic MNGs 
+- Updated the Delphi mngview sample to handle dynamic MNGs
 - Added Kylix example (simplified port of the Delphi mngview sample)
 
 doc:
