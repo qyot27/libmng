@@ -284,7 +284,7 @@
 /* *             - added function to retrieve current FRAM delay            * */
 /* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
 /* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
-/* *             1.0.9 - 17/14/2004 - G.Juyn                                * */
+/* *             1.0.9 - 10/17/2004 - G.Juyn                                * */
 /* *             - fixed PPLT getchunk/putchunk routines                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
@@ -361,6 +361,16 @@
 
 #ifdef MNG_ERROR_TELLTALE
 #define MNG_INCLUDE_ERROR_STRINGS
+#endif
+
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+#ifndef MNG_OPTIMIZE_CHUNKACCESS
+#define MNG_OPTIMIZE_CHUNKACCESS
+#endif
+#else
+#ifdef MNG_OPTIMIZE_CHUNKACCESS
+#undef MNG_OPTIMIZE_CHUNKACCESS
+#endif
 #endif
 
 /* ************************************************************************** */

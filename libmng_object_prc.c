@@ -218,8 +218,8 @@ mng_retcode MNG_LOCAL create_obj_general (mng_datap          pData,
 
 /* ************************************************************************** */
 
-mng_retcode mng_free_obj_general  (mng_datap   pData,
-                                   mng_objectp pObject)
+mng_retcode MNG_LOCAL mng_free_obj_general (mng_datap   pData,
+                                            mng_objectp pObject)
 {
   MNG_FREEX (pData, pObject, ((mng_object_headerp)pObject)->iObjsize)
   return MNG_NOERROR;

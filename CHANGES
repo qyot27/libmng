@@ -28,6 +28,7 @@ core:
 - inclusion of zlib/lcms/ijgsrc6b with <> instead of ""
 - added conditional MNG_OPTIMIZE_CHUNKINITFREE
 - added conditional MNG_OPTIMIZE_OBJCLEANUP
+- added conditional MNG_OPTIMIZE_CHUNKASSIGN
 
 samples:
 

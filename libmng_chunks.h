@@ -53,7 +53,7 @@
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - added conditional around MNG_NO_DELTA_PNG support        * */
 /* *                                                                        * */
-/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *                                                                        * */
 /* ************************************************************************** */

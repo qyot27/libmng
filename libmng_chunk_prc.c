@@ -59,8 +59,10 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
-/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
+/* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -134,7 +136,7 @@ void mng_add_chunk (mng_datap  pData,
 INIT_CHUNK_HDR (mng_init_general)
 {
   MNG_ALLOC (pData, *ppChunk, ((mng_chunk_headerp)pHeader)->iChunksize)
-  ((mng_ihdrp)*ppChunk)->sHeader = *((mng_chunk_headerp)pHeader);
+  MNG_COPY (*ppChunk, pHeader, sizeof (mng_chunk_header))
   return MNG_NOERROR;
 }
 
@@ -2583,6 +2585,23 @@ FREE_CHUNK_HDR (mng_free_unknown)
 #ifdef MNG_INCLUDE_WRITE_PROCS
 
 /* ************************************************************************** */
+
+#ifdef MNG_OPTIMIZE_CHUNKASSIGN
+ASSIGN_CHUNK_HDR (mng_assign_general)
+{
+  mng_ptr    pSrc = (mng_uint8p)pChunkfrom + sizeof (mng_chunk_header);
+  mng_ptr    pDst = (mng_uint8p)pChunkto   + sizeof (mng_chunk_header);
+  mng_size_t iLen = ((mng_chunk_headerp)pChunkfrom)->iChunksize - sizeof (mng_chunk_header);
+
+  MNG_COPY (pDst, pSrc, iLen)
+
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_ihdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2606,9 +2625,11 @@ ASSIGN_CHUNK_HDR (mng_assign_ihdr)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_plte)
 {
   mng_uint32 iX;
@@ -2632,6 +2653,7 @@ ASSIGN_CHUNK_HDR (mng_assign_plte)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2663,6 +2685,7 @@ ASSIGN_CHUNK_HDR (mng_assign_idat)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_iend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2678,9 +2701,11 @@ ASSIGN_CHUNK_HDR (mng_assign_iend)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_trns)
 {
   mng_uint32 iX;
@@ -2714,9 +2739,11 @@ ASSIGN_CHUNK_HDR (mng_assign_trns)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_gAMA
 ASSIGN_CHUNK_HDR (mng_assign_gama)
 {
@@ -2737,9 +2764,11 @@ ASSIGN_CHUNK_HDR (mng_assign_gama)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_cHRM
 ASSIGN_CHUNK_HDR (mng_assign_chrm)
 {
@@ -2767,9 +2796,11 @@ ASSIGN_CHUNK_HDR (mng_assign_chrm)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_sRGB
 ASSIGN_CHUNK_HDR (mng_assign_srgb)
 {
@@ -2788,6 +2819,7 @@ ASSIGN_CHUNK_HDR (mng_assign_srgb)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -2961,6 +2993,7 @@ ASSIGN_CHUNK_HDR (mng_assign_itxt)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_bKGD
 ASSIGN_CHUNK_HDR (mng_assign_bkgd)
 {
@@ -2986,9 +3019,11 @@ ASSIGN_CHUNK_HDR (mng_assign_bkgd)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_pHYs
 ASSIGN_CHUNK_HDR (mng_assign_phys)
 {
@@ -3011,9 +3046,11 @@ ASSIGN_CHUNK_HDR (mng_assign_phys)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_sBIT
 ASSIGN_CHUNK_HDR (mng_assign_sbit)
 {
@@ -3037,6 +3074,7 @@ ASSIGN_CHUNK_HDR (mng_assign_sbit)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -3083,6 +3121,7 @@ ASSIGN_CHUNK_HDR (mng_assign_splt)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_hIST
 ASSIGN_CHUNK_HDR (mng_assign_hist)
 {
@@ -3107,9 +3146,11 @@ ASSIGN_CHUNK_HDR (mng_assign_hist)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_tIME
 ASSIGN_CHUNK_HDR (mng_assign_time)
 {
@@ -3134,9 +3175,11 @@ ASSIGN_CHUNK_HDR (mng_assign_time)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_mhdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3160,9 +3203,11 @@ ASSIGN_CHUNK_HDR (mng_assign_mhdr)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_mend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3178,6 +3223,7 @@ ASSIGN_CHUNK_HDR (mng_assign_mend)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3216,6 +3262,7 @@ ASSIGN_CHUNK_HDR (mng_assign_loop)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 ASSIGN_CHUNK_HDR (mng_assign_endl)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3234,9 +3281,11 @@ ASSIGN_CHUNK_HDR (mng_assign_endl)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_DEFI
 ASSIGN_CHUNK_HDR (mng_assign_defi)
 {
@@ -3268,9 +3317,11 @@ ASSIGN_CHUNK_HDR (mng_assign_defi)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_BASI
 ASSIGN_CHUNK_HDR (mng_assign_basi)
 {
@@ -3301,9 +3352,11 @@ ASSIGN_CHUNK_HDR (mng_assign_basi)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_CLON
 ASSIGN_CHUNK_HDR (mng_assign_clon)
 {
@@ -3331,7 +3384,7 @@ ASSIGN_CHUNK_HDR (mng_assign_clon)
   return MNG_NOERROR;
 }
 #endif
-
+#endif
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_PAST
@@ -3398,6 +3451,7 @@ ASSIGN_CHUNK_HDR (mng_assign_disc)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_BACK
 ASSIGN_CHUNK_HDR (mng_assign_back)
 {
@@ -3421,6 +3475,7 @@ ASSIGN_CHUNK_HDR (mng_assign_back)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -3476,6 +3531,7 @@ ASSIGN_CHUNK_HDR (mng_assign_fram)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_MOVE
 ASSIGN_CHUNK_HDR (mng_assign_move)
 {
@@ -3499,9 +3555,11 @@ ASSIGN_CHUNK_HDR (mng_assign_move)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_CLIP
 ASSIGN_CHUNK_HDR (mng_assign_clip)
 {
@@ -3527,9 +3585,11 @@ ASSIGN_CHUNK_HDR (mng_assign_clip)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_SHOW
 ASSIGN_CHUNK_HDR (mng_assign_show)
 {
@@ -3552,9 +3612,11 @@ ASSIGN_CHUNK_HDR (mng_assign_show)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_TERM
 ASSIGN_CHUNK_HDR (mng_assign_term)
 {
@@ -3576,6 +3638,7 @@ ASSIGN_CHUNK_HDR (mng_assign_term)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -3692,6 +3755,7 @@ ASSIGN_CHUNK_HDR (mng_assign_expi)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_fPRI
 ASSIGN_CHUNK_HDR (mng_assign_fpri)
 {
@@ -3711,6 +3775,7 @@ ASSIGN_CHUNK_HDR (mng_assign_fpri)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -3744,6 +3809,7 @@ ASSIGN_CHUNK_HDR (mng_assign_need)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_pHYg
 ASSIGN_CHUNK_HDR (mng_assign_phyg)
 {
@@ -3766,9 +3832,11 @@ ASSIGN_CHUNK_HDR (mng_assign_phyg)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_jhdr)
 {
@@ -3797,6 +3865,7 @@ ASSIGN_CHUNK_HDR (mng_assign_jhdr)
   return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
@@ -3860,6 +3929,7 @@ ASSIGN_CHUNK_HDR (mng_assign_jdat)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_jsep)
 {
@@ -3877,9 +3947,11 @@ ASSIGN_CHUNK_HDR (mng_assign_jsep)
   return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_dhdr)
 {
@@ -3905,9 +3977,11 @@ ASSIGN_CHUNK_HDR (mng_assign_dhdr)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_prom)
 {
@@ -3929,9 +4003,11 @@ ASSIGN_CHUNK_HDR (mng_assign_prom)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_ipng)
 {
@@ -3949,9 +4025,11 @@ ASSIGN_CHUNK_HDR (mng_assign_ipng)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_pplt)
 {
@@ -3977,9 +4055,11 @@ ASSIGN_CHUNK_HDR (mng_assign_pplt)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_NO_DELTA_PNG
 #ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_ijng)
@@ -3997,6 +4077,7 @@ ASSIGN_CHUNK_HDR (mng_assign_ijng)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 #endif
 
@@ -4064,6 +4145,7 @@ ASSIGN_CHUNK_HDR (mng_assign_dbyk)
 #endif
 
 /* ************************************************************************** */
+
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
 ASSIGN_CHUNK_HDR (mng_assign_ordr)
@@ -4096,6 +4178,7 @@ ASSIGN_CHUNK_HDR (mng_assign_ordr)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKASSIGN
 #ifndef MNG_SKIPCHUNK_MAGN
 ASSIGN_CHUNK_HDR (mng_assign_magn)
 {
@@ -4123,6 +4206,7 @@ ASSIGN_CHUNK_HDR (mng_assign_magn)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */

@@ -34,6 +34,11 @@
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
+/* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -206,51 +211,36 @@ FREE_CHUNK_HDR (mng_free_unknown) ;
                                            mng_chunkp  pChunkto, \
                                            mng_chunkp  pChunkfrom)
 
+#ifdef MNG_OPTIMIZE_CHUNKASSIGN
+ASSIGN_CHUNK_HDR (mng_assign_general) ;
+#else /* MNG_OPTIMIZE_CHUNKASSIGN */
 ASSIGN_CHUNK_HDR (mng_assign_ihdr) ;
 ASSIGN_CHUNK_HDR (mng_assign_plte) ;
-ASSIGN_CHUNK_HDR (mng_assign_idat) ;
 ASSIGN_CHUNK_HDR (mng_assign_iend) ;
 ASSIGN_CHUNK_HDR (mng_assign_trns) ;
 ASSIGN_CHUNK_HDR (mng_assign_gama) ;
 ASSIGN_CHUNK_HDR (mng_assign_chrm) ;
 ASSIGN_CHUNK_HDR (mng_assign_srgb) ;
-ASSIGN_CHUNK_HDR (mng_assign_iccp) ;
-ASSIGN_CHUNK_HDR (mng_assign_text) ;
-ASSIGN_CHUNK_HDR (mng_assign_ztxt) ;
-ASSIGN_CHUNK_HDR (mng_assign_itxt) ;
 ASSIGN_CHUNK_HDR (mng_assign_bkgd) ;
 ASSIGN_CHUNK_HDR (mng_assign_phys) ;
 ASSIGN_CHUNK_HDR (mng_assign_sbit) ;
-ASSIGN_CHUNK_HDR (mng_assign_splt) ;
 ASSIGN_CHUNK_HDR (mng_assign_hist) ;
 ASSIGN_CHUNK_HDR (mng_assign_time) ;
 ASSIGN_CHUNK_HDR (mng_assign_mhdr) ;
 ASSIGN_CHUNK_HDR (mng_assign_mend) ;
-ASSIGN_CHUNK_HDR (mng_assign_loop) ;
 ASSIGN_CHUNK_HDR (mng_assign_endl) ;
 ASSIGN_CHUNK_HDR (mng_assign_defi) ;
 ASSIGN_CHUNK_HDR (mng_assign_basi) ;
 ASSIGN_CHUNK_HDR (mng_assign_clon) ;
-#ifndef MNG_SKIPCHUNK_PAST
-ASSIGN_CHUNK_HDR (mng_assign_past) ;
-#endif
-ASSIGN_CHUNK_HDR (mng_assign_disc) ;
 ASSIGN_CHUNK_HDR (mng_assign_back) ;
-ASSIGN_CHUNK_HDR (mng_assign_fram) ;
 ASSIGN_CHUNK_HDR (mng_assign_move) ;
 ASSIGN_CHUNK_HDR (mng_assign_clip) ;
 ASSIGN_CHUNK_HDR (mng_assign_show) ;
 ASSIGN_CHUNK_HDR (mng_assign_term) ;
-ASSIGN_CHUNK_HDR (mng_assign_save) ;
-ASSIGN_CHUNK_HDR (mng_assign_seek) ;
-ASSIGN_CHUNK_HDR (mng_assign_expi) ;
 ASSIGN_CHUNK_HDR (mng_assign_fpri) ;
-ASSIGN_CHUNK_HDR (mng_assign_need) ;
 ASSIGN_CHUNK_HDR (mng_assign_phyg) ;
 #ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_jhdr) ;
-ASSIGN_CHUNK_HDR (mng_assign_jdaa) ;
-ASSIGN_CHUNK_HDR (mng_assign_jdat) ;
 ASSIGN_CHUNK_HDR (mng_assign_jsep) ;
 #endif
 #ifndef MNG_NO_DELTA_PNG
@@ -261,11 +251,35 @@ ASSIGN_CHUNK_HDR (mng_assign_pplt) ;
 #ifdef MNG_INCLUDE_JNG
 ASSIGN_CHUNK_HDR (mng_assign_ijng) ;
 #endif
+#endif
+ASSIGN_CHUNK_HDR (mng_assign_magn) ;
+#endif /* MNG_OPTIMIZE_CHUNKASSIGN */
+
+ASSIGN_CHUNK_HDR (mng_assign_idat) ;
+ASSIGN_CHUNK_HDR (mng_assign_iccp) ;
+ASSIGN_CHUNK_HDR (mng_assign_text) ;
+ASSIGN_CHUNK_HDR (mng_assign_ztxt) ;
+ASSIGN_CHUNK_HDR (mng_assign_itxt) ;
+ASSIGN_CHUNK_HDR (mng_assign_splt) ;
+ASSIGN_CHUNK_HDR (mng_assign_loop) ;
+#ifndef MNG_SKIPCHUNK_PAST
+ASSIGN_CHUNK_HDR (mng_assign_past) ;
+#endif
+ASSIGN_CHUNK_HDR (mng_assign_disc) ;
+ASSIGN_CHUNK_HDR (mng_assign_fram) ;
+ASSIGN_CHUNK_HDR (mng_assign_save) ;
+ASSIGN_CHUNK_HDR (mng_assign_seek) ;
+ASSIGN_CHUNK_HDR (mng_assign_need) ;
+ASSIGN_CHUNK_HDR (mng_assign_expi) ;
+#ifdef MNG_INCLUDE_JNG
+ASSIGN_CHUNK_HDR (mng_assign_jdaa) ;
+ASSIGN_CHUNK_HDR (mng_assign_jdat) ;
+#endif
+#ifndef MNG_NO_DELTA_PNG
 ASSIGN_CHUNK_HDR (mng_assign_drop) ;
 ASSIGN_CHUNK_HDR (mng_assign_dbyk) ;
 ASSIGN_CHUNK_HDR (mng_assign_ordr) ;
 #endif
-ASSIGN_CHUNK_HDR (mng_assign_magn) ;
 ASSIGN_CHUNK_HDR (mng_assign_evnt) ;
 ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 

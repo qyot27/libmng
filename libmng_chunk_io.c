@@ -212,8 +212,10 @@
 /* *             - fixed bug in writing sBIT for indexed color              * */
 /* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
-/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
+/* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1915,7 +1917,7 @@ READ_CHUNK (mng_read_iccp)
     {
       mng_chunk_header chunk_srgb =
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
-        {MNG_UINT_sRGB, mng_init_general, mng_free_general, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0, sizeof(mng_srgb)};
+        {MNG_UINT_sRGB, mng_init_general, mng_free_general, mng_read_srgb, mng_write_srgb, mng_assign_general, 0, 0, sizeof(mng_srgb)};
 #else
         {MNG_UINT_sRGB, mng_init_srgb, mng_free_srgb, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0};
 #endif
