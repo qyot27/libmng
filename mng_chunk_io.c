@@ -62,6 +62,8 @@
 /* *             - fixed up punctuation (contributed by Tim Rowley)         * */
 /* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - changed SWAP_ENDIAN to BIGENDIAN_SUPPORTED               * */
+/* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
+/* *             - fixed makeup for Linux gcc compile                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -253,7 +255,7 @@ mng_retcode inflate_buffer (mng_datap  pData,
                             mng_uint32 *iOutsize,
                             mng_uint32 *iRealsize)
 {
-  mng_retcode iRetcode;
+  mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INFLATE_BUFFER, MNG_LC_START)
@@ -1526,14 +1528,13 @@ READ_CHUNK (read_iccp)
       pData->iGlobalProfilesize = iProfilesize;
     }
 
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
-                                              pData->iGlobalProfilesize,
-                                              pData->pGlobalProfile);
+                                       /* create an animation object */
+    iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
+                                pData->iGlobalProfilesize,
+                                pData->pGlobalProfile);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */  
 
@@ -1756,7 +1757,7 @@ READ_CHUNK (read_ztxt)
     if (!zKeyword)                     /* on error bail out */
     {                                  /* don't forget to drop the temp buffers */
       MNG_FREEX (pData, pBuf, iBufsize)
-      return iRetcode;
+      MNG_ERROR (pData, MNG_OUTOFMEMORY);
     }
 
     MNG_COPY (zKeyword, pRawdata, iKeywordlen)
@@ -1803,7 +1804,7 @@ READ_CHUNK (read_ztxt)
     {                                  /* don't forget to drop the temp buffers */
       MNG_FREEX (pData, pBuf, iBufsize)
       MNG_FREEX (pData, zKeyword, iKeywordlen+1)
-      return iRetcode;
+      MNG_ERROR (pData, MNG_OUTOFMEMORY);
     }
 
     MNG_COPY  (((mng_ztxtp)*ppChunk)->zKeyword, pRawdata, iKeywordlen)
@@ -1818,7 +1819,7 @@ READ_CHUNK (read_ztxt)
       {                                /* don't forget to drop the temp buffers */
         MNG_FREEX (pData, pBuf, iBufsize)
         MNG_FREEX (pData, zKeyword, iKeywordlen+1)
-        return iRetcode;
+        MNG_ERROR (pData, MNG_OUTOFMEMORY);
       }
 
       MNG_COPY (((mng_ztxtp)*ppChunk)->zText, pBuf, iTextlen)
@@ -3578,6 +3579,7 @@ READ_CHUNK (read_fram)
   {
     iNamelen = 0;                      /* indicate so */
     iRemain  = 0;
+    pTemp    = MNG_NULL;
   }
   else
   {

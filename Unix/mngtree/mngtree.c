@@ -53,13 +53,14 @@
 /* * comment   : mngtree simply dumps the chunk-structure of the supplied   * */
 /* *             first parameter to stdout (should be a xNG-file)           * */
 /* *                                                                        * */
-/* * changes   : x.y.z - ../../.... - ......                                * */
+/* * changes   : 0.1.1 - 06/03/2000 - G.Juyn                                * */
+/* *             fixed for compilation under Linux                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <mem.h>
+#include <strings.h>
 
 #include "../../libmng.h"
 
@@ -76,18 +77,14 @@ typedef userdata * userdatap;
 
 /* ************************************************************************** */
 
-#define MY_DECL __stdcall              /* get the right callback convention */
-
-/* ************************************************************************** */
-
-mng_ptr MY_DECL myalloc (mng_uint32 iSize)
+mng_ptr myalloc (mng_uint32 iSize)
 {
   return (mng_ptr)calloc (1, iSize);   /* duh! */
 }
 
 /* ************************************************************************** */
 
-void MY_DECL myfree (mng_ptr pPtr, mng_uint32 iSize)
+void myfree (mng_ptr pPtr, mng_uint32 iSize)
 {
   free (pPtr);                         /* duh! */
   return;
@@ -95,24 +92,24 @@ void MY_DECL myfree (mng_ptr pPtr, mng_uint32 iSize)
 
 /* ************************************************************************** */
 
-mng_bool MY_DECL myopenstream (mng_handle hMNG)
+mng_bool myopenstream (mng_handle hMNG)
 {
   return MNG_TRUE;                     /* already opened in main function */
 }
 
 /* ************************************************************************** */
 
-mng_bool MY_DECL myclosestream (mng_handle hMNG)
+mng_bool myclosestream (mng_handle hMNG)
 {
   return MNG_TRUE;                     /* gets closed in main function */
 }
 
 /* ************************************************************************** */
 
-mng_bool MY_DECL myreaddata (mng_handle hMNG,
-                             mng_ptr    pBuf,
-                             mng_uint32 iSize,
-                             mng_uint32 *iRead)
+mng_bool myreaddata (mng_handle hMNG,
+                     mng_ptr    pBuf,
+                     mng_uint32 iSize,
+                     mng_uint32 *iRead)
 {                                      /* get to my file handle */
   userdatap pMydata = (userdatap)mng_get_userdata (hMNG);
                                        /* read it */
@@ -123,10 +120,10 @@ mng_bool MY_DECL myreaddata (mng_handle hMNG,
 
 /* ************************************************************************** */
 
-mng_bool MY_DECL myiterchunk (mng_handle  hMNG,
-                              mng_handle  hChunk,
-                              mng_chunkid iChunktype,
-                              mng_uint32  iChunkseq)
+mng_bool myiterchunk (mng_handle  hMNG,
+                      mng_handle  hChunk,
+                      mng_chunkid iChunktype,
+                      mng_uint32  iChunkseq)
 {                                      /* get to my file handle */
   userdatap pMydata = (userdatap)mng_get_userdata (hMNG);
   char aCh[4];
@@ -147,7 +144,7 @@ mng_bool MY_DECL myiterchunk (mng_handle  hMNG,
     zIndent[iX] = ' ';
   zIndent[pMydata->iIndent] = '\0';
                                        /* print a nicely indented line */
-  printf ("%s%c%c%c%c\n", &zIndent, aCh[0], aCh[1], aCh[2], aCh[3]);
+  printf ("%s%c%c%c%c\n", zIndent, aCh[0], aCh[1], aCh[2], aCh[3]);
                                        /* indent more ? */
   if ( (iChunktype == MNG_UINT_MHDR) || (iChunktype == MNG_UINT_IHDR) ||
        (iChunktype == MNG_UINT_JHDR) || (iChunktype == MNG_UINT_DHDR) ||

@@ -41,6 +41,8 @@
 /* *             - added delta-image support (DHDR,PROM,IPNG,IJNG)          * */
 /* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
 /* *             - fixed pointer confusion (contributed by Tim Rowley)      * */
+/* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
+/* *             - fixed makeup for Linux gcc compile                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -327,10 +329,12 @@ mng_retcode next_frame (mng_datap  pData,
     mng_uint8 iOldmode = pData->iFramemode;
                                        /* interframe delay required ? */
     if ((iOldmode == 2) || (iOldmode == 4))
+    {
       if (pData->iFrameseq)
         iRetcode = interframe_delay (pData);
       else
         pData->iFramedelay = pData->iNextdelay;
+    }
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;

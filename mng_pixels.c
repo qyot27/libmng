@@ -29,6 +29,8 @@
 /* *             - added delta-image row-processing routines                * */
 /* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - fixed endian support (hopefully)                         * */
+/* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
+/* *             - fixed makeup for Linux gcc compile                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3873,10 +3875,12 @@ mng_retcode init_g1_ni     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g1;
     else
       pData->fStorerow = (mng_ptr)store_g1;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3910,10 +3914,12 @@ mng_retcode init_g1_i      (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g1;
     else
       pData->fStorerow = (mng_ptr)store_g1;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -3946,10 +3952,12 @@ mng_retcode init_g2_ni     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g2;
     else
       pData->fStorerow = (mng_ptr)store_g2;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3983,10 +3991,12 @@ mng_retcode init_g2_i      (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g2;
     else
       pData->fStorerow = (mng_ptr)store_g2;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4020,10 +4030,12 @@ mng_retcode init_g4_ni     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g4;
     else
       pData->fStorerow = (mng_ptr)store_g4;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4057,10 +4069,12 @@ mng_retcode init_g4_i      (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g4;
     else
       pData->fStorerow = (mng_ptr)store_g4;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4094,10 +4108,12 @@ mng_retcode init_g8_ni     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g8;
     else
       pData->fStorerow = (mng_ptr)store_g8;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4131,10 +4147,12 @@ mng_retcode init_g8_i      (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g8;
     else
       pData->fStorerow = (mng_ptr)store_g8;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4168,10 +4186,12 @@ mng_retcode init_g16_ni    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g16;
     else
       pData->fStorerow = (mng_ptr)store_g16;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4205,10 +4225,12 @@ mng_retcode init_g16_i     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_g16;
     else
       pData->fStorerow = (mng_ptr)store_g16;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4242,10 +4264,12 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgb8;
     else
       pData->fStorerow = (mng_ptr)store_rgb8;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4279,10 +4303,12 @@ mng_retcode init_rgb8_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgb8;
     else
       pData->fStorerow = (mng_ptr)store_rgb8;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4316,10 +4342,12 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgb16;
     else
       pData->fStorerow = (mng_ptr)store_rgb16;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4353,10 +4381,12 @@ mng_retcode init_rgb16_i   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgb16;
     else
       pData->fStorerow = (mng_ptr)store_rgb16;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4390,10 +4420,12 @@ mng_retcode init_idx1_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx1;
     else
       pData->fStorerow = (mng_ptr)store_idx1;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4427,10 +4459,12 @@ mng_retcode init_idx1_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx1;
     else
       pData->fStorerow = (mng_ptr)store_idx1;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4464,10 +4498,12 @@ mng_retcode init_idx2_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx2;
     else
       pData->fStorerow = (mng_ptr)store_idx2;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4501,10 +4537,12 @@ mng_retcode init_idx2_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx2;
     else
       pData->fStorerow = (mng_ptr)store_idx2;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4538,10 +4576,12 @@ mng_retcode init_idx4_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx4;
     else
       pData->fStorerow = (mng_ptr)store_idx4;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4575,10 +4615,12 @@ mng_retcode init_idx4_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx4;
     else
       pData->fStorerow = (mng_ptr)store_idx4;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4612,10 +4654,12 @@ mng_retcode init_idx8_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx8;
     else
       pData->fStorerow = (mng_ptr)store_idx8;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4649,10 +4693,12 @@ mng_retcode init_idx8_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_idx8;
     else
       pData->fStorerow = (mng_ptr)store_idx8;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4686,10 +4732,12 @@ mng_retcode init_ga8_ni    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_ga8;
     else
       pData->fStorerow = (mng_ptr)store_ga8;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4723,10 +4771,12 @@ mng_retcode init_ga8_i     (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_ga8;
     else
       pData->fStorerow = (mng_ptr)store_ga8;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4760,10 +4810,12 @@ mng_retcode init_ga16_ni   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_ga16;
     else
       pData->fStorerow = (mng_ptr)store_ga16;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4797,10 +4849,12 @@ mng_retcode init_ga16_i    (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_ga16;
     else
       pData->fStorerow = (mng_ptr)store_ga16;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4834,10 +4888,12 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgba8;
     else
       pData->fStorerow = (mng_ptr)store_rgba8;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4871,10 +4927,12 @@ mng_retcode init_rgba8_i   (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgba8;
     else
       pData->fStorerow = (mng_ptr)store_rgba8;
+  }
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4908,10 +4966,12 @@ mng_retcode init_rgba16_ni (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgba16;
     else
       pData->fStorerow = (mng_ptr)store_rgba16;
+  }
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4945,10 +5005,12 @@ mng_retcode init_rgba16_i  (mng_datap pData)
   pData->fProcessrow = (mng_ptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
+  {
     if (pData->bHasDHDR)               /* delta ? */
       pData->fStorerow = (mng_ptr)delta_rgba16;
     else
       pData->fStorerow = (mng_ptr)store_rgba16;
+  }
 
   pData->iPass       = 0;              /* from 0..6; (1..7 in specification) */
   pData->iRow        = interlace_row     [0];

@@ -16,6 +16,9 @@
 /* * changes   : 0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - separated configuration-options into this file           * */
 /* *             - changed to most likely configuration (?)                 * */
+/* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
+/* *             - changed options to create a standard so-library          * */
+/* *               with everything enabled                                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -56,9 +59,11 @@
    so choose the one you've defined in jconfig.h; if you don't know what
    the heck I'm talking about, just leave it at 8-bit support (thank you!) */
 
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
 #define MNG_SUPPORT_IJG6B
+#endif
 
-#if defined(MNG_SUPPORT_IJG6B) && !defined(MNG_SUPPORT_JPEG8) && !defined(MNG_SUPPORT_JPEG12)
+#if !defined(MNG_SUPPORT_JPEG8) && !defined(MNG_SUPPORT_JPEG12)
 #define MNG_SUPPORT_JPEG8
 /* #define MNG_SUPPORT_JPEG12 */
 #endif
@@ -75,7 +80,9 @@
 
 #if !defined(MNG_SUPPORT_READ) && !defined(MNG_SUPPORT_WRITE) && !defined(MNG_SUPPORT_DISPLAY)
 #define MNG_SUPPORT_READ
-/* #define MNG_SUPPORT_WRITE */
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
+#define MNG_SUPPORT_WRITE
+#endif
 #define MNG_SUPPORT_DISPLAY
 #endif
 
@@ -86,7 +93,9 @@
 /* useful if you want to examine a read MNG (you'll also need MNG_STORE_CHUNKS !)*/
 /* required if you need to create & write a new MNG! */
 
-/* #define MNG_ACCESS_CHUNKS */
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
+#define MNG_ACCESS_CHUNKS
+#endif
 
 /* ************************************************************************** */
 
@@ -119,7 +128,9 @@
    or (re-)write a MNG you have read */
 /* turn this off if you want to reduce memory-consumption */
 
-/* #define MNG_STORE_CHUNKS */
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
+#define MNG_STORE_CHUNKS
+#endif
 
 /* ************************************************************************** */
 
@@ -136,15 +147,19 @@
 /* use this if you have trouble location bugs or problems */
 /* NOTE that you'll need to specify the trace callback function! */
 
-/* #define MNG_SUPPORT_TRACE */
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
+#define MNG_SUPPORT_TRACE
+#endif
 
 /* ************************************************************************** */
 
 /* enable extended error- and trace-telltaling */
 /* use this if you need explanatory messages with errors and/or tracing */
 
-/* #define MNG_ERROR_TELLTALE */
-/* #define MNG_TRACE_TELLTALE */
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO)
+#define MNG_ERROR_TELLTALE
+#define MNG_TRACE_TELLTALE
+#endif
 
 /* ************************************************************************** */
 

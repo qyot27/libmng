@@ -27,6 +27,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
 /* *             - removed useless definition (contributed by Tim Rowley)   * */
+/* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
+/* *             - fixed makeup for Linux gcc compile                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -36,9 +38,6 @@
 
 #ifndef _mng_chunks_h_
 #define _mng_chunks_h_
-
-#include <libmng.h>
-#include <mng_data.h>
 
 /* ************************************************************************** */
 
