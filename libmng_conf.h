@@ -1,8 +1,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_conf.h             copyright (c) G.Juyn 2000-2003   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_conf.h             copyright (c) G.Juyn 2000-2004   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : main configuration file                                    * */
 /* *                                                                        * */
@@ -157,6 +157,8 @@
    select MNG_APP_CMS */
 
 #define MNG_GAMMA_ONLY
+/* #define MNG_FULL_CMS */
+/* #define MNG_APP_CMS */
 
 /* ************************************************************************** */
 

@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000-2003 Gerard Juyn                                    * */
+/* * Copyright (c) 2000-2004 Gerard Juyn                                    * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
