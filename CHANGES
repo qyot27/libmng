@@ -10,6 +10,9 @@ intermediate CVS
 -------------------
 
 bugfixes:
+- fixed inclusion of IJNG chunk for non-JNG use (J.S)
+- fixed bug in chunk-storage of SHOW chunk (where from == to)
+- fixed bug in promote_g8_g8 with 16bit support off
 
 core:
 - added CANVAS_RGB565 and CANVAS_BGR565 (big thanx to Raphael Assenat!!)
@@ -17,10 +20,8 @@ core:
 - upgraded to zlib 1.2.1
 - upgraded to lcms 1.11
 - added premultiplied alpha canvas' for RGBA, ARGB, ABGR (thx to John Stiles)
-- fixed inclusion of IJNG chunk for non-JNG use (J.S)
-- fixed bug in chunk-storage of SHOW chunk (where from == to)
-- fixed bug in promote_g8_g8 with 16bit support off
 - more optimizations with 16bit support off
+- put conditionals around openstream/closestream callbacks.
 
 samples:
 

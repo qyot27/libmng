@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_types.h            copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_types.h            copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : type specifications                                        * */
 /* *                                                                        * */
@@ -107,6 +107,9 @@
 /* *             - lcms.h inclusion is generally no longer prefixed         * */
 /* *             1.0.6 - 07/07/2003 - G. R-P.                               * */
 /* *             - added png_imgtypes enumeration                           * */
+/* *                                                                        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -428,8 +431,10 @@ typedef void       (MNG_DECL *mng_memfree)       (mng_ptr     iPtr,
                                                   mng_size_t  iLen);
 
                                        /* I/O management callbacks */
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
 typedef mng_bool   (MNG_DECL *mng_openstream)    (mng_handle  hHandle);
 typedef mng_bool   (MNG_DECL *mng_closestream)   (mng_handle  hHandle);
+#endif
 typedef mng_bool   (MNG_DECL *mng_readdata)      (mng_handle  hHandle,
                                                   mng_ptr     pBuf,
                                                   mng_uint32  iBuflen,

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_read.c             copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_read.c             copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -81,6 +81,9 @@
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around non-VLC chunk support          * */
 /* *                                                                        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -115,8 +118,10 @@ mng_retcode mng_process_eof (mng_datap pData)
   {
     pData->bEOF = MNG_TRUE;            /* now we do! */
 
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     if (!pData->fClosestream ((mng_handle)pData))
       MNG_ERROR (pData, MNG_APPIOERROR)
+#endif
   }
 
   return MNG_NOERROR;

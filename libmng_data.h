@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_data.h             copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_data.h             copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -134,6 +134,9 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added iPNGdepth member to pData structure                * */
+/* *                                                                        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -299,8 +302,10 @@ typedef struct mng_data_struct {
 
            mng_memalloc      fMemalloc;          /* callback pointers */
            mng_memfree       fMemfree;           /* initially nulled */
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
            mng_openstream    fOpenstream;
            mng_closestream   fClosestream;
+#endif
            mng_readdata      fReaddata;
            mng_writedata     fWritedata;
            mng_errorproc     fErrorproc;

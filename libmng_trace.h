@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_trace.h            copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_trace.h            copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
@@ -138,6 +138,9 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
+/* *                                                                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -227,8 +230,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_PROCESSSRGB      116
 #define MNG_FN_SETCB_PROCESSICCP      117
 #define MNG_FN_SETCB_PROCESSAROW      118
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
 #define MNG_FN_SETCB_OPENSTREAM       119
 #define MNG_FN_SETCB_CLOSESTREAM      120
+#endif
 #define MNG_FN_SETCB_GETALPHALINE     121
 #define MNG_FN_SETCB_PROCESSSAVE      122
 #define MNG_FN_SETCB_PROCESSSEEK      123
@@ -255,8 +260,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_PROCESSSRGB      216
 #define MNG_FN_GETCB_PROCESSICCP      217
 #define MNG_FN_GETCB_PROCESSAROW      218
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
 #define MNG_FN_GETCB_OPENSTREAM       219
 #define MNG_FN_GETCB_CLOSESTREAM      220
+#endif
 #define MNG_FN_GETCB_GETALPHALINE     221
 #define MNG_FN_GETCB_PROCESSSAVE      222
 #define MNG_FN_GETCB_PROCESSSEEK      223

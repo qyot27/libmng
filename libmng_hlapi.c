@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_hlapi.c            copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_hlapi.c            copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -165,6 +165,9 @@
 /* *                                                                        * */
 /* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
 /* *             - put gamma, cms-related declarations inside #ifdef        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
+/* *                                                                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -677,7 +680,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_zlib_strategy",      1, 0, 0},
     {"mng_get_zlib_windowbits",    1, 0, 0},
 #endif
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {"mng_getcb_closestream",      1, 0, 0},
+#endif
     {"mng_getcb_errorproc",        1, 0, 0},
     {"mng_getcb_getalphaline",     1, 0, 0},
     {"mng_getcb_getbkgdline",      1, 0, 0},
@@ -685,7 +690,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getcb_gettickcount",     1, 0, 0},
     {"mng_getcb_memalloc",         1, 0, 0},
     {"mng_getcb_memfree",          1, 0, 0},
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {"mng_getcb_openstream",       1, 0, 0},
+#endif
     {"mng_getcb_processarow",      1, 0, 0},
     {"mng_getcb_processchroma",    1, 0, 0},
     {"mng_getcb_processgamma",     1, 0, 0},
@@ -995,7 +1002,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_zlib_strategy",      1, 0, 0},
     {"mng_set_zlib_windowbits",    1, 0, 0},
 #endif
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {"mng_setcb_closestream",      1, 0, 0},
+#endif
     {"mng_setcb_errorproc",        1, 0, 0},
     {"mng_setcb_getalphaline",     1, 0, 0},
     {"mng_setcb_getbkgdline",      1, 0, 0},
@@ -1003,7 +1012,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_setcb_gettickcount",     1, 0, 0},
     {"mng_setcb_memalloc",         1, 0, 0},
     {"mng_setcb_memfree",          1, 0, 0},
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {"mng_setcb_openstream",       1, 0, 0},
+#endif
     {"mng_setcb_processarow",      1, 0, 0},
     {"mng_setcb_processchroma",    1, 0, 0},
     {"mng_setcb_processgamma",     1, 0, 0},
@@ -1177,8 +1188,10 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->fMemfree              = fMemfree;
 #endif
                                        /* no value (yet) */
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
   pData->fOpenstream           = MNG_NULL;
   pData->fClosestream          = MNG_NULL;
+#endif
   pData->fReaddata             = MNG_NULL;
   pData->fWritedata            = MNG_NULL;
   pData->fErrorproc            = MNG_NULL;
@@ -1764,8 +1777,10 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   MNG_VALIDCB (hHandle, fMemfree)
 #endif
 
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
   MNG_VALIDCB (hHandle, fOpenstream)
   MNG_VALIDCB (hHandle, fClosestream)
+#endif
   MNG_VALIDCB (hHandle, fReaddata)
 
 #ifdef MNG_SUPPORT_DISPLAY             /* valid at this point ? */
@@ -1787,9 +1802,11 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
 
   pData->bReading = MNG_TRUE;          /* read only! */
 
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
   if (!pData->fOpenstream (hHandle))   /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
+#endif
     iRetcode = mng_read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */
@@ -1894,8 +1911,10 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
   MNG_VALIDCB (hHandle, fMemfree)
 #endif
 
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
   MNG_VALIDCB (hHandle, fOpenstream)
   MNG_VALIDCB (hHandle, fClosestream)
+#endif
   MNG_VALIDCB (hHandle, fWritedata)
 
 #ifdef MNG_SUPPORT_READ
@@ -2018,9 +2037,11 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   pData->iStarttime    = pData->iSynctime;
   pData->iEndtime      = 0;
 
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
   if (!pData->fOpenstream (hHandle))   /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
+#endif
     iRetcode = mng_read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */

@@ -270,6 +270,8 @@
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
 /* *             - put gamma, cms-related declarations inside #ifdef        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -569,10 +571,12 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_memfree       (mng_handle        hHandle,
 /* open- & close-stream callbacks */
 /* called to open & close streams for input or output */
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
 MNG_EXT mng_retcode MNG_DECL mng_setcb_openstream    (mng_handle        hHandle,
                                                       mng_openstream    fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_closestream   (mng_handle        hHandle,
                                                       mng_closestream   fProc);
+#endif
 #endif
 
 /* read callback */
@@ -713,8 +717,10 @@ MNG_EXT mng_memfree       MNG_DECL mng_getcb_memfree       (mng_handle hHandle);
 
 /* see _setcb_ */
 #if defined(MNG_SUPPORT_READ) || defined(MNG_WRITE_SUPPORT)
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
 MNG_EXT mng_openstream    MNG_DECL mng_getcb_openstream    (mng_handle hHandle);
 MNG_EXT mng_closestream   MNG_DECL mng_getcb_closestream   (mng_handle hHandle);
+#endif
 #endif
 
 /* see _setcb_ */

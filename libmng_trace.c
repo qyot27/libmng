@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_trace.c            copyright (c) 2000-2003 G.Juyn   * */
+/* * file      : libmng_trace.c            copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
@@ -135,6 +135,8 @@
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
 /* *             - put gamma, cms-related declarations inside #ifdef        * */
+/* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
+/* *             - added conditionals around openstream/closestream         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -197,8 +199,10 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SETCB_PROCESSSRGB,         "setcb_processsrgb"},
     {MNG_FN_SETCB_PROCESSICCP,         "setcb_processiccp"},
     {MNG_FN_SETCB_PROCESSAROW,         "setcb_processarow"},
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {MNG_FN_SETCB_OPENSTREAM,          "setcb_openstream"},
     {MNG_FN_SETCB_CLOSESTREAM,         "setcb_closestream"},
+#endif
     {MNG_FN_SETCB_GETALPHALINE,        "setcb_getalphaline"},
     {MNG_FN_SETCB_PROCESSSAVE,         "setcb_processsave"},
     {MNG_FN_SETCB_PROCESSSEEK,         "setcb_processseek"},
@@ -225,8 +229,10 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GETCB_PROCESSSRGB,         "getcb_processsrgb"},
     {MNG_FN_GETCB_PROCESSICCP,         "getcb_processiccp"},
     {MNG_FN_GETCB_PROCESSAROW,         "getcb_processarow"},
+#ifndef MNG_NO_OPEN_CLOSE_STREAM
     {MNG_FN_GETCB_OPENSTREAM,          "getcb_openstream"},
     {MNG_FN_GETCB_CLOSESTREAM,         "getcb_closestream"},
+#endif
     {MNG_FN_GETCB_GETALPHALINE,        "getcb_getalphaline"},
     {MNG_FN_GETCB_PROCESSSAVE,         "getcb_processsave"},
     {MNG_FN_GETCB_PROCESSSEEK,         "getcb_processseek"},
