@@ -12,6 +12,7 @@ config.cache
 config.sub
 config.guess
 config.log
+config.status
 install-sh
 libtool
 ltconfig
