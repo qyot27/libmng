@@ -71,15 +71,34 @@
 #define MNG_NO_16BIT_SUPPORT
 #endif
 
-#if 0
+#if 1
+#define MNG_SKIPCHUNK_PAST
+/* eliminate PAST feature from libmng */
+#endif
+
+#if 1
 /* eliminate Delta-PNG feature from libmng */
 #define MNG_NO_DELTA_PNG
 #endif
 
-#if 0
-/* also manually remove or restore jng-recognition in
-   mozilla/modules/libpr0n/src/imgLoader.cpp */
+#if 1
+/* If you change this you should also manually remove or restore
+   jng-recognition in mozilla/modules/libpr0n/src/imgLoader.cpp */
 #define MNG_NO_INCLUDE_JNG
 #endif
 
-#endif /* _mozlibmng_conf_h_ */
+#if 1
+/* Recognize MNG-VLC chunks only */
+#define MNG_SKIPCHUNK_BASI
+#define MNG_SKIPCHUNK_CLIP
+#define MNG_SKIPCHUNK_CLON
+#define MNG_SKIPCHUNK_DISC
+#define MNG_SKIPCHUNK_DEFI
+#define MNG_SKIPCHUNK_FRAM
+#define MNG_SKIPCHUNK_LOOP
+#define MNG_SKIPCHUNK_MAGN
+#define MNG_SKIPCHUNK_MOVE
+#define MNG_SKIPCHUNK_SHOW
+#endif
+
+#endif /* _mozlibmng_conf_h */
