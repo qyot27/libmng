@@ -2312,11 +2312,6 @@ MNG_C_SPECIALFUNC (mng_special_trns)
                   pBuf->iTRNSred   = ((mng_trnsp)pChunk)->iRed;
                   pBuf->iTRNSgreen = ((mng_trnsp)pChunk)->iGreen;
                   pBuf->iTRNSblue  = ((mng_trnsp)pChunk)->iBlue;
-#if defined(MNG_NO_1_2_4BIT_SUPPORT)
-                  pBuf->iTRNSred   *= multiplier[pData->iPNGdepth];
-                  pBuf->iTRNSgreen *= multiplier[pData->iPNGdepth];
-                  pBuf->iTRNSblue  *= multiplier[pData->iPNGdepth];
-#endif
 #if defined(MNG_NO_16BIT_SUPPORT)
                   if (pData->iPNGmult == 2)
                   {

@@ -1670,20 +1670,11 @@ READ_CHUNK (mng_read_trns)
                   break;
                 }
         case 2: {                      /* rgb */
-#if defined(MNG_NO_1_2_4BIT_SUPPORT)
-                  mng_uint8 multiplier[]={0,255,85,0,17,0,0,0,1,
-                                          0,0,0,0,0,0,0,1};
-#endif
                   pBuf->iTRNSgray  = 0;
                   pBuf->iTRNSred   = mng_get_uint16 (pRawdata);
                   pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
                   pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
                   pBuf->iTRNScount = 0;
-#if defined(MNG_NO_1_2_4BIT_SUPPORT)
-                  pBuf->iTRNSred *= multiplier[pData->iPNGdepth];
-                  pBuf->iTRNSgreen *= multiplier[pData->iPNGdepth];
-                  pBuf->iTRNSblue *= multiplier[pData->iPNGdepth];
-#endif
 #if defined(MNG_NO_16BIT_SUPPORT)
                   if (pData->iPNGmult == 2)
                   {
