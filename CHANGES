@@ -1,11 +1,15 @@
 -----------------------------------------------------------
 
-1.0.5-rc2 (... ... 2002)
+1.0.5-rc2 dec 9th 2002)
 ------------------------
 
 in short:
 
-intermediate CVS
+Second release-candidate for the upcoming 1.0.5 version.
+This contains fixes for a few minor details reported by the loyal testers.
+It fixes some issues with the goframe/golayer/gotime processing and related
+stuff. And it adds a way to disable playback-caching from within the MNG,
+which is very useful for streaming-MNG encoders (such as gserver!).
 
 -------------------
 
