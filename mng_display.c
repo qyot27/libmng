@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_display.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -70,6 +70,14 @@
 /* *             0.9.0 - 06/30/2000 - G.Juyn                                * */
 /* *             - changed refresh parameters to 'x,y,width,height'         * */
 /* *                                                                        * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - implemented support for freeze/reset/resume & go_xxxx    * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added support for improved timing                        * */
+/* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
+/* *             - changed EOF processing behavior                          * */
+/* *             - fixed TERM delay processing                              * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -97,36 +105,53 @@
 #ifdef MNG_INCLUDE_DISPLAY_PROCS
 
 /* ************************************************************************** */
+
+mng_retcode set_delay (mng_datap  pData,
+                       mng_uint32 iInterval)
+{
+  if (!pData->fSettimer ((mng_handle)pData, iInterval))
+    MNG_ERROR (pData, MNG_APPTIMERERROR)
+
+  pData->bTimerset = MNG_TRUE;         /* and indicate so */
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
 /* *                                                                        * */
-/* * Progressive display refresh - does the actual call to refresh and sets * */
-/* * the timer to allow the app to perform the actual refresh to the screen * */
-/* * (eg. process its main message-loop)                                    * */
+/* * Progressive display refresh - does the call to the refresh callback    * */
+/* * and sets the timer to allow the app to perform the actual refresh to   * */
+/* * the screen (eg. process its main message-loop)                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
 mng_retcode display_progressive_refresh (mng_datap  pData,
                                          mng_uint32 iInterval)
-{                                      /* tell the app to refresh */
-  if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
-  {
-    if (!pData->fRefresh (((mng_handle)pData),
-                          pData->iUpdateleft,  pData->iUpdatetop,
-                          pData->iUpdateright - pData->iUpdateleft,
-                          pData->iUpdatebottom - pData->iUpdatetop))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+{
+  if (!pData->bSearching)              /* we mustn't be searching !!! */
+  {                                    /* tell the app to refresh */
+    if ((pData->iUpdatetop  < pData->iUpdatebottom) &&
+        (pData->iUpdateleft < pData->iUpdateright )    )
+    {
+      if (!pData->fRefresh (((mng_handle)pData),
+                            pData->iUpdateleft, pData->iUpdatetop,
+                            pData->iUpdateright  - pData->iUpdateleft,
+                            pData->iUpdatebottom - pData->iUpdatetop))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
 
-    pData->iUpdateleft   = 0;          /* reset update-region */
-    pData->iUpdateright  = 0;
-    pData->iUpdatetop    = 0;
-    pData->iUpdatebottom = 0;
-    pData->bNeedrefresh  = MNG_FALSE;  /* reset refreshneeded indicator */
+      pData->iUpdateleft   = 0;        /* reset update-region */
+      pData->iUpdateright  = 0;
+      pData->iUpdatetop    = 0;
+      pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
+      pData->bNeedrefresh  = MNG_FALSE;
+                                       /* interval requested ? */
+      if ((pData->bRunning) && (iInterval))
+      {                                /* setup the timer */
+        mng_retcode iRetcode = set_delay (pData, iInterval);
 
-    if (iInterval)                     /* interval requested ? */
-    {                                  /* setup the timer */
-      if (!pData->fSettimer ((mng_handle)pData, iInterval))
-        MNG_ERROR (pData, MNG_APPTIMERERROR)
-
-      pData->bTimerset = MNG_TRUE;     /* and indicate so */
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+      }
     }
   }
 
@@ -139,95 +164,92 @@ mng_retcode display_progressive_refresh (mng_datap  pData,
 /* *                                                                        * */
 /* ************************************************************************** */
 
-/* TODO: this routine needs some redesigning; make sure a delay is called at least
-   every 10th of a second to prevent hanging; also provide for slow reading
-   bandwidth & multiple timer-wraparounds */
-
 mng_retcode interframe_delay (mng_datap pData)
 {
-  mng_uint32 iWaitfor;
-  mng_uint32 iInterval;
+  mng_uint32  iWaitfor;
+  mng_uint32  iInterval;
+  mng_uint32  iRuninterval;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
 #endif
 
-  if (!pData->bRunning)                /* sanity check for frozen status */
-    MNG_WARNING (pData, MNG_IMAGEFROZEN)
-
-  if (pData->iFramedelay > 0)          /* let the app refresh first */
+  if (!pData->bSearching)              /* we mustn't be searching !!! */
   {
-    if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
-      if (!pData->fRefresh (((mng_handle)pData),
-                            pData->iUpdateleft,  pData->iUpdatetop,
-                            pData->iUpdateright - pData->iUpdateleft,
-                            pData->iUpdatebottom - pData->iUpdatetop))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
+    if (!pData->bRunning)              /* sanity check for frozen status */
+      MNG_WARNING (pData, MNG_IMAGEFROZEN)
 
-    pData->iUpdateleft   = 0;          /* reset update-region */
-    pData->iUpdateright  = 0;
-    pData->iUpdatetop    = 0;
-    pData->iUpdatebottom = 0;
-    pData->bNeedrefresh  = MNG_FALSE;  /* reset refreshneeded indicator */
-  }
-                                       /* get current tickcount */
-  pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
-                                       /* tickcount wrapped around ? */
-  if (pData->iRuntime < pData->iStarttime)
-    pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
-  else
-    pData->iRuntime = pData->iRuntime - pData->iStarttime;
-
-  /* NOTE that a second wraparound of the tickcount will seriously f**k things
-     up here! (but that's somewhere past at least 48 days on Windoze...) */
-  /* TODO: yeah, what to do ??? */
-
-  if (pData->iTicks)                   /* what are we aiming for */
-  {
-    switch (pData->iSpeed)             /* honor speed modifier */
+    if (pData->iFramedelay > 0)        /* let the app refresh first */
     {
-      case mng_st_fast :
-        {
-          iWaitfor = (mng_uint32)(( 500 * pData->iFramedelay) / pData->iTicks);
-          break;
-        }
-      case mng_st_slow :
-        {
-          iWaitfor = (mng_uint32)((3000 * pData->iFramedelay) / pData->iTicks);
-          break;
-        }
-      case mng_st_slowest :
-        {
-          iWaitfor = (mng_uint32)((8000 * pData->iFramedelay) / pData->iTicks);
-          break;
-        }
-      default :
-        {
-          iWaitfor = (mng_uint32)((1000 * pData->iFramedelay) / pData->iTicks);
-        }
+      if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
+        if (!pData->fRefresh (((mng_handle)pData),
+                              pData->iUpdateleft,  pData->iUpdatetop,
+                              pData->iUpdateright - pData->iUpdateleft,
+                              pData->iUpdatebottom - pData->iUpdatetop))
+          MNG_ERROR (pData, MNG_APPMISCERROR)
+
+      pData->iUpdateleft   = 0;        /* reset update-region */
+      pData->iUpdateright  = 0;
+      pData->iUpdatetop    = 0;
+      pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
+      pData->bNeedrefresh  = MNG_FALSE;
     }
+                                       /* get current tickcount */
+    pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
+                                       /* calculate interval since last sync-point */
+    if (pData->iRuntime < pData->iSynctime)
+      iRuninterval    = pData->iRuntime + ~pData->iSynctime + 1;
+    else
+      iRuninterval    = pData->iRuntime - pData->iSynctime;
+                                       /* calculate actual run-time */
+    if (pData->iRuntime < pData->iStarttime)
+      pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
+    else
+      pData->iRuntime = pData->iRuntime - pData->iStarttime;
 
-    iWaitfor = pData->iFrametime + iWaitfor;
-  }
-  else
-    iWaitfor = pData->iFrametime;
+    if (pData->iTicks)                 /* what are we aiming for */
+    {
+      switch (pData->iSpeed)           /* honor speed modifier */
+      {
+        case mng_st_fast :
+          {
+            iWaitfor = (mng_uint32)(( 500 * pData->iFramedelay) / pData->iTicks);
+            break;
+          }
+        case mng_st_slow :
+          {
+            iWaitfor = (mng_uint32)((3000 * pData->iFramedelay) / pData->iTicks);
+            break;
+          }
+        case mng_st_slowest :
+          {
+            iWaitfor = (mng_uint32)((8000 * pData->iFramedelay) / pData->iTicks);
+            break;
+          }
+        default :
+          {
+            iWaitfor = (mng_uint32)((1000 * pData->iFramedelay) / pData->iTicks);
+          }
+      }
+    }
+    else
+      iWaitfor = 1000;
 
-  if (pData->iRuntime < iWaitfor)      /* delay necessary ? */
-    iInterval = iWaitfor - pData->iRuntime;
-  else
-    iInterval = 1;                     /* force app to process messageloop */
+    if (iWaitfor > iRuninterval)       /* delay necessary ? */
+      iInterval = iWaitfor - iRuninterval;
+    else
+      iInterval = 1;                   /* force app to process messageloop */
                                        /* set the timer */
-  if (!pData->fSettimer ((mng_handle)pData, iInterval))
-    MNG_ERROR (pData, MNG_APPTIMERERROR)
+    iRetcode = set_delay (pData, iInterval);
 
-  pData->bTimerset   = MNG_TRUE;       /* and indicate so */
-  pData->iFrametime  = iWaitfor;       /* increase frametime in advance */
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* increase frametime in advance */
+    pData->iFrametime  = pData->iFrametime + iWaitfor;
                                        /* setup for next delay */
-  pData->iFramedelay = pData->iNextdelay;
-
-  /* TODO: some provision to compensate during slow file-access (such as
-     on low-bandwidth network connections);
-     only necessary during read-processing! */
+    pData->iFramedelay = pData->iNextdelay;
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END)
@@ -381,6 +403,67 @@ mng_retcode load_bkgdlayer (mng_datap pData)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode clear_canvas (mng_datap pData)
+{
+  mng_int32   iY;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CLEAR_CANVAS, MNG_LC_START)
+#endif
+
+  pData->iDestl      = 0;              /* clipping region is full canvas! */
+  pData->iDestt      = 0;
+  pData->iDestr      = pData->iWidth;
+  pData->iDestb      = pData->iHeight;
+
+  pData->iSourcel    = 0;              /* source is same as destination */
+  pData->iSourcer    = pData->iWidth;
+  pData->iSourcet    = 0;
+  pData->iSourceb    = pData->iHeight;
+
+  pData->iPass       = -1;             /* these are the object's dimensions now */
+  pData->iRow        = 0;
+  pData->iRowinc     = 1;
+  pData->iCol        = 0;
+  pData->iColinc     = 1;
+  pData->iRowsamples = pData->iWidth;
+  pData->iRowsize    = pData->iRowsamples << 2;
+  pData->bIsRGBA16   = MNG_FALSE;      /* let's keep it simple ! */
+  pData->bIsOpaque   = MNG_TRUE;
+
+  set_display_routine (pData);         /* determine display routine */
+                                       /* get a temporary row-buffer */
+                                       /* it's transparent black by default!! */
+  MNG_ALLOC (pData, pData->pRGBArow, pData->iRowsize)
+
+  iY       = pData->iDestt;            /* this is where we start */
+  iRetcode = MNG_NOERROR;              /* so far, so good */
+
+  while ((!iRetcode) && (iY < pData->iDestb))
+  {                                    /* clear a row then */
+    iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
+
+    if (!iRetcode)
+      iRetcode = next_row (pData);     /* adjust variables for next row */
+
+    iY++;                              /* and next line */
+  }
+                                       /* drop the temporary row-buffer */
+  MNG_FREE (pData, pData->pRGBArow, pData->iRowsize)
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CLEAR_CANVAS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1284,6 +1367,121 @@ mng_retcode restore_state (mng_datap pData)
 
 /* ************************************************************************** */
 /* *                                                                        * */
+/* * General display processing routine                                     * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode process_display (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY, MNG_LC_START)
+#endif
+
+  if (!pData->iBreakpoint)             /* not broken previously ? */
+  {
+    if ((pData->iRequestframe) || (pData->iRequestlayer) || (pData->iRequesttime))
+    {
+      pData->bSearching = MNG_TRUE;    /* indicate we're searching */
+
+      iRetcode = clear_canvas (pData); /* make the canvas virgin black ?!? */
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+                                       /* let's start from the top, shall we */
+      pData->pCurraniobj = pData->pFirstaniobj;
+    }
+    else
+    {
+      if (!pData->pCurraniobj)         /* no animation object? start at top */
+        pData->pCurraniobj = pData->pFirstaniobj;
+    }
+  }
+
+  do                                   /* process the objects */
+  {
+    if (pData->bSearching)             /* are we looking sor something ? */
+    {
+      if ((pData->iRequestframe) &&
+          (pData->iRequestframe < ((mng_object_headerp)pData->pCurraniobj)->iFramenr))
+      {
+        pData->iRequestframe = 0;      /* found the frame ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+      else
+      if ((pData->iRequestlayer) &&
+          (pData->iRequestlayer < ((mng_object_headerp)pData->pCurraniobj)->iLayernr))
+      {
+        pData->iRequestlayer = 0;      /* found the layer ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+      else
+      if ((pData->iRequesttime) &&
+          (pData->iRequesttime < ((mng_object_headerp)pData->pCurraniobj)->iPlaytime))
+      {
+        pData->iRequesttime  = 0;      /* found the playtime ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+    }
+                                       /* do we need to finish something first ? */
+    if ((pData->iBreakpoint) && (pData->iBreakpoint < 99))
+    {
+      switch (pData->iBreakpoint)      /* return to broken display routine */
+      {
+        case 1  : { iRetcode = process_display_fram2 (pData); break; }
+        case 3  : ;                    /* same as 4 !!! */
+        case 4  : { iRetcode = process_display_show  (pData); break; }
+        case 5  : { iRetcode = process_display_clon2 (pData); break; }
+        default : MNG_ERROR (pData, MNG_INTERNALERROR)
+      }
+    }
+    else
+    {
+      iRetcode = ((mng_object_headerp)pData->pCurraniobj)->fProcess (pData, pData->pCurraniobj);
+    }
+
+    if (!pData->bTimerset)             /* reset breakpoint flag ? */
+      pData->iBreakpoint = 0; 
+                                       /* can we advance to next object ? */
+    if ((!iRetcode) && (pData->pCurraniobj) &&
+        (!pData->bTimerset) && (!pData->bSectionwait))
+    {
+      pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
+                                       /* TERM processing to be done ? */
+      if ((!pData->pCurraniobj) && (pData->bHasTERM) && (!pData->bHasMHDR))
+        iRetcode = process_display_mend (pData);
+    }
+  }                                    /* until error or a break or no more objects */
+  while ((!iRetcode) && (pData->pCurraniobj) &&
+         (!pData->bTimerset) && (!pData->bSectionwait));
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+                                       /* refresh needed ? */
+  if ((!pData->bTimerset) && (pData->bNeedrefresh))
+  {
+    iRetcode = display_progressive_refresh (pData, 1);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+                                       /* timer break ? */
+  if ((pData->bTimerset) && (!pData->iBreakpoint))
+    pData->iBreakpoint = 99;
+  else
+  if (!pData->bTimerset)
+    pData->iBreakpoint = 0;            /* reset if no timer break */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* *                                                                        * */
 /* * Chunk display processing routines                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
@@ -1718,12 +1916,14 @@ mng_retcode process_display_mend (mng_datap pData)
     switch (pTERM->iTermaction)        /* determine what to do! */
     {
       case 0 : {                       /* show last frame indefinitly */
+                 pData->bRunning       = MNG_FALSE;
                  break;                /* piece of cake, that is... */
                }
 
       case 1 : {                       /* cease displaying anything */
                  pData->bFrameclipping = MNG_FALSE;
                  load_bkgdlayer (pData);
+                 pData->bRunning       = MNG_FALSE;
                  break;
                }
 
@@ -1744,20 +1944,27 @@ mng_retcode process_display_mend (mng_datap pData)
 
                    if (iRetcode)       /* on error bail out */
                      return iRetcode;
-
+                                       /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
+                                       /* set the delay */
+                   iRetcode = set_delay (pData, pTERM->iDelay);
+
+                   if (iRetcode)       /* on error bail out */
+                     return iRetcode;
                  }
                  else
                  {
                    switch (pTERM->iIteraction)
                    {
                      case 0 : {        /* show last frame indefinitly */
+                                pData->bRunning       = MNG_FALSE;
                                 break; /* piece of cake, that is... */
                               }
 
                      case 1 : {        /* cease displaying anything */
                                 pData->bFrameclipping = MNG_FALSE;
                                 load_bkgdlayer (pData);
+                                pData->bRunning       = MNG_FALSE;
                                 break;
                               }
 
@@ -1775,6 +1982,10 @@ mng_retcode process_display_mend (mng_datap pData)
                }
 
     }
+  }
+  else
+  {
+    pData->bRunning = MNG_FALSE;       /* all done now ! */
   }
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
@@ -2392,7 +2603,7 @@ mng_retcode process_display_fram (mng_datap  pData,
                                   mng_int32  iClipt,
                                   mng_int32  iClipb)
 {
-  mng_uint32 iRetcode;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START)

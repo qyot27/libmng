@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -51,6 +51,17 @@
 /* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
 /* *             - added tracecode for delta-image processing               * */
 /* *             - added tracecodes for PPLT chunk processing               * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - added tracecodes for special display processing          * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added tracecode for get/set suspensionmode               * */
+/* *             - added tracecodes for get/set display variables           * */
+/* *             - added tracecode for read_databuffer (I/O-suspension)     * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added tracecodes for SAVE/SEEK callbacks                 * */
+/* *             - added tracecodes for get/set sectionbreaks               * */
+/* *             - added tracecode for special error routine                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -140,6 +151,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_OPENSTREAM       119
 #define MNG_FN_SETCB_CLOSESTREAM      120
 #define MNG_FN_SETCB_GETALPHALINE     121
+#define MNG_FN_SETCB_PROCESSSAVE      122
+#define MNG_FN_SETCB_PROCESSSEEK      123
 
 #define MNG_FN_GETCB_MEMALLOC         201
 #define MNG_FN_GETCB_MEMFREE          202
@@ -162,6 +175,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_OPENSTREAM       219
 #define MNG_FN_GETCB_CLOSESTREAM      220
 #define MNG_FN_GETCB_GETALPHALINE     221
+#define MNG_FN_GETCB_PROCESSSAVE      222
+#define MNG_FN_GETCB_PROCESSSEEK      223
 
 #define MNG_FN_SET_USERDATA           301
 #define MNG_FN_SET_CANVASSTYLE        302
@@ -190,6 +205,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SET_JPEG_OPTIMIZED     325
 #define MNG_FN_SET_JPEG_MAXJDAT       326
 #define MNG_FN_SET_SPEED              327
+#define MNG_FN_SET_SUSPENSIONMODE     328
+#define MNG_FN_SET_SECTIONBREAKS      329
 
 #define MNG_FN_GET_USERDATA           401
 #define MNG_FN_GET_SIGTYPE            402
@@ -225,6 +242,13 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_JPEG_MAXJDAT       432
 #define MNG_FN_GET_SPEED              433
 #define MNG_FN_GET_IMAGELEVEL         434
+#define MNG_FN_GET_SUSPENSIONMODE     435
+#define MNG_FN_GET_STARTTIME          436
+#define MNG_FN_GET_RUNTIME            437
+#define MNG_FN_GET_CURRENTFRAME       438
+#define MNG_FN_GET_CURRENTLAYER       439
+#define MNG_FN_GET_CURRENTPLAYTIME    440
+#define MNG_FN_GET_SECTIONBREAKS      441
 
 /* ************************************************************************** */
 
@@ -379,6 +403,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_RESTORE_STATE         1020
 #define MNG_FN_DROP_SAVEDATA         1021
 #define MNG_FN_EXECUTE_DELTA_IMAGE   1022
+#define MNG_FN_PROCESS_DISPLAY       1023
+#define MNG_FN_CLEAR_CANVAS          1024
+#define MNG_FN_READ_DATABUFFER       1025
+#define MNG_FN_STORE_ERROR           1026
 
 /* ************************************************************************** */
 

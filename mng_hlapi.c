@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_hlapi.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -62,6 +62,21 @@
 /* *             - changed userdata variable to mng_ptr                     * */
 /* *             0.5.3 - 06/29/2000 - G.Juyn                                * */
 /* *             - fixed initialization routine for new mng_handle type     * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/06/2000 - G.Juyn                                * */
+/* *             - changed mng_display_resume to allow to be called after   * */
+/* *               a suspension return with MNG_NEEDMOREDATA                * */
+/* *             - added returncode MNG_NEEDTIMERWAIT for timer breaks      * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - implemented support for freeze/reset/resume & go_xxxx    * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added support for improved timing                        * */
+/* *             - added support for improved I/O-suspension                * */
+/* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
+/* *             - changed EOF processing behavior                          * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added callbacks for SAVE/SEEK processing                 * */
+/* *             - added variable for NEEDSECTIONWAIT breaks                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -328,8 +343,10 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->dViewgamma            = 1.0;
   pData->dDisplaygamma         = 2.2;
   pData->dDfltimggamma         = 0.45455;
-
-  pData->bStorechunks          = 1;    /* initially remember chunks */
+                                       /* initially remember chunks */
+  pData->bStorechunks          = MNG_TRUE;
+                                       /* no breaks at section-borders */
+  pData->bSectionbreaks        = MNG_FALSE;
                                        /* normal animation-speed ! */
   pData->iSpeed                = mng_st_normal;
                                        /* initial image limits */
@@ -351,6 +368,8 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->fErrorproc            = 0;
   pData->fProcessheader        = 0;
   pData->fProcesstext          = 0;
+  pData->fProcesssave          = 0;
+  pData->fProcessseek          = 0;
   pData->fGetcanvasline        = 0;
   pData->fGetbkgdline          = 0;
   pData->fGetalphaline         = 0;
@@ -385,26 +404,34 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   mnglcms_initlibrary ();              /* init lcms particulairs */
 #endif
 
+#ifdef MNG_SUPPORT_READ
+  pData->bSuspensionmode       = MNG_FALSE;
+  pData->iSuspendbufsize       = 0;
+  pData->pSuspendbuf           = 0;
+  pData->pSuspendbufnext       = 0;
+  pData->iSuspendbufleft       = 0;
+#endif
+
 #ifdef MNG_INCLUDE_ZLIB
   mngzlib_initialize (pData);          /* initialize zlib structures and such */
                                        /* default zlib compression parameters */
-  pData->iZlevel            = MNG_ZLIB_LEVEL;
-  pData->iZmethod           = MNG_ZLIB_METHOD;
-  pData->iZwindowbits       = MNG_ZLIB_WINDOWBITS;
-  pData->iZmemlevel         = MNG_ZLIB_MEMLEVEL;
-  pData->iZstrategy         = MNG_ZLIB_STRATEGY;
+  pData->iZlevel               = MNG_ZLIB_LEVEL;
+  pData->iZmethod              = MNG_ZLIB_METHOD;
+  pData->iZwindowbits          = MNG_ZLIB_WINDOWBITS;
+  pData->iZmemlevel            = MNG_ZLIB_MEMLEVEL;
+  pData->iZstrategy            = MNG_ZLIB_STRATEGY;
                                        /* default maximum IDAT data size */
-  pData->iMaxIDAT           = MNG_MAX_IDAT_SIZE;
+  pData->iMaxIDAT              = MNG_MAX_IDAT_SIZE;
 #endif
 
 #ifdef MNG_INCLUDE_JNG                 /* default IJG compression parameters */
-  pData->eJPEGdctmethod     = MNG_JPEG_DCT;
-  pData->iJPEGquality       = MNG_JPEG_QUALITY;
-  pData->iJPEGsmoothing     = MNG_JPEG_SMOOTHING;
-  pData->bJPEGcompressprogr = MNG_JPEG_PROGRESSIVE;
-  pData->bJPEGcompressopt   = MNG_JPEG_OPTIMIZED;
+  pData->eJPEGdctmethod        = MNG_JPEG_DCT;
+  pData->iJPEGquality          = MNG_JPEG_QUALITY;
+  pData->iJPEGsmoothing        = MNG_JPEG_SMOOTHING;
+  pData->bJPEGcompressprogr    = MNG_JPEG_PROGRESSIVE;
+  pData->bJPEGcompressopt      = MNG_JPEG_OPTIMIZED;
                                        /* default maximum JDAT data size */
-  pData->iMaxJDAT           = MNG_MAX_JDAT_SIZE;
+  pData->iMaxJDAT              = MNG_MAX_JDAT_SIZE;
 #endif
 
   mng_reset ((mng_handle)pData);
@@ -569,6 +596,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bEOF                  = MNG_FALSE;
   pData->iReadbufsize          = 0;
   pData->pReadbuf              = 0;
+
+  pData->pSuspendbufnext       = pData->pSuspendbuf;
+  pData->iSuspendbufleft       = 0;
 #endif /* MNG_SUPPORT_READ */
 
 #ifdef MNG_SUPPORT_WRITE               /* no creating/writing done */
@@ -585,7 +615,14 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iLayerseq             = 0;
   pData->iFrametime            = 0;
 
+  pData->iRequestframe         = 0;
+  pData->iRequestlayer         = 0;
+  pData->iRequesttime          = 0;
+  pData->bSearching            = MNG_FALSE;
+
   pData->iRuntime              = 0;
+  pData->iSynctime             = 0;
+  pData->iSuspendtime          = 0;
   pData->iStarttime            = 0;
   pData->iEndtime              = 0;
   pData->bRunning              = MNG_FALSE;
@@ -593,6 +630,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iBreakpoint           = 0;
   pData->bSuspended            = MNG_FALSE;
   pData->iSuspendpoint         = 0;
+  pData->bSectionwait          = MNG_FALSE;
   pData->bNeedrefresh          = MNG_FALSE;
 
   pData->pCurrentobj           = 0;    /* these don't exist yet */
@@ -900,11 +938,11 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   else
     iRetcode = read_graphic (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-
   if (pData->bEOF)                     /* already at EOF ? */
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_END)
@@ -934,13 +972,19 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
 
   pData->bSuspended = MNG_FALSE;       /* reset the flag */
 
-  iRetcode = read_graphic (pData);
+#ifdef MNG_SUPPORT_DISPLAY             /* re-synchronize ? */
+  if ((pData->bDisplaying) && (pData->bRunning))
+    pData->iSynctime  = pData->iSynctime - pData->iSuspendtime +
+                        pData->fGettickcount (hHandle);
+#endif
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  iRetcode = read_graphic (pData);     /* continue reading now */
 
   if (pData->bEOF)                     /* at EOF ? */
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_END)
@@ -1072,23 +1116,35 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 #endif
 
-  pData->bReading    = MNG_TRUE;       /* read & display! */
-  pData->bDisplaying = MNG_TRUE;
-  pData->bRunning    = MNG_TRUE;
-  pData->iRuntime    = 0;
-  pData->iStarttime  = pData->fGettickcount (hHandle);
-  pData->iEndtime    = 0;
+  pData->bReading      = MNG_TRUE;     /* read & display! */
+  pData->bDisplaying   = MNG_TRUE;
+  pData->bRunning      = MNG_TRUE;
+  pData->iFrameseq     = 0;
+  pData->iLayerseq     = 0;
+  pData->iFrametime    = 0;
+  pData->iRequestframe = 0;
+  pData->iRequestlayer = 0;
+  pData->iRequesttime  = 0;
+  pData->bSearching    = MNG_FALSE;
+  pData->iRuntime      = 0;
+  pData->iSynctime     = pData->fGettickcount (hHandle);
+  pData->iSuspendtime  = 0;
+  pData->iStarttime    = pData->iSynctime;
+  pData->iEndtime      = 0;
 
   if (!pData->fOpenstream (hHandle))   /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
     iRetcode = read_graphic (pData);
 
+  if (pData->bEOF)                     /* already at EOF ? */
+    pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  if (pData->bEOF)                     /* already at EOF ? */
-    pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+  if (pData->bTimerset)                /* indicate timer break ? */
+    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
@@ -1103,7 +1159,8 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
 #ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_display (mng_handle hHandle)
 {
-  mng_datap pData;                     /* local vars */
+  mng_datap   pData;                   /* local vars */
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_START)
@@ -1121,20 +1178,42 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   MNG_VALIDCB (hHandle, fRefresh)
   MNG_VALIDCB (hHandle, fGettickcount)
   MNG_VALIDCB (hHandle, fSettimer)
-                                       /* valid at this point ? */
-  if ((pData->bReading) || (pData->bDisplaying))
+
+  if (pData->bDisplaying)              /* valid at this point ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    
+#ifdef MNG_SUPPORT_READ
+  if (pData->bReading)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+#endif
 
-  pData->bDisplaying = MNG_TRUE;       /* display! */
-  pData->bRunning    = MNG_TRUE;
-  pData->iRuntime    = 0;
-  pData->iStarttime  = pData->fGettickcount (hHandle);
-  pData->iEndtime    = 0;
+#ifdef MNG_SUPPORT_WRITE
+  if ((pData->bWriting) || (pData->bCreating))
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+#endif
 
+  pData->bDisplaying   = MNG_TRUE;     /* display! */
+  pData->bRunning      = MNG_TRUE;
+  pData->iFrameseq     = 0;
+  pData->iLayerseq     = 0;
+  pData->iFrametime    = 0;
+  pData->iRequestframe = 0;
+  pData->iRequestlayer = 0;
+  pData->iRequesttime  = 0;
+  pData->bSearching    = MNG_FALSE;
+  pData->iRuntime      = 0;
+  pData->iSynctime     = pData->fGettickcount (hHandle);
+  pData->iSuspendtime  = 0;
+  pData->iStarttime    = pData->iSynctime;
+  pData->iEndtime      = 0;
 
-  /* TODO: display */
-  MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
+  iRetcode = process_display (pData);  /* go do it */
 
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+  
+  if (pData->bTimerset)                /* indicate timer break ? */
+    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END)
@@ -1163,43 +1242,57 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
   if (pData->bRunning)                 /* was it running ? */
-  {
-    if (pData->bTimerset)              /* are we expecting this call ? */
+  {                                    /* are we expecting this call ? */
+    if ((pData->bTimerset) || (pData->bSuspended) || (pData->bSectionwait)) 
     {
-      pData->bTimerset = MNG_FALSE;    /* reset the flag */
+      pData->bTimerset    = MNG_FALSE; /* reset the flags */
+      pData->bSectionwait = MNG_FALSE;
 
+#ifdef MNG_SUPPORT_READ
       if (pData->bReading)             /* set during read&display ? */
       {
-        iRetcode = read_graphic (pData);
+        if (pData->bSuspended)         /* calculate proper synchronization */
+          pData->iSynctime = pData->iSynctime - pData->iSuspendtime +
+                             pData->fGettickcount (hHandle);
+        else
+          pData->iSynctime = pData->fGettickcount (hHandle);
 
-        if (iRetcode)                  /* on error bail out */
-          return iRetcode; 
+        pData->bSuspended = MNG_FALSE; /* now reset this flag */  
+                                       /* and continue reading */
+        iRetcode = read_graphic (pData);
 
         if (pData->bEOF)               /* already at EOF ? */
           pData->bReading = MNG_FALSE; /* then we're no longer reading */
-
       }
       else
-     {
-
-
-        /* TODO: display_resume for mng_display */
-        MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
-
-
+#endif /* MNG_SUPPORT_READ */
+      {                                /* synchronize timing */
+        pData->iSynctime = pData->fGettickcount (hHandle);
+                                       /* resume display processing */
+        iRetcode = process_display (pData);
       }
     }
     else
+    {
       MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-
+    }
   }
   else
-  {
-
-    /* TODO: resume animation after freeze or reset */
-    MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
-
+  {                                    /* synchronize timing */
+    pData->iSynctime = pData->fGettickcount (hHandle);
+    pData->bRunning  = MNG_TRUE;       /* it's restarted again ! */
+                                       /* resume display processing */
+    iRetcode = process_display (pData);
   }
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  if (pData->bTimerset)                /* indicate timer break ? */
+    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
+  else
+  if (pData->bSectionwait)             /* indicate section break ? */
+    MNG_RETURN (pData, MNG_NEEDSECTIONWAIT)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_END)
@@ -1226,18 +1319,31 @@ mng_retcode MNG_DECL mng_display_freeze (mng_handle hHandle)
 
   if (!pData->bDisplaying)             /* can we expect this call ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* during some break ?? */
+  if ((pData->bTimerset) || (pData->bSectionwait) || (pData->bSuspended))
+  {
 
-  pData->bRunning = MNG_FALSE;         /* indicate it's frozen */          
-                                       /* need to finish reading the stream ? */
+    /* TODO: finish broken processing */
+
+  }
+
+  pData->bRunning     = MNG_FALSE;     /* indicate it's frozen */
+  pData->bTimerset    = MNG_FALSE;
+  pData->iBreakpoint  = 0;
+  pData->bSectionwait = MNG_FALSE;
+
+#ifdef MNG_SUPPORT_READ                /* need to finish reading the stream ? */
   if ((pData->bReading) && (!pData->bEOF))
   {
     iRetcode = read_graphic (pData);   /* so read till EOF */
 
+    if (pData->bEOF)
+      pData->bReading = MNG_FALSE;     /* gotta be finished now */
+
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-
-    pData->bReading = MNG_FALSE;       /* gotta be finished now */
   }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_FREEZE, MNG_LC_END)
@@ -1265,18 +1371,40 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
   if (!pData->bDisplaying)             /* can we expect this call ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
-  pData->bDisplaying = MNG_FALSE;      /* ok; stop displaying ! */
-  pData->bRunning    = MNG_FALSE;
-                                       /* need to finish reading the stream ? */
+  pData->bDisplaying   = MNG_FALSE;    /* ok; stop displaying ! */
+  pData->bRunning      = MNG_FALSE;
+  pData->bTimerset     = MNG_FALSE;
+  pData->iBreakpoint   = 0;
+  pData->bSectionwait  = MNG_FALSE;
+  pData->pCurraniobj   = MNG_NULL;
+  pData->iFrameseq     = 0;            /* reset all display-state variables */
+  pData->iLayerseq     = 0;
+  pData->iFrametime    = 0;
+  pData->iRequestframe = 0;
+  pData->iRequestlayer = 0;
+  pData->iRequesttime  = 0;
+  pData->bSearching    = MNG_FALSE;
+
+  iRetcode = mng_drop_objects (pData); /* drop all display objects */
+
+  if (!iRetcode)                       /* drop the savebuffer */
+    iRetcode = mng_drop_savedata (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;   
+
+#ifdef MNG_SUPPORT_READ                /* need to finish reading the stream ? */
   if ((pData->bReading) && (!pData->bEOF))
   {
     iRetcode = read_graphic (pData);   /* so read till EOF */
 
+    if (pData->bEOF)
+      pData->bReading = MNG_FALSE;     /* gotta be finished now */
+
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-
-    pData->bReading = MNG_FALSE;       /* gotta be finished now */
   }
+#endif  
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESET, MNG_LC_END)
@@ -1292,7 +1420,8 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
 mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
                                           mng_uint32 iFramenr)
 {
-  mng_datap pData;
+  mng_datap   pData;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_START)
@@ -1310,10 +1439,19 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
   if (iFramenr > pData->iFramecount)   /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_FRAMENRTOOHIGH);
 
+  if (pData->bRunning)                 /* still running ? */
+  {
+    iRetcode = mng_display_freeze (hHandle);
 
-  /* TODO: display_goframe */
-  MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
+  pData->iRequestframe = iFramenr;     /* go find the requested frame then */
+  iRetcode = process_display (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_END)
@@ -1329,7 +1467,8 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
 mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
                                           mng_uint32 iLayernr)
 {
-  mng_datap pData;
+  mng_datap   pData;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_START)
@@ -1347,10 +1486,19 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
   if (iLayernr > pData->iLayercount)   /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_LAYERNRTOOHIGH)
 
+  if (pData->bRunning)                 /* still running ? */
+  {
+    iRetcode = mng_display_freeze (hHandle);
 
-  /* TODO: display_golayer */
-  MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
+  pData->iRequestlayer = iLayernr;     /* go find the requested layer then */
+  iRetcode = process_display (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_END)
@@ -1366,7 +1514,8 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
 mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
                                          mng_uint32 iPlaytime)
 {
-  mng_datap pData;
+  mng_datap   pData;
+  mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_START)
@@ -1384,10 +1533,19 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
   if (iPlaytime > pData->iPlaytime)    /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH)
 
+  if (pData->bRunning)                 /* still running ? */
+  {
+    iRetcode = mng_display_freeze (hHandle);
 
-  /* TODO: display_gotime */
-  MNG_WARNING (pData, MNG_FNNOTIMPLEMENTED)
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
+  pData->iRequesttime = iPlaytime;     /* go find the requested playtime then */
+  iRetcode = process_display (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_END)

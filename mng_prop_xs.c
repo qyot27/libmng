@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_prop_xs.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -39,6 +39,12 @@
 /* *             - changed userdata variable to mng_ptr                     * */
 /* *             0.5.3 - 06/29/2000 - G.Juyn                                * */
 /* *             - fixed incompatible return-types                          * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added get routines for internal display variables        * */
+/* *             - added get/set routines for suspensionmode variable       * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added get/set routines for sectionbreak variable         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -198,6 +204,25 @@ mng_retcode MNG_DECL mng_set_storechunks (mng_handle hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_STORECHUNKS, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_set_sectionbreaks (mng_handle hHandle,
+                                            mng_bool   bSectionbreaks)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SECTIONBREAKS, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->bSectionbreaks = bSectionbreaks;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SECTIONBREAKS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -797,6 +822,31 @@ mng_retcode MNG_DECL mng_set_jpeg_maxjdat (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_set_suspensionmode (mng_handle hHandle,
+                                             mng_bool   bSuspensionmode)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SUSPENSIONMODE, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+
+  if (((mng_datap)hHandle)->bReading)  /* we must NOT be reading !!! */
+    MNG_ERROR ((mng_datap)hHandle, MNG_FUNCTIONINVALID)
+
+  ((mng_datap)hHandle)->bSuspensionmode = bSuspensionmode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SUSPENSIONMODE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
 #ifdef MNG_SUPPORT_DISPLAY
 mng_retcode MNG_DECL mng_set_speed (mng_handle    hHandle,
                                     mng_speedtype iSpeed)
@@ -805,6 +855,7 @@ mng_retcode MNG_DECL mng_set_speed (mng_handle    hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_SPEED, MNG_LC_START)
 #endif
 
+  MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->iSpeed = iSpeed;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1054,6 +1105,23 @@ mng_bool MNG_DECL mng_get_storechunks (mng_handle hHandle)
 #endif
 
   return ((mng_datap)hHandle)->bStorechunks;
+}
+
+/* ************************************************************************** */
+
+mng_bool MNG_DECL mng_get_sectionbreaks (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_SECTIONBREAKS, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_SECTIONBREAKS, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bSectionbreaks;
 }
 
 /* ************************************************************************** */
@@ -1442,6 +1510,26 @@ mng_uint32 MNG_DECL mng_get_jpeg_maxjdat (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_READ
+mng_bool MNG_DECL mng_get_suspensionmode (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_SUSPENSIONMODE, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_SUSPENSIONMODE, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bSuspensionmode;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
 #ifdef MNG_SUPPORT_DISPLAY
 mng_speedtype MNG_DECL mng_get_speed (mng_handle hHandle)
 {
@@ -1476,6 +1564,106 @@ mng_uint32 MNG_DECL mng_get_imagelevel (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iImagelevel;
 }
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_starttime (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_STARTTIME, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_STARTTIME, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iStarttime;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_runtime (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_RUNTIME, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_RUNTIME, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iRuntime;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_currentframe (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTFRAME, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTFRAME, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iFrameseq;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_currentlayer (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTLAYER, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTLAYER, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iLayerseq;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_currentplaytime (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTPLAYTIME, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_CURRENTPLAYTIME, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iFrametime;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 /* * end of file                                                            * */

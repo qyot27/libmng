@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_callback_xs.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -25,6 +25,9 @@
 /* *             - fixed up punctuation (contribution by Tim Rowley)        * */
 /* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - added getalphaline callback for RGB8_A8 canvasstyle      * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added callbacks for SAVE/SEEK processing                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -246,6 +249,48 @@ mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSTEXT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_setcb_processsave (mng_handle      hHandle,
+                                            mng_processsave fProc)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSAVE, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->fProcesssave = fProc;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSAVE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_setcb_processseek (mng_handle      hHandle,
+                                            mng_processseek fProc)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSEEK, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->fProcessseek = fProc;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSEEK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -672,6 +717,44 @@ mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
 #endif
 
   return ((mng_datap)hHandle)->fProcesstext;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_processsave MNG_DECL mng_getcb_processsave (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSAVE, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSAVE, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->fProcesssave;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_processseek MNG_DECL mng_getcb_processseek (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSEEK, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSEEK, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->fProcessseek;
 }
 #endif /* MNG_SUPPORT_READ */
 

@@ -55,6 +55,14 @@
 /* *             0.5.3 - 06/26/2000 - G.Juyn                                * */
 /* *             - changed userdata variable to mng_ptr                     * */
 /* *                                                                        * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - added variables for go_xxxx processing                   * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added variables for improved timing support              * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added callbacks for SAVE/SEEK processing                 * */
+/* *             - added variable for NEEDSECTIONWAIT breaks                * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -212,6 +220,7 @@ typedef struct mng_data_struct {
            mng_float         dDfltimggamma;
 
            mng_bool          bStorechunks;       /* switch for storing chunkdata */
+           mng_bool          bSectionbreaks;     /* indicate NEEDSECTIONWAIT breaks */
 
            mng_speedtype     iSpeed;             /* speed-modifier for animations */
 
@@ -234,6 +243,8 @@ typedef struct mng_data_struct {
            mng_traceproc     fTraceproc;
            mng_processheader fProcessheader;
            mng_processtext   fProcesstext;
+           mng_processsave   fProcesssave;
+           mng_processseek   fProcessseek;
            mng_getcanvasline fGetcanvasline;
            mng_getbkgdline   fGetbkgdline;
            mng_getalphaline  fGetalphaline;
@@ -318,6 +329,12 @@ typedef struct mng_data_struct {
            mng_bool          bEOF;
            mng_uint32        iReadbufsize;
            mng_uint8p        pReadbuf;
+
+           mng_bool          bSuspensionmode;    /* I/O-suspension variables */
+           mng_uint32        iSuspendbufsize;
+           mng_uint8p        pSuspendbuf;
+           mng_uint8p        pSuspendbufnext;
+           mng_uint32        iSuspendbufleft;
 #endif /* MNG_SUPPORT_READ */
 
 #ifdef MNG_SUPPORT_WRITE
@@ -334,7 +351,14 @@ typedef struct mng_data_struct {
            mng_uint32        iLayerseq;
            mng_uint32        iFrametime;         /* millisecs */
 
+           mng_uint32        iRequestframe;      /* go_xxxx variables */
+           mng_uint32        iRequestlayer;
+           mng_uint32        iRequesttime;
+           mng_bool          bSearching;
+
            mng_uint32        iRuntime;           /* millisecs since start */
+           mng_uint32        iSynctime;          /* tickcount at last framesync */
+           mng_uint32        iSuspendtime;       /* tickcount at last suspension */
            mng_uint32        iStarttime;         /* tickcount at start */
            mng_uint32        iEndtime;           /* tickcount at end */
            mng_bool          bRunning;           /* animation is active */
@@ -348,6 +372,7 @@ typedef struct mng_data_struct {
                                                     mng_read_resume! */
            mng_uint8         iSuspendpoint;      /* indicates at which point the flow
                                                     was broken to suspend input-reading */
+           mng_bool          bSectionwait;       /* indicates a section break */   
            mng_bool          bNeedrefresh;       /* indicates screen-refresh is needed */   
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_io.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -84,6 +84,9 @@
 /* *             - added precaution against faulty iCCP chunks from PS      * */
 /* *             0.5.3 - 06/29/2000 - G.Juyn                                * */
 /* *             - fixed some 64-bit warnings                               * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
+/* *             - changed pre-draft48 frame_mode=3 to frame_mode=1         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1852,7 +1855,7 @@ READ_CHUNK (read_text)
 
     if (!bOke)
       MNG_ERROR (pData, MNG_APPMISCERROR)
-      
+
   }
 
 #ifdef MNG_STORE_CHUNKS
@@ -3846,7 +3849,7 @@ READ_CHUNK (read_fram)
             case  0: { break; }
             case  1: { iFramemode = 3; break; }
             case  2: { iFramemode = 4; break; }
-            case  3: { break; }
+            case  3: { iFramemode = 1; break; }
             case  4: { iFramemode = 1; break; }
             case  5: { iFramemode = 2; break; }
             default: { iFramemode = 1; break; }
@@ -4357,6 +4360,14 @@ READ_CHUNK (read_save)
 
   pData->bHasSAVE = MNG_TRUE;
 
+  if (pData->fProcesssave)             /* inform the application ? */
+  {
+    mng_bool bOke = pData->fProcesssave ((mng_handle)pData);
+
+    if (!bOke)
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+  }
+
 #ifdef MNG_SUPPORT_DISPLAY
   {
     mng_retcode iRetcode;
@@ -4557,12 +4568,30 @@ READ_CHUNK (read_seek)
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
+  if (pData->fProcessseek)             /* inform the app ? */
+  {
+    mng_bool  bOke;
+    mng_pchar zName;
+
+    MNG_ALLOC (pData, zName, iRawlen + 1)
+
+    if (iRawlen)
+      MNG_COPY (zName, pRawdata, iRawlen)
+
+    bOke = pData->fProcessseek ((mng_handle)pData, zName);
+
+    MNG_FREEX (pData, zName, iRawlen + 1)
+
+    if (!bOke)
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+  }
+
 #ifdef MNG_SUPPORT_DISPLAY
   {
     mng_retcode iRetcode;
 
 
-    /* TODO: something with the parameters */
+    /* TODO: something with the name ??? */
 
 
 

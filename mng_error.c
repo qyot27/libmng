@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_error.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error routines (implementation)                            * */
 /* *                                                                        * */
@@ -26,6 +26,13 @@
 /* *             - fixed up punctuation (contributed by Tim Rowley)         * */
 /* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
 /* *             - added errorstring for delayed buffer-processing          * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/06/2000 - G.Juyn                                * */
+/* *             - added MNG_NEEDTIMERWAIT errorstring                      * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added NEEDSECTIONWAIT errorstring                        * */
+/* *             - added macro + routine to set returncode without          * */
+/* *               calling error callback                                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -61,6 +68,8 @@
     {MNG_OUTPUTERROR,      "Writing was unsuccessful; disk full?"},
     {MNG_JPEGBUFTOOSMALL,  "Internal buffer for JPEG processing too small"},
     {MNG_NEEDMOREDATA,     "Reading suspended; waiting for I/O to catch up"},
+    {MNG_NEEDTIMERWAIT,    "Timer suspension; normal animation delay"},
+    {MNG_NEEDSECTIONWAIT,  "SEEK suspension; application decides"},
 
     {MNG_APPIOERROR,       "Application signalled I/O error"},
     {MNG_APPTIMERERROR,    "Application signalled timing error"},
@@ -127,13 +136,13 @@
 
 /* ************************************************************************** */
 
-mng_bool mng_process_error (mng_datap   pData,
-                            mng_retcode iError,
-                            mng_retcode iExtra1,
-                            mng_retcode iExtra2)
+mng_bool mng_store_error (mng_datap   pData,
+                          mng_retcode iError,
+                          mng_retcode iExtra1,
+                          mng_retcode iExtra2)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACEB (pData, MNG_FN_PROCESS_ERROR, MNG_LC_START)
+  MNG_TRACEB (pData, MNG_FN_STORE_ERROR, MNG_LC_START)
 #endif
 
   if (pData != 0)
@@ -193,13 +202,34 @@ mng_bool mng_process_error (mng_datap   pData,
         default     : { pData->iSeverity = 9; }
       }
     }
+  }
 
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (pData, MNG_FN_STORE_ERROR, MNG_LC_END)
+#endif
+
+  return MNG_TRUE;
+}
+
+/* ************************************************************************** */
+
+mng_bool mng_process_error (mng_datap   pData,
+                            mng_retcode iError,
+                            mng_retcode iExtra1,
+                            mng_retcode iExtra2)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (pData, MNG_FN_PROCESS_ERROR, MNG_LC_START)
+#endif
+
+  mng_store_error (pData, iError, iExtra1, iExtra2);
+
+  if (pData != 0)
+  {
     if (pData->fErrorproc)             /* callback defined ? */
-    {
       return pData->fErrorproc (((mng_handle)pData), iError, pData->iSeverity,
                                 pData->iChunkname, pData->iChunkseq,
                                 pData->iErrorx1, pData->iErrorx2, pData->zErrortext);
-    }
   }
 
 #ifdef MNG_SUPPORT_TRACE

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_error.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error functions (definition)                               * */
 /* *                                                                        * */
@@ -34,6 +34,10 @@
 /* *             - added errorcode for delayed buffer-processing            * */
 /* *             - moved errorcodes to "libmng.h"                           * */
 /* *                                                                        * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added macro + routine to set returncode without          * */
+/* *               calling error callback                                   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -48,6 +52,11 @@
 /* * Default error routines                                                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
+
+mng_bool mng_store_error   (mng_datap   pData,
+                            mng_retcode iError,
+                            mng_retcode iExtra1,
+                            mng_retcode iExtra2);
 
 mng_bool mng_process_error (mng_datap   pData,
                             mng_retcode iError,
@@ -64,6 +73,9 @@ mng_bool mng_process_error (mng_datap   pData,
 #define MNG_ERRORZ(D,Z)     { mng_process_error (D, MNG_ZLIBERROR, Z, 0); return MNG_ZLIBERROR; }
 #define MNG_ERRORJ(D,J)     { mng_process_error (D, MNG_JPEGERROR, J, 0); return MNG_JPEGERROR; }
 #define MNG_ERRORL(D,L)     { mng_process_error (D, MNG_LCMSERROR, L, 0); return MNG_LCMSERROR; }
+
+#define MNG_RETURN(D,C)     { mng_store_error (D, C, 0, 0); return C; }
+
 #define MNG_WARNING(D,C)    { if (!mng_process_error (D, C, 0, 0)) return C; }
 
 #define MNG_VALIDHANDLE(H)  { if ((H == 0) || (((mng_datap)H)->iMagic != MNG_MAGIC)) \

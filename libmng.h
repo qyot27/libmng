@@ -158,6 +158,18 @@
 /* *             0.9.0 - 06/30/2000 - G.Juyn                                * */
 /* *             - changed refresh parameters to 'x,y,width,height'         * */
 /* *                                                                        * */
+/* *             0.9.1 - 07/06/2000 - G.Juyn                                * */
+/* *             - added MNG_NEEDTIMERWAIT errorcode                        * */
+/* *             - changed comments to indicate modified behavior for       * */
+/* *               timer & suspension breaks                                * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added get routines for internal display variables        * */
+/* *             - added get/set routines for suspensionmode variable       * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added callbacks for SAVE/SEEK processing                 * */
+/* *             - added get/set routines for sectionbreak variable         * */
+/* *             - added NEEDSECTIONWAIT errorcode                          * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -294,12 +306,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "0.9.0"
-#define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test) */
+#define MNG_VERSION_TEXT    "0.9.1"
+#define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test/beta) */
 #define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
 #define MNG_VERSION_MAJOR   0
 #define MNG_VERSION_MINOR   9
-#define MNG_VERSION_RELEASE 0
+#define MNG_VERSION_RELEASE 1
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
@@ -338,7 +350,8 @@ MNG_EXT mng_retcode MNG_DECL mng_cleanup         (mng_handle*   hHandle);
    "readdata" callback may return FALSE & length=0 indicating it's buffer is
    depleted or too short to supply the required bytes, and the buffer needs
    to be refilled; libmng will return the errorcode MNG_NEEDMOREDATA telling
-   the app to refill it's read-buffer after which it must call mng_read_resume */
+   the app to refill it's read-buffer after which it must call mng_read_resume
+   (or mng_display_resume if it also displaying the image simultaneously) */
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_read            (mng_handle    hHandle);
 MNG_EXT mng_retcode MNG_DECL mng_read_resume     (mng_handle    hHandle);
@@ -359,8 +372,9 @@ MNG_EXT mng_retcode MNG_DECL mng_create          (mng_handle    hHandle);
 /* use these to display a previously read or created graphic or
    to read & display a graphic simultaneously */
 /* mng_display_resume should be called after a timer-interval
-   expires that was set through the settimer-callback, or to resume
-   an animation after a call to mng_display_freeze */
+   expires that was set through the settimer-callback, after a
+   read suspension-break or to resume an animation after a call to
+   mng_display_freeze/mng_display_reset */
 /* mng_display_freeze thru mng_display_gotime can be used to influence
    the animation display of a MNG */
 #ifdef MNG_SUPPORT_DISPLAY
@@ -448,11 +462,16 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc     (mng_handle        hHandle,
    from the inputstream */
 /* processtext is called for every tEXt, zTXt and iTXt chunk in the
    inputstream (iType=0 for tEXt, 1 for zTXt and 2 for iTXt) */
+/* processsave & processseek are called for a SAVE/SEEK chunks */
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
                                                       mng_processheader fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processtext   (mng_handle        hHandle,
                                                       mng_processtext   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processsave   (mng_handle        hHandle,
+                                                      mng_processsave   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processseek   (mng_handle        hHandle,
+                                                      mng_processseek   fProc);
 #endif
 
 /* callbacks for display processing */
@@ -551,6 +570,8 @@ MNG_EXT mng_traceproc     MNG_DECL mng_getcb_traceproc     (mng_handle hHandle);
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_processheader MNG_DECL mng_getcb_processheader (mng_handle hHandle);
 MNG_EXT mng_processtext   MNG_DECL mng_getcb_processtext   (mng_handle hHandle);
+MNG_EXT mng_processsave   MNG_DECL mng_getcb_processsave   (mng_handle hHandle);
+MNG_EXT mng_processseek   MNG_DECL mng_getcb_processseek   (mng_handle hHandle);
 #endif
 
 /* see _setcb_ */
@@ -606,6 +627,12 @@ MNG_EXT mng_retcode MNG_DECL mng_set_bgcolor         (mng_handle        hHandle,
 /* can be used to dynamically change storage management */
 MNG_EXT mng_retcode MNG_DECL mng_set_storechunks     (mng_handle        hHandle,
                                                       mng_bool          bStorechunks);
+
+/* Indicates breaks requested when processing SAVE/SEEK */
+/* set this to let the app handle section breaks; the library will return
+   MNG_NEEDSECTIONWAIT return-codes for each SEEK chunk */
+MNG_EXT mng_retcode MNG_DECL mng_set_sectionbreaks   (mng_handle        hHandle,
+                                                      mng_bool          bSectionbreaks);
 
 /* Color-management necessaties */
 /* if you've defined MNG_FULL_CMS, you must specify the profile of the
@@ -707,8 +734,17 @@ MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_maxjdat    (mng_handle        hHandle,
                                                       mng_uint32        iMaxJDAT);
 #endif /* MNG_INCLUDE_JNG */
 
-/* Speed-setting  */
-/* use this to facilitate testing of animations */
+/* Suspension-mode setting */
+/* use this to activate the internal suspension-buffer to improve
+   read-suspension processing */
+/* TODO: write-suspension ??? */   
+#if defined(MNG_SUPPORT_READ)
+MNG_EXT mng_retcode MNG_DECL mng_set_suspensionmode  (mng_handle        hHandle,
+                                                      mng_bool          bSuspensionmode);
+#endif
+
+/* Speed setting */
+/* use this to influence the display-speed of animations */
 #if defined(MNG_SUPPORT_DISPLAY)
 MNG_EXT mng_retcode MNG_DECL mng_set_speed           (mng_handle        hHandle,
                                                       mng_speedtype     iSpeed);
@@ -753,6 +789,9 @@ MNG_EXT mng_retcode MNG_DECL mng_get_bgcolor         (mng_handle        hHandle,
 MNG_EXT mng_bool    MNG_DECL mng_get_storechunks     (mng_handle        hHandle);
 
 /* see _set_ */
+MNG_EXT mng_bool    MNG_DECL mng_get_sectionbreaks   (mng_handle        hHandle);
+
+/* see _set_ */
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
 MNG_EXT mng_bool    MNG_DECL mng_get_srgb            (mng_handle        hHandle);
 #endif
@@ -793,6 +832,11 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_jpeg_maxjdat    (mng_handle        hHandle)
 #endif /* MNG_INCLUDE_JNG */
 
 /* see _set_  */
+#if defined(MNG_SUPPORT_READ)
+MNG_EXT mng_bool    MNG_DECL mng_get_suspensionmode  (mng_handle        hHandle);
+#endif
+
+/* see _set_  */
 #if defined(MNG_SUPPORT_DISPLAY)
 MNG_EXT mng_speedtype
                     MNG_DECL mng_get_speed           (mng_handle        hHandle);
@@ -803,6 +847,21 @@ MNG_EXT mng_speedtype
    text of the image being processed; the value 1 is returned for top-level
    texts, and the value 2 for a text inside an embedded image inside a MNG */
 MNG_EXT mng_uint32  MNG_DECL mng_get_imagelevel      (mng_handle        hHandle);
+
+/* Display status variables */
+/* these get filled & updated during display processing */
+/* starttime is the tickcount at the start of displaying the animation */
+/* runtime is the actual number of millisecs since the start of the animation */
+/* currentframe, currentlayer & currentplaytime indicate the current
+   frame/layer/playtime(msecs) in the animation (these keep increasing;
+   even after the animation loops back to the TERM chunk) */
+#if defined(MNG_SUPPORT_DISPLAY)
+MNG_EXT mng_uint32  MNG_DECL mng_get_starttime       (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_runtime         (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_currentframe    (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_currentlayer    (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_currentplaytime (mng_handle        hHandle);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -1724,6 +1783,8 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 #define MNG_OUTPUTERROR      (mng_retcode)12   /* disk full ?                 */
 #define MNG_JPEGBUFTOOSMALL  (mng_retcode)13   /* can't handle buffer overflow*/
 #define MNG_NEEDMOREDATA     (mng_retcode)14   /* I'm hungry, give me more    */
+#define MNG_NEEDTIMERWAIT    (mng_retcode)15   /* Sleep a while then wake me  */
+#define MNG_NEEDSECTIONWAIT  (mng_retcode)16   /* just processed a SEEK       */
 
 #define MNG_APPIOERROR       (mng_retcode)901  /* application I/O error       */
 #define MNG_APPTIMERERROR    (mng_retcode)902  /* application timing error    */

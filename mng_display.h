@@ -56,6 +56,10 @@ mng_retcode execute_delta_image   (mng_datap      pData,
                                    
 /* ************************************************************************** */
 
+mng_retcode process_display       (mng_datap      pData);
+
+/* ************************************************************************** */
+
 mng_retcode process_display_ihdr  (mng_datap      pData);
 
 mng_retcode process_display_idat  (mng_datap      pData,

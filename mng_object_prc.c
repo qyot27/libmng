@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -45,6 +45,9 @@
 /* *               delta-images in the ani_objects chain                    * */
 /* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
 /* *             - added support for PPLT chunk                             * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - added support for freeze/restart/resume & go_xxxx        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -891,6 +894,9 @@ void add_ani_object (mng_datap          pData,
   pObject->iFramenr     = pData->iFrameseq;
   pObject->iLayernr     = pData->iLayerseq;
   pObject->iPlaytime    = pData->iFrametime;
+                                       /* save restart object ? */
+  if ((pData->bDisplaying) && (!pData->bRunning) && (!pData->pCurraniobj))
+    pData->pCurraniobj  = pObject;
 
   return;
 }

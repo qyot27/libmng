@@ -61,6 +61,10 @@
 /* *                                                                        * */
 /* *             0.9.0 - 06/30/2000 - G.Juyn                                * */
 /* *             - changed refresh parameters to 'x,y,width,height'         * */
+/* *             0.9.1 - 07/10/2000 - G.Juyn                                * */
+/* *             - added suspendbuffer constants                            * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added callbacks for SAVE/SEEK processing                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -240,6 +244,9 @@ typedef mng_uint32    mng_uint32arr2[2];
 #define MNG_TRUE  1
 #define MNG_NULL  0
 
+#define MNG_SUSPENDBUFFERSIZE  32768
+#define MNG_SUSPENDREQUESTSIZE  1024
+
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -351,6 +358,9 @@ typedef mng_bool   MNG_DECL (*mng_processtext)   (mng_handle  hHandle,
                                                   mng_pchar   zText,
                                                   mng_pchar   zLanguage,
                                                   mng_pchar   zTranslation);
+typedef mng_bool   MNG_DECL (*mng_processsave)   (mng_handle  hHandle);
+typedef mng_bool   MNG_DECL (*mng_processseek)   (mng_handle  hHandle,
+                                                  mng_pchar   zName);
 
                                        /* display processing callbacks */
 typedef mng_ptr    MNG_DECL (*mng_getcanvasline) (mng_handle  hHandle,

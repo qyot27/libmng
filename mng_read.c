@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_read.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -32,6 +32,13 @@
 /* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
 /* *             - changed progressive-display processing                   * */
 /* *                                                                        * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - changed read-processing for improved I/O-suspension      * */
+/* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
+/* *             - changed EOF processing behavior                          * */
+/* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
+/* *             - changed default readbuffer size from 1024 to 4200        * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -41,12 +48,12 @@
 #ifdef __BORLANDC__
 #pragma hdrstop
 #endif
+#include "mng_memory.h"
 #include "mng_objects.h"
 #include "mng_object_prc.h"
 #include "mng_chunks.h"
 #include "mng_chunk_prc.h"
 #include "mng_chunk_io.h"
-#include "mng_memory.h"
 #include "mng_display.h"
 #include "mng_read.h"
 
@@ -57,6 +64,142 @@
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_READ_PROCS
+
+/* ************************************************************************** */
+
+mng_retcode process_eof (mng_datap pData)
+{
+  if (!pData->bEOF)                    /* haven't closed the stream yet ? */
+  {
+    pData->bEOF = MNG_TRUE;            /* now we do! */
+
+    if (!pData->fClosestream ((mng_handle)pData))
+      MNG_ERROR (pData, MNG_APPIOERROR)
+  }
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode read_databuffer (mng_datap    pData,
+                             mng_ptr      pBuf,
+                             mng_uint32   iSize,
+                             mng_uint32 * iRead)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_START)
+#endif
+
+  if (pData->bSuspensionmode)
+  {
+    *iRead = 0;                        /* let's be negative about the outcome */
+
+    if (!pData->pSuspendbuf)           /* need to create a suspension buffer ? */
+    {
+      pData->iSuspendbufsize = MNG_SUSPENDBUFFERSIZE;
+                                       /* so, create it */
+      MNG_ALLOC (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
+
+      pData->iSuspendbufleft = 0;      /* make sure to fill it first time */
+      pData->pSuspendbufnext = pData->pSuspendbuf;
+    }
+                                       /* more than our buffer can hold ? */
+    if (iSize > pData->iSuspendbufsize)
+    {
+
+      /* TODO: compensate for large chunks */
+
+      MNG_ERROR (pData, MNG_INTERNALERROR)
+
+    }
+    else
+    {                                  /* need to read some more ? */
+      while (iSize > pData->iSuspendbufleft)
+      {
+        mng_uint8p pTemp;
+        mng_uint32 iTemp;
+                                       /* not enough space left in buffer */
+        if (pData->iSuspendbufsize - pData->iSuspendbufleft -
+            (mng_uint32)(pData->pSuspendbufnext - pData->pSuspendbuf) <
+                                                          MNG_SUSPENDREQUESTSIZE)
+        {
+          if (pData->iSuspendbufleft)  /* then lets shift (if there's anything left) */
+            MNG_COPY (pData->pSuspendbuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
+                                       /* adjust running pointer */
+          pData->pSuspendbufnext = pData->pSuspendbuf;
+        }
+                                       /* still not enough room ? */
+        if (pData->iSuspendbufsize - pData->iSuspendbufleft < MNG_SUSPENDREQUESTSIZE)
+          MNG_ERROR (pData, MNG_INTERNALERROR)
+                                       /* now read some more data */
+        pTemp = pData->pSuspendbufnext + pData->iSuspendbufleft;
+
+        if (!pData->fReaddata (((mng_handle)pData), pTemp, MNG_SUSPENDREQUESTSIZE, &iTemp))
+          MNG_ERROR (pData, MNG_APPIOERROR);
+                                       /* adjust fill-counter */
+        pData->iSuspendbufleft += iTemp;
+                                       /* first read after suspension return 0 means EOF */
+        if ((pData->iSuspendpoint) && (iTemp == 0))
+        {                              /* that makes it final */
+          mng_retcode iRetcode = process_eof (pData);
+
+          if (iRetcode)                /* on error bail out */
+            return iRetcode;
+
+          if (pData->iSuspendbufleft)  /* return the leftover scraps */
+            MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
+                                       /* and indicate so */
+          *iRead = pData->iSuspendbufleft;
+          pData->pSuspendbufnext = pData->pSuspendbuf;
+          pData->iSuspendbufleft = 0;
+          pData->iSuspendpoint   = 0;
+
+          return MNG_NOERROR;          /* nothing more to do */
+        }
+
+                                       /* suspension required ? */
+        if ((iSize > pData->iSuspendbufleft) && (iTemp < MNG_SUSPENDREQUESTSIZE))
+        {
+          pData->bSuspended   = MNG_TRUE;
+          pData->iSuspendtime = pData->fGettickcount ((mng_handle)pData);
+                                       /* not a real error !!!! */
+          MNG_RETURN (pData, MNG_NEEDMOREDATA)
+        }
+      }
+                                       /* return the data ! */
+      MNG_COPY (pBuf, pData->pSuspendbufnext, iSize)
+
+      *iRead = iSize;                  /* returned it all */
+      pData->pSuspendbufnext += iSize; /* adjust suspension-buffer variables */
+      pData->iSuspendbufleft -= iSize;
+    }
+  }
+  else
+  {
+    if (!pData->fReaddata (((mng_handle)pData), pBuf, iSize, iRead))
+    {
+      if (iRead == 0)                  /* suspension required ? */
+      {
+        pData->bSuspended    = MNG_TRUE;
+        pData->iSuspendtime  = pData->fGettickcount ((mng_handle)pData);
+
+                                       /* not a real error !!!! */
+        MNG_RETURN (pData, MNG_NEEDMOREDATA)
+      }
+      else
+        MNG_ERROR (pData, MNG_APPIOERROR);
+    }
+  }
+
+  pData->iSuspendpoint = 0;            /* no suspension from here ! */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
 
 /* ************************************************************************** */
 
@@ -184,10 +327,11 @@ mng_retcode process_raw_chunk (mng_datap  pData,
   {
     iRetcode = pEntry->fRead (pData, pEntry, iBuflen, (mng_ptr)pBuf, &pChunk);
 
-                                       /* remember unknown chunk's id */
-    if ((!iRetcode) && (pChunk) && (pEntry == &chunk_unknown))
-      ((mng_chunk_headerp)pChunk)->iChunkname = iChunkname;
-
+    if (!iRetcode)                     /* everything oke ? */
+    {                                  /* remember unknown chunk's id */
+      if ((pChunk) && (pEntry == &chunk_unknown))
+        ((mng_chunk_headerp)pChunk)->iChunkname = iChunkname;
+    }
   }
   else
     iRetcode = MNG_NOERROR;
@@ -195,11 +339,21 @@ mng_retcode process_raw_chunk (mng_datap  pData,
   if (pChunk)                          /* store this chunk ? */
     add_chunk (pData, pChunk);         /* do it */
 
+#ifdef MNG_INCLUDE_JNG                 /* implicit EOF ? */
+  if ((!pData->bHasMHDR) && (!pData->bHasIHDR) && (!pData->bHasJHDR))
+#else
+  if ((!pData->bHasMHDR) && (!pData->bHasIHDR))
+#endif
+    iRetcode = process_eof (pData);    /* then do some EOF processing */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
@@ -229,15 +383,17 @@ mng_retcode read_chunk (mng_datap  pData)
 /*      if ((!iRetcode) && (!pData->bTimerset) && (pData->bNeedrefresh))
         iRetcode = display_progressive_refresh (pData, 1); */
                                        /* can we advance to next object ? */
-      if ((!iRetcode) && (!pData->bTimerset) && (pData->pCurraniobj))
+      if ((!iRetcode) && (pData->pCurraniobj) &&
+          (!pData->bTimerset) && (!pData->bSectionwait))
       {
         pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
                                        /* TERM processing to be done ? */
         if ((!pData->pCurraniobj) && (pData->bHasTERM) && (!pData->bHasMHDR))
           iRetcode = process_display_mend (pData);
       }
-    }                                  /* until error or timer set or no more objects */
-    while ((!iRetcode) && (!pData->bTimerset) && (pData->pCurraniobj));
+    }                                  /* until error or a break or no more objects */
+    while ((!iRetcode) && (pData->pCurraniobj) &&
+           (!pData->bTimerset) && (!pData->bSectionwait));
   }
   else
   {
@@ -266,29 +422,22 @@ mng_retcode read_chunk (mng_datap  pData)
                                        /* can we continue processing now, or do we */
                                        /* need to wait for the timer to finish (again) ? */
 #ifdef MNG_SUPPORT_DISPLAY
-  if ((!pData->bTimerset) && (!pData->bEOF))
+  if ((!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bEOF))
 #else
   if (!pData->bEOF)
 #endif
   {
     if (pData->iSuspendpoint <= 2)
     {
-      iBuflen = sizeof (iChunklen);    /* read length */
+      iBuflen  = sizeof (iChunklen);   /* read length */
+      iRetcode = read_databuffer (pData, (mng_ptr)pBuf, iBuflen, &iRead);
 
-      if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
-      {
-        if (iRead == 0)                /* suspension required ? */
-        {
-          pData->bSuspended    = MNG_TRUE;
-          pData->iSuspendpoint = 2;
+      if (iRetcode == MNG_NEEDMOREDATA)
+        pData->iSuspendpoint = 2;      /* suspended */
 
-          return MNG_NEEDMOREDATA;     /* not a real error !!!! */
-        }
-        else
-          MNG_ERROR (pData, MNG_APPIOERROR);
-      }
+      if (iRetcode)                    /* bail on errors */
+        return iRetcode;
 
-      pData->iSuspendpoint = 0;
     }
                                        /* previously suspended or not eof ? */
     if ((pData->iSuspendpoint > 2) || (iRead == iBuflen))
@@ -301,21 +450,14 @@ mng_retcode read_chunk (mng_datap  pData)
       {                                /* note that we don't use the full size
                                           so there's always a zero-byte at the
                                           very end !!! */
-        if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
-        {
-          if (iRead == 0)              /* suspension required ? */
-          {
-            pData->bSuspended    = MNG_TRUE;
-            pData->iSuspendpoint = 3;
+        iRetcode = read_databuffer (pData, (mng_ptr)pBuf, iBuflen, &iRead);
 
-            return MNG_NEEDMOREDATA;   /* not a real error !!!! */
-          }
-          else
-            MNG_ERROR (pData, MNG_APPIOERROR);
-        }
+        if (iRetcode == MNG_NEEDMOREDATA)
+          pData->iSuspendpoint = 3;    /* suspended */
 
-        pData->iSuspendpoint = 0;
-        
+        if (iRetcode)                  /* bail on errors */
+          return iRetcode;
+
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
@@ -329,30 +471,24 @@ mng_retcode read_chunk (mng_datap  pData)
           else
             iRetcode = process_raw_chunk (pData, pBuf, iL);
         }
-
       }
       else
       {                                /* create additional large buffer */
                                        /* again reserve space for the last zero-byte */
         MNG_ALLOC (pData, pExtra, iBuflen+1)
 
-        if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pExtra), iBuflen, &iRead))
+        iRetcode = read_databuffer (pData, (mng_ptr)pExtra, iBuflen, &iRead);
+
+        if (iRetcode)
         {                              /* don't forget to free the temp buffer */
           MNG_FREEX (pData, pExtra, iBuflen+1)
-
-          if (iRead == 0)              /* suspension required ? */
-          {
-            pData->bSuspended    = MNG_TRUE;
+                                       /* suspension ? */
+          if (iRetcode == MNG_NEEDMOREDATA)
             pData->iSuspendpoint = 4;
 
-            return MNG_NEEDMOREDATA;   /* not a real error */
-          }
-          else
-            MNG_ERROR (pData, MNG_APPIOERROR);
+          return iRetcode;
         }
 
-        pData->iSuspendpoint = 0;
-        
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
@@ -375,8 +511,11 @@ mng_retcode read_chunk (mng_datap  pData)
 
     }
     else
-    {
-      pData->bEOF = MNG_TRUE;          /* that's final */
+    {                                  /* that's final */
+      iRetcode = process_eof (pData);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
                                        /* did we get an unexpected eof ? */
       if ((iRead != 0) ||
 #ifdef MNG_INCLUDE_JNG
@@ -387,7 +526,6 @@ mng_retcode read_chunk (mng_datap  pData)
         MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
     }
   }
-
                                        /* refresh needed ? */
   if ((!pData->bTimerset) && (pData->bNeedrefresh))
   {
@@ -418,7 +556,7 @@ mng_retcode read_graphic (mng_datap pData)
 
   if (!pData->pReadbuf)                /* buffer allocated ? */
   {
-    pData->iReadbufsize = 1024;        /* allocate a default read buffer of 1024 */
+    pData->iReadbufsize = 4200;        /* allocate a default read buffer */
     MNG_ALLOC (pData, pData->pReadbuf, pData->iReadbufsize)
   }
                                        /* haven't processed the signature ? */
@@ -426,17 +564,14 @@ mng_retcode read_graphic (mng_datap pData)
   {
     iBuflen = 2 * sizeof (mng_uint32); /* read signature */
 
-    if (!pData->fReaddata ((mng_handle)pData, (mng_ptr)pData->pReadbuf, iBuflen, &iRead))
-    {
-      if (iRead == 0)                  /* input suspension required ? */
-      {
-        pData->bSuspended    = MNG_TRUE;
+    iRetcode = read_databuffer (pData, (mng_ptr)pData->pReadbuf, iBuflen, &iRead);
+
+    if (iRetcode)
+    {                                  /* input suspension ? */
+      if (iRetcode == MNG_NEEDMOREDATA)
         pData->iSuspendpoint = 1;
 
-        return MNG_NEEDMOREDATA;       /* not a real error!!!! */
-      }
-      else
-        MNG_ERROR (pData, MNG_APPIOERROR)
+      return iRetcode;
     }
 
     if (iRead != iBuflen)              /* full signature received ? */
@@ -457,7 +592,6 @@ mng_retcode read_graphic (mng_datap pData)
       MNG_ERROR (pData, MNG_INVALIDSIG);
 
     pData->bHavesig      = MNG_TRUE;
-    pData->iSuspendpoint = 0;
   }
 
   do
@@ -466,15 +600,11 @@ mng_retcode read_graphic (mng_datap pData)
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-
-    if (pData->bEOF)                   /* reached EOF ? */
-      if (!pData->fClosestream ((mng_handle)pData))
-        MNG_ERROR (pData, MNG_APPIOERROR)
-
   }
-#ifdef MNG_SUPPORT_DISPLAY             /* until EOF or timer or I/O-suspension */
-  while ((!pData->bEOF) && (!pData->bTimerset) && (!pData->bSuspended));
-#else                                  /* until EOF or I/O-suspension */
+#ifdef MNG_SUPPORT_DISPLAY             /* until EOF or a break-request */
+  while ((!pData->bEOF) && (!pData->bSuspended) &&
+         (!pData->bTimerset) && (!pData->bSectionwait));
+#else                                  
   while ((!pData->bEOF) && (!pData->bSuspended));
 #endif
 

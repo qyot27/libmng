@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -42,6 +42,17 @@
 /* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
 /* *             - added tracestring for delta-image processing             * */
 /* *             - added tracestrings for PPLT chunk processing             * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
+/* *             - added tracecodes for special display processing          * */
+/* *             0.9.1 - 07/08/2000 - G.Juyn                                * */
+/* *             - added tracestring for get/set suspensionmode             * */
+/* *             - added tracestrings for get/set display variables         * */
+/* *             - added tracecode for read_databuffer (I/O-suspension)     * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - added tracestrings for SAVE/SEEK callbacks               * */
+/* *             - added tracestrings for get/set sectionbreaks             * */
+/* *             - added tracestring for special error routine              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -104,6 +115,8 @@
     {MNG_FN_SETCB_OPENSTREAM,          "setcb_openstream"},
     {MNG_FN_SETCB_CLOSESTREAM,         "setcb_closestream"},
     {MNG_FN_SETCB_GETALPHALINE,        "setcb_getalphaline"},
+    {MNG_FN_SETCB_PROCESSSAVE,         "setcb_processsave"},
+    {MNG_FN_SETCB_PROCESSSEEK,         "setcb_processseek"},
 
     {MNG_FN_GETCB_MEMALLOC,            "getcb_memalloc"},
     {MNG_FN_GETCB_MEMFREE,             "getcb_memfree"},
@@ -126,6 +139,8 @@
     {MNG_FN_GETCB_OPENSTREAM,          "getcb_openstream"},
     {MNG_FN_GETCB_CLOSESTREAM,         "getcb_closestream"},
     {MNG_FN_GETCB_GETALPHALINE,        "getcb_getalphaline"},
+    {MNG_FN_GETCB_PROCESSSAVE,         "getcb_processsave"},
+    {MNG_FN_GETCB_PROCESSSEEK,         "getcb_processseek"},
 
     {MNG_FN_SET_USERDATA,              "set_userdata"},
     {MNG_FN_SET_CANVASSTYLE,           "set_canvasstyle"},
@@ -154,6 +169,8 @@
     {MNG_FN_SET_JPEG_OPTIMIZED,        "set_jpeg_optimized"},
     {MNG_FN_SET_JPEG_MAXJDAT,          "set_jpeg_maxjdat"},
     {MNG_FN_SET_SPEED,                 "set_speed"},
+    {MNG_FN_SET_SUSPENSIONMODE,        "set_suspensionmode"},
+    {MNG_FN_SET_SECTIONBREAKS,         "set_sectionbreaks"},
 
     {MNG_FN_GET_USERDATA,              "get_userdata"},
     {MNG_FN_GET_SIGTYPE,               "get_sigtype"},
@@ -189,6 +206,13 @@
     {MNG_FN_GET_JPEG_MAXJDAT,          "get_jpeg_maxjdat"},
     {MNG_FN_GET_SPEED,                 "get_speed"},
     {MNG_FN_GET_IMAGELEVEL,            "get_imagelevel"},
+    {MNG_FN_GET_SUSPENSIONMODE,        "get_speed"},
+    {MNG_FN_GET_STARTTIME,             "get_starttime"},
+    {MNG_FN_GET_RUNTIME,               "get_runtime"},
+    {MNG_FN_GET_CURRENTFRAME,          "get_currentframe"},
+    {MNG_FN_GET_CURRENTLAYER,          "get_currentlayer"},
+    {MNG_FN_GET_CURRENTPLAYTIME,       "get_currentplaytime"},
+    {MNG_FN_GET_SECTIONBREAKS,         "get_sectionbreaks"},
 
     {MNG_FN_ITERATE_CHUNKS,            "iterate_chunks"},
 
@@ -337,6 +361,10 @@
     {MNG_FN_RESTORE_STATE,             "restore_state"},
     {MNG_FN_DROP_SAVEDATA,             "drop_savedata"},
     {MNG_FN_EXECUTE_DELTA_IMAGE,       "execute_delta_image"},
+    {MNG_FN_PROCESS_DISPLAY,           "process_display"},
+    {MNG_FN_CLEAR_CANVAS,              "clear_canvas"},
+    {MNG_FN_READ_DATABUFFER,           "read_databuffer"},
+    {MNG_FN_STORE_ERROR,               "store_error"},
 
     {MNG_FN_DISPLAY_RGB8,              "display_rgb8"},
     {MNG_FN_DISPLAY_RGBA8,             "display_rgba8"},
