@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.4                                                      * */
+/* * version   : 0.9.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -138,6 +138,9 @@
 /* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
 /* *             - added errorchecking for MAGN methods                     * */
 /* *             - removed test filter-methods 1 & 65                       * */
+/* *                                                                        * */
+/* *             0.9.5 -  1/25/2001 - G.Juyn                                * */
+/* *             - fixed some small compiler warnings (thanks Nikki)        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -6420,15 +6423,15 @@ WRITE_CHUNK (write_trns)
     {
       case 0: {
                 iRawlen   = 1;         /* fill the size & output buffer */
-                *pRawdata = pTRNS->iGray;
+                *pRawdata = (mng_uint8)pTRNS->iGray;
 
                 break;
               }
       case 2: {
                 iRawlen       = 3;     /* fill the size & output buffer */
-                *pRawdata     = pTRNS->iRed;
-                *(pRawdata+1) = pTRNS->iGreen;
-                *(pRawdata+2) = pTRNS->iBlue;
+                *pRawdata     = (mng_uint8)pTRNS->iRed;
+                *(pRawdata+1) = (mng_uint8)pTRNS->iGreen;
+                *(pRawdata+2) = (mng_uint8)pTRNS->iBlue;
 
                 break;
               }
@@ -6878,15 +6881,15 @@ WRITE_CHUNK (write_bkgd)
     {
       case 0: {                        /* gray */
                 iRawlen   = 1;         /* fill the size & output buffer */
-                *pRawdata = pBKGD->iGray;
+                *pRawdata = (mng_uint8)pBKGD->iGray;
 
                 break;
               }
       case 2: {                        /* rgb */
                 iRawlen       = 3;     /* fill the size & output buffer */
-                *pRawdata     = pBKGD->iRed;
-                *(pRawdata+1) = pBKGD->iGreen;
-                *(pRawdata+2) = pBKGD->iBlue;
+                *pRawdata     = (mng_uint8)pBKGD->iRed;
+                *(pRawdata+1) = (mng_uint8)pBKGD->iGreen;
+                *(pRawdata+2) = (mng_uint8)pBKGD->iBlue;
 
                 break;
               }

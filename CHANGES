@@ -10,11 +10,12 @@ intermediate
 -------------------
 
 bugfixes:
-B129681 - fixed compiler warnings SGI/Irix (Thanks Dimitri)               
+B129681 - fixed compiler warnings SGI/Irix (thanks Dimitri)               
 
 core:
 - fixed compiler-warnings Mozilla (thanks Tim)
 - fixed timing-problem with switching framing_modes       
+- fixed some small compiler warnings (thanks Nikki)        
 
 samples:
 
