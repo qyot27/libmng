@@ -92,6 +92,8 @@
 /* *             - fixed support for mng_display() after mng_read()         * */
 /* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
 /* *             - fixed several chunk-writing routines                     * */
+/* *             0.9.1 - 07/24/2000 - G.Juyn                                * */
+/* *             - fixed reading of still-images                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -591,9 +593,7 @@ READ_CHUNK (read_ihdr)
   if (!pData->bHasDHDR)
     pData->iImagelevel++;              /* one level deeper */
 
-#ifdef MNG_SUPPORT_DISPLAY             /* running animation ? */
-  if ( (pData->eImagetype == mng_it_mng) ||
-       ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)) )
+#ifdef MNG_SUPPORT_DISPLAY
   {
     mng_retcode iRetcode = process_display_ihdr (pData);
 
@@ -838,15 +838,11 @@ READ_CHUNK (read_idat)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (iRawlen)
-  {                                    /* running animation or MNG ? */
-    if ( ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)) ||
-         (pData->eImagetype == mng_it_mng)                                     )
-    {                                  /* display processing */
-      mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
+  {                                    /* display processing */
+    mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -900,18 +896,13 @@ READ_CHUNK (read_iend)
   pData->iImagelevel--;                /* one level up */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bHasMHDR)
   {                                    /* create an animation object */
     mng_retcode iRetcode = create_ani_image (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-  }
-
-  if ((pData->bHasMHDR) ||
-      ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)))
-  {                                    /* display processing */
-    mng_retcode iRetcode = process_display_iend (pData);
+                                       /* display processing */
+    iRetcode = process_display_iend (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4968,15 +4959,11 @@ READ_CHUNK (read_jhdr)
   pData->iImagelevel++;                /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
-  {                                    /* running animation ? */
-    if ((pData->bRunning) && (!pData->bFreezing))
-    {
-      mng_retcode iRetcode = process_display_jhdr (pData);
+  {
+    mng_retcode iRetcode = process_display_jhdr (pData);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -5029,15 +5016,12 @@ READ_CHUNK (read_jdat)
   pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if ((pData->bDisplaying) && (iRawlen))
-  {                                    /* running animation ? */
-    if ((pData->bRunning) && (!pData->bFreezing))
-    {                                  /* display processing for non-empty chunks */
-      mng_retcode iRetcode = process_display_jdat (pData, iRawlen, pRawdata);
+  if (iRawlen)
+  {                                    /* display processing for non-empty chunks */
+    mng_retcode iRetcode = process_display_jdat (pData, iRawlen, pRawdata);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 

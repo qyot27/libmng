@@ -82,6 +82,8 @@
 /* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
 /* *             - fixed storage of images during mng_read()                * */
 /* *             - fixed support for mng_display() after mng_read()         * */
+/* *             0.9.1 - 07/24/2000 - G.Juyn                                * */
+/* *             - fixed reading of still-images                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1538,8 +1540,7 @@ mng_retcode process_display_ihdr (mng_datap pData)
                                          pData->iBitdepth, pData->iColortype,
                                          pData->iCompression, pData->iFilter,
                                          pData->iInterlace, MNG_TRUE);
-      else                             /* update object 0 ? */
-      if (pData->eImagetype != mng_it_png)
+      else
         iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
                                          pData->iDatawidth, pData->iDataheight,
                                          pData->iBitdepth, pData->iColortype,
@@ -1552,14 +1553,11 @@ mng_retcode process_display_ihdr (mng_datap pData)
   }
 
   if (!pData->bHasDHDR)
-  {                                    /* do we need to store it ? */
-    if (pData->eImagetype != mng_it_png)
-    {
-      if (pImage)                      /* real object ? */
-        pData->pStoreobj = pImage;     /* tell the row routines */
-      else                             /* otherwise use object 0 */
-        pData->pStoreobj = pData->pObjzero;
-    }
+  {
+    if (pImage)                        /* real object ? */
+      pData->pStoreobj = pImage;       /* tell the row routines */
+    else                               /* otherwise use object 0 */
+      pData->pStoreobj = pData->pObjzero;
                                        /* display "on-the-fly" ? */
     if ( (pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing) &&
          ( (pData->eImagetype == mng_it_png         ) ||
@@ -3088,8 +3086,9 @@ mng_retcode process_display_jhdr (mng_datap pData)
     else                               /* otherwise use object 0 */
       pData->pStoreobj = pData->pObjzero;
                                        /* display "on-the-fly" ? */
-    if ( (pData->eImagetype == mng_it_jng         ) ||
-         (((mng_imagep)pData->pStoreobj)->bVisible)    )
+    if ( (pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing) &&
+         ( (pData->eImagetype == mng_it_jng         ) ||
+           (((mng_imagep)pData->pStoreobj)->bVisible)    )                   )
     {
       next_layer (pData);              /* that's a new layer then ! */
 
