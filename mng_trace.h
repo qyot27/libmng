@@ -48,6 +48,9 @@
 /* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
 /* *             - added tracecodes for get/set speedtype                   * */
 /* *             - added tracecodes for get imagelevel                      * */
+/* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
+/* *             - added tracecode for delta-image processing               * */
+/* *             - added tracecodes for PPLT chunk processing               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -375,6 +378,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SAVE_STATE            1019
 #define MNG_FN_RESTORE_STATE         1020
 #define MNG_FN_DROP_SAVEDATA         1021
+#define MNG_FN_EXECUTE_DELTA_IMAGE   1022
 
 /* ************************************************************************** */
 
@@ -563,6 +567,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_PROM       1824
 #define MNG_FN_CREATE_ANI_IPNG       1825
 #define MNG_FN_CREATE_ANI_IJNG       1826
+#define MNG_FN_CREATE_ANI_PPLT       1827
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 
@@ -594,6 +599,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_PROM         1924
 #define MNG_FN_FREE_ANI_IPNG         1925
 #define MNG_FN_FREE_ANI_IJNG         1926
+#define MNG_FN_FREE_ANI_PPLT         1927
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 
@@ -625,6 +631,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_PROM      2024
 #define MNG_FN_PROCESS_ANI_IPNG      2025
 #define MNG_FN_PROCESS_ANI_IJNG      2026
+#define MNG_FN_PROCESS_ANI_PPLT      2027
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 

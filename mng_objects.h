@@ -35,6 +35,8 @@
 /* *                                                                        * */
 /* *             0.5.3 - 06/17/2000 - G.Juyn                                * */
 /* *             - changed definition of aTRNSentries                       * */
+/* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
+/* *             - added definition for PPLT animation-processing           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -435,6 +437,18 @@ typedef struct {                                 /* IJNG object */
            mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
         } mng_ani_ijng;
 typedef mng_ani_ijng * mng_ani_ijngp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* PPLT object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint8         iType;
+           mng_uint32        iCount;
+           mng_rgbpaltab     aIndexentries;
+           mng_uint8arr      aAlphaentries;
+           mng_uint8arr      aUsedentries;
+        } mng_ani_pplt;
+typedef mng_ani_pplt * mng_ani_ppltp;
 
 /* ************************************************************************** */
 

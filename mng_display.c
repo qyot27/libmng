@@ -62,6 +62,8 @@
 /* *             - fixed some minor stuff                                   * */
 /* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
 /* *             - added speed-modifier to timing routine                   * */
+/* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
+/* *             - added support for PPLT chunk processing                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -811,6 +813,131 @@ mng_retcode display_image (mng_datap  pData,
 
 /* ************************************************************************** */
 
+mng_retcode execute_delta_image (mng_datap  pData,
+                                 mng_imagep pTarget,
+                                 mng_imagep pDelta)
+{
+  mng_imagedatap pBuftarget = pTarget->pImgbuf;
+  mng_imagedatap pBufdelta  = pDelta->pImgbuf;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_EXECUTE_DELTA_IMAGE, MNG_LC_START)
+#endif
+
+  if (pBufdelta->bHasPLTE)             /* palette in delta ? */
+  {
+    mng_uint32 iX;
+                                       /* new palette larger than old one ? */
+    if ((!pBuftarget->bHasPLTE) || (pBuftarget->iPLTEcount < pBufdelta->iPLTEcount))
+      pBuftarget->iPLTEcount = pBufdelta->iPLTEcount;
+                                       /* it's definitely got a PLTE now */
+    pBuftarget->bHasPLTE = MNG_TRUE;
+
+    for (iX = 0; iX < pBufdelta->iPLTEcount; iX++)
+    {
+      pBuftarget->aPLTEentries[iX].iRed   = pBufdelta->aPLTEentries[iX].iRed;
+      pBuftarget->aPLTEentries[iX].iGreen = pBufdelta->aPLTEentries[iX].iGreen;
+      pBuftarget->aPLTEentries[iX].iBlue  = pBufdelta->aPLTEentries[iX].iBlue;
+    }
+  }
+
+  if (pBufdelta->bHasTRNS)             /* cheap transparency in delta ? */
+  {
+    switch (pData->iColortype)         /* drop it into the target */
+    {
+      case 0: {                        /* gray */
+                pBuftarget->iTRNSgray  = pBufdelta->iTRNSgray;
+                pBuftarget->iTRNSred   = 0;
+                pBuftarget->iTRNSgreen = 0;
+                pBuftarget->iTRNSblue  = 0;
+                pBuftarget->iTRNScount = 0;
+                break;
+              }
+      case 2: {                        /* rgb */
+                pBuftarget->iTRNSgray  = 0;
+                pBuftarget->iTRNSred   = pBufdelta->iTRNSred;
+                pBuftarget->iTRNSgreen = pBufdelta->iTRNSgreen;
+                pBuftarget->iTRNSblue  = pBufdelta->iTRNSblue;
+                pBuftarget->iTRNScount = 0;
+                break;
+              }
+      case 3: {                        /* indexed */
+                pBuftarget->iTRNSgray  = 0;
+                pBuftarget->iTRNSred   = 0;
+                pBuftarget->iTRNSgreen = 0;
+                pBuftarget->iTRNSblue  = 0;
+                                       /* existing range smaller than new one ? */
+                if ((!pBuftarget->bHasTRNS) || (pBuftarget->iTRNScount < pBufdelta->iTRNScount))
+                  pBuftarget->iTRNScount = pBufdelta->iTRNScount;
+
+                MNG_COPY (&pBuftarget->aTRNSentries, &pBufdelta->aTRNSentries, pBufdelta->iTRNScount)
+                break;
+              }
+    }
+
+    pBuftarget->bHasTRNS = MNG_TRUE;   /* tell it it's got a tRNS now */
+  }
+
+  
+  /* TODO: copy bKGD (if it exists!) */
+
+
+  if (pBufdelta->bHasGAMA)             /* gamma in source ? */
+  {
+    pBuftarget->bHasGAMA = MNG_TRUE;   /* drop it onto the target */
+    pBuftarget->iGamma   = pBufdelta->iGamma;
+  }
+
+  if (pBufdelta->bHasCHRM)             /* chroma in delta ? */
+  {                                    /* drop it onto the target */
+    pBuftarget->bHasCHRM       = MNG_TRUE;
+    pBuftarget->iWhitepointx   = pBufdelta->iWhitepointx;
+    pBuftarget->iWhitepointy   = pBufdelta->iWhitepointy;
+    pBuftarget->iPrimaryredx   = pBufdelta->iPrimaryredx;
+    pBuftarget->iPrimaryredy   = pBufdelta->iPrimaryredy;
+    pBuftarget->iPrimarygreenx = pBufdelta->iPrimarygreenx;
+    pBuftarget->iPrimarygreeny = pBufdelta->iPrimarygreeny;
+    pBuftarget->iPrimarybluex  = pBufdelta->iPrimarybluex;
+    pBuftarget->iPrimarybluey  = pBufdelta->iPrimarybluey;
+  }
+
+  if (pBufdelta->bHasSRGB)             /* sRGB in delta ? */
+  {                                    /* drop it onto the target */
+    pBuftarget->bHasSRGB         = MNG_TRUE;
+    pBuftarget->iRenderingintent = pBufdelta->iRenderingintent;
+  }
+
+  if (pBufdelta->bHasICCP)             /* ICC profile in delta ? */
+  {
+    pBuftarget->bHasICCP = MNG_TRUE;   /* drop it onto the target */
+
+    if (pBuftarget->pProfile)          /* profile existed ? */
+      MNG_FREEX (pData, pBuftarget->pProfile, pBuftarget->iProfilesize)
+                                       /* allocate a buffer & copy it */
+    MNG_ALLOC (pData, pBuftarget->pProfile, pBufdelta->iProfilesize)
+    MNG_COPY  (pBuftarget->pProfile, pBufdelta->pProfile, pBufdelta->iProfilesize)
+                                       /* store it's length as well */
+    pBuftarget->iProfilesize = pBufdelta->iProfilesize;
+  }
+
+  if (!pData->bDeltaimmediate)         /* need to execute delta pixels ? */
+  {
+
+
+    /* TODO: execute delta pixels (if they exist!) */
+
+
+  }  
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_EXECUTE_DELTA_IMAGE, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
 mng_retcode save_state (mng_datap pData)
 {
   mng_savedatap pSave;
@@ -1483,13 +1610,11 @@ mng_retcode process_display_iend (mng_datap pData)
       (pData->iBreakpoint == 8))       /* or did we get broken here last time ? */
   {
     mng_imagep pImage = (mng_imagep)pData->pDeltaImage;
+                                       /* perform the delta operations needed */
+    iRetcode = execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
 
-    if (!pData->bDeltaimmediate)       /* still needs to be executed ? */
-    {
-
-      /* TODO: execute delta */
-
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
                                        /* display it now then ? */
     if ((pImage->bVisible) && (pImage->bViewable))
     {                                  /* ok, so do it */
@@ -3003,10 +3128,16 @@ mng_retcode process_display_dhdr (mng_datap  pData,
 
         if (pBufzero->bHasPLTE)        /* copy palette ? */
         {
+          mng_uint32 iX;
+
           pBufzero->iPLTEcount = pBuf->iPLTEcount;
 
-          MNG_COPY (&pBufzero->aPLTEentries, &pBuf->aPLTEentries,
-                    sizeof (pBufzero->aPLTEentries))
+          for (iX = 0; iX < pBuf->iPLTEcount; iX++)
+          {
+            pBufzero->aPLTEentries [iX].iRed   = pBuf->aPLTEentries [iX].iRed;
+            pBufzero->aPLTEentries [iX].iGreen = pBuf->aPLTEentries [iX].iGreen;
+            pBufzero->aPLTEentries [iX].iBlue  = pBuf->aPLTEentries [iX].iBlue;
+          }
         }
 
         if (pBufzero->bHasTRNS)        /* copy cheap transparency ? */
@@ -3251,6 +3382,148 @@ mng_retcode process_display_ijng (mng_datap pData)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IJNG, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_pplt (mng_datap      pData,
+                                  mng_uint8      iType,
+                                  mng_uint32     iCount,
+                                  mng_rgbpaltab* paIndexentries,
+                                  mng_uint8arr*  paAlphaentries,
+                                  mng_uint8arr*  paUsedentries)
+{
+  mng_uint32     iX;
+  mng_imagep     pImage = (mng_imagep)pData->pObjzero;
+  mng_imagedatap pBuf   = pImage->pImgbuf;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PPLT, MNG_LC_START)
+#endif
+
+  switch (iType)
+  {
+    case MNG_DELTATYPE_REPLACERGB :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   = (*(paIndexentries)) [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = (*(paIndexentries)) [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = (*(paIndexentries)) [iX].iBlue;
+          }
+        }
+
+        break;
+      }
+    case MNG_DELTATYPE_DELTARGB :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
+                                           (*(paIndexentries)) [iX].iRed  );
+            pBuf->aPLTEentries [iX].iGreen =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
+                                           (*(paIndexentries)) [iX].iGreen);
+            pBuf->aPLTEentries [iX].iBlue  =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
+                                           (*(paIndexentries)) [iX].iBlue );
+          }
+        }
+
+        break;
+      }
+    case MNG_DELTATYPE_REPLACEALPHA :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+            pBuf->aTRNSentries [iX] = (*(paAlphaentries)) [iX];
+        }
+
+        break;
+      }
+    case MNG_DELTATYPE_DELTAALPHA :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+            pBuf->aTRNSentries [iX] =
+                               (mng_uint8)(pBuf->aTRNSentries [iX] +
+                                           (*(paAlphaentries)) [iX]);
+        }
+
+        break;
+      }
+    case MNG_DELTATYPE_REPLACERGBA :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   = (*(paIndexentries)) [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = (*(paIndexentries)) [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = (*(paIndexentries)) [iX].iBlue;
+            pBuf->aTRNSentries [iX]        = (*(paAlphaentries)) [iX];
+          }
+        }
+
+        break;
+      }
+    case MNG_DELTATYPE_DELTARGBA :
+      {
+        for (iX = 0; iX < iCount; iX++)
+        {
+          if ((*(paUsedentries)) [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
+                                           (*(paIndexentries)) [iX].iRed  );
+            pBuf->aPLTEentries [iX].iGreen =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
+                                           (*(paIndexentries)) [iX].iGreen);
+            pBuf->aPLTEentries [iX].iBlue  =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
+                                           (*(paIndexentries)) [iX].iBlue );
+            pBuf->aTRNSentries [iX] =
+                               (mng_uint8)(pBuf->aTRNSentries [iX] +
+                                           (*(paAlphaentries)) [iX]);
+          }
+        }
+
+        break;
+      }
+  }
+
+  if ((iType != MNG_DELTATYPE_REPLACERGB) && (iType != MNG_DELTATYPE_DELTARGB))
+  {
+    if (pBuf->bHasTRNS)
+    {
+      if (iCount > pBuf->iTRNScount)
+        pBuf->iTRNScount = iCount;
+    }
+    else
+    {
+      pBuf->iTRNScount = iCount;
+      pBuf->bHasTRNS   = MNG_TRUE;
+    }
+  }
+
+  if ((iType != MNG_DELTATYPE_REPLACEALPHA) && (iType != MNG_DELTATYPE_DELTAALPHA))
+  {
+    if (iCount > pBuf->iPLTEcount)
+      pBuf->iPLTEcount = iCount;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PPLT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

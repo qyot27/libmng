@@ -78,6 +78,8 @@
 /* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
 /* *             - added processing of PLTE & tRNS for delta-images         * */
 /* *             - added administration of imagelevel parameter             * */
+/* *             0.5.3 - 06/22/2000 - G.Juyn                                * */
+/* *             - implemented support for PPLT chunk                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -676,26 +678,7 @@ READ_CHUNK (read_plte)
     mng_imagedatap pBuf;
 
     if (pData->bHasDHDR)               /* processing delta-image ? */
-    {
-      pImage = (mng_imagep)pData->pDeltaImage;
-      pBuf   = pImage->pImgbuf;
-                                       /* new palette larger than old one ? */
-      if ((!pBuf->bHasPLTE) || (pBuf->iPLTEcount < iRawlen / 3))
-        pBuf->iPLTEcount = iRawlen / 3;
-
-      pBuf->bHasPLTE = MNG_TRUE;       /* it's definitely got a PLTE now */
-
-      pRawdata2 = pRawdata;            /* copy the entries */
-
-      for (iX = 0; iX < iRawlen / 3; iX++)
-      {
-        pBuf->aPLTEentries[iX].iRed   = *pRawdata2;
-        pBuf->aPLTEentries[iX].iGreen = *(pRawdata2+1);
-        pBuf->aPLTEentries[iX].iBlue  = *(pRawdata2+2);
-
-        pRawdata2 += 3;
-      }
-                                       /* again for object 0 !!! */
+    {                                  /* store in object 0 !!! */
       pImage           = (mng_imagep)pData->pObjzero;
       pBuf             = pImage->pImgbuf;
       pBuf->bHasPLTE   = MNG_TRUE;     /* it's definitely got a PLTE now */
@@ -1039,44 +1022,7 @@ READ_CHUNK (read_trns)
     mng_uint32     iRawlen2;
 
     if (pData->bHasDHDR)               /* processing delta-image ? */
-    {
-      pImage = (mng_imagep)pData->pDeltaImage;
-      pBuf   = pImage->pImgbuf;        /* address object buffer */
-
-      switch (pData->iColortype)        /* store fields for future reference */
-      {
-        case 0: {                      /* gray */
-                  pBuf->iTRNSgray  = mng_get_uint16 (pRawdata);
-                  pBuf->iTRNSred   = 0;
-                  pBuf->iTRNSgreen = 0;
-                  pBuf->iTRNSblue  = 0;
-                  pBuf->iTRNScount = 0;
-                  break;
-                }
-        case 2: {                      /* rgb */
-                  pBuf->iTRNSgray  = 0;
-                  pBuf->iTRNSred   = mng_get_uint16 (pRawdata);
-                  pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
-                  pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
-                  pBuf->iTRNScount = 0;
-                  break;
-                }
-        case 3: {                      /* indexed */
-                  pBuf->iTRNSgray  = 0;
-                  pBuf->iTRNSred   = 0;
-                  pBuf->iTRNSgreen = 0;
-                  pBuf->iTRNSblue  = 0;
-                                       /* existing range smaller than new one ? */
-                  if ((!pBuf->bHasTRNS) || (pBuf->iTRNScount < iRawlen))
-                    pBuf->iTRNScount = iRawlen;
-
-                  MNG_COPY (&pBuf->aTRNSentries, pRawdata, iRawlen)
-                  break;
-                }
-      }
-
-      pBuf->bHasTRNS = MNG_TRUE;       /* tell it it's got a tRNS now */
-                                       /* and again for object 0 !!! */
+    {                                  /* store in object 0 !!! */
       pImage = (mng_imagep)pData->pObjzero;
       pBuf   = pImage->pImgbuf;        /* address object buffer */
 
@@ -1302,12 +1248,7 @@ READ_CHUNK (read_gama)
     mng_imagep pImage;
 
     if (pData->bHasDHDR)               /* update delta image ? */
-    {
-      pImage = (mng_imagep)pData->pDeltaImage;
-                                       /* store for color-processing routines */
-      pImage->pImgbuf->iGamma   = mng_get_uint32 (pRawdata);
-      pImage->pImgbuf->bHasGAMA = MNG_TRUE;
-                                       /* also put in object 0 ! */
+    {                                  /* store in object 0 ! */
       pImage = (mng_imagep)pData->pObjzero;
                                        /* store for color-processing routines */
       pImage->pImgbuf->iGamma   = mng_get_uint32 (pRawdata);
@@ -1425,7 +1366,7 @@ READ_CHUNK (read_chrm)
     iPrimarygreeny = mng_get_uint32 (pRawdata+20);
     iPrimarybluex  = mng_get_uint32 (pRawdata+24);
     iPrimarybluey  = mng_get_uint32 (pRawdata+28);
-    
+
 #ifdef MNG_INCLUDE_JNG
     if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
 #else
@@ -1436,21 +1377,7 @@ READ_CHUNK (read_chrm)
       mng_imagedatap pBuf;
 
       if (pData->bHasDHDR)             /* update delta image ? */
-      {
-        pImage = (mng_imagep)pData->pDeltaImage;
-
-        pBuf = pImage->pImgbuf;        /* address object buffer */
-        pBuf->bHasCHRM = MNG_TRUE;     /* and tell it it's got a CHRM now */
-                                       /* store for color-processing routines */
-        pBuf->iWhitepointx   = iWhitepointx;
-        pBuf->iWhitepointy   = iWhitepointy;
-        pBuf->iPrimaryredx   = iPrimaryredx;
-        pBuf->iPrimaryredy   = iPrimaryredy;
-        pBuf->iPrimarygreenx = iPrimarygreenx;
-        pBuf->iPrimarygreeny = iPrimarygreeny;
-        pBuf->iPrimarybluex  = iPrimarybluex;
-        pBuf->iPrimarybluey  = iPrimarybluey;
-                                       /* also store it in object 0 ! */
+      {                                /* store it in object 0 ! */
         pImage = (mng_imagep)pData->pObjzero;
 
         pBuf = pImage->pImgbuf;        /* address object buffer */
@@ -1602,12 +1529,7 @@ READ_CHUNK (read_srgb)
     mng_imagep pImage;
 
     if (pData->bHasDHDR)               /* update delta image ? */
-    {
-      pImage = (mng_imagep)pData->pDeltaImage;
-                                       /* store for color-processing routines */
-      pImage->pImgbuf->iRenderingintent = *pRawdata;
-      pImage->pImgbuf->bHasSRGB         = MNG_TRUE;
-                                       /* also store in object 0 ! */
+    {                                  /* store in object 0 ! */
       pImage = (mng_imagep)pData->pObjzero;
                                        /* store for color-processing routines */
       pImage->pImgbuf->iRenderingintent = *pRawdata;
@@ -1745,18 +1667,7 @@ READ_CHUNK (read_iccp)
     mng_imagep pImage;
 
     if (pData->bHasDHDR)               /* update delta image ? */
-    {
-      pImage = (mng_imagep)pData->pDeltaImage;
-
-      if (pImage->pImgbuf->pProfile)   /* profile existed ? */
-        MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
-                                       /* allocate a buffer & copy it */
-      MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
-      MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
-                                       /* store it's length as well */
-      pImage->pImgbuf->iProfilesize = iProfilesize;
-      pImage->pImgbuf->bHasICCP     = MNG_TRUE;
-                                       /* also store in object 0 ! */
+    {                                  /* store in object 0 ! */
       pImage = (mng_imagep)pData->pObjzero;
 
       if (pImage->pImgbuf->pProfile)   /* profile existed ? */
@@ -5408,28 +5319,46 @@ READ_CHUNK (read_ipng)
 
 READ_CHUNK (read_pplt)
 {
-  mng_uint8  iDeltatype;
-  mng_uint8p pTemp;
-  mng_uint32 iLen;
-  mng_uint8  iX, iM;
+  mng_uint8     iDeltatype;
+  mng_uint8p    pTemp;
+  mng_uint32    iLen;
+  mng_uint8     iX, iM;
+  mng_uint32    iY;
+  mng_uint32    iMax;
+  mng_rgbpaltab aIndexentries;
+  mng_uint8arr  aAlphaentries;
+  mng_uint8arr  aUsedentries;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PPLT, MNG_LC_START)
 #endif
                                        /* sequence checks */
-  if ((!pData->bHasMHDR) || (!pData->bHasDHDR))
+  if ((!pData->bHasMHDR) && (!pData->bHasDHDR))
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
   if (iRawlen < 1)                     /* must have at least 1 byte */
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
   iDeltatype = *pRawdata;
-
-  if (iDeltatype > 5)                  /* valid ? */
+                                       /* valid ? */
+  if (iDeltatype > MNG_DELTATYPE_DELTARGBA)
     MNG_ERROR (pData, MNG_INVDELTATYPE)
+                                       /* must be indexed color ! */
+  if (pData->iColortype != MNG_COLORTYPE_INDEXED)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
 
   pTemp = pRawdata + 1;
   iLen  = iRawlen - 1;
+  iMax  = 0;
+
+  for (iY = 0; iY < 256; iY++)         /* reset arrays */
+  {
+    aIndexentries [iY].iRed   = 0;
+    aIndexentries [iY].iGreen = 0;
+    aIndexentries [iY].iBlue  = 0;
+    aAlphaentries [iY]        = 255;
+    aUsedentries  [iY]        = 0;
+  }
 
   while (iLen)                         /* as long as there are entries left ... */
   {
@@ -5444,13 +5373,18 @@ READ_CHUNK (read_pplt)
     if (iM < iX)
       MNG_ERROR (pData, MNG_INVALIDINDEX)
 
+    if ((mng_uint32)iM >= iMax)        /* determine highest used index */
+      iMax = (mng_uint32)iM + 1;
+
     pTemp += 2;
     iLen  -= 2;
 
-    if ((iDeltatype == 0) || (iDeltatype == 1))
+    if ((iDeltatype == MNG_DELTATYPE_REPLACERGB  ) ||
+        (iDeltatype == MNG_DELTATYPE_DELTARGB    )    )
       iDiff = (iM - iX + 1) * 3;
     else
-    if ((iDeltatype == 2) || (iDeltatype == 3))
+    if ((iDeltatype == MNG_DELTATYPE_REPLACEALPHA) ||
+        (iDeltatype == MNG_DELTATYPE_DELTAALPHA  )    )
       iDiff = (iM - iX + 1);
     else
       iDiff = (iM - iX + 1) * 4;
@@ -5458,18 +5392,86 @@ READ_CHUNK (read_pplt)
     if (iLen < iDiff)
       MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-    pTemp += iDiff;
-    iLen  -= iDiff;  
+    if ((iDeltatype == MNG_DELTATYPE_REPLACERGB  ) ||
+        (iDeltatype == MNG_DELTATYPE_DELTARGB    )    )
+    {
+      for (iY = (mng_uint32)iX; iY <= (mng_uint32)iM; iY++)
+      {
+        aIndexentries [iY].iRed   = *pTemp;
+        aIndexentries [iY].iGreen = *(pTemp+1);
+        aIndexentries [iY].iBlue  = *(pTemp+2);
+        aUsedentries  [iY]        = 1;
+
+        pTemp += 3;
+        iLen  -= 3;
+      }
+    }
+    else
+    if ((iDeltatype == MNG_DELTATYPE_REPLACEALPHA) ||
+        (iDeltatype == MNG_DELTATYPE_DELTAALPHA  )    )
+    {
+      for (iY = (mng_uint32)iX; iY <= (mng_uint32)iM; iY++)
+      {
+        aAlphaentries [iY]        = *pTemp;
+        aUsedentries  [iY]        = 1;
+
+        pTemp++;
+        iLen--;
+      }
+    }
+    else
+    {
+      for (iY = (mng_uint32)iX; iY <= (mng_uint32)iM; iY++)
+      {
+        aIndexentries [iY].iRed   = *pTemp;
+        aIndexentries [iY].iGreen = *(pTemp+1);
+        aIndexentries [iY].iBlue  = *(pTemp+2);
+        aAlphaentries [iY]        = *(pTemp+3);
+        aUsedentries  [iY]        = 1;
+
+        pTemp += 4;
+        iLen  -= 4;
+      }
+    }
   }
-  
-#ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
+
+  switch (pData->iBitdepth)            /* check maximum allowed entries for bitdepth */
   {
+    case MNG_BITDEPTH_1 : {
+                            if (iMax > 2)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                            break;
+                          }
+    case MNG_BITDEPTH_2 : {
+                            if (iMax > 4)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                            break;
+                          }
+    case MNG_BITDEPTH_4 : {
+                            if (iMax > 16)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                            break;
+                          }
+  }
 
+#ifdef MNG_SUPPORT_DISPLAY
+  {                                    /* create animation object */
+    mng_retcode iRetcode = create_ani_pplt (pData, iDeltatype, iMax,
+                                            &aIndexentries, &aAlphaentries,
+                                            &aUsedentries);
 
-    /* TODO: something !!! */
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+                                       /* execute it now ? */
+  if ((pData->bDisplaying) && (pData->bRunning))
+  {
+    mng_retcode iRetcode = process_display_pplt (pData, iDeltatype, iMax,
+                                                 &aIndexentries, &aAlphaentries,
+                                                 &aUsedentries);
 
-
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -5482,65 +5484,15 @@ READ_CHUNK (read_pplt)
       return iRetcode;
                                        /* store the fields */
     ((mng_ppltp)*ppChunk)->iDeltatype = iDeltatype;
-    ((mng_ppltp)*ppChunk)->iCount     = 0;
+    ((mng_ppltp)*ppChunk)->iCount     = iMax;
 
-    pTemp = pRawdata + 1;
-    iLen  = iRawlen - 1;
-
-    while (iLen)                       /* as long as there are entries left ... */
+    for (iY = 0; iY < 256; iY++)
     {
-      iX = *pRawdata;                  /* get start and end index */
-      iM = *(pRawdata+1);
-
-      if ((mng_uint32)iM > ((mng_ppltp)*ppChunk)->iCount)
-        ((mng_ppltp)*ppChunk)->iCount = iM;
-
-      pTemp += 2;
-      iLen  -= 2;
-
-      if ((iDeltatype == 0) || (iDeltatype == 1))
-      {
-        while (iX <= iM)
-        {
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iRed   = *pTemp;
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iGreen = *(pTemp+1);
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iBlue  = *(pTemp+2);
-          ((mng_ppltp)*ppChunk)->aEntries [iX].bUsed  = MNG_TRUE;
-
-          iX++;
-          pTemp += 3;
-          iLen  -= 3;
-        }
-      }
-      else
-      if ((iDeltatype == 2) || (iDeltatype == 3))
-      {
-        while (iX <= iM)
-        {
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iAlpha = *pTemp;
-          ((mng_ppltp)*ppChunk)->aEntries [iX].bUsed  = MNG_TRUE;
-
-          iX++;
-          pTemp++;
-          iLen--;
-        }
-      }
-      else
-      if ((iDeltatype == 4) || (iDeltatype == 5))
-      {
-        while (iX <= iM)
-        {
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iRed   = *pTemp;
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iGreen = *(pTemp+1);
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iBlue  = *(pTemp+2);
-          ((mng_ppltp)*ppChunk)->aEntries [iX].iAlpha = *(pTemp+3);
-          ((mng_ppltp)*ppChunk)->aEntries [iX].bUsed  = MNG_TRUE;
-
-          iX++;
-          pTemp += 4;
-          iLen  -= 4;
-        }
-      }
+      ((mng_ppltp)*ppChunk)->aEntries [iY].iRed   = aIndexentries [iY].iRed;
+      ((mng_ppltp)*ppChunk)->aEntries [iY].iGreen = aIndexentries [iY].iGreen;
+      ((mng_ppltp)*ppChunk)->aEntries [iY].iBlue  = aIndexentries [iY].iBlue;
+      ((mng_ppltp)*ppChunk)->aEntries [iY].iAlpha = aAlphaentries [iY];
+      ((mng_ppltp)*ppChunk)->aEntries [iY].bUsed  = (mng_bool)(aUsedentries [iY]);
     }
   }
 #endif /* MNG_STORE_CHUNKS */
