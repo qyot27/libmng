@@ -9,8 +9,8 @@
 /* * For the purposes of this copyright and license, "Contributing Authors" * */
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
-/* *    Gerard Juyn - gerard :at: libmng.com                                * */
-/* *    Glenn Randers-Pehrson -                                             * */
+/* *    Gerard Juyn                 - gjuyn :at: users.sourceforge.net      * */
+/* *    Glenn Randers-Pehrson       -                                       * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
