@@ -657,7 +657,7 @@ MNG_LOCAL mng_retcode write_raw_chunk (mng_datap   pData,
 
 /* ************************************************************************** */
 
-mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
+MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
                                             mng_chunkp      pHeader,
                                             mng_uint32      iRawlen,
                                             mng_uint8p      pRawdata,

@@ -204,7 +204,7 @@ mng_retcode mng_drop_invalid_objects (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_OPTIMIZE_OBJCLEANUP
-mng_retcode MNG_LOCAL create_obj_general (mng_datap          pData,
+MNG_LOCAL mng_retcode create_obj_general (mng_datap          pData,
                                           mng_size_t         iObjsize,
                                           mng_cleanupobject  fCleanup,
                                           mng_processobject  fProcess,
@@ -224,7 +224,7 @@ mng_retcode MNG_LOCAL create_obj_general (mng_datap          pData,
 
 /* ************************************************************************** */
 
-mng_retcode MNG_LOCAL mng_free_obj_general (mng_datap   pData,
+MNG_LOCAL mng_retcode mng_free_obj_general (mng_datap   pData,
                                             mng_objectp pObject)
 {
   MNG_FREEX (pData, pObject, ((mng_object_headerp)pObject)->iObjsize);
