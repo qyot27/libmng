@@ -40,6 +40,9 @@
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
 /* *             - cleaned up some code regarding mixed support             * */
 /* *             - added JNG support                                        * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - moved init of default zlib parms here from "mng_zlib.c"  * */
+/* *             - added init of default IJG parms                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -358,6 +361,24 @@ mng_handle MNG_DECL mng_initialize (mng_int32     iUserdata,
 
 #ifdef MNG_INCLUDE_ZLIB
   mngzlib_initialize (pData);          /* initialize zlib structures and such */
+                                       /* default zlib compression parameters */
+  pData->iZlevel            = MNG_ZLIB_LEVEL;
+  pData->iZmethod           = MNG_ZLIB_METHOD;
+  pData->iZwindowbits       = MNG_ZLIB_WINDOWBITS;
+  pData->iZmemlevel         = MNG_ZLIB_MEMLEVEL;
+  pData->iZstrategy         = MNG_ZLIB_STRATEGY;
+                                       /* default maximum IDAT data size */
+  pData->iMaxIDAT           = MNG_MAX_IDAT_SIZE;
+#endif
+
+#ifdef MNG_INCLUDE_JNG                 /* default IJG compression parameters */
+  pData->eJPEGdctmethod     = MNG_JPEG_DCT;
+  pData->iJPEGquality       = MNG_JPEG_QUALITY;
+  pData->iJPEGsmoothing     = MNG_JPEG_SMOOTHING;
+  pData->bJPEGcompressprogr = MNG_JPEG_PROGRESSIVE;
+  pData->bJPEGcompressopt   = MNG_JPEG_OPTIMIZED;
+                                       /* default maximum JDAT data size */
+  pData->iMaxJDAT           = MNG_MAX_JDAT_SIZE;
 #endif
 
   mng_reset ((mng_handle)pData);

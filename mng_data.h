@@ -469,11 +469,21 @@ typedef struct mng_data_struct {
            mng_int32         iZmemlevel;
            mng_int32         iZstrategy;
 
+           mng_uint32        iMaxIDAT;           /* maximum size of IDAT data */
+
            mng_bool          bInflating;         /* indicates "inflate" in progress */
            mng_bool          bDeflating;         /* indicates "deflate" in progress */
 #endif /* MNG_INCLUDE_ZLIB */
 
 #ifdef MNG_INCLUDE_JNG
+           mngjpeg_dctmethod eJPEGdctmethod;     /* IJG compression variables */
+           mng_int32         iJPEGquality;
+           mng_int32         iJPEGsmoothing;
+           mng_bool          bJPEGcompressprogr;
+           mng_bool          bJPEGcompressopt;
+
+           mng_uint32        iMaxJDAT;           /* maximum size of JDAT data */
+
            mngjpeg_compp     pJPEGcinfo;         /* compression structure */
            mngjpeg_errorp    pJPEGcerr;          /* error-manager compress */
            mngjpeg_decompp   pJPEGdinfo;         /* decompression structure */

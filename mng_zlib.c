@@ -24,6 +24,9 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - fixed for JNG alpha handling                             * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - moved init of default zlib parms from here to            * */
+/* *               "mng_hlapi.c"                                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -97,12 +100,6 @@ mng_retcode mngzlib_initialize (mng_datap pData)
   pData->sZlib.zfree  = mngzlib_free;
   pData->sZlib.opaque = (voidpf)pData;
 #endif
-                                       /* default zlib compression parameters */
-  pData->iZlevel      = MNG_ZLIB_LEVEL;
-  pData->iZmethod     = MNG_ZLIB_METHOD;
-  pData->iZwindowbits = MNG_ZLIB_WINDOWBITS;
-  pData->iZmemlevel   = MNG_ZLIB_MEMLEVEL;
-  pData->iZstrategy   = MNG_ZLIB_STRATEGY;
 
   pData->bInflating   = MNG_FALSE;     /* not performing any action yet */
   pData->bDeflating   = MNG_FALSE;

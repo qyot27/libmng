@@ -24,6 +24,7 @@
 /* *             - added trace telltale reporting                           * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added tracestrings for global animation color-chunks     * */
+/* *             - added tracestrings for get/set of default ZLIB/IJG parms * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -120,6 +121,18 @@
     {MNG_FN_SET_MAXCANVASWIDTH,        "set_maxcanvaswidth"},
     {MNG_FN_SET_MAXCANVASHEIGHT,       "set_maxcanvasheight"},
     {MNG_FN_SET_MAXCANVASSIZE,         "set_maxcanvassize"},
+    {MNG_FN_SET_ZLIB_LEVEL,            "set_zlib_level"},
+    {MNG_FN_SET_ZLIB_METHOD,           "set_zlib_method"},
+    {MNG_FN_SET_ZLIB_WINDOWBITS,       "set_zlib_windowbits"},
+    {MNG_FN_SET_ZLIB_MEMLEVEL,         "set_zlib_memlevel"},
+    {MNG_FN_SET_ZLIB_STRATEGY,         "set_zlib_strategy"},
+    {MNG_FN_SET_ZLIB_MAXIDAT,          "set_zlib_maxidat"},
+    {MNG_FN_SET_JPEG_DCTMETHOD,        "set_jpeg_dctmethod"},
+    {MNG_FN_SET_JPEG_QUALITY,          "set_jpeg_quality"},
+    {MNG_FN_SET_JPEG_SMOOTHING,        "set_jpeg_smoothing"},
+    {MNG_FN_SET_JPEG_PROGRESSIVE,      "set_jpeg_progressive"},
+    {MNG_FN_SET_JPEG_OPTIMIZED,        "set_jpeg_optimized"},
+    {MNG_FN_SET_JPEG_MAXJDAT,          "set_jpeg_maxjdat"},
 
     {MNG_FN_GET_USERDATA,              "get_userdata"},
     {MNG_FN_GET_SIGTYPE,               "get_sigtype"},
@@ -141,6 +154,18 @@
     {MNG_FN_GET_SRGB,                  "get_srgb"},
     {MNG_FN_GET_MAXCANVASWIDTH,        "get_maxcanvaswidth"},
     {MNG_FN_GET_MAXCANVASHEIGHT,       "get_maxcanvasheight"},
+    {MNG_FN_GET_ZLIB_LEVEL,            "get_zlib_level"},
+    {MNG_FN_GET_ZLIB_METHOD,           "get_zlib_method"},
+    {MNG_FN_GET_ZLIB_WINDOWBITS,       "get_zlib_windowbits"},
+    {MNG_FN_GET_ZLIB_MEMLEVEL,         "get_zlib_memlevel"},
+    {MNG_FN_GET_ZLIB_STRATEGY,         "get_zlib_strategy"},
+    {MNG_FN_GET_ZLIB_MAXIDAT,          "get_zlib_maxidat"},
+    {MNG_FN_GET_JPEG_DCTMETHOD,        "get_jpeg_dctmethod"},
+    {MNG_FN_GET_JPEG_QUALITY,          "get_jpeg_quality"},
+    {MNG_FN_GET_JPEG_SMOOTHING,        "get_jpeg_smoothing"},
+    {MNG_FN_GET_JPEG_PROGRESSIVE,      "get_jpeg_progressive"},
+    {MNG_FN_GET_JPEG_OPTIMIZED,        "get_jpeg_optimized"},
+    {MNG_FN_GET_JPEG_MAXJDAT,          "get_jpeg_maxjdat"},
 
     {MNG_FN_ITERATE_CHUNKS,            "iterate_chunks"},
 

@@ -31,6 +31,7 @@
 /* *             - added trace-table entry definition                       * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added tracecodes for global animation color-chunks       * */
+/* *             - added tracecodes for get/set of default ZLIB/IJG parms   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -143,6 +144,18 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SET_MAXCANVASWIDTH     312
 #define MNG_FN_SET_MAXCANVASHEIGHT    313
 #define MNG_FN_SET_MAXCANVASSIZE      314
+#define MNG_FN_SET_ZLIB_LEVEL         315
+#define MNG_FN_SET_ZLIB_METHOD        316
+#define MNG_FN_SET_ZLIB_WINDOWBITS    317
+#define MNG_FN_SET_ZLIB_MEMLEVEL      318
+#define MNG_FN_SET_ZLIB_STRATEGY      319
+#define MNG_FN_SET_ZLIB_MAXIDAT       320
+#define MNG_FN_SET_JPEG_DCTMETHOD     321
+#define MNG_FN_SET_JPEG_QUALITY       322
+#define MNG_FN_SET_JPEG_SMOOTHING     323
+#define MNG_FN_SET_JPEG_PROGRESSIVE   324
+#define MNG_FN_SET_JPEG_OPTIMIZED     325
+#define MNG_FN_SET_JPEG_MAXJDAT       326
 
 #define MNG_FN_GET_USERDATA           401
 #define MNG_FN_GET_SIGTYPE            402
@@ -164,6 +177,18 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_SRGB               418
 #define MNG_FN_GET_MAXCANVASWIDTH     419
 #define MNG_FN_GET_MAXCANVASHEIGHT    420
+#define MNG_FN_GET_ZLIB_LEVEL         421
+#define MNG_FN_GET_ZLIB_METHOD        422
+#define MNG_FN_GET_ZLIB_WINDOWBITS    423
+#define MNG_FN_GET_ZLIB_MEMLEVEL      424
+#define MNG_FN_GET_ZLIB_STRATEGY      425
+#define MNG_FN_GET_ZLIB_MAXIDAT       426
+#define MNG_FN_GET_JPEG_DCTMETHOD     427
+#define MNG_FN_GET_JPEG_QUALITY       428
+#define MNG_FN_GET_JPEG_SMOOTHING     429
+#define MNG_FN_GET_JPEG_PROGRESSIVE   430
+#define MNG_FN_GET_JPEG_OPTIMIZED     431
+#define MNG_FN_GET_JPEG_MAXJDAT       432
 
 /* ************************************************************************** */
 

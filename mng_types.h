@@ -36,6 +36,8 @@
 /* *               to Borland platform                                      * */
 /* *             - added helper definitions for JNG (IJG-based)             * */
 /* *             - fixed support for IJGSRC6B                               * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added default IJG compression parameters and such        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -196,14 +198,19 @@ typedef mng_uint32    mng_uint32arr2[2];
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_ZLIB
+
 /* size of temporary zlib buffer for deflate processing */
 #define MNG_ZLIB_MAXBUF     8192
+
 /* default zlib compression parameters for deflateinit2 */
 #define MNG_ZLIB_LEVEL      9                    /* level */
 #define MNG_ZLIB_METHOD     Z_DEFLATED           /* method */
 #define MNG_ZLIB_WINDOWBITS 15                   /* window size */
 #define MNG_ZLIB_MEMLEVEL   9                    /* memory level */
 #define MNG_ZLIB_STRATEGY   Z_DEFAULT_STRATEGY   /* strategy */
+
+#define MNG_MAX_IDAT_SIZE   4096                 /* maximum size of IDAT data */
+
 #endif /* MNG_INCLUDE_ZLIB */
 
 /* ************************************************************************** */
@@ -220,9 +227,19 @@ typedef mngjpeg_comp   * mngjpeg_compp;
 typedef mngjpeg_decomp * mngjpeg_decompp;
 typedef mngjpeg_error  * mngjpeg_errorp;
 typedef mngjpeg_source * mngjpeg_sourcep;
+
+typedef J_DCT_METHOD     mngjpeg_dctmethod;
+
+/* default IJG parameters for compression */
+#define MNG_JPEG_DCT         JDCT_DEFAULT        /* DCT algorithm (JDCT_ISLOW) */
+#define MNG_JPEG_QUALITY     100                 /* quality 0..100; 100=best */
+#define MNG_JPEG_SMOOTHING   0                   /* default no smoothing */
+#define MNG_JPEG_PROGRESSIVE MNG_FALSE           /* default is just baseline */
+#define MNG_JPEG_OPTIMIZED   MNG_FALSE           /* default is not optimized */
 #endif /* MNG_INCLUDE_IJG6B */
 
-#define MNG_JPEG_MAXBUF     65536                /* max size of temp JPEG buffer */
+#define MNG_JPEG_MAXBUF      65500               /* max size of temp JPEG buffer */
+#define MNG_MAX_JDAT_SIZE    4096                /* maximum size of JDAT data */
 
 #endif /* MNG_INCLUDE_JNG */
 

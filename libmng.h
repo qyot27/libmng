@@ -133,6 +133,8 @@
 /* *             - complimented constants for chunk-property values         * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - fixed MNG_UINT_pHYg value                                * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added support for get/set default zlib/IJG parms         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -729,6 +731,49 @@ MNG_EXT mng_retcode MNG_DECL mng_set_maxcanvassize   (mng_handle        hHandle,
                                                       mng_uint32        iMaxwidth,
                                                       mng_uint32        iMaxheight);
 
+/* ZLIB default compression parameters */
+/* these are used when writing out chunks */
+/* they are also used when compressing PNG image-data or JNG alpha-data;
+   in this case you can set them just before calling mng_putimgdata_ihdr */
+/* set to your liking; usually the defaults will suffice though! */
+/* check the documentation for ZLIB for details on these parameters */
+#ifdef MNG_INCLUDE_ZLIB
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_level      (mng_handle        hHandle,
+                                                      mng_int32         iZlevel);
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_method     (mng_handle        hHandle,
+                                                      mng_int32         iZmethod);
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_windowbits (mng_handle        hHandle,
+                                                      mng_int32         iZwindowbits);
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_memlevel   (mng_handle        hHandle,
+                                                      mng_int32         iZmemlevel);
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_strategy   (mng_handle        hHandle,
+                                                      mng_int32         iZstrategy);
+
+MNG_EXT mng_retcode MNG_DECL mng_set_zlib_maxidat    (mng_handle        hHandle,
+                                                      mng_uint32        iMaxIDAT);
+#endif /* MNG_INCLUDE_ZLIB */
+
+/* JNG default compression parameters (based on IJG code) */
+/* these are used when compressing JNG image-data; so you can set them
+   just before calling mng_putimgdata_jhdr */
+/* set to your liking; usually the defaults will suffice though! */
+/* check the documentation for IJGSRC6B for details on these parameters */
+#ifdef MNG_INCLUDE_JNG
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_dctmethod  (mng_handle        hHandle,
+                                                      mngjpeg_dctmethod eJPEGdctmethod);
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_quality    (mng_handle        hHandle,
+                                                      mng_int32         iJPEGquality);
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_smoothing  (mng_handle        hHandle,
+                                                      mng_int32         iJPEGsmoothing);
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_progressive(mng_handle        hHandle,
+                                                      mng_bool          bJPEGprogressive);
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_optimized  (mng_handle        hHandle,
+                                                      mng_bool          bJPEGoptimized);
+
+MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_maxjdat    (mng_handle        hHandle,
+                                                      mng_uint32        iMaxJDAT);
+#endif /* MNG_INCLUDE_JNG */
+
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  Property get functions                                                * */
@@ -783,6 +828,29 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_dfltimggammaint (mng_handle        hHandle)
 /* see _set_ */
 MNG_EXT mng_uint32  MNG_DECL mng_get_maxcanvaswidth  (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_maxcanvasheight (mng_handle        hHandle);
+
+/* see _set_ */
+#ifdef MNG_INCLUDE_ZLIB
+MNG_EXT mng_int32   MNG_DECL mng_get_zlib_level      (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_zlib_method     (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_zlib_windowbits (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_zlib_memlevel   (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_zlib_strategy   (mng_handle        hHandle);
+
+MNG_EXT mng_uint32  MNG_DECL mng_get_zlib_maxidat    (mng_handle        hHandle);
+#endif /* MNG_INCLUDE_ZLIB */
+
+/* see _set_ */
+#ifdef MNG_INCLUDE_JNG
+MNG_EXT mngjpeg_dctmethod
+                    MNG_DECL mng_get_jpeg_dctmethod  (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_jpeg_quality    (mng_handle        hHandle);
+MNG_EXT mng_int32   MNG_DECL mng_get_jpeg_smoothing  (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_get_jpeg_progressive(mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_get_jpeg_optimized  (mng_handle        hHandle);
+
+MNG_EXT mng_uint32  MNG_DECL mng_get_jpeg_maxjdat    (mng_handle        hHandle);
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 /* *                                                                        * */
