@@ -107,31 +107,24 @@ mng_retcode interframe_delay (mng_datap pData)
      up here! (but that's somewhere past at least 48 days on Windoze...) */
   /* TODO: yeah, what to do ??? */
 
-#ifndef MNG_NEVER_DELAY                /* THIS IS FOR TESTING ONLY !!!! */
   if (pData->iTicks)                   /* what are we aiming for */
     iWaitfor = pData->iFrametime + ((1000 * pData->iFramedelay) / pData->iTicks);
   else
-#endif
     iWaitfor = pData->iFrametime;
 
-#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
   if (pData->iRuntime < iWaitfor)      /* delay necessary ? */
   {                                    /* then set the timer */
     bOke = pData->fSettimer ((mng_handle)pData, iWaitfor - pData->iRuntime);
-#else
-    bOke = pData->fSettimer ((mng_handle)pData, 1);
-#endif
     pData->bTimerset = MNG_TRUE;       /* and indicate so */
-#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
   }
   else
-  {                                    /* just give the app some breathing space */
-    bOke = pData->fSettimer ((mng_handle)pData, 0);
-    
+  {
     if (!pData->bRunning)              /* sanity check for frozen status */
       MNG_WARNING (pData, MNG_IMAGEFROZEN)
+                                       /* just give the app some breathing space */
+    bOke = pData->fSettimer ((mng_handle)pData, 0);
+    pData->bTimerset = MNG_TRUE;       /* and indicate so */
   }
-#endif
 
   if (!bOke)                           /* timer set not oke ? */
     MNG_ERROR (pData, MNG_APPTIMERERROR)
