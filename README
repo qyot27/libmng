@@ -1,7 +1,7 @@
-libmng 1.0.6-alpah1
--------------------
+libmng 1.0.6-beta1
+------------------
 
-Alpha.
+Beta.
 
 This is mostly in the light of footprint-reduction to please the Mozilla
 crew with a leaner and meaner libmng. See bug 18574 if you're interested:
