@@ -155,6 +155,9 @@
 /* *             1.0.5 - 11/29/2002 - G.Juyn                                * */
 /* *             - fixed goxxxxx() support for zero values                  * */
 /* *                                                                        * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -424,6 +427,7 @@ mng_retcode mng_reset_rundata (mng_datap pData)
 
   pData->iGlobalGamma          = 0;    /* reset global gAMA data */
 
+#ifndef MNG_SKIPCHUNK_cHRM
   pData->iGlobalWhitepointx    = 0;    /* reset global cHRM data */
   pData->iGlobalWhitepointy    = 0;
   pData->iGlobalPrimaryredx    = 0;
@@ -432,17 +436,22 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iGlobalPrimarygreeny  = 0;
   pData->iGlobalPrimarybluex   = 0;
   pData->iGlobalPrimarybluey   = 0;
+#endif
 
   pData->iGlobalRendintent     = 0;    /* reset global sRGB data */
 
+#ifndef MNG_SKIPCHUNK_iCCP
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
     MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
 
   pData->iGlobalProfilesize    = 0;    
+#endif
 
+#ifndef MNG_SKIPCHUNK_bKGD
   pData->iGlobalBKGDred        = 0;    /* reset global bKGD data */
   pData->iGlobalBKGDgreen      = 0;
   pData->iGlobalBKGDblue       = 0;
+#endif
                                        /* reset delta-image */
   pData->pDeltaImage           = MNG_NULL;
   pData->iDeltaImagetype       = 0;

@@ -47,6 +47,9 @@
 /* *             1.0.5 - 11/28/2002 - G.Juyn                                * */
 /* *             - fixed definition of iMethodX/Y for MAGN chunk            * */
 /* *                                                                        * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -176,6 +179,7 @@ typedef mng_gama * mng_gamap;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_cHRM
 typedef struct {                       /* cHRM */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
@@ -189,6 +193,7 @@ typedef struct {                       /* cHRM */
            mng_uint32        iBluey;
         } mng_chrm;
 typedef mng_chrm * mng_chrmp;
+#endif
 
 /* ************************************************************************** */
 
@@ -201,6 +206,7 @@ typedef mng_srgb * mng_srgbp;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iCCP
 typedef struct {                       /* iCCP */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
@@ -211,9 +217,11 @@ typedef struct {                       /* iCCP */
            mng_ptr           pProfile;
         } mng_iccp;
 typedef mng_iccp * mng_iccpp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tEXt
 typedef struct {                       /* tEXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
@@ -222,9 +230,11 @@ typedef struct {                       /* tEXt */
            mng_pchar         zText;
         } mng_text;
 typedef mng_text * mng_textp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_zTXt
 typedef struct {                       /* zTXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
@@ -234,9 +244,11 @@ typedef struct {                       /* zTXt */
            mng_pchar         zText;
         } mng_ztxt;
 typedef mng_ztxt * mng_ztxtp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iTXt
 typedef struct {                       /* iTXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
@@ -251,9 +263,11 @@ typedef struct {                       /* iTXt */
            mng_pchar         zText;
         } mng_itxt;
 typedef mng_itxt * mng_itxtp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_bKGD
 typedef struct {                       /* bKGD */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
@@ -265,9 +279,11 @@ typedef struct {                       /* bKGD */
            mng_uint16        iBlue;
         } mng_bkgd;
 typedef mng_bkgd * mng_bkgdp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYs
 typedef struct {                       /* pHYs */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
@@ -276,8 +292,10 @@ typedef struct {                       /* pHYs */
            mng_uint8         iUnit;
         } mng_phys;
 typedef mng_phys * mng_physp;
+#endif
 
 /* ************************************************************************** */
+#ifndef MNG_SKIPCHUNK_sBIT
 
 typedef struct {                       /* sBIT */
            mng_chunk_header  sHeader;
@@ -286,9 +304,11 @@ typedef struct {                       /* sBIT */
            mng_uint8arr4     aBits;
         } mng_sbit;
 typedef mng_sbit * mng_sbitp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sPLT
 typedef struct {                       /* sPLT */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
@@ -299,18 +319,22 @@ typedef struct {                       /* sPLT */
            mng_ptr           pEntries;
         } mng_splt;
 typedef mng_splt * mng_spltp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_hIST
 typedef struct {                       /* hIST */
            mng_chunk_header  sHeader;
            mng_uint32        iEntrycount;
            mng_uint16arr     aEntries;
         } mng_hist;
 typedef mng_hist * mng_histp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tIME
 typedef struct {                       /* tIME */
            mng_chunk_header  sHeader;
            mng_uint16        iYear;
@@ -321,6 +345,7 @@ typedef struct {                       /* tIME */
            mng_uint8         iSecond;
         } mng_time;
 typedef mng_time * mng_timep;
+#endif
 
 /* ************************************************************************** */
 
@@ -575,6 +600,7 @@ typedef mng_seek * mng_seekp;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPHUNK_eXPI
 typedef struct {                       /* eXPI */
            mng_chunk_header  sHeader;
            mng_uint16        iSnapshotid;
@@ -582,29 +608,36 @@ typedef struct {                       /* eXPI */
            mng_pchar         zName;
         } mng_expi;
 typedef mng_expi * mng_expip;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPHUNK_fPRI
 typedef struct {                       /* fPRI */
            mng_chunk_header  sHeader;
            mng_uint8         iDeltatype;
            mng_uint8         iPriority;
         } mng_fpri;
 typedef mng_fpri * mng_fprip;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPHUNK_nEED
 typedef struct {                       /* nEED */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordssize;
            mng_pchar         zKeywords;
         } mng_need;
 typedef mng_need * mng_needp;
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYg
 typedef mng_phys mng_phyg;             /* pHYg */
 typedef mng_phyg * mng_phygp;
+#endif
 
 /* ************************************************************************** */
 

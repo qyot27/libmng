@@ -73,6 +73,9 @@
 /* *             1.0.5 - 09/16/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
 /* *                                                                        * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -325,28 +328,58 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_SEEK, mng_init_seek, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0},
     {MNG_UINT_SHOW, mng_init_show, mng_free_show, mng_read_show, mng_write_show, mng_assign_show, 0, 0},
     {MNG_UINT_TERM, mng_init_term, mng_free_term, mng_read_term, mng_write_term, mng_assign_term, 0, 0},
+#ifndef MNG_SKIPCHUNK_bKGD
     {MNG_UINT_bKGD, mng_init_bkgd, mng_free_bkgd, mng_read_bkgd, mng_write_bkgd, mng_assign_bkgd, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_cHRM
     {MNG_UINT_cHRM, mng_init_chrm, mng_free_chrm, mng_read_chrm, mng_write_chrm, mng_assign_chrm, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_eXPI
     {MNG_UINT_eXPI, mng_init_expi, mng_free_expi, mng_read_expi, mng_write_expi, mng_assign_expi, 0, 0},
+#endif
     {MNG_UINT_evNT, mng_init_evnt, mng_free_evnt, mng_read_evnt, mng_write_evnt, mng_assign_evnt, 0, 0},
+#ifndef MNG_SKIPCHUNK_fPRI
     {MNG_UINT_fPRI, mng_init_fpri, mng_free_fpri, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0},
+#endif
     {MNG_UINT_gAMA, mng_init_gama, mng_free_gama, mng_read_gama, mng_write_gama, mng_assign_gama, 0, 0},
+#ifndef MNG_SKIPCHUNK_hIST
     {MNG_UINT_hIST, mng_init_hist, mng_free_hist, mng_read_hist, mng_write_hist, mng_assign_hist, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iCCP
     {MNG_UINT_iCCP, mng_init_iccp, mng_free_iccp, mng_read_iccp, mng_write_iccp, mng_assign_iccp, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_iTXt
     {MNG_UINT_iTXt, mng_init_itxt, mng_free_itxt, mng_read_itxt, mng_write_itxt, mng_assign_itxt, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_nEED
     {MNG_UINT_nEED, mng_init_need, mng_free_need, mng_read_need, mng_write_need, mng_assign_need, 0, 0},
+#endif
 /* TODO:     {MNG_UINT_oFFs, 0, 0, 0, 0, 0, 0},  */
 /* TODO:     {MNG_UINT_pCAL, 0, 0, 0, 0, 0, 0},  */
+#ifndef MNG_SKIPCHUNK_pHYg
     {MNG_UINT_pHYg, mng_init_phyg, mng_free_phyg, mng_read_phyg, mng_write_phyg, mng_assign_phyg, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_pHYs
     {MNG_UINT_pHYs, mng_init_phys, mng_free_phys, mng_read_phys, mng_write_phys, mng_assign_phys, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_sBIT
     {MNG_UINT_sBIT, mng_init_sbit, mng_free_sbit, mng_read_sbit, mng_write_sbit, mng_assign_sbit, 0, 0},
+#endif
 /* TODO:     {MNG_UINT_sCAL, 0, 0, 0, 0, 0, 0},  */
+#ifndef MNG_SKIPCHUNK_sPLT
     {MNG_UINT_sPLT, mng_init_splt, mng_free_splt, mng_read_splt, mng_write_splt, mng_assign_splt, 0, 0},
+#endif
     {MNG_UINT_sRGB, mng_init_srgb, mng_free_srgb, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0},
+#ifndef MNG_SKIPCHUNK_tEXt
     {MNG_UINT_tEXt, mng_init_text, mng_free_text, mng_read_text, mng_write_text, mng_assign_text, 0, 0},
+#endif
+#ifndef MNG_SKIPCHUNK_tIME
     {MNG_UINT_tIME, mng_init_time, mng_free_time, mng_read_time, mng_write_time, mng_assign_time, 0, 0},
+#endif
     {MNG_UINT_tRNS, mng_init_trns, mng_free_trns, mng_read_trns, mng_write_trns, mng_assign_trns, 0, 0},
+#ifndef MNG_SKIPCHUNK_zTXt
     {MNG_UINT_zTXt, mng_init_ztxt, mng_free_ztxt, mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt, 0, 0},
+#endif
   };
                                        /* binary search variables */
   mng_int32         iTop, iLower, iUpper, iMiddle;

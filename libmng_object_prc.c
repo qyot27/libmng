@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.c       copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -106,11 +106,10 @@
 /* *             - fixed magnification bug with object 0                    * */
 /* *             1.0.5 - 01/19/2003 - G.Juyn                                * */
 /* *             - B664911 - fixed buffer overflow during init              * */
-/* *                                                                        * */
-/* *             1.0.6 - 03/04/2003 - G.Juyn                                * */
-/* *             - fixed some compiler-warnings                             * */
-/* *             1.0.6 - 19/04/2003 - G.Juyn                                * */
+/* *             1.0.6 - 04/19/2003 - G.Juyn                                * */
 /* *             - fixed problem with infinite loops during readdisplay()   * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -292,6 +291,7 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   if (pData->bHasglobalGAMA)           /* global gAMA present ? */
     pImagedata->iGamma           = pData->iGlobalGamma;
 
+#ifndef MNG_SKIPCHUNK_cHRM
   if (pData->bHasglobalCHRM)           /* global cHRM present ? */
   {
     pImagedata->iWhitepointx     = pData->iGlobalWhitepointx;
@@ -303,10 +303,12 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
     pImagedata->iPrimarybluex    = pData->iGlobalPrimarybluex;
     pImagedata->iPrimarybluey    = pData->iGlobalPrimarybluey;
   }
+#endif
 
   if (pData->bHasglobalSRGB)           /* glbal sRGB present ? */
     pImagedata->iRenderingintent = pData->iGlobalRendintent;
 
+#ifndef MNG_SKIPCHUNK_iCCP
   if (pData->bHasglobalICCP)           /* glbal iCCP present ? */
   {
     pImagedata->iProfilesize     = pData->iGlobalProfilesize;
@@ -325,6 +327,7 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
       MNG_COPY  (pImagedata->pProfile, pData->pGlobalProfile, pImagedata->iProfilesize)
     }
   }
+#endif
 
   if (pData->bHasglobalBKGD)           /* global bKGD present ? */
   {
@@ -356,9 +359,10 @@ mng_retcode mng_free_imagedataobject   (mng_datap      pData,
 
   if (!pImagedata->iRefcount)          /* reached zero ? */
   {
+#ifndef MNG_SKIPCHUNK_iCCP
     if (pImagedata->iProfilesize)      /* stored an iCCP profile ? */
       MNG_FREEX (pData, pImagedata->pProfile, pImagedata->iProfilesize)
-
+#endif
     if (pImagedata->iImgdatasize)      /* sample-buffer present ? */
       MNG_FREEX (pData, pImagedata->pImgdata, pImagedata->iImgdatasize)
                                        /* drop the buffer */
@@ -406,6 +410,7 @@ mng_retcode mng_clone_imagedataobject  (mng_datap      pData,
     MNG_COPY (pNewdata->pImgdata, pSource->pImgdata, pNewdata->iImgdatasize)
   }
 
+#ifndef MNG_SKIPCHUNK_iCCP
   if (pNewdata->iProfilesize)          /* iCCP profile present ? */
   {
     MNG_ALLOCX (pData, pNewdata->pProfile, pNewdata->iProfilesize)
@@ -418,6 +423,7 @@ mng_retcode mng_clone_imagedataobject  (mng_datap      pData,
                                        /* make a copy */
     MNG_COPY (pNewdata->pProfile, pSource->pProfile, pNewdata->iProfilesize)
   }
+#endif
 
   *ppClone = pNewdata;                 /* return the clone */
 
@@ -926,6 +932,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
         *((mng_uint32p)pTemp) = 0x00000000l;
         pTemp += 4;
       }
+
       while (pTemp < (pBuf->pImgdata + iImgdatasize))
       {
         *pTemp = 0;
@@ -976,15 +983,18 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
     pBuf->bHasICCP = pData->bHasglobalICCP;
     pBuf->bHasBKGD = pData->bHasglobalBKGD;
 
+#ifndef MNG_SKIPCHUNK_iCCP
     if (pBuf->iProfilesize)            /* drop possibly old ICC profile */
     {
       MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
       pBuf->iProfilesize     = 0;
     }  
+#endif
 
     if (pData->bHasglobalGAMA)         /* global gAMA present ? */
       pBuf->iGamma           = pData->iGlobalGamma;
 
+#ifndef MNG_SKIPCHUNK_cHRM
     if (pData->bHasglobalCHRM)         /* global cHRM present ? */
     {
       pBuf->iWhitepointx     = pData->iGlobalWhitepointx;
@@ -996,10 +1006,12 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
       pBuf->iPrimarybluex    = pData->iGlobalPrimarybluex;
       pBuf->iPrimarybluey    = pData->iGlobalPrimarybluey;
     }
+#endif
 
     if (pData->bHasglobalSRGB)           /* global sRGB present ? */
       pBuf->iRenderingintent = pData->iGlobalRendintent;
 
+#ifndef MNG_SKIPCHUNK_iCCP
     if (pData->bHasglobalICCP)           /* global iCCP present ? */
     {
       if (pData->iGlobalProfilesize)
@@ -1010,6 +1022,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
 
       pBuf->iProfilesize     = pData->iGlobalProfilesize;
     }
+#endif
 
     if (pData->bHasglobalBKGD)           /* global bKGD present ? */
     {
@@ -1536,6 +1549,9 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
+
+#ifdef MNG_MAGNIFY_8BIT_ONLY
+#endif
 
   if (pImage->iMAGN_MethodX)           /* determine new width */
   {
@@ -2146,9 +2162,11 @@ mng_retcode mng_process_ani_image (mng_datap   pData,
                                        /* then drop it */
         MNG_FREE (pData, pBuf->pImgdata, pBuf->iImgdatasize)
 
+#ifndef MNG_SKIPCHUNK_iCCP
       if (pBuf->iProfilesize)          /* iCCP profile present ? */
                                        /* then drop it */
         MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
+#endif
                                        /* now blatently copy the animation buffer */
       MNG_COPY (pBuf, pImage->pImgbuf, sizeof (mng_imagedata))
                                        /* copy viewability */
@@ -2160,11 +2178,13 @@ mng_retcode mng_process_ani_image (mng_datap   pData,
         MNG_COPY (pBuf->pImgdata, pImage->pImgbuf->pImgdata, pBuf->iImgdatasize)
       }
 
+#ifndef MNG_SKIPCHUNK_iCCP
       if (pBuf->iProfilesize)          /* iCCP profile present ? */
       {                                /* then make a copy */
         MNG_ALLOC (pData, pBuf->pProfile, pBuf->iProfilesize)
         MNG_COPY (pBuf->pProfile, pImage->pImgbuf->pProfile, pBuf->iProfilesize)
       }
+#endif
     }
                                        /* now go and shoot it off (if required) */
     if ((pCurrent->bVisible) && (pCurrent->bViewable))
@@ -2181,9 +2201,11 @@ mng_retcode mng_process_ani_image (mng_datap   pData,
                                        /* then drop it */
         MNG_FREE (pData, pBuf->pImgdata, pBuf->iImgdatasize)
 
+#ifndef MNG_SKIPCHUNK_iCCP
       if (pBuf->iProfilesize)          /* iCCP profile present ? */
                                        /* then drop it */
         MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
+#endif
                                        /* now blatently copy the animation buffer */
       MNG_COPY (pBuf, pImage->pImgbuf, sizeof (mng_imagedata))
                                        /* copy viewability */
@@ -2195,11 +2217,13 @@ mng_retcode mng_process_ani_image (mng_datap   pData,
         MNG_COPY (pBuf->pImgdata, pImage->pImgbuf->pImgdata, pBuf->iImgdatasize)
       }
 
+#ifndef MNG_SKIPCHUNK_iCCP
       if (pBuf->iProfilesize)          /* iCCP profile present ? */
       {                                /* then make a copy */
         MNG_ALLOC (pData, pBuf->pProfile, pBuf->iProfilesize)
         MNG_COPY (pBuf->pProfile, pImage->pImgbuf->pProfile, pBuf->iProfilesize)
       }
+#endif
     }
                                        /* now go and show it */
     iRetcode = mng_display_image (pData, pObjzero, MNG_FALSE);
@@ -2451,6 +2475,7 @@ mng_retcode mng_process_ani_gama (mng_datap   pData,
 }
 
 /* ************************************************************************** */
+#ifndef MNG_SKIPCHUNK_cHRM
 /* ************************************************************************** */
 
 mng_retcode mng_create_ani_chrm (mng_datap  pData,
@@ -2557,6 +2582,7 @@ mng_retcode mng_process_ani_chrm (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -2641,6 +2667,7 @@ mng_retcode mng_process_ani_srgb (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode mng_create_ani_iccp (mng_datap  pData,
                                  mng_bool   bEmpty,
                                  mng_uint32 iProfilesize,
@@ -2740,6 +2767,7 @@ mng_retcode mng_process_ani_iccp (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */

@@ -187,6 +187,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
 /* *             - added conditionals around canvas update routines         * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -545,6 +547,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
                                        /* default restore using preset BG color */
       pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgcolor;
 
+#ifndef MNG_SKIPCHUNK_bKGD
       if (((pData->eImagetype == mng_it_png) || (pData->eImagetype == mng_it_jng)) &&
           (pData->bUseBKGD))
       {                                /* prefer bKGD in PNG/JNG */
@@ -557,6 +560,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
           bColorcorr          = MNG_TRUE;
         }
       }
+#endif
 
       if (pData->fGetbkgdline)         /* background-canvas-access callback set ? */
       {
@@ -1481,6 +1485,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
       pBuftarget->bHasTRNS = MNG_TRUE; /* tell it it's got a tRNS now */
     }
 
+#ifndef MNG_SKIPCHUNK_bKGD
     if (pBufdelta->bHasBKGD)           /* bkgd in source ? */
     {                                  /* drop it onto the target */
       pBuftarget->bHasBKGD   = MNG_TRUE;
@@ -1490,6 +1495,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
       pBuftarget->iBKGDgreen = pBufdelta->iBKGDgreen;
       pBuftarget->iBKGDblue  = pBufdelta->iBKGDblue;
     }
+#endif
 
     if (pBufdelta->bHasGAMA)           /* gamma in source ? */
     {
@@ -1497,6 +1503,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
       pBuftarget->iGamma   = pBufdelta->iGamma;
     }
 
+#ifndef MNG_SKIPCHUNK_cHRM
     if (pBufdelta->bHasCHRM)           /* chroma in delta ? */
     {                                  /* drop it onto the target */
       pBuftarget->bHasCHRM       = MNG_TRUE;
@@ -1509,6 +1516,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
       pBuftarget->iPrimarybluex  = pBufdelta->iPrimarybluex;
       pBuftarget->iPrimarybluey  = pBufdelta->iPrimarybluey;
     }
+#endif
 
     if (pBufdelta->bHasSRGB)           /* sRGB in delta ? */
     {                                  /* drop it onto the target */
@@ -1516,6 +1524,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
       pBuftarget->iRenderingintent = pBufdelta->iRenderingintent;
     }
 
+#ifndef MNG_SKIPCHUNK_iCCP
     if (pBufdelta->bHasICCP)           /* ICC profile in delta ? */
     {
       pBuftarget->bHasICCP = MNG_TRUE; /* drop it onto the target */
@@ -1528,6 +1537,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                                        /* store it's length as well */
       pBuftarget->iProfilesize = pBufdelta->iProfilesize;
     }
+#endif
                                        /* need to execute delta pixels ? */
     if ((!pData->bDeltaimmediate) && (pData->iDeltatype != MNG_DELTATYPE_NOCHANGE))
     {
@@ -1914,6 +1924,7 @@ MNG_LOCAL mng_retcode save_state (mng_datap pData)
 
   pSave->iGlobalGamma         = pData->iGlobalGamma;
 
+#ifndef MNG_SKIPCHUNK_cHRM
   pSave->iGlobalWhitepointx   = pData->iGlobalWhitepointx;
   pSave->iGlobalWhitepointy   = pData->iGlobalWhitepointy;
   pSave->iGlobalPrimaryredx   = pData->iGlobalPrimaryredx;
@@ -1922,6 +1933,7 @@ MNG_LOCAL mng_retcode save_state (mng_datap pData)
   pSave->iGlobalPrimarygreeny = pData->iGlobalPrimarygreeny;
   pSave->iGlobalPrimarybluex  = pData->iGlobalPrimarybluex;
   pSave->iGlobalPrimarybluey  = pData->iGlobalPrimarybluey;
+#endif
 
   pSave->iGlobalRendintent    = pData->iGlobalRendintent;
 
@@ -2056,6 +2068,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 
     pData->iGlobalGamma         = pSave->iGlobalGamma;
 
+#ifndef MNG_SKIPCHUNK_cHRM
     pData->iGlobalWhitepointx   = pSave->iGlobalWhitepointx;
     pData->iGlobalWhitepointy   = pSave->iGlobalWhitepointy;
     pData->iGlobalPrimaryredx   = pSave->iGlobalPrimaryredx;
@@ -2064,6 +2077,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iGlobalPrimarygreeny = pSave->iGlobalPrimarygreeny;
     pData->iGlobalPrimarybluex  = pSave->iGlobalPrimarybluex;
     pData->iGlobalPrimarybluey  = pSave->iGlobalPrimarybluey;
+#endif
 
     pData->iGlobalRendintent    = pSave->iGlobalRendintent;
 
@@ -2128,6 +2142,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 
     pData->iGlobalGamma         = 0;
 
+#ifndef MNG_SKIPCHUNK_cHRM
     pData->iGlobalWhitepointx   = 0;
     pData->iGlobalWhitepointy   = 0;
     pData->iGlobalPrimaryredx   = 0;
@@ -2136,6 +2151,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iGlobalPrimarygreeny = 0;
     pData->iGlobalPrimarybluex  = 0;
     pData->iGlobalPrimarybluey  = 0;
+#endif
 
     pData->iGlobalRendintent    = 0;
 

@@ -178,6 +178,9 @@
 /* *             - added support for nEED "MNG 1.1"                         * */
 /* *             - added support for nEED "CACHEOFF"                        * */
 /* *                                                                        * */
+/* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
+/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -1705,7 +1708,7 @@ READ_CHUNK (mng_read_srgb)
 }
 
 /* ************************************************************************** */
-
+#ifndef MNG_SKIPCHUNK_iCCP
 READ_CHUNK (mng_read_iccp)
 {
   mng_retcode iRetcode;
@@ -1930,7 +1933,9 @@ READ_CHUNK (mng_read_iccp)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_tEXt
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_text)
@@ -2025,7 +2030,9 @@ READ_CHUNK (mng_read_text)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_zTXt
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_ztxt)
@@ -2166,7 +2173,9 @@ READ_CHUNK (mng_read_ztxt)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_iTXt
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_itxt)
@@ -2373,7 +2382,9 @@ READ_CHUNK (mng_read_itxt)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_bKGD
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_bkgd)
@@ -2559,7 +2570,9 @@ READ_CHUNK (mng_read_bkgd)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_pHYs
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_phys)
@@ -2622,7 +2635,9 @@ READ_CHUNK (mng_read_phys)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_sBIT
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_sbit)
@@ -2741,7 +2756,9 @@ READ_CHUNK (mng_read_sbit)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_sPLT
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_splt)
@@ -2840,7 +2857,9 @@ READ_CHUNK (mng_read_splt)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_hIST
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_hist)
@@ -2894,7 +2913,9 @@ READ_CHUNK (mng_read_hist)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
+#ifndef MNG_SKIPCHUNK_tIME
 /* ************************************************************************** */
 
 READ_CHUNK (mng_read_time)
@@ -2944,6 +2965,7 @@ READ_CHUNK (mng_read_time)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4906,6 +4928,7 @@ READ_CHUNK (mng_read_seek)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_eXPI
 READ_CHUNK (mng_read_expi)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -4962,9 +4985,11 @@ READ_CHUNK (mng_read_expi)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_fPRI
 READ_CHUNK (mng_read_fpri)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -5013,6 +5038,7 @@ READ_CHUNK (mng_read_fpri)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5160,6 +5186,7 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_nEED
 READ_CHUNK (mng_read_need)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -5232,9 +5259,11 @@ READ_CHUNK (mng_read_need)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYg
 READ_CHUNK (mng_read_phyg)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -5289,6 +5318,7 @@ READ_CHUNK (mng_read_phyg)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
