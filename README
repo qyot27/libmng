@@ -1,0 +1,27 @@
+libmng v0.9.2
+-------------
+
+This is the third (last?) beta-release!
+
+It mostly fixes some bugs. It also adds autoconf/automake/libtool to
+the distribution, which should make all *nix people happy...
+
+
+For more information please visit:
+
+The official libmng web-site
+
+  http://www.libmng.com
+
+Libmng's community on SourceForge
+
+  https://sourceforge.net/project/?group_id=5635
+
+The official MNG homepage
+
+  http://www.libpng.org/pub/mng
+
+The official PNG homepage
+
+  http://www.libpng.org/pub/png
+
