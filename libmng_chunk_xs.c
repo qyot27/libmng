@@ -83,6 +83,8 @@
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
 /* *             1.0.9 - 17/14/2004 - G.Juyn                                * */
 /* *             - fixed PPLT getchunk/putchunk routines                    * */
+/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2364,7 +2366,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
   pData  = (mng_datap)hHandle;         /* and make it addressable */
   pChunk = (mng_unknown_chunkp)hChunk; /* address the chunk */
 
-  if (pChunk->sHeader.fCreate != mng_init_unknown)
+  if (pChunk->sHeader.fRead != mng_read_unknown)
     MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
                                        /* fill the fields */
   *iChunkname = pChunk->sHeader.iChunkname;
@@ -2422,7 +2424,11 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_IHDR, mng_init_general, mng_free_general, mng_read_ihdr, mng_write_ihdr, mng_assign_ihdr, 0, 0, sizeof(mng_ihdr)};
+#else
           {MNG_UINT_IHDR, mng_init_ihdr, mng_free_ihdr, mng_read_ihdr, mng_write_ihdr, mng_assign_ihdr, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_START)
@@ -2437,7 +2443,11 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_IHDR))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_ihdr (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2468,7 +2478,11 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_PLTE, mng_init_general, mng_free_general, mng_read_plte, mng_write_plte, mng_assign_plte, 0, 0, sizeof(mng_plte)};
+#else
           {MNG_UINT_PLTE, mng_init_plte, mng_free_plte, mng_read_plte, mng_write_plte, mng_assign_plte, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_START)
@@ -2486,7 +2500,11 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
   if (!check_term (pData, MNG_UINT_PLTE))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_plte (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2515,7 +2533,11 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_IDAT, mng_init_general, mng_free_idat, mng_read_idat, mng_write_idat, mng_assign_idat, 0, 0, sizeof(mng_idat)};
+#else
           {MNG_UINT_IDAT, mng_init_idat, mng_free_idat, mng_read_idat, mng_write_idat, mng_assign_idat, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_START)
@@ -2533,7 +2555,11 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_IDAT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_idat (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2564,7 +2590,11 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_IEND, mng_init_general, mng_free_general, mng_read_iend, mng_write_iend, mng_assign_iend, 0, 0, sizeof(mng_iend)};
+#else
           {MNG_UINT_IEND, mng_init_iend, mng_free_iend, mng_read_iend, mng_write_iend, mng_assign_iend, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_START)
@@ -2582,7 +2612,11 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   if (!check_term (pData, MNG_UINT_IEND))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_iend (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2623,7 +2657,11 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_tRNS, mng_init_general, mng_free_general, mng_read_trns, mng_write_trns, mng_assign_trns, 0, 0, sizeof(mng_trns)};
+#else
           {MNG_UINT_tRNS, mng_init_trns, mng_free_trns, mng_read_trns, mng_write_trns, mng_assign_trns, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_START)
@@ -2641,7 +2679,11 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   if (!check_term (pData, MNG_UINT_tRNS))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_trns (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2679,7 +2721,11 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_gAMA, mng_init_general, mng_free_general, mng_read_gama, mng_write_gama, mng_assign_gama, 0, 0, sizeof(mng_gama)};
+#else
           {MNG_UINT_gAMA, mng_init_gama, mng_free_gama, mng_read_gama, mng_write_gama, mng_assign_gama, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_START)
@@ -2697,7 +2743,11 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_gAMA))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_gama (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2733,7 +2783,11 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_cHRM, mng_init_general, mng_free_general, mng_read_chrm, mng_write_chrm, mng_assign_chrm, 0, 0, sizeof(mng_chrm)};
+#else
           {MNG_UINT_cHRM, mng_init_chrm, mng_free_chrm, mng_read_chrm, mng_write_chrm, mng_assign_chrm, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_START)
@@ -2751,7 +2805,11 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_cHRM))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_chrm (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2787,7 +2845,11 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_sRGB, mng_init_general, mng_free_general, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0, sizeof(mng_srgb)};
+#else
           {MNG_UINT_sRGB, mng_init_srgb, mng_free_srgb, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_START)
@@ -2805,7 +2867,11 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_sRGB))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_srgb (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2838,7 +2904,11 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_iCCP, mng_init_general, mng_free_iccp, mng_read_iccp, mng_write_iccp, mng_assign_iccp, 0, 0, sizeof(mng_iccp)};
+#else
           {MNG_UINT_iCCP, mng_init_iccp, mng_free_iccp, mng_read_iccp, mng_write_iccp, mng_assign_iccp, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_START)
@@ -2856,7 +2926,11 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_iCCP))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_iccp (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2901,7 +2975,11 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_tEXt, mng_init_general, mng_free_text, mng_read_text, mng_write_text, mng_assign_text, 0, 0, sizeof(mng_text)};
+#else
           {MNG_UINT_tEXt, mng_init_text, mng_free_text, mng_read_text, mng_write_text, mng_assign_text, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_START)
@@ -2919,7 +2997,11 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_tEXt))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_text (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2963,7 +3045,11 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_zTXt, mng_init_general, mng_free_ztxt, mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt, 0, 0, sizeof(mng_ztxt)};
+#else
           {MNG_UINT_zTXt, mng_init_ztxt, mng_free_ztxt, mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_START)
@@ -2981,7 +3067,11 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_zTXt))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_ztxt (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3031,7 +3121,11 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_iTXt, mng_init_general, mng_free_itxt, mng_read_itxt, mng_write_itxt, mng_assign_itxt, 0, 0, sizeof(mng_itxt)};
+#else
           {MNG_UINT_iTXt, mng_init_itxt, mng_free_itxt, mng_read_itxt, mng_write_itxt, mng_assign_itxt, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_START)
@@ -3049,7 +3143,11 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_iTXt))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_itxt (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3111,7 +3209,11 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_bKGD, mng_init_general, mng_free_general, mng_read_bkgd, mng_write_bkgd, mng_assign_bkgd, 0, 0, sizeof(mng_bkgd)};
+#else
           {MNG_UINT_bKGD, mng_init_bkgd, mng_free_bkgd, mng_read_bkgd, mng_write_bkgd, mng_assign_bkgd, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_START)
@@ -3129,7 +3231,11 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_bKGD))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_bkgd (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3165,7 +3271,11 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_pHYs, mng_init_general, mng_free_general, mng_read_phys, mng_write_phys, mng_assign_phys, 0, 0, sizeof(mng_phys)};
+#else
           {MNG_UINT_pHYs, mng_init_phys, mng_free_phys, mng_read_phys, mng_write_phys, mng_assign_phys, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_START)
@@ -3183,7 +3293,11 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_pHYs))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_phys (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3215,7 +3329,11 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_sBIT, mng_init_general, mng_free_general, mng_read_sbit, mng_write_sbit, mng_assign_sbit, 0, 0, sizeof(mng_sbit)};
+#else
           {MNG_UINT_sBIT, mng_init_sbit, mng_free_sbit, mng_read_sbit, mng_write_sbit, mng_assign_sbit, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_START)
@@ -3233,7 +3351,11 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   if (!check_term (pData, MNG_UINT_sBIT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_sbit (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3270,7 +3392,11 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_sPLT, mng_init_general, mng_free_splt, mng_read_splt, mng_write_splt, mng_assign_splt, 0, 0, sizeof(mng_splt)};
+#else
           {MNG_UINT_sPLT, mng_init_splt, mng_free_splt, mng_read_splt, mng_write_splt, mng_assign_splt, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_START)
@@ -3288,7 +3414,11 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_sPLT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_splt (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3333,7 +3463,11 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_hIST, mng_init_general, mng_free_general, mng_read_hist, mng_write_hist, mng_assign_hist, 0, 0, sizeof(mng_hist)};
+#else
           {MNG_UINT_hIST, mng_init_hist, mng_free_hist, mng_read_hist, mng_write_hist, mng_assign_hist, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_START)
@@ -3351,7 +3485,11 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
   if (!check_term (pData, MNG_UINT_hIST))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_hist (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3385,7 +3523,11 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_tIME, mng_init_general, mng_free_general, mng_read_time, mng_write_time, mng_assign_time, 0, 0, sizeof(mng_time)};
+#else
           {MNG_UINT_tIME, mng_init_time, mng_free_time, mng_read_time, mng_write_time, mng_assign_time, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_START)
@@ -3403,7 +3545,11 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_time (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3440,7 +3586,11 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_MHDR, mng_init_general, mng_free_general, mng_read_mhdr, mng_write_mhdr, mng_assign_mhdr, 0, 0, sizeof(mng_mhdr)};
+#else
           {MNG_UINT_MHDR, mng_init_mhdr, mng_free_mhdr, mng_read_mhdr, mng_write_mhdr, mng_assign_mhdr, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_START)
@@ -3458,7 +3608,11 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_MHDR))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_mhdr (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3488,7 +3642,11 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_MEND, mng_init_general, mng_free_general, mng_read_mend, mng_write_mend, mng_assign_mend, 0, 0, sizeof(mng_mend)};
+#else
           {MNG_UINT_MEND, mng_init_mend, mng_free_mend, mng_read_mend, mng_write_mend, mng_assign_mend, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_START)
@@ -3506,7 +3664,11 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
   if (!check_term (pData, MNG_UINT_MEND))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_mend (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3538,7 +3700,11 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_LOOP, mng_init_general, mng_free_loop, mng_read_loop, mng_write_loop, mng_assign_loop, 0, 0, sizeof(mng_loop)};
+#else
           {MNG_UINT_LOOP, mng_init_loop, mng_free_loop, mng_read_loop, mng_write_loop, mng_assign_loop, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_START)
@@ -3556,7 +3722,11 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   if (!check_term (pData, MNG_UINT_LOOP))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_loop (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3587,7 +3757,11 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_ENDL, mng_init_general, mng_free_general, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0, sizeof(mng_endl)};
+#else
           {MNG_UINT_ENDL, mng_init_endl, mng_free_endl, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_START)
@@ -3605,7 +3779,11 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_ENDL))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_endl (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3642,7 +3820,11 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_DEFI, mng_init_general, mng_free_general, mng_read_defi, mng_write_defi, mng_assign_defi, 0, 0, sizeof(mng_defi)};
+#else
           {MNG_UINT_DEFI, mng_init_defi, mng_free_defi, mng_read_defi, mng_write_defi, mng_assign_defi, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_START)
@@ -3660,7 +3842,11 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_DEFI))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_defi (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3708,7 +3894,11 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_BASI, mng_init_general, mng_free_general, mng_read_basi, mng_write_basi, mng_assign_basi, 0, 0, sizeof(mng_basi)};
+#else
           {MNG_UINT_BASI, mng_init_basi, mng_free_basi, mng_read_basi, mng_write_basi, mng_assign_basi, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_START)
@@ -3726,7 +3916,11 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_BASI))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_basi (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3772,7 +3966,11 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_CLON, mng_init_general, mng_free_general, mng_read_clon, mng_write_clon, mng_assign_clon, 0, 0, sizeof(mng_clon)};
+#else
           {MNG_UINT_CLON, mng_init_clon, mng_free_clon, mng_read_clon, mng_write_clon, mng_assign_clon, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_START)
@@ -3790,7 +3988,11 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_CLON))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_clon (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3829,7 +4031,11 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_PAST, mng_init_general, mng_free_past, mng_read_past, mng_write_past, mng_assign_past, 0, 0, sizeof(mng_past)};
+#else
           {MNG_UINT_PAST, mng_init_past, mng_free_past, mng_read_past, mng_write_past, mng_assign_past, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_START)
@@ -3847,7 +4053,11 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_PAST))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_past (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3946,7 +4156,11 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_DISC, mng_init_general, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0, sizeof(mng_disc)};
+#else
           {MNG_UINT_DISC, mng_init_disc, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_START)
@@ -3964,7 +4178,11 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
   if (!check_term (pData, MNG_UINT_DISC))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_disc (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4004,7 +4222,11 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_BACK, mng_init_general, mng_free_general, mng_read_back, mng_write_back, mng_assign_back, 0, 0, sizeof(mng_back)};
+#else
           {MNG_UINT_BACK, mng_init_back, mng_free_back, mng_read_back, mng_write_back, mng_assign_back, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_START)
@@ -4022,7 +4244,11 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_BACK))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_back (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4070,7 +4296,11 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_FRAM, mng_init_general, mng_free_fram, mng_read_fram, mng_write_fram, mng_assign_fram, 0, 0, sizeof(mng_fram)};
+#else
           {MNG_UINT_FRAM, mng_init_fram, mng_free_fram, mng_read_fram, mng_write_fram, mng_assign_fram, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_START)
@@ -4088,7 +4318,11 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
   if (!check_term (pData, MNG_UINT_FRAM))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_fram (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4147,7 +4381,11 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_MOVE, mng_init_general, mng_free_general, mng_read_move, mng_write_move, mng_assign_move, 0, 0, sizeof(mng_move)};
+#else
           {MNG_UINT_MOVE, mng_init_move, mng_free_move, mng_read_move, mng_write_move, mng_assign_move, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_START)
@@ -4165,7 +4403,11 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_MOVE))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_move (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4202,7 +4444,11 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_CLIP, mng_init_general, mng_free_general, mng_read_clip, mng_write_clip, mng_assign_clip, 0, 0, sizeof(mng_clip)};
+#else
           {MNG_UINT_CLIP, mng_init_clip, mng_free_clip, mng_read_clip, mng_write_clip, mng_assign_clip, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_START)
@@ -4220,7 +4466,11 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_CLIP))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_clip (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4257,7 +4507,11 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_SHOW, mng_init_general, mng_free_general, mng_read_show, mng_write_show, mng_assign_show, 0, 0, sizeof(mng_show)};
+#else
           {MNG_UINT_SHOW, mng_init_show, mng_free_show, mng_read_show, mng_write_show, mng_assign_show, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_START)
@@ -4275,7 +4529,11 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_SHOW))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_show (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4308,7 +4566,11 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_TERM, mng_init_general, mng_free_general, mng_read_term, mng_write_term, mng_assign_term, 0, 0, sizeof(mng_term)};
+#else
           {MNG_UINT_TERM, mng_init_term, mng_free_term, mng_read_term, mng_write_term, mng_assign_term, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_START)
@@ -4323,7 +4585,11 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_term (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4355,7 +4621,11 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_SAVE, mng_init_general, mng_free_save, mng_read_save, mng_write_save, mng_assign_save, 0, 0, sizeof(mng_save)};
+#else
           {MNG_UINT_SAVE, mng_init_save, mng_free_save, mng_read_save, mng_write_save, mng_assign_save, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_START)
@@ -4373,7 +4643,11 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_SAVE))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4467,7 +4741,11 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_SEEK, mng_init_general, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0, sizeof(mng_seek)};
+#else
           {MNG_UINT_SEEK, mng_init_seek, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_START)
@@ -4485,7 +4763,11 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_SEEK))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_seek (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4520,7 +4802,11 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_eXPI, mng_init_general, mng_free_expi, mng_read_expi, mng_write_expi, mng_assign_expi, 0, 0, sizeof(mng_expi)};
+#else
           {MNG_UINT_eXPI, mng_init_expi, mng_free_expi, mng_read_expi, mng_write_expi, mng_assign_expi, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_START)
@@ -4538,7 +4824,11 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_eXPI))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_expi (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4573,7 +4863,11 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_fPRI, mng_init_general, mng_free_general, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0, sizeof(mng_fpri)};
+#else
           {MNG_UINT_fPRI, mng_init_fpri, mng_free_fpri, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_START)
@@ -4591,7 +4885,11 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_fPRI))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_fpri (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4620,7 +4918,11 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_nEED, mng_init_general, mng_free_need, mng_read_need, mng_write_need, mng_assign_need, 0, 0, sizeof(mng_need)};
+#else
           {MNG_UINT_nEED, mng_init_need, mng_free_need, mng_read_need, mng_write_need, mng_assign_need, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_START)
@@ -4638,7 +4940,11 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_nEED))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_need (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4674,7 +4980,11 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_pHYg, mng_init_general, mng_free_general, mng_read_phyg, mng_write_phyg, mng_assign_phyg, 0, 0, sizeof(mng_phyg)};
+#else
           {MNG_UINT_pHYg, mng_init_phyg, mng_free_phyg, mng_read_phyg, mng_write_phyg, mng_assign_phyg, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_START)
@@ -4692,7 +5002,11 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_pHYg))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_phyg (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4732,7 +5046,11 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_JHDR, mng_init_general, mng_free_general, mng_read_jhdr, mng_write_jhdr, mng_assign_jhdr, 0, 0, sizeof(mng_jhdr)};
+#else
           {MNG_UINT_JHDR, mng_init_jhdr, mng_free_jhdr, mng_read_jhdr, mng_write_jhdr, mng_assign_jhdr, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_START)
@@ -4747,7 +5065,11 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_JHDR))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_jhdr (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4786,7 +5108,11 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_JDAT, mng_init_general, mng_free_jdat, mng_read_jdat, mng_write_jdat, mng_assign_jdat, 0, 0, sizeof(mng_jdat)};
+#else
           {MNG_UINT_JDAT, mng_init_jdat, mng_free_jdat, mng_read_jdat, mng_write_jdat, mng_assign_jdat, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_START)
@@ -4805,7 +5131,11 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_JDAT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_jdat (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4841,7 +5171,11 @@ mng_retcode MNG_DECL mng_putchunk_jdaa (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_JDAA, mng_init_general, mng_free_jdaa, mng_read_jdaa, mng_write_jdaa, mng_assign_jdaa, 0, 0, sizeof(mng_jdaa)};
+#else
           {MNG_UINT_JDAA, mng_init_jdaa, mng_free_jdaa, mng_read_jdaa, mng_write_jdaa, mng_assign_jdaa, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAA, MNG_LC_START)
@@ -4860,7 +5194,11 @@ mng_retcode MNG_DECL mng_putchunk_jdaa (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_JDAA))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_jdaa (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4894,7 +5232,11 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_JSEP, mng_init_general, mng_free_general, mng_read_jsep, mng_write_jsep, mng_assign_jsep, 0, 0, sizeof(mng_jsep)};
+#else
           {MNG_UINT_JSEP, mng_init_jsep, mng_free_jsep, mng_read_jsep, mng_write_jsep, mng_assign_jsep, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_START)
@@ -4913,7 +5255,11 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
   if (!check_term (pData, MNG_UINT_JSEP))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_jsep (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4945,7 +5291,11 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_DHDR, mng_init_general, mng_free_general, mng_read_dhdr, mng_write_dhdr, mng_assign_dhdr, 0, 0, sizeof(mng_dhdr)};
+#else
           {MNG_UINT_DHDR, mng_init_dhdr, mng_free_dhdr, mng_read_dhdr, mng_write_dhdr, mng_assign_dhdr, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_START)
@@ -4963,7 +5313,11 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_DHDR))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_dhdr (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4998,7 +5352,11 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_PROM, mng_init_general, mng_free_general, mng_read_prom, mng_write_prom, mng_assign_prom, 0, 0, sizeof(mng_prom)};
+#else
           {MNG_UINT_PROM, mng_init_prom, mng_free_prom, mng_read_prom, mng_write_prom, mng_assign_prom, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_START)
@@ -5016,7 +5374,11 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_PROM))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_prom (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5044,7 +5406,11 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_IPNG, mng_init_general, mng_free_general, mng_read_ipng, mng_write_ipng, mng_assign_ipng, 0, 0, sizeof(mng_ipng)};
+#else
           {MNG_UINT_IPNG, mng_init_ipng, mng_free_ipng, mng_read_ipng, mng_write_ipng, mng_assign_ipng, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_START)
@@ -5062,7 +5428,11 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
   if (!check_term (pData, MNG_UINT_IPNG))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_ipng (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5088,7 +5458,11 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_PPLT, mng_init_general, mng_free_general, mng_read_pplt, mng_write_pplt, mng_assign_pplt, 0, 0, sizeof(mng_pplt)};
+#else
           {MNG_UINT_PPLT, mng_init_pplt, mng_free_pplt, mng_read_pplt, mng_write_pplt, mng_assign_pplt, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_START)
@@ -5106,7 +5480,11 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_PPLT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_pplt (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5186,7 +5564,11 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_IJNG, mng_init_general, mng_free_general, mng_read_ijng, mng_write_ijng, mng_assign_ijng, 0, 0, sizeof(mng_ijng)};
+#else
           {MNG_UINT_IJNG, mng_init_ijng, mng_free_ijng, mng_read_ijng, mng_write_ijng, mng_assign_ijng, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_START)
@@ -5204,7 +5586,11 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
   if (!check_term (pData, MNG_UINT_IJNG))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_ijng (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5231,7 +5617,11 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_DROP, mng_init_general, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0, sizeof(mng_drop)};
+#else
           {MNG_UINT_DROP, mng_init_drop, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_START)
@@ -5249,7 +5639,11 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
   if (!check_term (pData, MNG_UINT_DROP))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_drop (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5262,7 +5656,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
 
     MNG_ALLOC (pData, ((mng_dropp)pChunk)->pChunknames, iSize)
     MNG_COPY (((mng_dropp)pChunk)->pChunknames, pChunknames, iSize)
-  }  
+  }
 
   mng_add_chunk (pData, pChunk);       /* add it to the list */
 
@@ -5288,7 +5682,11 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_DBYK, mng_init_general, mng_free_dbyk, mng_read_dbyk, mng_write_dbyk, mng_assign_dbyk, 0, 0, sizeof(mng_dbyk)};
+#else
           {MNG_UINT_DBYK, mng_init_dbyk, mng_free_dbyk, mng_read_dbyk, mng_write_dbyk, mng_assign_dbyk, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_START)
@@ -5306,7 +5704,11 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   if (!check_term (pData, MNG_UINT_DBYK))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_dbyk (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5343,7 +5745,11 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_ORDR, mng_init_general, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0, sizeof(mng_ordr)};
+#else
           {MNG_UINT_ORDR, mng_init_ordr, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_START)
@@ -5361,7 +5767,11 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_ORDR))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_ordr (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5449,7 +5859,11 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_MAGN, mng_init_general, mng_free_general, mng_read_magn, mng_write_magn, mng_assign_magn, 0, 0, sizeof(mng_magn)};
+#else
           {MNG_UINT_MAGN, mng_init_magn, mng_free_magn, mng_read_magn, mng_write_magn, mng_assign_magn, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MAGN, MNG_LC_START)
@@ -5467,7 +5881,11 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_MAGN))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_magn (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5503,7 +5921,11 @@ mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_evNT, mng_init_general, mng_free_evnt, mng_read_evnt, mng_write_evnt, mng_assign_evnt, 0, 0, sizeof(mng_evnt)};
+#else
           {MNG_UINT_evNT, mng_init_evnt, mng_free_evnt, mng_read_evnt, mng_write_evnt, mng_assign_evnt, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EVNT, MNG_LC_START)
@@ -5521,7 +5943,11 @@ mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
   if (!check_term (pData, MNG_UINT_evNT))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_evnt (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -5617,12 +6043,16 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+          {MNG_UINT_HUH, mng_init_general, mng_free_unknown, mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, sizeof(mng_unknown_chunk)};
+#else
           {MNG_UINT_HUH, mng_init_unknown, mng_free_unknown, mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0};
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_START)
 #endif
-                                                                                    
+
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = (mng_datap)hHandle;          /* and make it addressable */
 
@@ -5635,7 +6065,11 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   if (!check_term (pData, iChunkname))
     MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+  iRetcode = mng_init_general (pData, &sChunkheader, &pChunk);
+#else
   iRetcode = mng_init_unknown (pData, &sChunkheader, &pChunk);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;

@@ -59,6 +59,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
+/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -126,6 +128,18 @@ void mng_add_chunk (mng_datap  pData,
 /* *                                                                        * */
 /* * Chunk specific initialization routines                                 * */
 /* *                                                                        * */
+/* ************************************************************************** */
+
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+INIT_CHUNK_HDR (mng_init_general)
+{
+  MNG_ALLOC (pData, *ppChunk, ((mng_chunk_headerp)pHeader)->iChunksize)
+  ((mng_ihdrp)*ppChunk)->sHeader = *((mng_chunk_headerp)pHeader);
+  return MNG_NOERROR;
+}
+
+#else /* MNG_OPTIMIZE_CHUNKINITFREE */
+
 /* ************************************************************************** */
 
 INIT_CHUNK_HDR (mng_init_ihdr)
@@ -277,6 +291,7 @@ INIT_CHUNK_HDR (mng_init_srgb)
 #endif
 
 /* ************************************************************************** */
+
 #ifndef MNG_SKIPCHUNK_iCCP
 INIT_CHUNK_HDR (mng_init_iccp)
 {
@@ -1196,11 +1211,26 @@ INIT_CHUNK_HDR (mng_init_unknown)
 }
 
 /* ************************************************************************** */
+
+#endif /* MNG_OPTIMIZE_CHUNKINITFREE */
+
+/* ************************************************************************** */
 /* *                                                                        * */
 /* * Chunk specific cleanup routines                                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+FREE_CHUNK_HDR (mng_free_general)
+{
+  MNG_FREEX (pData, pHeader, ((mng_chunk_headerp)pHeader)->iChunksize)
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_ihdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1215,9 +1245,11 @@ FREE_CHUNK_HDR (mng_free_ihdr)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_plte)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1232,6 +1264,7 @@ FREE_CHUNK_HDR (mng_free_plte)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1245,17 +1278,24 @@ FREE_CHUNK_HDR (mng_free_idat)
     MNG_FREEX (pData, ((mng_idatp)pHeader)->pData,
                       ((mng_idatp)pHeader)->iDatasize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_idat))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_IDAT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_iend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1270,9 +1310,11 @@ FREE_CHUNK_HDR (mng_free_iend)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_trns)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1287,9 +1329,11 @@ FREE_CHUNK_HDR (mng_free_trns)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_gAMA
 FREE_CHUNK_HDR (mng_free_gama)
 {
@@ -1306,9 +1350,11 @@ FREE_CHUNK_HDR (mng_free_gama)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_cHRM
 FREE_CHUNK_HDR (mng_free_chrm)
 {
@@ -1325,9 +1371,11 @@ FREE_CHUNK_HDR (mng_free_chrm)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_sRGB
 FREE_CHUNK_HDR (mng_free_srgb)
 {
@@ -1343,6 +1391,7 @@ FREE_CHUNK_HDR (mng_free_srgb)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -1362,13 +1411,19 @@ FREE_CHUNK_HDR (mng_free_iccp)
     MNG_FREEX (pData, ((mng_iccpp)pHeader)->pProfile,
                       ((mng_iccpp)pHeader)->iProfilesize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_iccp))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ICCP, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1389,13 +1444,19 @@ FREE_CHUNK_HDR (mng_free_text)
     MNG_FREEX (pData, ((mng_textp)pHeader)->zText,
                       ((mng_textp)pHeader)->iTextsize + 1)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_text))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_TEXT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1416,13 +1477,19 @@ FREE_CHUNK_HDR (mng_free_ztxt)
     MNG_FREEX (pData, ((mng_ztxtp)pHeader)->zText,
                       ((mng_ztxtp)pHeader)->iTextsize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_ztxt))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ZTXT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1450,18 +1517,25 @@ FREE_CHUNK_HDR (mng_free_itxt)
     MNG_FREEX (pData, ((mng_itxtp)pHeader)->zText,
                       ((mng_itxtp)pHeader)->iTextsize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_itxt))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ITXT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_bKGD
 FREE_CHUNK_HDR (mng_free_bkgd)
 {
@@ -1478,9 +1552,11 @@ FREE_CHUNK_HDR (mng_free_bkgd)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_pHYs
 FREE_CHUNK_HDR (mng_free_phys)
 {
@@ -1497,9 +1573,11 @@ FREE_CHUNK_HDR (mng_free_phys)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_sBIT
 FREE_CHUNK_HDR (mng_free_sbit)
 {
@@ -1515,6 +1593,7 @@ FREE_CHUNK_HDR (mng_free_sbit)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -1535,18 +1614,25 @@ FREE_CHUNK_HDR (mng_free_splt)
                       ((mng_spltp)pHeader)->iEntrycount *
                       (((mng_spltp)pHeader)->iSampledepth * 3 + sizeof (mng_uint16)) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_splt))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_SPLT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_hIST
 FREE_CHUNK_HDR (mng_free_hist)
 {
@@ -1563,9 +1649,11 @@ FREE_CHUNK_HDR (mng_free_hist)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_tIME
 FREE_CHUNK_HDR (mng_free_time)
 {
@@ -1582,9 +1670,11 @@ FREE_CHUNK_HDR (mng_free_time)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_mhdr)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1599,9 +1689,11 @@ FREE_CHUNK_HDR (mng_free_mhdr)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_mend)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1616,6 +1708,7 @@ FREE_CHUNK_HDR (mng_free_mend)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1632,17 +1725,24 @@ FREE_CHUNK_HDR (mng_free_loop)
                       ((mng_loopp)pHeader)->iCount * sizeof (mng_uint32) )
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_loop))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_LOOP, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 FREE_CHUNK_HDR (mng_free_endl)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1658,9 +1758,11 @@ FREE_CHUNK_HDR (mng_free_endl)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_DEFI
 FREE_CHUNK_HDR (mng_free_defi)
 {
@@ -1677,9 +1779,11 @@ FREE_CHUNK_HDR (mng_free_defi)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_BASI
 FREE_CHUNK_HDR (mng_free_basi)
 {
@@ -1696,9 +1800,11 @@ FREE_CHUNK_HDR (mng_free_basi)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_CLON
 FREE_CHUNK_HDR (mng_free_clon)
 {
@@ -1715,6 +1821,7 @@ FREE_CHUNK_HDR (mng_free_clon)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
@@ -1729,13 +1836,19 @@ FREE_CHUNK_HDR (mng_free_past)
     MNG_FREEX (pData, ((mng_pastp)pHeader)->pSources,
                       ((mng_pastp)pHeader)->iCount * sizeof (mng_past_source) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_past))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_PAST, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1752,18 +1865,25 @@ FREE_CHUNK_HDR (mng_free_disc)
     MNG_FREEX (pData, ((mng_discp)pHeader)->pObjectids,
                       ((mng_discp)pHeader)->iCount * sizeof (mng_uint16) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_disc))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_DISC, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_BACK
 FREE_CHUNK_HDR (mng_free_back)
 {
@@ -1779,6 +1899,7 @@ FREE_CHUNK_HDR (mng_free_back)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -1798,18 +1919,25 @@ FREE_CHUNK_HDR (mng_free_fram)
     MNG_FREEX (pData, ((mng_framp)pHeader)->pSyncids,
                       ((mng_framp)pHeader)->iCount * sizeof (mng_uint32) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_fram))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_FRAM, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_MOVE
 FREE_CHUNK_HDR (mng_free_move)
 {
@@ -1826,9 +1954,11 @@ FREE_CHUNK_HDR (mng_free_move)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_CLIP
 FREE_CHUNK_HDR (mng_free_clip)
 {
@@ -1845,9 +1975,11 @@ FREE_CHUNK_HDR (mng_free_clip)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_SHOW
 FREE_CHUNK_HDR (mng_free_show)
 {
@@ -1864,9 +1996,11 @@ FREE_CHUNK_HDR (mng_free_show)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_TERM
 FREE_CHUNK_HDR (mng_free_term)
 {
@@ -1882,6 +2016,7 @@ FREE_CHUNK_HDR (mng_free_term)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -1908,13 +2043,19 @@ FREE_CHUNK_HDR (mng_free_save)
     MNG_FREEX (pData, ((mng_savep)pHeader)->pEntries,
                       ((mng_savep)pHeader)->iCount * sizeof (mng_save_entry) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_save))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_SAVE, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1931,13 +2072,19 @@ FREE_CHUNK_HDR (mng_free_seek)
     MNG_FREEX (pData, ((mng_seekp)pHeader)->zName,
                       ((mng_seekp)pHeader)->iNamesize + 1)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_seek))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_SEEK, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -1954,18 +2101,25 @@ FREE_CHUNK_HDR (mng_free_expi)
     MNG_FREEX (pData, ((mng_expip)pHeader)->zName,
                       ((mng_expip)pHeader)->iNamesize + 1)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_expi))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_EXPI, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_fPRI
 FREE_CHUNK_HDR (mng_free_fpri)
 {
@@ -1982,6 +2136,7 @@ FREE_CHUNK_HDR (mng_free_fpri)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
@@ -1996,18 +2151,25 @@ FREE_CHUNK_HDR (mng_free_need)
     MNG_FREEX (pData, ((mng_needp)pHeader)->zKeywords,
                       ((mng_needp)pHeader)->iKeywordssize + 1)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_need))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_NEED, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_pHYg
 FREE_CHUNK_HDR (mng_free_phyg)
 {
@@ -2024,9 +2186,11 @@ FREE_CHUNK_HDR (mng_free_phyg)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifdef MNG_INCLUDE_JNG
 FREE_CHUNK_HDR (mng_free_jhdr)
 {
@@ -2043,6 +2207,7 @@ FREE_CHUNK_HDR (mng_free_jhdr)
   return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
@@ -2057,13 +2222,19 @@ FREE_CHUNK_HDR (mng_free_jdaa)
     MNG_FREEX (pData, ((mng_jdaap)pHeader)->pData,
                       ((mng_jdaap)pHeader)->iDatasize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_jdaa))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_JDAA, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif /* MNG_INCLUDE_JNG */
 
@@ -2080,18 +2251,25 @@ FREE_CHUNK_HDR (mng_free_jdat)
     MNG_FREEX (pData, ((mng_jdatp)pHeader)->pData,
                       ((mng_jdatp)pHeader)->iDatasize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_jdat))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_JDAT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifdef MNG_INCLUDE_JNG
 FREE_CHUNK_HDR (mng_free_jsep)
 {
@@ -2108,9 +2286,11 @@ FREE_CHUNK_HDR (mng_free_jsep)
   return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_NO_DELTA_PNG
 FREE_CHUNK_HDR (mng_free_dhdr)
 {
@@ -2127,9 +2307,11 @@ FREE_CHUNK_HDR (mng_free_dhdr)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_NO_DELTA_PNG
 FREE_CHUNK_HDR (mng_free_prom)
 {
@@ -2146,9 +2328,11 @@ FREE_CHUNK_HDR (mng_free_prom)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_NO_DELTA_PNG
 FREE_CHUNK_HDR (mng_free_ipng)
 {
@@ -2165,9 +2349,11 @@ FREE_CHUNK_HDR (mng_free_ipng)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_NO_DELTA_PNG
 FREE_CHUNK_HDR (mng_free_pplt)
 {
@@ -2184,9 +2370,11 @@ FREE_CHUNK_HDR (mng_free_pplt)
   return MNG_NOERROR;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_NO_DELTA_PNG
 #ifdef MNG_INCLUDE_JNG
 FREE_CHUNK_HDR (mng_free_ijng)
@@ -2205,6 +2393,7 @@ FREE_CHUNK_HDR (mng_free_ijng)
 }
 #endif
 #endif
+#endif
 
 /* ************************************************************************** */
 
@@ -2219,13 +2408,19 @@ FREE_CHUNK_HDR (mng_free_drop)
     MNG_FREEX (pData, ((mng_dropp)pHeader)->pChunknames,
                       ((mng_dropp)pHeader)->iCount * sizeof (mng_chunkid) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_drop))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_DROP, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -2243,13 +2438,19 @@ FREE_CHUNK_HDR (mng_free_dbyk)
     MNG_FREEX (pData, ((mng_dbykp)pHeader)->zKeywords,
                       ((mng_dbykp)pHeader)->iKeywordssize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_dbyk))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_DBYK, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 #endif
@@ -2268,19 +2469,26 @@ FREE_CHUNK_HDR (mng_free_ordr)
     MNG_FREEX (pData, ((mng_ordrp)pHeader)->pEntries,
                       ((mng_ordrp)pHeader)->iCount * sizeof (mng_ordr_entry) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_ordr))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ORDR, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 #endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
 #ifndef MNG_SKIPCHUNK_MAGN
 FREE_CHUNK_HDR (mng_free_magn)
 {
@@ -2296,6 +2504,7 @@ FREE_CHUNK_HDR (mng_free_magn)
 
   return MNG_NOERROR;
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -2322,13 +2531,19 @@ FREE_CHUNK_HDR (mng_free_evnt)
     MNG_FREEX (pData, ((mng_evntp)pHeader)->pEntries,
                       ((mng_evntp)pHeader)->iCount * sizeof (mng_evnt_entry) )
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_evnt))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_EVNT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 #endif
 
@@ -2344,13 +2559,19 @@ FREE_CHUNK_HDR (mng_free_unknown)
     MNG_FREEX (pData, ((mng_unknown_chunkp)pHeader)->pData,
                       ((mng_unknown_chunkp)pHeader)->iDatasize)
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   MNG_FREEX (pData, pHeader, sizeof (mng_unknown_chunk))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_UNKNOWN, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
   return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
 }
 
 /* ************************************************************************** */

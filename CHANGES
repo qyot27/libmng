@@ -26,6 +26,7 @@ core:
 - standard windows dll upgraded to zlib 1.2.2
 - added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)
 - inclusion of zlib/lcms/ijgsrc6b with <> instead of ""
+- added conditional MNG_OPTIMIZE_CHUNKINITFREE
 
 samples:
 

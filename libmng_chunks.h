@@ -53,6 +53,9 @@
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - added conditional around MNG_NO_DELTA_PNG support        * */
 /* *                                                                        * */
+/* *             1.0.9 - 12/25/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -109,6 +112,9 @@ typedef struct {                       /* generic header */
            mng_assignchunk   fAssign;
            mng_chunkp        pNext;    /* for double-linked list */
            mng_chunkp        pPrev;
+#ifdef MNG_OPTIMIZE_CHUNKINITFREE
+           mng_uint16        iChunksize;
+#endif
         } mng_chunk_header;
 typedef mng_chunk_header * mng_chunk_headerp;
 
