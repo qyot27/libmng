@@ -1,5 +1,32 @@
 -----------------------------------------------------------
 
+0.9.5 (... ..th 2001)
+----------------------
+
+in short:
+
+intermediate
+
+-------------------
+
+bugfixes:
+B129681 - fixed compiler warnings SGI/Irix (Thanks Dimitri)               
+
+core:
+- fixed compiler-warnings Mozilla (thanks Tim)
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 0.9.4 (Jan 19th 2001)
 ----------------------
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.4                                                      * */
+/* * version   : 0.9.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -128,6 +128,9 @@
 /* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
 /* *             - removed test filter-methods 1 & 65                       * */
 /* *             - set default level-set for filtertype=64 to all zeroes    * */
+/* *                                                                        * */
+/* *             0.9.5 -  1/20/2001 - G.Juyn                                * */
+/* *             - fixed compiler-warnings Mozilla (thanks Tim)             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3960,7 +3963,7 @@ mng_retcode process_display_dhdr (mng_datap  pData,
     {                                  /* previous magnification to be done ? */
       if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
       {
-        mng_retcode iRetcode = magnify_imageobject (pData, pImage);
+        iRetcode = magnify_imageobject (pData, pImage);
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -4525,7 +4528,7 @@ mng_retcode process_display_magn (mng_datap  pData,
   {
     if (iX == 0)                       /* process object 0 ? */
     {
-      mng_imagep pImage = (mng_imagep)pData->pObjzero;
+      pImage = (mng_imagep)pData->pObjzero;
 
       pImage->iMAGN_MethodX = iMethodX;
       pImage->iMAGN_MethodY = iMethodY;

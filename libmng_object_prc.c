@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.c       copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.4                                                      * */
+/* * version   : 0.9.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -73,6 +73,9 @@
 /* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
 /* *             - removed "old" MAGN methods 3 & 4                         * */
 /* *             - added "new" MAGN methods 3, 4 & 5                        * */
+/* *                                                                        * */
+/* *             0.9.5 -  1/22/2001 - G.Juyn                                * */
+/* *             - B129681 - fixed compiler warnings SGI/Irix               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -734,7 +737,7 @@ mng_retcode renum_imageobject (mng_datap  pData,
     while ((pPrev) && (pPrev->iId > iId))
       pPrev = (mng_imagep)pPrev->sHeader.pPrev;
                                        /* different from current ? */
-    if (pPrev != pSource->sHeader.pPrev)
+    if (pPrev != (mng_imagep)pSource->sHeader.pPrev)
     {
       if (pSource->sHeader.pPrev)      /* unlink from current position !! */
         ((mng_imagep)pSource->sHeader.pPrev)->sHeader.pNext = pSource->sHeader.pNext;
@@ -2355,7 +2358,7 @@ mng_retcode process_ani_endl (mng_datap   pData,
 
       if (!pLOOP->iRunningcount)       /* reached zero ? */
       {                                /* was this the outer LOOP ? */
-        if (pLOOP == pData->pFirstaniobj)
+        if (pData->pFirstaniobj == (mng_objectp)pLOOP)
           pData->bHasLOOP = MNG_FALSE;
       }
       else
