@@ -106,6 +106,9 @@
 /* *             1.0.6 - 04/11/2003 - G.Juyn                                * */
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
 /* *                                                                        * */
+/* *             1.0.6 - 06/15/2003 - R.Giles                               * */
+/* *             - lcms.h inclusion is generally no longer prefixed         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #ifndef _libmng_types_h_
@@ -158,11 +161,7 @@
 #ifndef ZLIB_DLL
 #undef FAR
 #endif
-#if defined(WIN32) || defined(linux)   /* different header locations */
 #include "lcms.h"
-#else
-#include "lcms/lcms.h"
-#endif
 #endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_INCLUDE_IJG6B               /* IJG's jpgsrc6b */
