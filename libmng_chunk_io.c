@@ -100,6 +100,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
 /* *             - B111300 - fixup for improved portability                 * */
+/* *             0.9.3 - 08/08/2000 - G.Juyn                                * */
+/* *             - fixed compiler-warnings from Mozilla                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -136,22 +138,22 @@
 /* Make the table for a fast CRC. */
 void make_crc_table (mng_datap pData)
 {
-  mng_uint32 c;
-  mng_int32  n, k;
+  mng_uint32 iC;
+  mng_int32  iN, iK;
 
-  for (n = 0; n < 256; n++)
+  for (iN = 0; iN < 256; iN++)
   {
-    c = (mng_uint32) n;
+    iC = (mng_uint32) iN;
 
-    for (k = 0; k < 8; k++)
+    for (iK = 0; iK < 8; iK++)
     {
-      if (c & 1)
-        c = 0xedb88320U ^ (c >> 1);
+      if (iC & 1)
+        iC = 0xedb88320U ^ (iC >> 1);
       else
-        c = c >> 1;
+        iC = iC >> 1;
     }
 
-    pData->aCRCtable [n] = c;
+    pData->aCRCtable [iN] = iC;
   }
 
   pData->bCRCcomputed = MNG_TRUE;
@@ -163,28 +165,28 @@ void make_crc_table (mng_datap pData)
    crc() routine below). */
 
 mng_uint32 update_crc (mng_datap  pData,
-                       mng_uint32 crc,
-                       mng_uint8p buf,
-                       mng_int32  len)
+                       mng_uint32 iCrc,
+                       mng_uint8p pBuf,
+                       mng_int32  iLen)
 {
-  mng_uint32 c = crc;
-  mng_int32 n;
+  mng_uint32 iC = iCrc;
+  mng_int32 iN;
 
   if (!pData->bCRCcomputed)
     make_crc_table (pData);
 
-  for (n = 0; n < len; n++)
-    c = pData->aCRCtable [(c ^ buf [n]) & 0xff] ^ (c >> 8);
+  for (iN = 0; iN < iLen; iN++)
+    iC = pData->aCRCtable [(iC ^ pBuf [iN]) & 0xff] ^ (iC >> 8);
 
-  return c;
+  return iC;
 }
 
 /* Return the CRC of the bytes buf[0..len-1]. */
 mng_uint32 crc (mng_datap  pData,
-                mng_uint8p buf,
-                mng_int32  len)
+                mng_uint8p pBuf,
+                mng_int32  iLen)
 {
-  return update_crc (pData, 0xffffffffU, buf, len) ^ 0xffffffffU;
+  return update_crc (pData, 0xffffffffU, pBuf, iLen) ^ 0xffffffffU;
 }
 
 /* ************************************************************************** */

@@ -315,12 +315,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "0.9.2"
+#define MNG_VERSION_TEXT    "0.9.3"
 #define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test/beta) */
 #define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
 #define MNG_VERSION_MAJOR   0
 #define MNG_VERSION_MINOR   9
-#define MNG_VERSION_RELEASE 2
+#define MNG_VERSION_RELEASE 3
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);

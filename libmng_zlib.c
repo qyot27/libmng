@@ -34,6 +34,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/08/2000 - G.Juyn                                * */
+/* *             - fixed compiler-warnings from Mozilla                     * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -141,7 +144,7 @@ mng_retcode mngzlib_cleanup (mng_datap pData)
 
 mng_retcode mngzlib_inflateinit (mng_datap pData)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_INFLATEINIT, MNG_LC_START)
@@ -169,7 +172,7 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
                                  mng_uint32 iInlen,
                                  mng_uint8p pIndata)
 {
-  uInt        iZrslt;
+  int         iZrslt;
   mng_retcode iRslt;
   mng_ptr     pSwap;
 
@@ -269,7 +272,7 @@ mng_retcode mngzlib_inflatedata (mng_datap  pData,
                                  mng_uint32 iInlen,
                                  mng_uint8p pIndata)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_INFLATEDATA, MNG_LC_START)
@@ -297,7 +300,7 @@ mng_retcode mngzlib_inflatedata (mng_datap  pData,
 
 mng_retcode mngzlib_inflatefree (mng_datap pData)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_INFLATEFREE, MNG_LC_START)
@@ -321,7 +324,7 @@ mng_retcode mngzlib_inflatefree (mng_datap pData)
 
 mng_retcode mngzlib_deflateinit (mng_datap pData)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_DEFLATEINIT, MNG_LC_START)
@@ -369,7 +372,7 @@ mng_retcode mngzlib_deflatedata (mng_datap  pData,
                                  mng_uint32 iInlen,
                                  mng_uint8p pIndata)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_DEFLATEDATA, MNG_LC_START)
@@ -397,7 +400,7 @@ mng_retcode mngzlib_deflatedata (mng_datap  pData,
 
 mng_retcode mngzlib_deflatefree (mng_datap pData)
 {
-  uInt iZrslt;
+  int iZrslt;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ZLIB_DEFLATEFREE, MNG_LC_START)

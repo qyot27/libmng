@@ -15,6 +15,7 @@ bugfixes:
 - B111300 - fixup for improved portability
 
 core:
+- fixed compiler-warnings from Mozilla               
 
 samples:
 
