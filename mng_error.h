@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_error.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error functions (definition)                               * */
 /* *                                                                        * */
@@ -15,11 +15,18 @@
 /* *                                                                        * */
 /* * comment   : Definition of the generic error-codes and functions        * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/06/2000 - G.Juyn                                * */
+/* *             - added some errorcodes                                    * */
+/* *             0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - added some errorcodes                                    * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
+/* *             - added application errorcodes (used with callbacks)       * */
+/* *             - moved chunk-access errorcodes to severity 5              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
@@ -30,11 +37,11 @@
 /* *                                                                        * */
 /* * Error-code structure                                                   * */
 /* *                                                                        * */
-/* * 0b0000 00xx xxxx xxxx - basic errors (severity 9)                      * */
-/* * 0b0000 01xx xxxx xxxx - chunk errors (severity 9)                      * */
-/* * 0b0000 10xx xxxx xxxx - severity 5 errors                              * */
-/* * 0b0001 00xx xxxx xxxx - severity 2 warnings                            * */
-/* * 0b0010 00xx xxxx xxxx - severity 1 warnings                            * */
+/* * 0b0000 00xx xxxx xxxx - basic errors; severity 9 (environment)         * */
+/* * 0b0000 01xx xxxx xxxx - chunk errors; severity 9 (image induced)       * */
+/* * 0b0000 10xx xxxx xxxx - severity 5 errors (application induced)        * */
+/* * 0b0001 00xx xxxx xxxx - severity 2 warnings (recoverable)              * */
+/* * 0b0010 00xx xxxx xxxx - severity 1 warnings (recoverable)              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -51,6 +58,13 @@
 #define MNG_NOSRGBPROFILE    (mng_retcode)9    /* no sRGB-profile defined     */
 #define MNG_BUFOVERFLOW      (mng_retcode)10   /* zlib output-buffer overflow */
 #define MNG_FUNCTIONINVALID  (mng_retcode)11   /* ay, totally inappropriate   */
+#define MNG_OUTPUTERROR      (mng_retcode)12   /* disk full ?                 */
+
+#define MNG_APPIOERROR       (mng_retcode)901  /* application I/O error       */
+#define MNG_APPTIMERERROR    (mng_retcode)902  /* application timing error    */
+#define MNG_APPCMSERROR      (mng_retcode)903  /* application CMS error       */
+#define MNG_APPMISCERROR     (mng_retcode)904  /* application other error     */
+#define MNG_APPTRACEABORT    (mng_retcode)905  /* application aborts on trace */
 
 #define MNG_INTERNALERROR    (mng_retcode)999  /* internal inconsistancy      */
 
@@ -76,8 +90,19 @@
 #define MNG_OBJECTUNKNOWN    (mng_retcode)1045 /* the object can't be found   */
 #define MNG_OBJECTEXISTS     (mng_retcode)1046 /* the object already exists   */
 #define MNG_TOOMUCHIDAT      (mng_retcode)1047 /* got too much compressed data*/
+#define MNG_INVSAMPLEDEPTH   (mng_retcode)1048 /* sampledepth out-of-range    */
+#define MNG_INVOFFSETSIZE    (mng_retcode)1049 /* invalid offset-size         */
+#define MNG_INVENTRYTYPE     (mng_retcode)1050 /* invalid entry-type          */
+#define MNG_ENDWITHNULL      (mng_retcode)1051 /* may not end with NULL       */
+#define MNG_INVIMAGETYPE     (mng_retcode)1052 /* invalid image_type          */
+#define MNG_INVDELTATYPE     (mng_retcode)1053 /* invalid delta_type          */
+#define MNG_INVALIDINDEX     (mng_retcode)1054 /* index-value invalid         */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
+#define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */
+#define MNG_INVALIDENTRYIX   (mng_retcode)2051 /* accessing the wrong entry   */
+#define MNG_NOHEADER         (mng_retcode)2052 /* must have had header first  */
+#define MNG_NOCORRCHUNK      (mng_retcode)2053 /* can't find parent chunk     */
 
 #define MNG_IMAGETOOLARGE    (mng_retcode)4097 /* input-image way too big     */
 #define MNG_NOTANANIMATION   (mng_retcode)4098 /* file not a MNG              */
@@ -86,7 +111,7 @@
 #define MNG_PLAYTIMETOOHIGH  (mng_retcode)4101 /* playtime out-of-range       */
 #define MNG_FNNOTIMPLEMENTED (mng_retcode)4102 /* function not yet available  */
 
-#define MNG_IMAGEISSILLY     (mng_retcode)8193 /* don't ask me...             */
+#define MNG_IMAGEFROZEN      (mng_retcode)8193 /* stopped displaying          */
 
 #define MNG_LCMS_NOHANDLE    1                 /* LCMS returned NULL handle   */
 #define MNG_LCMS_NOMEM       2                 /* LCMS returned NULL gammatab */

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_jpeg.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : JPEG library interface (implementation)                    * */
 /* *                                                                        * */
@@ -15,21 +15,25 @@
 /* *                                                                        * */
 /* * comment   : implementation of the JPEG library interface               * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
-
 #include "libmng.h"
 #include "mng_data.h"
-#include "mng_memory.h"
 #include "mng_error.h"
 #include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+#include "mng_memory.h"
 #include "mng_pixels.h"
 #include "mng_jpeg.h"
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 

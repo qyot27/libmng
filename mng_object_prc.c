@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -15,22 +15,28 @@
 /* *                                                                        * */
 /* * comment   : implementation of the internal object processing routines  * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
 /* ************************************************************************** */
-
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
 
 #include "libmng.h"
 #include "mng_data.h"
 #include "mng_error.h"
-#include "mng_memory.h"
 #include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+#include "mng_memory.h"
 #include "mng_objects.h"
 #include "mng_display.h"
 #include "mng_object_prc.h"
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -57,7 +63,7 @@ mng_retcode create_imagedataobject (mng_datap      pData,
   mng_uint32 iSamplesize = 0;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_IMGDATAOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_IMGDATAOBJECT, MNG_LC_START)
 #endif
                                        /* get a buffer */
   MNG_ALLOC (pData, pImagedata, sizeof (mng_imagedata))
@@ -181,7 +187,7 @@ mng_retcode create_imagedataobject (mng_datap      pData,
   *ppObject = pImagedata;              /* return it */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_IMGDATAOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_IMGDATAOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -193,7 +199,7 @@ mng_retcode free_imagedataobject   (mng_datap      pData,
                                     mng_imagedatap pImagedata)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_IMGDATAOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_IMGDATAOBJECT, MNG_LC_START)
 #endif
 
   if (pImagedata->iRefcount)           /* decrease reference count */
@@ -211,7 +217,7 @@ mng_retcode free_imagedataobject   (mng_datap      pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_IMGDATAOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_IMGDATAOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -227,7 +233,7 @@ mng_retcode clone_imagedataobject  (mng_datap      pData,
   mng_imagedatap pNewdata;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CLONE_IMGDATAOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CLONE_IMGDATAOBJECT, MNG_LC_START)
 #endif
                                        /* get a buffer */
   MNG_ALLOC (pData, pNewdata, sizeof (mng_imagedata))
@@ -266,7 +272,7 @@ mng_retcode clone_imagedataobject  (mng_datap      pData,
   *ppClone = pNewdata;                 /* return the clone */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CLONE_IMGDATAOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CLONE_IMGDATAOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -304,7 +310,7 @@ mng_retcode create_imageobject (mng_datap  pData,
   mng_imagedatap pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_IMGOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_IMGOBJECT, MNG_LC_START)
 #endif
                                        /* get a buffer */
   MNG_ALLOC (pData, pImage, sizeof (mng_image))
@@ -365,7 +371,7 @@ mng_retcode create_imageobject (mng_datap  pData,
   *ppObject = pImage;                  /* and return the new buffer */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_IMGOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_IMGOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;                  /* okido */
@@ -382,7 +388,7 @@ mng_retcode free_imageobject (mng_datap  pData,
   mng_imagedatap pImgbuf = pImage->pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_IMGOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_IMGOBJECT, MNG_LC_START)
 #endif
 
   if (pImage->iId)                     /* not for object 0 */
@@ -404,7 +410,7 @@ mng_retcode free_imageobject (mng_datap  pData,
   MNG_FREEX (pData, pImage, sizeof (mng_image))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_IMGOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_IMGOBJECT, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -418,14 +424,14 @@ mng_imagep find_imageobject (mng_datap  pData,
   mng_imagep pImage = (mng_imagep)pData->pFirstimgobj;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FIND_IMGOBJECT, MNG_LC_START);
+  MNG_TRACEX (pData, MNG_FN_FIND_IMGOBJECT, MNG_LC_START)
 #endif
                                        /* look up the right id */
   while ((pImage) && (pImage->iId != iId))
     pImage = (mng_imagep)pImage->sHeader.pNext;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FIND_IMGOBJECT, MNG_LC_END);
+  MNG_TRACEX (pData, MNG_FN_FIND_IMGOBJECT, MNG_LC_END)
 #endif
 
   return pImage;
@@ -451,7 +457,7 @@ mng_retcode clone_imageobject (mng_datap  pData,
   mng_imagedatap pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CLONE_IMGOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CLONE_IMGOBJECT, MNG_LC_START)
 #endif
                                        /* get a buffer */
   MNG_ALLOC (pData, pNew, sizeof (mng_image))
@@ -541,7 +547,7 @@ mng_retcode clone_imageobject (mng_datap  pData,
   *ppClone = pNew;                     /* return it */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CLONE_IMGOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CLONE_IMGOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -562,7 +568,7 @@ mng_retcode renum_imageobject (mng_datap  pData,
   mng_imagep pPrev, pNext;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_RENUM_IMGOBJECT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RENUM_IMGOBJECT, MNG_LC_START)
 #endif
 
   pSource->bVisible  = bVisible;       /* store the new visibility */
@@ -627,7 +633,7 @@ mng_retcode renum_imageobject (mng_datap  pData,
     pSource->pImgbuf->bConcrete = MNG_FALSE;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_RENUM_IMGOBJECT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RENUM_IMGOBJECT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -649,7 +655,7 @@ mng_retcode reset_object_details (mng_datap  pData,
   mng_uint32     iImgdatasize;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_START)
 #endif
 
   pBuf->iWidth     = iWidth;           /* set buffer characteristics */
@@ -771,7 +777,7 @@ mng_retcode reset_object_details (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -817,7 +823,7 @@ mng_retcode create_ani_image (mng_datap      pData,
   mng_retcode    iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_IMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_IMAGE, MNG_LC_START)
 #endif
 
   if (!pCurrent)                       /* otherwise object 0 */
@@ -837,7 +843,7 @@ mng_retcode create_ani_image (mng_datap      pData,
   *ppObject = pImage;                  /* and return the new buffer */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_IMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_IMAGE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;                  /* okido */
@@ -853,7 +859,7 @@ mng_retcode free_ani_image (mng_datap   pData,
   mng_retcode    iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_IMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_IMAGE, MNG_LC_START)
 #endif
                                        /* unlink the image-data buffer */
   iRetcode = free_imagedataobject (pData, pImgbuf);
@@ -861,7 +867,7 @@ mng_retcode free_ani_image (mng_datap   pData,
   MNG_FREEX (pData, pImage, sizeof (mng_ani_image))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_IMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_IMAGE, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -878,7 +884,7 @@ mng_retcode process_ani_image (mng_datap   pData,
   mng_imagep     pObjzero = (mng_imagep)pData->pObjzero;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_START)
 #endif
 
   if (pCurrent)                        /* active object ? */
@@ -934,7 +940,7 @@ mng_retcode process_ani_image (mng_datap   pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -956,7 +962,7 @@ mng_retcode create_ani_loop (mng_datap     pData,
   mng_ani_loopp pLOOP;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_LOOP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_LOOP, MNG_LC_START)
 #endif
 
   MNG_ALLOC (pData, pLOOP, sizeof (mng_ani_loop))
@@ -984,7 +990,7 @@ mng_retcode create_ani_loop (mng_datap     pData,
   *ppObject = pLOOP;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_LOOP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_LOOP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -998,7 +1004,7 @@ mng_retcode free_ani_loop (mng_datap   pData,
   mng_ani_loopp pLOOP = (mng_ani_loopp)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_START)
 #endif
 
   if (pLOOP->iCount)                   /* drop signal buffer ? */
@@ -1007,7 +1013,7 @@ mng_retcode free_ani_loop (mng_datap   pData,
   MNG_FREEX (pData, pObject, sizeof (mng_ani_loop))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1021,13 +1027,13 @@ mng_retcode process_ani_loop (mng_datap   pData,
   mng_ani_loopp pLOOP = (mng_ani_loopp)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_LOOP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_LOOP, MNG_LC_START)
 #endif
                                        /* just reset the running counter */
   pLOOP->iRunningcount = pLOOP->iRepeatcount;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_LOOP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_LOOP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1043,7 +1049,7 @@ mng_retcode create_ani_endl (mng_datap     pData,
   mng_ani_endlp pENDL;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_ENDL, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_ENDL, MNG_LC_START)
 #endif
 
   MNG_ALLOC (pData, pENDL, sizeof (mng_ani_endl))
@@ -1058,7 +1064,7 @@ mng_retcode create_ani_endl (mng_datap     pData,
   *ppObject               = pENDL;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_ENDL, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_ENDL, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1070,13 +1076,13 @@ mng_retcode free_ani_endl (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_ENDL, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_ENDL, MNG_LC_START)
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_endl))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_ENDL, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_ENDL, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1091,7 +1097,7 @@ mng_retcode process_ani_endl (mng_datap   pData,
   mng_ani_loopp pLOOP;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_START)
 #endif
 
   pLOOP = pENDL->pLOOP;                /* determine matching LOOP */
@@ -1157,7 +1163,7 @@ mng_retcode process_ani_endl (mng_datap   pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1172,7 +1178,7 @@ mng_retcode create_ani_defi (mng_datap     pData,
   mng_ani_defip pDEFI;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_DEFI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_DEFI, MNG_LC_START)
 #endif
 
   MNG_ALLOC (pData, pDEFI, sizeof (mng_ani_defi))
@@ -1197,7 +1203,7 @@ mng_retcode create_ani_defi (mng_datap     pData,
   *ppObject               = pDEFI;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_DEFI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1209,13 +1215,13 @@ mng_retcode free_ani_defi (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_DEFI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_DEFI, MNG_LC_START)
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_defi))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_DEFI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1230,7 +1236,7 @@ mng_retcode process_ani_defi (mng_datap   pData,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_DEFI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_DEFI, MNG_LC_START)
 #endif
 
   pData->iDEFIobjectid  = pDEFI->iId;
@@ -1251,7 +1257,7 @@ mng_retcode process_ani_defi (mng_datap   pData,
     return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_DEFI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1272,7 +1278,7 @@ mng_retcode create_ani_basi (mng_datap     pData,
   mng_ani_basip pBASI;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_BASI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BASI, MNG_LC_START)
 #endif
 
   MNG_ALLOC (pData, pBASI, sizeof (mng_ani_basi))
@@ -1292,7 +1298,7 @@ mng_retcode create_ani_basi (mng_datap     pData,
   *ppObject               = pBASI;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_BASI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BASI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1304,13 +1310,13 @@ mng_retcode free_ani_basi (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_BASI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BASI, MNG_LC_START)
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_basi))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_BASI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BASI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1325,14 +1331,14 @@ mng_retcode process_ani_basi (mng_datap   pData,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_BASI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BASI, MNG_LC_START)
 #endif
 
   iRetcode = process_display_basi (pData, pBASI->iRed, pBASI->iGreen, pBASI->iBlue,
                                    pBASI->bHasalpha, pBASI->iAlpha, pBASI->iViewable);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_BASI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BASI, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1357,7 +1363,7 @@ mng_retcode create_ani_clon (mng_datap     pData,
   mng_ani_clonp pCLON;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CLON, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pCLON, sizeof (mng_ani_clon))
@@ -1381,7 +1387,7 @@ mng_retcode create_ani_clon (mng_datap     pData,
   *ppObject               = pCLON;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CLON, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1393,13 +1399,13 @@ mng_retcode free_ani_clon (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CLON, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_clon))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CLON, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1414,7 +1420,7 @@ mng_retcode process_ani_clon (mng_datap   pData,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CLON, MNG_LC_START);
 #endif
 
   iRetcode = process_display_clon (pData, pCLON->iCloneid, pCLON->iSourceid,
@@ -1424,7 +1430,7 @@ mng_retcode process_ani_clon (mng_datap   pData,
                                    pCLON->iLocax, pCLON->iLocay);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CLON, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1445,7 +1451,7 @@ mng_retcode create_ani_back (mng_datap     pData,
   mng_ani_backp pBACK;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_BACK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BACK, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pBACK, sizeof (mng_ani_back))
@@ -1465,7 +1471,7 @@ mng_retcode create_ani_back (mng_datap     pData,
   *ppObject               = pBACK;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_BACK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_BACK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1477,13 +1483,13 @@ mng_retcode free_ani_back (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_BACK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BACK, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_back))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_BACK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_BACK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1497,7 +1503,7 @@ mng_retcode process_ani_back (mng_datap   pData,
   mng_ani_backp pBACK = (mng_ani_backp)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_START);
 #endif
 
   pData->iNextBACKred       = pBACK->iRed;
@@ -1508,7 +1514,7 @@ mng_retcode process_ani_back (mng_datap   pData,
   pData->iNextBACKtile      = pBACK->iTile;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1534,7 +1540,7 @@ mng_retcode create_ani_fram (mng_datap     pData,
   mng_ani_framp pFRAM;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_FRAM, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pFRAM, sizeof (mng_ani_fram))
@@ -1559,7 +1565,7 @@ mng_retcode create_ani_fram (mng_datap     pData,
   *ppObject               = pFRAM;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_FRAM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1571,13 +1577,13 @@ mng_retcode free_ani_fram (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_FRAM, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_fram))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_FRAM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1592,7 +1598,7 @@ mng_retcode process_ani_fram (mng_datap   pData,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_FRAM, MNG_LC_START);
 #endif
 
   if (pData->iBreakpoint)              /* previously broken ? */
@@ -1609,7 +1615,7 @@ mng_retcode process_ani_fram (mng_datap   pData,
                                      pFRAM->iClipt, pFRAM->iClipb);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_FRAM, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1629,7 +1635,7 @@ mng_retcode create_ani_move (mng_datap     pData,
   mng_ani_movep pMOVE;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_MOVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_MOVE, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pMOVE, sizeof (mng_ani_move))
@@ -1648,7 +1654,7 @@ mng_retcode create_ani_move (mng_datap     pData,
   *ppObject               = pMOVE;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_MOVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_MOVE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1660,13 +1666,13 @@ mng_retcode free_ani_move (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_MOVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_MOVE, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_move))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_MOVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_MOVE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1681,7 +1687,7 @@ mng_retcode process_ani_move (mng_datap   pData,
   mng_ani_movep pMOVE = (mng_ani_movep)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_MOVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_MOVE, MNG_LC_START);
 #endif
                                        /* re-process the MOVE chunk */
   iRetcode = process_display_move (pData, pMOVE->iFirstid, pMOVE->iLastid,
@@ -1689,7 +1695,7 @@ mng_retcode process_ani_move (mng_datap   pData,
                                           pMOVE->iLocax, pMOVE->iLocay);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_MOVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_MOVE, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1711,7 +1717,7 @@ mng_retcode create_ani_clip (mng_datap     pData,
   mng_ani_clipp pCLIP;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_CLIP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CLIP, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pCLIP, sizeof (mng_ani_clip))
@@ -1732,7 +1738,7 @@ mng_retcode create_ani_clip (mng_datap     pData,
   *ppObject               = pCLIP;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_CLIP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CLIP, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1744,13 +1750,13 @@ mng_retcode free_ani_clip (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_CLIP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CLIP, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_clip))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_CLIP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CLIP, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1765,7 +1771,7 @@ mng_retcode process_ani_clip (mng_datap   pData,
   mng_ani_clipp pCLIP = (mng_ani_clipp)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_CLIP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CLIP, MNG_LC_START);
 #endif
                                        /* re-process the CLIP chunk */
   iRetcode = process_display_clip (pData, pCLIP->iFirstid, pCLIP->iLastid,
@@ -1774,7 +1780,7 @@ mng_retcode process_ani_clip (mng_datap   pData,
                                           pCLIP->iClipt, pCLIP->iClipb);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_CLIP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CLIP, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1792,7 +1798,7 @@ mng_retcode create_ani_show (mng_datap     pData,
   mng_ani_showp pSHOW;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_SHOW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SHOW, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pSHOW, sizeof (mng_ani_show))
@@ -1809,7 +1815,7 @@ mng_retcode create_ani_show (mng_datap     pData,
   *ppObject               = pSHOW;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_SHOW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SHOW, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1821,13 +1827,13 @@ mng_retcode free_ani_show (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_SHOW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SHOW, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_show))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_SHOW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SHOW, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1842,7 +1848,7 @@ mng_retcode process_ani_show (mng_datap   pData,
   mng_ani_showp pSHOW = (mng_ani_showp)pObject;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_SHOW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SHOW, MNG_LC_START);
 #endif
 
   if (pData->iBreakpoint)              /* returning from breakpoint ? */
@@ -1859,7 +1865,7 @@ mng_retcode process_ani_show (mng_datap   pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_SHOW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SHOW, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1878,7 +1884,7 @@ mng_retcode create_ani_term (mng_datap     pData,
   mng_ani_termp pTERM;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_TERM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_TERM, MNG_LC_START);
 #endif
 
   MNG_ALLOC (pData, pTERM, sizeof (mng_ani_term))
@@ -1896,7 +1902,7 @@ mng_retcode create_ani_term (mng_datap     pData,
   *ppObject               = pTERM;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_CREATE_ANI_TERM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_TERM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1908,13 +1914,13 @@ mng_retcode free_ani_term (mng_datap   pData,
                            mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_TERM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_TERM, MNG_LC_START);
 #endif
 
   MNG_FREEX (pData, pObject, sizeof (mng_ani_term))
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FREE_ANI_TERM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_TERM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1926,13 +1932,13 @@ mng_retcode process_ani_term (mng_datap   pData,
                               mng_objectp pObject)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_TERM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TERM, MNG_LC_START);
 #endif
 
   /* dummy: no action required! */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ANI_TERM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_TERM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

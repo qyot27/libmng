@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_display.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (definition)                            * */
 /* *                                                                        * */
@@ -15,22 +15,26 @@
 /* *                                                                        * */
 /* * comment   : Definition of the display managament routines              * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_display_h_
 #define _mng_display_h_
 
+#include "libmng.h"
+#include "mng_data.h"
+
 /* ************************************************************************** */
 
 mng_retcode display_image (mng_datap  pData,
                            mng_imagep pImage);
-                           
+
 /* ************************************************************************** */
 
 mng_retcode process_display_ihdr  (mng_datap  pData);
@@ -101,7 +105,11 @@ mng_retcode process_display_clip  (mng_datap  pData,
                                    mng_int32  iClipb);
 
 mng_retcode process_display_show  (mng_datap  pData);
-                                  
+
+mng_retcode process_display_save  (mng_datap  pData);
+
+mng_retcode process_display_seek  (mng_datap  pData);
+
 /* ************************************************************************** */
 
 #endif /* _mng_display_h_ */

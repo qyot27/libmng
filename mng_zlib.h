@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_zlib.h                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : ZLIB package interface (definition)                        * */
 /* *                                                                        * */
@@ -15,22 +15,20 @@
 /* *                                                                        * */
 /* * comment   : Definition of the ZLIB package interface                   * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_zlib_h_
 #define _mng_zlib_h_
 
-#ifndef _libmng_h_                     /* save some compilation-time */
-#include <libmng.h>
-#endif
-
-#include <mng_data.h>
+#include "libmng.h"
+#include "mng_data.h"
 
 /* ************************************************************************** */
 

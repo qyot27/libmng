@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_callback_xs.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -15,18 +15,25 @@
 /* *                                                                        * */
 /* * comment   : implementation of the callback get/set functions           * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - fixed calling convention                                 * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
 /* ************************************************************************** */
-
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
 
 #include "libmng.h"
 #include "mng_data.h"
 #include "mng_error.h"
 #include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -35,18 +42,18 @@
 /* ************************************************************************** */
 
 #ifndef MNG_INTERNAL_MEMMNGMT
-MNG_EXT mng_retcode MNG_DECL mng_setcb_memalloc (mng_handle   hHandle,
-                                                 mng_memalloc fProc)
+mng_retcode MNG_DECL mng_setcb_memalloc (mng_handle   hHandle,
+                                         mng_memalloc fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_MEMALLOC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_MEMALLOC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fMemalloc = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_MEMALLOC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_MEMALLOC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -56,18 +63,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_memalloc (mng_handle   hHandle,
 /* ************************************************************************** */
 
 #ifndef MNG_INTERNAL_MEMMNGMT
-MNG_EXT mng_retcode MNG_DECL mng_setcb_memfree (mng_handle  hHandle,
-                                                mng_memfree fProc)
+mng_retcode MNG_DECL mng_setcb_memfree (mng_handle  hHandle,
+                                        mng_memfree fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_MEMFREE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_MEMFREE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fMemfree = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_MEMFREE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_MEMFREE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -77,18 +84,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_memfree (mng_handle  hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_openstream (mng_handle     hHandle,
-                                                   mng_openstream fProc)
+mng_retcode MNG_DECL mng_setcb_openstream (mng_handle     hHandle,
+                                           mng_openstream fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_OPENSTREAM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_OPENSTREAM, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fOpenstream = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_OPENSTREAM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_OPENSTREAM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -98,18 +105,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_openstream (mng_handle     hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_closestream (mng_handle      hHandle,
-                                                    mng_closestream fProc)
+mng_retcode MNG_DECL mng_setcb_closestream (mng_handle      hHandle,
+                                            mng_closestream fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_CLOSESTREAM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_CLOSESTREAM, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fClosestream = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_CLOSESTREAM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_CLOSESTREAM, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -119,18 +126,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_closestream (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_retcode MNG_DECL mng_setcb_readdata (mng_handle   hHandle,
-                                                 mng_readdata fProc)
+mng_retcode MNG_DECL mng_setcb_readdata (mng_handle   hHandle,
+                                         mng_readdata fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_READDATA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_READDATA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fReaddata = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_READDATA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_READDATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -140,18 +147,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_readdata (mng_handle   hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_WRITE
-MNG_EXT mng_retcode MNG_DECL mng_setcb_writedata (mng_handle    hHandle,
-                                                  mng_writedata fProc)
+mng_retcode MNG_DECL mng_setcb_writedata (mng_handle    hHandle,
+                                          mng_writedata fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_WRITEDATA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_WRITEDATA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fWritedata = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_WRITEDATA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_WRITEDATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -160,18 +167,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_writedata (mng_handle    hHandle,
 
 /* ************************************************************************** */
 
-MNG_EXT mng_retcode MNG_DECL mng_setcb_errorproc (mng_handle    hHandle,
-                                                  mng_errorproc fProc)
+mng_retcode MNG_DECL mng_setcb_errorproc (mng_handle    hHandle,
+                                          mng_errorproc fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_ERRORPROC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_ERRORPROC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fErrorproc = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_ERRORPROC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_ERRORPROC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -180,18 +187,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_errorproc (mng_handle    hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_TRACE
-MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc (mng_handle    hHandle,
-                                                  mng_traceproc fProc)
+mng_retcode MNG_DECL mng_setcb_traceproc (mng_handle    hHandle,
+                                          mng_traceproc fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_TRACEPROC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_TRACEPROC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fTraceproc = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_TRACEPROC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_TRACEPROC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -201,18 +208,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc (mng_handle    hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
-                                                      mng_processheader fProc)
+mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
+                                              mng_processheader fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSHEADER, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSHEADER, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcessheader = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSHEADER, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSHEADER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -222,18 +229,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
-                                                    mng_processtext fProc)
+mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
+                                            mng_processtext fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSTEXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSTEXT, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcesstext = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSTEXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSTEXT, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -243,18 +250,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processtext (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_retcode MNG_DECL mng_setcb_getcanvasline (mng_handle        hHandle,
-                                                      mng_getcanvasline fProc)
+mng_retcode MNG_DECL mng_setcb_getcanvasline (mng_handle        hHandle,
+                                              mng_getcanvasline fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETCANVASLINE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETCANVASLINE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fGetcanvasline = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETCANVASLINE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETCANVASLINE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -264,18 +271,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_getcanvasline (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_retcode MNG_DECL mng_setcb_getbkgdline (mng_handle      hHandle,
-                                                    mng_getbkgdline fProc)
+mng_retcode MNG_DECL mng_setcb_getbkgdline (mng_handle      hHandle,
+                                            mng_getbkgdline fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETBKGDLINE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETBKGDLINE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fGetbkgdline = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETBKGDLINE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETBKGDLINE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -285,18 +292,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_getbkgdline (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_retcode MNG_DECL mng_setcb_refresh (mng_handle  hHandle,
-                                                mng_refresh fProc)
+mng_retcode MNG_DECL mng_setcb_refresh (mng_handle  hHandle,
+                                        mng_refresh fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_REFRESH, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_REFRESH, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fRefresh = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_REFRESH, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_REFRESH, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -306,18 +313,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_refresh (mng_handle  hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_retcode MNG_DECL mng_setcb_gettickcount (mng_handle       hHandle,
-                                                     mng_gettickcount fProc)
+mng_retcode MNG_DECL mng_setcb_gettickcount (mng_handle       hHandle,
+                                             mng_gettickcount fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETTICKCOUNT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETTICKCOUNT, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fGettickcount = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_GETTICKCOUNT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_GETTICKCOUNT, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -327,18 +334,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_gettickcount (mng_handle       hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_retcode MNG_DECL mng_setcb_settimer (mng_handle   hHandle,
-                                                 mng_settimer fProc)
+mng_retcode MNG_DECL mng_setcb_settimer (mng_handle   hHandle,
+                                         mng_settimer fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_SETTIMER, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_SETTIMER, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fSettimer = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_SETTIMER, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_SETTIMER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -348,18 +355,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_settimer (mng_handle   hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processgamma (mng_handle        hHandle,
-                                                     mng_processgamma  fProc)
+mng_retcode MNG_DECL mng_setcb_processgamma (mng_handle        hHandle,
+                                             mng_processgamma  fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSGAMA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSGAMA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcessgamma = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSGAMA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSGAMA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -369,18 +376,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processgamma (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processchroma (mng_handle        hHandle,
-                                                      mng_processchroma fProc)
+mng_retcode MNG_DECL mng_setcb_processchroma (mng_handle        hHandle,
+                                              mng_processchroma fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSCHROMA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSCHROMA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcesschroma = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSCHROMA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSCHROMA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -390,18 +397,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processchroma (mng_handle        hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processsrgb (mng_handle      hHandle,
-                                                    mng_processsrgb fProc)
+mng_retcode MNG_DECL mng_setcb_processsrgb (mng_handle      hHandle,
+                                            mng_processsrgb fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSRGB, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSRGB, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcesssrgb = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSRGB, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSSRGB, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -411,18 +418,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processsrgb (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processiccp (mng_handle      hHandle,
-                                                    mng_processiccp fProc)
+mng_retcode MNG_DECL mng_setcb_processiccp (mng_handle      hHandle,
+                                            mng_processiccp fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSICCP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSICCP, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcessiccp = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSICCP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSICCP, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -432,18 +439,18 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processiccp (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processarow (mng_handle      hHandle,
-                                                    mng_processarow fProc)
+mng_retcode MNG_DECL mng_setcb_processarow (mng_handle      hHandle,
+                                            mng_processarow fProc)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSAROW, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSAROW, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)
   ((mng_datap)hHandle)->fProcessarow = fProc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSAROW, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_PROCESSAROW, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -457,16 +464,16 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processarow (mng_handle      hHandle,
 /* ************************************************************************** */
 
 #ifndef MNG_INTERNAL_MEMMNGMT
-MNG_EXT mng_memalloc MNG_DECL mng_getcb_memalloc (mng_handle hHandle)
+mng_memalloc MNG_DECL mng_getcb_memalloc (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_MEMALLOC, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_MEMALLOC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_MEMALLOC, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_MEMALLOC, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fMemalloc;
@@ -476,16 +483,16 @@ MNG_EXT mng_memalloc MNG_DECL mng_getcb_memalloc (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifndef MNG_INTERNAL_MEMMNGMT
-MNG_EXT mng_memfree MNG_DECL mng_getcb_memfree (mng_handle hHandle)
+mng_memfree MNG_DECL mng_getcb_memfree (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_MEMFREE, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_MEMFREE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_MEMFREE, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_MEMFREE, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fMemfree;
@@ -495,16 +502,16 @@ MNG_EXT mng_memfree MNG_DECL mng_getcb_memfree (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_readdata MNG_DECL mng_getcb_readdata (mng_handle hHandle)
+mng_readdata MNG_DECL mng_getcb_readdata (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_READDATA, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_READDATA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_READDATA, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_READDATA, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fReaddata;
@@ -514,16 +521,16 @@ MNG_EXT mng_readdata MNG_DECL mng_getcb_readdata (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-MNG_EXT mng_openstream MNG_DECL mng_getcb_openstream (mng_handle hHandle)
+mng_openstream MNG_DECL mng_getcb_openstream (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_OPENSTREAM, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_OPENSTREAM, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_OPENSTREAM, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_OPENSTREAM, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fOpenstream;
@@ -533,16 +540,16 @@ MNG_EXT mng_openstream MNG_DECL mng_getcb_openstream (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-MNG_EXT mng_closestream MNG_DECL mng_getcb_closestream (mng_handle hHandle)
+mng_closestream MNG_DECL mng_getcb_closestream (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_CLOSESTREAM, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_CLOSESTREAM, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_CLOSESTREAM, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_CLOSESTREAM, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fClosestream;
@@ -552,16 +559,16 @@ MNG_EXT mng_closestream MNG_DECL mng_getcb_closestream (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_WRITE
-MNG_EXT mng_writedata MNG_DECL mng_getcb_writedata (mng_handle hHandle)
+mng_writedata MNG_DECL mng_getcb_writedata (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_WRITEDATA, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_WRITEDATA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_WRITEDATA, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_WRITEDATA, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fWritedata;
@@ -570,16 +577,16 @@ MNG_EXT mng_writedata MNG_DECL mng_getcb_writedata (mng_handle hHandle)
 
 /* ************************************************************************** */
 
-MNG_EXT mng_errorproc MNG_DECL mng_getcb_errorproc (mng_handle hHandle)
+mng_errorproc MNG_DECL mng_getcb_errorproc (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_ERRORPROC, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_ERRORPROC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_ERRORPROC, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_ERRORPROC, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fErrorproc;
@@ -588,16 +595,16 @@ MNG_EXT mng_errorproc MNG_DECL mng_getcb_errorproc (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_TRACE
-MNG_EXT mng_traceproc MNG_DECL mng_getcb_traceproc (mng_handle hHandle)
+mng_traceproc MNG_DECL mng_getcb_traceproc (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_TRACEPROC, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_TRACEPROC, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_TRACEPROC, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_TRACEPROC, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fTraceproc;
@@ -607,16 +614,16 @@ MNG_EXT mng_traceproc MNG_DECL mng_getcb_traceproc (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_processheader MNG_DECL mng_getcb_processheader (mng_handle hHandle)
+mng_processheader MNG_DECL mng_getcb_processheader (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSHEADER, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSHEADER, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSHEADER, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSHEADER, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcessheader;
@@ -626,16 +633,16 @@ MNG_EXT mng_processheader MNG_DECL mng_getcb_processheader (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-MNG_EXT mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
+mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSTEXT, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSTEXT, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSTEXT, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSTEXT, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcesstext;
@@ -645,16 +652,16 @@ MNG_EXT mng_processtext MNG_DECL mng_getcb_processtext (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_getcanvasline MNG_DECL mng_getcb_getcanvasline (mng_handle hHandle)
+mng_getcanvasline MNG_DECL mng_getcb_getcanvasline (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETCANVASLINE, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETCANVASLINE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETCANVASLINE, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETCANVASLINE, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fGetcanvasline;
@@ -664,16 +671,16 @@ MNG_EXT mng_getcanvasline MNG_DECL mng_getcb_getcanvasline (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_getbkgdline MNG_DECL mng_getcb_getbkgdline (mng_handle hHandle)
+mng_getbkgdline MNG_DECL mng_getcb_getbkgdline (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETBKGDLINE, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETBKGDLINE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETBKGDLINE, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETBKGDLINE, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fGetbkgdline;
@@ -683,16 +690,16 @@ MNG_EXT mng_getbkgdline MNG_DECL mng_getcb_getbkgdline (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_refresh MNG_DECL mng_getcb_refresh (mng_handle hHandle)
+mng_refresh MNG_DECL mng_getcb_refresh (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_REFRESH, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_REFRESH, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_REFRESH, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_REFRESH, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fRefresh;
@@ -702,16 +709,16 @@ MNG_EXT mng_refresh MNG_DECL mng_getcb_refresh (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_gettickcount MNG_DECL mng_getcb_gettickcount (mng_handle hHandle)
+mng_gettickcount MNG_DECL mng_getcb_gettickcount (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETTICKCOUNT, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETTICKCOUNT, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_GETTICKCOUNT, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_GETTICKCOUNT, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fGettickcount;
@@ -721,16 +728,16 @@ MNG_EXT mng_gettickcount MNG_DECL mng_getcb_gettickcount (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-MNG_EXT mng_settimer MNG_DECL mng_getcb_settimer (mng_handle hHandle)
+mng_settimer MNG_DECL mng_getcb_settimer (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_SETTIMER, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_SETTIMER, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_SETTIMER, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_SETTIMER, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fSettimer;
@@ -740,16 +747,16 @@ MNG_EXT mng_settimer MNG_DECL mng_getcb_settimer (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_processgamma MNG_DECL mng_getcb_processgamma (mng_handle hHandle)
+mng_processgamma MNG_DECL mng_getcb_processgamma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSGAMMA, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSGAMMA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSGAMMA, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSGAMMA, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcessgamma;
@@ -759,16 +766,16 @@ MNG_EXT mng_processgamma MNG_DECL mng_getcb_processgamma (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_processchroma MNG_DECL mng_getcb_processchroma (mng_handle hHandle)
+mng_processchroma MNG_DECL mng_getcb_processchroma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSCHROMA, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSCHROMA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSCHROMA, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSCHROMA, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcesschroma;
@@ -778,16 +785,16 @@ MNG_EXT mng_processchroma MNG_DECL mng_getcb_processchroma (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_processsrgb MNG_DECL mng_getcb_processsrgb (mng_handle hHandle)
+mng_processsrgb MNG_DECL mng_getcb_processsrgb (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSRGB, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSRGB, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSRGB, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSSRGB, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcesssrgb;
@@ -797,16 +804,16 @@ MNG_EXT mng_processsrgb MNG_DECL mng_getcb_processsrgb (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_processiccp MNG_DECL mng_getcb_processiccp (mng_handle hHandle)
+mng_processiccp MNG_DECL mng_getcb_processiccp (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSICCP, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSICCP, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSICCP, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSICCP, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcessiccp;
@@ -816,16 +823,16 @@ MNG_EXT mng_processiccp MNG_DECL mng_getcb_processiccp (mng_handle hHandle)
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_APP_CMS)
-MNG_EXT mng_processarow MNG_DECL mng_getcb_processarow (mng_handle hHandle)
+mng_processarow MNG_DECL mng_getcb_processarow (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSAROW, MNG_LC_START);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSAROW, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLEX (hHandle)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSAROW, MNG_LC_END);
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_PROCESSAROW, MNG_LC_END);
 #endif
 
   return ((mng_datap)hHandle)->fProcessarow;

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_display.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -15,25 +15,44 @@
 /* *                                                                        * */
 /* * comment   : implementation of the display management routines          * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
+/* *             - added callback error-reporting support                   * */
+/* *             - fixed frame_delay misalignment                           * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - added sanity check for frozen status                     * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
+/* *             0.5.1 - 05/13/2000 - G.Juyn                                * */
+/* *             - changed display_mend to reset state to initial or SAVE   * */
+/* *             - added eMNGma hack (will be removed in 1.0.0 !!!)         * */
+/* *             - added TERM animation object pointer (easier reference)   * */
+/* *             - added process_save & process_seek routines               * */
+/* *             0.5.1 - 05/14/2000 - G.Juyn                                * */
+/* *             - added save_state and restore_state for SAVE/SEEK/TERM    * */
+/* *               processing                                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
-
 #include "libmng.h"
 #include "mng_data.h"
+#include "mng_error.h"
+#include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
 #include "mng_objects.h"
 #include "mng_object_prc.h"
 #include "mng_memory.h"
-#include "mng_error.h"
-#include "mng_trace.h"
 #include "mng_zlib.h"
 #include "mng_cms.h"
 #include "mng_pixels.h"
 #include "mng_display.h"
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -43,6 +62,86 @@
 /* *                                                                        * */
 /* * Generic display routines                                               * */
 /* *                                                                        * */
+/* ************************************************************************** */
+
+/* TODO: this routine needs some redesigning; make sure a delay is called at least
+   every 10th of a second to prevent hanging; also provide for slow reading
+   bandwidth & multiple timer-wraparounds */
+
+mng_retcode interframe_delay (mng_datap pData)
+{
+  mng_uint32 iWaitfor;
+#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
+  mng_bool   bOke = MNG_TRUE;
+#else
+  mng_bool   bOke;
+#endif    
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START);
+#endif
+
+  if (pData->iFramedelay > 0)          /* let the app refresh first */
+    if (!pData->fRefresh (((mng_handle)pData), 0, 0,
+                          pData->iDataheight, pData->iDatawidth))
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+                                       /* get current tickcount */
+  pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
+                                       /* tickcount wrapped around ? */
+  if (pData->iRuntime < pData->iStarttime)
+    pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
+  else
+    pData->iRuntime = pData->iRuntime - pData->iStarttime;
+
+  /* NOTE that a second wraparound of the tickcount will seriously f**k things
+     up here! (but that's somewhere past at least 48 days on Windoze...) */
+  /* TODO: yeah, what to do ??? */
+
+#ifndef MNG_NEVER_DELAY                /* THIS IS FOR TESTING ONLY !!!! */
+  if (pData->iTicks)                   /* what are we aiming for */
+    iWaitfor = pData->iFrametime + ((1000 * pData->iFramedelay) / pData->iTicks);
+  else
+#endif
+    iWaitfor = pData->iFrametime;
+
+#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
+  if (pData->iRuntime < iWaitfor)      /* delay necessary ? */
+  {                                    /* then set the timer */
+    bOke = pData->fSettimer ((mng_handle)pData, iWaitfor - pData->iRuntime);
+#else
+    bOke = pData->fSettimer ((mng_handle)pData, 1);
+#endif
+    pData->bTimerset = MNG_TRUE;       /* and indicate so */
+#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
+  }
+  else
+  {
+    if (!pData->bRunning)              /* sanity check for frozen status */
+      MNG_WARNING (pData, MNG_IMAGEFROZEN)
+  }
+#endif
+
+  if (!bOke)                           /* timer set not oke ? */
+    MNG_ERROR (pData, MNG_APPTIMERERROR)
+
+  pData->iFrametime  = iWaitfor;       /* increase frametime in advance */
+                                       /* setup for next delay */
+  pData->iFramedelay = pData->iNextdelay;
+
+  /* note that slow systems may never catch up !!!
+     TODO: set timer at least 10 times per second to prevent deadlock */
+
+  /* TODO: some provision to compensate during slow file-access (such as
+     on low-bandwidth network connections);
+     only necessary during read-processing! */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
 /* ************************************************************************** */
 
 void set_display_routine (mng_datap pData)
@@ -79,72 +178,13 @@ void set_display_routine (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode interframe_delay (mng_datap pData)
-{
-  mng_uint32 iWaitfor;
-
-#ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START);
-#endif
-                                       /* let the app refresh first ! */
-  pData->fRefresh (((mng_handle)pData), 0, 0,
-                   pData->iDataheight - 1, pData->iDatawidth - 1);
-                                       /* get current tickcount */
-  pData->iRuntime   = pData->fGettickcount ((mng_handle)pData);
-                                       /* tickcount wrapped around ? */
-  if (pData->iRuntime < pData->iStarttime)
-    pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
-  else
-    pData->iRuntime = pData->iRuntime - pData->iStarttime;
-
-  /* NOTE that a second wraparound of the tickcount will seriously f**k things
-     up here! (but that's somewhere past 49 days on Windoze...) */
-  /* TODO: yeah, what to do ??? */
-
-#ifndef MNG_NEVER_DELAY                /* THIS IS FOR TESTING ONLY !!!! */
-  if (pData->iTicks)                   /* what are we aiming for */
-    iWaitfor        = pData->iFrametime +
-                        ((1000 / pData->iTicks) * pData->iFramedelay);
-  else
-#endif
-    iWaitfor        = pData->iFrametime;
-
-#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
-  if (pData->iRuntime < iWaitfor)      /* delay necessary ? */
-  {                                    /* then set the timer */
-    pData->fSettimer ((mng_handle)pData, iWaitfor - pData->iRuntime);
-#else
-    pData->fSettimer ((mng_handle)pData, 1);
-#endif    
-    pData->bTimerset  = MNG_TRUE;      /* and indicate so */
-#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
-  }
-#endif
-
-  pData->iFrametime = iWaitfor;        /* increase frametime in advance */
-
-  /* note that slow systems may never catch up !!! */
-
-  /* TODO: some provision to compensate during slow file-access (such as
-     on low-bandwidth network connections);
-     only necessary during read-processing! */
-
-#ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END);
-#endif
-
-  return MNG_NOERROR;
-}
-
-/* ************************************************************************** */
-
 mng_retcode load_bkgdlayer (mng_datap pData)
 {
   mng_int32   iY;
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START);
 #endif
 
   pData->iDestl   = 0;                 /* determine clipping region */
@@ -232,7 +272,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
         iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
       if (!iRetcode)
-        next_row (pData);              /* adjust variables for next row */
+        iRetcode = next_row (pData);   /* adjust variables for next row */
 
       iY++;                            /* and next line */
     }
@@ -245,7 +285,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -269,14 +309,18 @@ mng_retcode next_frame (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_NEXT_FRAME, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_START);
 #endif
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
-  {                                    /* interframe delay required ? */
-    if ((pData->iFrameseq) &&
-        ((pData->iFramemode == 2) || (pData->iFramemode == 4)))
-      iRetcode = interframe_delay (pData);
+  {
+    mng_uint8 iOldmode = pData->iFramemode;
+                                       /* interframe delay required ? */
+    if ((iOldmode == 2) || (iOldmode == 4))
+      if (pData->iFrameseq)
+        iRetcode = interframe_delay (pData);
+      else
+        pData->iFramedelay = pData->iNextdelay;
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -290,14 +334,22 @@ mng_retcode next_frame (mng_datap  pData,
       pData->iFramemode = pData->iFRAMmode;
 
     if (iChangedelay)                  /* delay changed ? */
-    {                                  /* for next subframe */
-      pData->iFramedelay = iDelay;
+    {
+      pData->iNextdelay = iDelay;      /* for *after* next subframe */
+
+      if ((iOldmode == 2) || (iOldmode == 4))
+        pData->iFramedelay = pData->iNextdelay;
 
       if (iChangedelay == 2)           /* also overall ? */
         pData->iFRAMdelay = iDelay;
     }
-    else                               /* reload default */
-      pData->iFramedelay = pData->iFRAMdelay;
+    else
+    {                                  /* reload default */
+      pData->iNextdelay = pData->iFRAMdelay;
+
+      if ((iOldmode == 2) || (iOldmode == 4))
+        pData->iFramedelay = pData->iNextdelay;
+    }
 
     if (iChangetimeout)                /* timeout changed ? */
     {                                  /* for next subframe */
@@ -374,7 +426,7 @@ mng_retcode next_frame (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_NEXT_FRAME, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -388,7 +440,7 @@ mng_retcode next_layer (mng_datap pData)
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_NEXT_LAYER, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_START);
 #endif
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
@@ -396,6 +448,8 @@ mng_retcode next_layer (mng_datap pData)
     if ((pData->iLayerseq) &&          /* interframe delay required ? */
         ((pData->iFramemode == 1) || (pData->iFramemode == 3)))
       iRetcode = interframe_delay (pData);
+    else
+      pData->iFramedelay = pData->iNextdelay;
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -472,7 +526,7 @@ mng_retcode next_layer (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_NEXT_LAYER, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -486,7 +540,7 @@ mng_retcode display_image (mng_datap  pData,
   mng_imagep pSave;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START);
 #endif
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
@@ -576,7 +630,7 @@ mng_retcode display_image (mng_datap  pData,
 #if defined(MNG_FULL_CMS)              /* determine color-management routine */
       iRetcode = init_full_cms_object   (pData);
 #elif defined(MNG_GAMMA_ONLY)
-       iRetcode = init_gamma_only_object (pData);
+      iRetcode = init_gamma_only_object (pData);
 #elif defined(MNG_APP_CMS)
       iRetcode = init_app_cms_object    (pData);
 #endif
@@ -599,7 +653,7 @@ mng_retcode display_image (mng_datap  pData,
           iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
         if (!iRetcode)
-          next_row (pData);            /* adjust variables for next row */
+          iRetcode = next_row (pData); /* adjust variables for next row */
 
         iY++;                          /* and next line */
       }
@@ -612,10 +666,349 @@ mng_retcode display_image (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;                  /* whehehe, this is good ! */
+}
+
+/* ************************************************************************** */
+
+mng_retcode save_state (mng_datap pData)
+{
+  mng_savedatap pSave;
+  mng_imagep    pImage;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_START);
+#endif
+
+  if (pData->pSavedata)                /* sanity check */
+    MNG_ERROR (pData, MNG_INTERNALERROR)
+                                       /* get a buffer for saving */
+  MNG_ALLOC (pData, pData->pSavedata, sizeof (mng_savedata))
+
+  pSave = pData->pSavedata;            /* address it more directly */
+                                       /* and copy global data from the main struct */
+#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+  pSave->bHasglobalPLTE       = pData->bHasglobalPLTE;
+  pSave->bHasglobalTRNS       = pData->bHasglobalTRNS;
+  pSave->bHasglobalGAMA       = pData->bHasglobalGAMA;
+  pSave->bHasglobalCHRM       = pData->bHasglobalCHRM;
+  pSave->bHasglobalSRGB       = pData->bHasglobalSRGB;
+  pSave->bHasglobalICCP       = pData->bHasglobalICCP;
+  pSave->bHasglobalBKGD       = pData->bHasglobalBKGD;
+#endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
+
+  pSave->iDEFIobjectid        = pData->iDEFIobjectid;
+  pSave->iDEFIdonotshow       = pData->iDEFIdonotshow;
+  pSave->iDEFIconcrete        = pData->iDEFIconcrete;
+  pSave->bDEFIhasloca         = pData->bDEFIhasloca;
+  pSave->iDEFIlocax           = pData->iDEFIlocax;
+  pSave->iDEFIlocay           = pData->iDEFIlocay;
+  pSave->bDEFIhasclip         = pData->bDEFIhasclip;
+  pSave->iDEFIclipl           = pData->iDEFIclipl;
+  pSave->iDEFIclipr           = pData->iDEFIclipr;
+  pSave->iDEFIclipt           = pData->iDEFIclipt;
+  pSave->iDEFIclipb           = pData->iDEFIclipb;
+
+  pSave->iBACKred             = pData->iBACKred;
+  pSave->iBACKgreen           = pData->iBACKgreen;
+  pSave->iBACKblue            = pData->iBACKblue;
+  pSave->iBACKmandatory       = pData->iBACKmandatory;
+  pSave->iBACKimageid         = pData->iBACKimageid;
+  pSave->iBACKtile            = pData->iBACKtile;
+
+  pSave->iFRAMmode            = pData->iFRAMmode;
+  pSave->iFRAMdelay           = pData->iFRAMdelay;
+  pSave->iFRAMtimeout         = pData->iFRAMtimeout;
+  pSave->bFRAMclipping        = pData->bFRAMclipping;
+  pSave->iFRAMclipl           = pData->iFRAMclipl;
+  pSave->iFRAMclipr           = pData->iFRAMclipr;
+  pSave->iFRAMclipt           = pData->iFRAMclipt;
+  pSave->iFRAMclipb           = pData->iFRAMclipb;
+
+  pSave->iGlobalPLTEcount     = pData->iGlobalPLTEcount;
+
+  MNG_COPY (&pSave->aGlobalPLTEentries, &pData->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
+
+  pSave->iGlobalTRNSrawlen    = pData->iGlobalTRNSrawlen;
+  MNG_COPY (&pSave->aGlobalTRNSrawdata, &pData->aGlobalTRNSrawdata, 256)
+
+  pSave->iGlobalGamma         = pData->iGlobalGamma;
+
+  pSave->iGlobalWhitepointx   = pData->iGlobalWhitepointx;
+  pSave->iGlobalWhitepointy   = pData->iGlobalWhitepointy;
+  pSave->iGlobalPrimaryredx   = pData->iGlobalPrimaryredx;
+  pSave->iGlobalPrimaryredy   = pData->iGlobalPrimaryredy;
+  pSave->iGlobalPrimarygreenx = pData->iGlobalPrimarygreenx;
+  pSave->iGlobalPrimarygreeny = pData->iGlobalPrimarygreeny;
+  pSave->iGlobalPrimarybluex  = pData->iGlobalPrimarybluex;
+  pSave->iGlobalPrimarybluey  = pData->iGlobalPrimarybluey;
+
+  pSave->iGlobalRendintent    = pData->iGlobalRendintent;
+
+  pSave->iGlobalProfilesize   = pData->iGlobalProfilesize;
+
+  if (pSave->iGlobalProfilesize)       /* has a profile ? */
+  {                                    /* then copy that ! */
+    MNG_ALLOC (pData, pSave->pGlobalProfile, pSave->iGlobalProfilesize)
+    MNG_COPY (pSave->pGlobalProfile, pData->pGlobalProfile, pSave->iGlobalProfilesize)
+  }
+
+  pSave->iGlobalBKGDred       = pData->iGlobalBKGDred;
+  pSave->iGlobalBKGDgreen     = pData->iGlobalBKGDgreen;
+  pSave->iGlobalBKGDblue      = pData->iGlobalBKGDblue;
+
+                                       /* freeze current image objects */
+  pImage = (mng_imagep)pData->pFirstimgobj;
+
+  while (pImage)
+  {                                    /* freeze the object AND it's buffer */
+    pImage->bFrozen          = MNG_TRUE;
+    pImage->pImgbuf->bFrozen = MNG_TRUE;
+                                       /* neeeext */
+    pImage = (mng_imagep)pImage->sHeader.pNext;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode restore_state (mng_datap pData)
+{
+  mng_savedatap pSave;
+  mng_imagep    pImage;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_START);
+#endif
+
+  if (pData->pSavedata)                /* do we have a saved state ? */
+  {
+    pSave = pData->pSavedata;          /* address it more directly */
+                                       /* and copy it back to the main struct */
+#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+    pData->bHasglobalPLTE       = pSave->bHasglobalPLTE;
+    pData->bHasglobalTRNS       = pSave->bHasglobalTRNS;
+    pData->bHasglobalGAMA       = pSave->bHasglobalGAMA;
+    pData->bHasglobalCHRM       = pSave->bHasglobalCHRM;
+    pData->bHasglobalSRGB       = pSave->bHasglobalSRGB;
+    pData->bHasglobalICCP       = pSave->bHasglobalICCP;
+    pData->bHasglobalBKGD       = pSave->bHasglobalBKGD;
+#endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
+
+    pData->iDEFIobjectid        = pSave->iDEFIobjectid;
+    pData->iDEFIdonotshow       = pSave->iDEFIdonotshow;
+    pData->iDEFIconcrete        = pSave->iDEFIconcrete;
+    pData->bDEFIhasloca         = pSave->bDEFIhasloca;
+    pData->iDEFIlocax           = pSave->iDEFIlocax;
+    pData->iDEFIlocay           = pSave->iDEFIlocay;
+    pData->bDEFIhasclip         = pSave->bDEFIhasclip;
+    pData->iDEFIclipl           = pSave->iDEFIclipl;
+    pData->iDEFIclipr           = pSave->iDEFIclipr;
+    pData->iDEFIclipt           = pSave->iDEFIclipt;
+    pData->iDEFIclipb           = pSave->iDEFIclipb;
+
+    pData->iBACKred             = pSave->iBACKred;
+    pData->iBACKgreen           = pSave->iBACKgreen;
+    pData->iBACKblue            = pSave->iBACKblue;
+    pData->iBACKmandatory       = pSave->iBACKmandatory;
+    pData->iBACKimageid         = pSave->iBACKimageid;
+    pData->iBACKtile            = pSave->iBACKtile;
+
+    pData->iFRAMmode            = pSave->iFRAMmode;
+    pData->iFRAMdelay           = pSave->iFRAMdelay;
+    pData->iFRAMtimeout         = pSave->iFRAMtimeout;
+    pData->bFRAMclipping        = pSave->bFRAMclipping;
+    pData->iFRAMclipl           = pSave->iFRAMclipl;
+    pData->iFRAMclipr           = pSave->iFRAMclipr;
+    pData->iFRAMclipt           = pSave->iFRAMclipt;
+    pData->iFRAMclipb           = pSave->iFRAMclipb;
+                                       /* also the next subframe parms */
+    pData->iFramemode           = pSave->iFRAMmode;
+    pData->iFramedelay          = pSave->iFRAMdelay;
+    pData->iFrametimeout        = pSave->iFRAMtimeout;
+    pData->bFrameclipping       = pSave->bFRAMclipping;
+    pData->iFrameclipl          = pSave->iFRAMclipl;
+    pData->iFrameclipr          = pSave->iFRAMclipr;
+    pData->iFrameclipt          = pSave->iFRAMclipt;
+    pData->iFrameclipb          = pSave->iFRAMclipb;
+
+    pData->iNextdelay           = pSave->iFRAMdelay;
+
+    pData->iGlobalPLTEcount     = pSave->iGlobalPLTEcount;
+    MNG_COPY (&pData->aGlobalPLTEentries, &pSave->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
+
+    pData->iGlobalTRNSrawlen    = pSave->iGlobalTRNSrawlen;
+    MNG_COPY (&pData->aGlobalTRNSrawdata, &pSave->aGlobalTRNSrawdata, 256)
+
+    pData->iGlobalGamma         = pSave->iGlobalGamma;
+
+    pData->iGlobalWhitepointx   = pSave->iGlobalWhitepointx;
+    pData->iGlobalWhitepointy   = pSave->iGlobalWhitepointy;
+    pData->iGlobalPrimaryredx   = pSave->iGlobalPrimaryredx;
+    pData->iGlobalPrimaryredy   = pSave->iGlobalPrimaryredy;
+    pData->iGlobalPrimarygreenx = pSave->iGlobalPrimarygreenx;
+    pData->iGlobalPrimarygreeny = pSave->iGlobalPrimarygreeny;
+    pData->iGlobalPrimarybluex  = pSave->iGlobalPrimarybluex;
+    pData->iGlobalPrimarybluey  = pSave->iGlobalPrimarybluey;
+
+    pData->iGlobalRendintent    = pSave->iGlobalRendintent;
+
+    pData->iGlobalProfilesize   = pSave->iGlobalProfilesize;
+
+    if (pData->iGlobalProfilesize)     /* has a profile ? */
+    {                                  /* then copy that ! */
+      MNG_ALLOC (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+      MNG_COPY (pData->pGlobalProfile, pSave->pGlobalProfile, pData->iGlobalProfilesize)
+    }
+
+    pData->iGlobalBKGDred       = pSave->iGlobalBKGDred;
+    pData->iGlobalBKGDgreen     = pSave->iGlobalBKGDgreen;
+    pData->iGlobalBKGDblue      = pSave->iGlobalBKGDblue;
+  }
+  else                                 /* no saved-data; so reset the lot */
+  {
+#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+    pData->bHasglobalPLTE       = MNG_FALSE;
+    pData->bHasglobalTRNS       = MNG_FALSE;
+    pData->bHasglobalGAMA       = MNG_FALSE;
+    pData->bHasglobalCHRM       = MNG_FALSE;
+    pData->bHasglobalSRGB       = MNG_FALSE;
+    pData->bHasglobalICCP       = MNG_FALSE;
+    pData->bHasglobalBKGD       = MNG_FALSE;
+#endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
+
+    pData->iDEFIobjectid        = 0;
+    pData->iDEFIdonotshow       = 0;
+    pData->iDEFIconcrete        = 0;
+    pData->bDEFIhasloca         = MNG_FALSE;
+    pData->iDEFIlocax           = 0;
+    pData->iDEFIlocay           = 0;
+    pData->bDEFIhasclip         = MNG_FALSE;
+    pData->iDEFIclipl           = 0;
+    pData->iDEFIclipr           = 0;
+    pData->iDEFIclipt           = 0;
+    pData->iDEFIclipb           = 0;
+
+    if (!pData->bEMNGMAhack)             /* TODO: remove line in 1.0.0 !!! */
+    {                                    /* TODO: remove line in 1.0.0 !!! */
+    pData->iBACKred             = 0;
+    pData->iBACKgreen           = 0;
+    pData->iBACKblue            = 0;
+    pData->iBACKmandatory       = 0;
+    pData->iBACKimageid         = 0;
+    pData->iBACKtile            = 0;
+    }                                    /* TODO: remove line in 1.0.0 !!! */
+
+    pData->iFRAMmode            = 1;
+    pData->iFRAMdelay           = 1;
+    pData->iFRAMtimeout         = 0x7fffffffl;
+    pData->bFRAMclipping        = MNG_FALSE;
+    pData->iFRAMclipl           = 0;
+    pData->iFRAMclipr           = 0;
+    pData->iFRAMclipt           = 0;
+    pData->iFRAMclipb           = 0;
+                                         /* also the next subframe parms */
+    pData->iFramemode           = 1;
+    pData->iFramedelay          = 1;
+    pData->iFrametimeout        = 0x7fffffffl;
+    pData->bFrameclipping       = MNG_FALSE;
+    pData->iFrameclipl          = 0;
+    pData->iFrameclipr          = 0;
+    pData->iFrameclipt          = 0;
+    pData->iFrameclipb          = 0;
+
+    pData->iNextdelay           = 1;
+
+    pData->iGlobalPLTEcount     = 0;
+
+    pData->iGlobalTRNSrawlen    = 0;
+
+    pData->iGlobalGamma         = 0;
+
+    pData->iGlobalWhitepointx   = 0;
+    pData->iGlobalWhitepointy   = 0;
+    pData->iGlobalPrimaryredx   = 0;
+    pData->iGlobalPrimaryredy   = 0;
+    pData->iGlobalPrimarygreenx = 0;
+    pData->iGlobalPrimarygreeny = 0;
+    pData->iGlobalPrimarybluex  = 0;
+    pData->iGlobalPrimarybluey  = 0;
+
+    pData->iGlobalRendintent    = 0;
+
+    if (pData->iGlobalProfilesize)       /* free a previous profile ? */
+      MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+
+    pData->iGlobalProfilesize   = 0;
+
+    pData->iGlobalBKGDred       = 0;
+    pData->iGlobalBKGDgreen     = 0;
+    pData->iGlobalBKGDblue      = 0;
+  }
+
+  if (!pData->bEMNGMAhack)             /* TODO: remove line in 1.0.0 !!! */
+  {                                    /* TODO: remove line in 1.0.0 !!! */
+                                       /* drop un-frozen image objects */
+  pImage = (mng_imagep)pData->pFirstimgobj;
+
+  while (pImage)
+  {                                    /* is it un-frozen ? */
+    if (!pImage->bFrozen)
+    {
+      mng_imagep  pPrev = (mng_imagep)pImage->sHeader.pPrev;
+      mng_imagep  pNext = (mng_imagep)pImage->sHeader.pNext;
+      mng_retcode iRetcode;
+
+      if (pPrev)                       /* unlink it */
+        pPrev->sHeader.pNext = pNext;
+      else
+        pData->pFirstimgobj  = pNext;
+
+      if (pNext)
+        pNext->sHeader.pPrev = pPrev;
+      else
+        pData->pLastimgobj   = pPrev;
+
+      if (pImage->pImgbuf->bFrozen)    /* buffer frozen ? */
+      {
+        if (pImage->pImgbuf->iRefcount <= 2)
+          MNG_ERROR (pData, MNG_INTERNALERROR)
+                                       /* decrease ref counter */
+        pImage->pImgbuf->iRefcount--;
+                                       /* just cleanup the object then */
+        MNG_FREEX (pData, pImage, sizeof (mng_image))
+      }
+      else
+      {                                /* free the image buffer */
+        iRetcode = free_imagedataobject (pData, pImage->pImgbuf);
+                                       /* and cleanup the object */
+        MNG_FREEX (pData, pImage, sizeof (mng_image))
+
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+      }
+
+      pImage = pNext;                  /* this is the next */
+    }
+    else                               /* neeeext */
+      pImage = (mng_imagep)pImage->sHeader.pNext;
+
+  }
+  }                                    /* TODO: remove line in 1.0.0 !!! */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
@@ -629,14 +1022,15 @@ mng_retcode process_display_ihdr (mng_datap pData)
   mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_START);
 #endif
                                        /* sequence checks */
-  pData->fDisplayrow = 0;              /* do nothing by default */
-  pData->fCorrectrow = 0;
-  pData->fStorerow   = 0;
-  pData->fProcessrow = 0;
-  pData->pStoreobj   = 0;
+  pData->fInitrowproc = 0;             /* do nothing by default */
+  pData->fDisplayrow  = 0;
+  pData->fCorrectrow  = 0;
+  pData->fStorerow    = 0;
+  pData->fProcessrow  = 0;
+  pData->pStoreobj    = 0;
 
   if (!pData->iBreakpoint)             /* not previously broken ? */
   {
@@ -846,7 +1240,7 @@ mng_retcode process_display_ihdr (mng_datap pData)
   }  
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -861,7 +1255,7 @@ mng_retcode process_display_idat (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START);
 #endif
 
   if (!pData->bInflating)              /* if we're not inflating already */
@@ -876,7 +1270,7 @@ mng_retcode process_display_idat (mng_datap  pData,
     iRetcode = mngzlib_inflaterows (pData, iRawlen, pRawdata);
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -889,7 +1283,7 @@ mng_retcode process_display_iend (mng_datap pData)
   mng_retcode iRetcode, iRetcode2;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_START);
 #endif
 
   if ((pData->bHasBASI) ||             /* was it a BASI stream */
@@ -930,14 +1324,16 @@ mng_retcode process_display_iend (mng_datap pData)
         return iRetcode2;
     }
                                        /* if the image was displayed on the fly, */
-    if (pData->fDisplayrow)            /* we'll have to make the app refresh */
-      pData->fRefresh (((mng_handle)pData), 0, 0,
-                       pData->iDataheight - 1, pData->iDatawidth - 1);
+                                       /* we'll have to make the app refresh */
+    if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
+      if (!pData->fRefresh (((mng_handle)pData), 0, 0,
+                            pData->iDataheight, pData->iDatawidth))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
 
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -948,12 +1344,15 @@ mng_retcode process_display_iend (mng_datap pData)
 mng_retcode process_display_mend (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START);
 #endif
 
   if (pData->bHasTERM)                 /* TERM processed ? */
-  {                                    /* gotta be the first animation object ! */
-    mng_ani_termp pTERM = (mng_ani_termp)pData->pFirstaniobj;
+  {
+    mng_retcode   iRetcode;
+    mng_ani_termp pTERM;
+                                       /* get the right animation object ! */
+    pTERM = (mng_ani_termp)pData->pTermaniobj;
 
     switch (pTERM->iTermaction)        /* determine what to do! */
     {
@@ -979,7 +1378,14 @@ mng_retcode process_display_mend (mng_datap pData)
                    pTERM->iItermax--;
 
                  if (pTERM->iItermax)  /* go back to TERM ? */
+                 {                     /* restore to initial or SAVE state */
+                   iRetcode = restore_state (pData);
+
+                   if (iRetcode)       /* on error bail out */
+                     return iRetcode;
+
                    pData->pCurraniobj = pTERM;
+                 }
                  else
                  {
                    switch (pTERM->iIteraction)
@@ -1011,11 +1417,12 @@ mng_retcode process_display_mend (mng_datap pData)
   }
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
-    pData->fRefresh (((mng_handle)pData), 0, 0,
-                     pData->iDataheight - 1, pData->iDatawidth - 1);
+    if (!pData->fRefresh (((mng_handle)pData), 0, 0,
+                          pData->iDataheight, pData->iDatawidth))
+      MNG_ERROR (pData, MNG_APPMISCERROR)
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1028,28 +1435,20 @@ mng_retcode process_display_defi (mng_datap pData)
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_START);
 #endif
 
   if (!pData->iDEFIobjectid)           /* object id=0 ? */
   {
     pImage             = (mng_imagep)pData->pObjzero;
     pImage->bVisible   = (mng_bool)(pData->iDEFIdonotshow == 0);
-
-    if (pData->bDEFIhasloca)           /* location info in chunk ? */
-    {
-      pImage->iPosx    = pData->iDEFIlocax;
-      pImage->iPosy    = pData->iDEFIlocay;
-    }
-
-    if (pData->bDEFIhasclip)           /* clipping info in chunk ? */
-    {
-      pImage->bClipped = MNG_TRUE;
-      pImage->iClipl   = pData->iDEFIclipl;
-      pImage->iClipr   = pData->iDEFIclipr;
-      pImage->iClipt   = pData->iDEFIclipt;
-      pImage->iClipb   = pData->iDEFIclipb;
-    }
+    pImage->iPosx      = pData->iDEFIlocax;
+    pImage->iPosy      = pData->iDEFIlocay;
+    pImage->bClipped   = pData->bDEFIhasclip;
+    pImage->iClipl     = pData->iDEFIclipl;
+    pImage->iClipr     = pData->iDEFIclipr;
+    pImage->iClipt     = pData->iDEFIclipt;
+    pImage->iClipb     = pData->iDEFIclipb;
 
     pData->pCurrentobj = 0;            /* not a real object ! */
   }
@@ -1091,7 +1490,7 @@ mng_retcode process_display_defi (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1114,7 +1513,7 @@ mng_retcode process_display_basi (mng_datap  pData,
   mng_retcode    iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_START);
 #endif
 
   if (!pImage)                         /* or is it an "on-the-fly" image ? */
@@ -1444,7 +1843,7 @@ mng_retcode process_display_basi (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1469,7 +1868,7 @@ mng_retcode process_display_clon (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
 #endif
                                        /* locate the source object first */
   pSource = find_imageobject (pData, iSourceid);
@@ -1531,7 +1930,7 @@ mng_retcode process_display_clon (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1542,14 +1941,14 @@ mng_retcode process_display_clon (mng_datap  pData,
 mng_retcode process_display_clon2 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
 #endif
                                        /* only called after timer break ! */
   display_image (pData, (mng_imagep)pData->pLastclone);
   pData->iBreakpoint = 0;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1565,7 +1964,7 @@ mng_retcode process_display_disc (mng_datap   pData,
   mng_imagep pImage;
   mng_uint32 iRetcode;
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_START);
 #endif
 
   if (iCount)                          /* specific list ? */
@@ -1605,7 +2004,7 @@ mng_retcode process_display_disc (mng_datap   pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1629,7 +2028,7 @@ mng_retcode process_display_fram (mng_datap  pData,
   mng_uint32 iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
 #endif
                                        /* advance a frame then */
   iRetcode = next_frame (pData, iFramemode, iChangedelay, iDelay,
@@ -1640,7 +2039,7 @@ mng_retcode process_display_fram (mng_datap  pData,
     pData->iBreakpoint = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1648,19 +2047,19 @@ mng_retcode process_display_fram (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_fram2 (mng_datap  pData)
+mng_retcode process_display_fram2 (mng_datap pData)
 {
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
 #endif
                                        /* again; after the break */
   iRetcode = next_frame (pData, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   pData->iBreakpoint = 0;              /* not again! */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1679,7 +2078,7 @@ mng_retcode process_display_move (mng_datap  pData,
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_START);
 #endif
                                        /* iterate the list */
   for (iX = iFromid; iX <= iToid; iX++)
@@ -1708,7 +2107,7 @@ mng_retcode process_display_move (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1729,7 +2128,7 @@ mng_retcode process_display_clip (mng_datap  pData,
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_START);
 #endif
                                        /* iterate the list */
   for (iX = iFromid; iX <= iToid; iX++)
@@ -1764,7 +2163,7 @@ mng_retcode process_display_clip (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1778,7 +2177,7 @@ mng_retcode process_display_show (mng_datap pData)
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_START);
 #endif
 
   /* TODO: optimization for the cases where "abs (iTo - iFrom)" is rather high;
@@ -1969,7 +2368,51 @@ mng_retcode process_display_show (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_save (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_START);
+#endif
+
+  iRetcode = save_state (pData);       /* save the current state */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_seek (mng_datap pData)
+{
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_START);
+#endif
+
+  iRetcode = restore_state (pData);    /* restore the initial or SAVE state */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

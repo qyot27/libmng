@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -15,11 +15,19 @@
 /* *                                                                        * */
 /* * comment   : Definition of the trace functions                          * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - added chunk-access function trace-codes                  * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
+/* *             0.5.1 - 05/13/2000 - G.Juyn                                * */
+/* *             - added save_state & restore_state trace-codes             * */
+/* *             0.5.1 - 05/15/2000 - G.Juyn                                * */
+/* *             - added getimgdata & putimgdata trace-codes                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
@@ -32,11 +40,20 @@
 
 /* ************************************************************************** */
 
-/* TODO: add a trace-level so frequent functions can be skipped */
+/* TODO: add a trace-level so frequently called functions can be skipped */
 
-void mng_trace (mng_datap  pData,
-                mng_uint32 iFunction,
-                mng_uint32 iLocation);
+mng_retcode mng_trace (mng_datap  pData,
+                       mng_uint32 iFunction,
+                       mng_uint32 iLocation);
+
+/* ************************************************************************** */
+
+#define MNG_TRACE(D,F,L)  { mng_retcode iR = mng_trace (D,F,L); \
+                            if (iR) return iR; }
+
+#define MNG_TRACEB(D,F,L) { if (mng_trace (D,F,L)) return MNG_FALSE; }
+
+#define MNG_TRACEX(D,F,L) { if (mng_trace (D,F,L)) return 0; }
 
 /* ************************************************************************** */
 
@@ -143,6 +160,135 @@ void mng_trace (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#define MNG_FN_ITERATE_CHUNKS         601
+
+#define MNG_FN_GETCHUNK_IHDR          701
+#define MNG_FN_GETCHUNK_PLTE          702
+#define MNG_FN_GETCHUNK_IDAT          703
+#define MNG_FN_GETCHUNK_IEND          704
+#define MNG_FN_GETCHUNK_TRNS          705
+#define MNG_FN_GETCHUNK_GAMA          706
+#define MNG_FN_GETCHUNK_CHRM          707
+#define MNG_FN_GETCHUNK_SRGB          708
+#define MNG_FN_GETCHUNK_ICCP          709
+#define MNG_FN_GETCHUNK_TEXT          710
+#define MNG_FN_GETCHUNK_ZTXT          711
+#define MNG_FN_GETCHUNK_ITXT          712
+#define MNG_FN_GETCHUNK_BKGD          713
+#define MNG_FN_GETCHUNK_PHYS          714
+#define MNG_FN_GETCHUNK_SBIT          715
+#define MNG_FN_GETCHUNK_SPLT          716
+#define MNG_FN_GETCHUNK_HIST          717
+#define MNG_FN_GETCHUNK_TIME          718
+#define MNG_FN_GETCHUNK_MHDR          719
+#define MNG_FN_GETCHUNK_MEND          720
+#define MNG_FN_GETCHUNK_LOOP          721
+#define MNG_FN_GETCHUNK_ENDL          722
+#define MNG_FN_GETCHUNK_DEFI          723
+#define MNG_FN_GETCHUNK_BASI          724
+#define MNG_FN_GETCHUNK_CLON          725
+#define MNG_FN_GETCHUNK_PAST          726
+#define MNG_FN_GETCHUNK_DISC          727
+#define MNG_FN_GETCHUNK_BACK          728
+#define MNG_FN_GETCHUNK_FRAM          729
+#define MNG_FN_GETCHUNK_MOVE          730
+#define MNG_FN_GETCHUNK_CLIP          731
+#define MNG_FN_GETCHUNK_SHOW          732
+#define MNG_FN_GETCHUNK_TERM          733
+#define MNG_FN_GETCHUNK_SAVE          734
+#define MNG_FN_GETCHUNK_SEEK          735
+#define MNG_FN_GETCHUNK_EXPI          736
+#define MNG_FN_GETCHUNK_FPRI          737
+#define MNG_FN_GETCHUNK_NEED          738
+#define MNG_FN_GETCHUNK_PHYG          739
+#define MNG_FN_GETCHUNK_JHDR          740
+#define MNG_FN_GETCHUNK_JDAT          741
+#define MNG_FN_GETCHUNK_JSEP          742
+#define MNG_FN_GETCHUNK_DHDR          743
+#define MNG_FN_GETCHUNK_PROM          744
+#define MNG_FN_GETCHUNK_IPNG          745
+#define MNG_FN_GETCHUNK_PPLT          746
+#define MNG_FN_GETCHUNK_IJNG          747
+#define MNG_FN_GETCHUNK_DROP          748
+#define MNG_FN_GETCHUNK_DBYK          749
+#define MNG_FN_GETCHUNK_ORDR          750
+#define MNG_FN_GETCHUNK_UNKNOWN       751
+
+#define MNG_FN_GETCHUNK_PAST_SRC      781
+#define MNG_FN_GETCHUNK_SAVE_ENTRY    782
+#define MNG_FN_GETCHUNK_PPLT_ENTRY    783
+#define MNG_FN_GETCHUNK_ORDR_ENTRY    784
+
+#define MNG_FN_PUTCHUNK_IHDR          801
+#define MNG_FN_PUTCHUNK_PLTE          802
+#define MNG_FN_PUTCHUNK_IDAT          803
+#define MNG_FN_PUTCHUNK_IEND          804
+#define MNG_FN_PUTCHUNK_TRNS          805
+#define MNG_FN_PUTCHUNK_GAMA          806
+#define MNG_FN_PUTCHUNK_CHRM          807
+#define MNG_FN_PUTCHUNK_SRGB          808
+#define MNG_FN_PUTCHUNK_ICCP          809
+#define MNG_FN_PUTCHUNK_TEXT          810
+#define MNG_FN_PUTCHUNK_ZTXT          811
+#define MNG_FN_PUTCHUNK_ITXT          812
+#define MNG_FN_PUTCHUNK_BKGD          813
+#define MNG_FN_PUTCHUNK_PHYS          814
+#define MNG_FN_PUTCHUNK_SBIT          815
+#define MNG_FN_PUTCHUNK_SPLT          816
+#define MNG_FN_PUTCHUNK_HIST          817
+#define MNG_FN_PUTCHUNK_TIME          818
+#define MNG_FN_PUTCHUNK_MHDR          819
+#define MNG_FN_PUTCHUNK_MEND          820
+#define MNG_FN_PUTCHUNK_LOOP          821
+#define MNG_FN_PUTCHUNK_ENDL          822
+#define MNG_FN_PUTCHUNK_DEFI          823
+#define MNG_FN_PUTCHUNK_BASI          824
+#define MNG_FN_PUTCHUNK_CLON          825
+#define MNG_FN_PUTCHUNK_PAST          826
+#define MNG_FN_PUTCHUNK_DISC          827
+#define MNG_FN_PUTCHUNK_BACK          828
+#define MNG_FN_PUTCHUNK_FRAM          829
+#define MNG_FN_PUTCHUNK_MOVE          830
+#define MNG_FN_PUTCHUNK_CLIP          831
+#define MNG_FN_PUTCHUNK_SHOW          832
+#define MNG_FN_PUTCHUNK_TERM          833
+#define MNG_FN_PUTCHUNK_SAVE          834
+#define MNG_FN_PUTCHUNK_SEEK          835
+#define MNG_FN_PUTCHUNK_EXPI          836
+#define MNG_FN_PUTCHUNK_FPRI          837
+#define MNG_FN_PUTCHUNK_NEED          838
+#define MNG_FN_PUTCHUNK_PHYG          839
+#define MNG_FN_PUTCHUNK_JHDR          840
+#define MNG_FN_PUTCHUNK_JDAT          841
+#define MNG_FN_PUTCHUNK_JSEP          842
+#define MNG_FN_PUTCHUNK_DHDR          843
+#define MNG_FN_PUTCHUNK_PROM          844
+#define MNG_FN_PUTCHUNK_IPNG          845
+#define MNG_FN_PUTCHUNK_PPLT          846
+#define MNG_FN_PUTCHUNK_IJNG          847
+#define MNG_FN_PUTCHUNK_DROP          848
+#define MNG_FN_PUTCHUNK_DBYK          849
+#define MNG_FN_PUTCHUNK_ORDR          850
+#define MNG_FN_PUTCHUNK_UNKNOWN       851
+
+#define MNG_FN_PUTCHUNK_PAST_SRC      881
+#define MNG_FN_PUTCHUNK_SAVE_ENTRY    882
+#define MNG_FN_PUTCHUNK_PPLT_ENTRY    883
+#define MNG_FN_PUTCHUNK_ORDR_ENTRY    884
+
+/* ************************************************************************** */
+
+#define MNG_FN_GETIMGDATA_SEQ         901
+#define MNG_FN_GETIMGDATA_CHUNKSEQ    902
+#define MNG_FN_GETIMGDATA_CHUNK       903
+
+#define MNG_FN_PUTIMGDATA_IHDR        951
+#define MNG_FN_PUTIMGDATA_JHDR        952
+#define MNG_FN_PUTIMGDATA_BASI        953
+#define MNG_FN_PUTIMGDATA_DHDR        954
+
+/* ************************************************************************** */
+
 #define MNG_FN_PROCESS_RAW_CHUNK     1001
 #define MNG_FN_READ_GRAPHIC          1002
 #define MNG_FN_DROP_CHUNKS           1003
@@ -157,6 +303,13 @@ void mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_IMAGE         1012
 #define MNG_FN_DROP_IMGOBJECTS       1013
 #define MNG_FN_DROP_ANIOBJECTS       1014
+#define MNG_FN_INFLATE_BUFFER        1015
+#define MNG_FN_DEFLATE_BUFFER        1016
+#define MNG_FN_WRITE_RAW_CHUNK       1017
+#define MNG_FN_WRITE_GRAPHIC         1018
+#define MNG_FN_SAVE_STATE            1019
+#define MNG_FN_RESTORE_STATE         1020
+#define MNG_FN_DROP_SAVEDATA         1021
 
 /* ************************************************************************** */
 

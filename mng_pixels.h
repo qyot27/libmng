@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_pixels.h              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
 /* *                                                                        * */
@@ -15,16 +15,20 @@
 /* *                                                                        * */
 /* * comment   : Definition of the pixel-row management routines            * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_pixels_h_
 #define _mng_pixels_h_
+
+#include "libmng.h"
+#include "mng_data.h"
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -158,7 +162,7 @@ mng_retcode init_rgba16_i     (mng_datap pData);
 /* ************************************************************************** */
 
 mng_retcode init_rowproc      (mng_datap pData);
-void        next_row          (mng_datap pData);
+mng_retcode next_row          (mng_datap pData);
 mng_retcode cleanup_rowproc   (mng_datap pData);
 
 /* ************************************************************************** */

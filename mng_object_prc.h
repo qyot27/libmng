@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.h          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (definition)                    * */
 /* *                                                                        * */
@@ -15,16 +15,20 @@
 /* *                                                                        * */
 /* * comment   : Definition of the internal object processing routines      * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_object_prc_h_
 #define _mng_object_prc_h_
+
+#include "libmng.h"
+#include "mng_data.h"
 
 /* ************************************************************************** */
 

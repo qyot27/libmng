@@ -15,11 +15,23 @@
 /* *                                                                        * */
 /* * comment   : Definition of the library main data structure              * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/04/2000 - G.Juyn                                * */
+/* *             - added CRC table to main structure (for thread-safety)    * */
+/* *             0.5.1 - 05/06/2000 - G.Juyn                                * */
+/* *             - added iPLTEentries for checking hIST-length              * */
+/* *             0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed palette definition to exported palette-type      * */
+/* *             - removed frozen indicator                                 * */
+/* *             - added create/write indicators                            * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/13/2000 - G.Juyn                                * */
+/* *             - added eMNGma hack (will be removed in 1.0.0 !!!)         * */
+/* *             - added TERM animation object pointer (easier reference)   * */
+/* *             - added saved-data structure for SAVE/SEEK processing      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
@@ -36,13 +48,89 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-typedef struct {
-           mng_uint8 iRed;
-           mng_uint8 iGreen;
-           mng_uint8 iBlue;
-        } mng_rgbpalentry;
+typedef mng_palette8 mng_rgbpaltab;
 
-typedef mng_rgbpalentry mng_rgbpaltab[256];
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * The saved_data structure                                               * */
+/* *                                                                        * */
+/* * This contains the saved data after a SAVE chunk has been processed.    * */
+/* * The data is saved from the main data structure during SAVE processing, * */
+/* * and restored to the main data structure during SEEK processing.        * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+typedef struct mng_savedata_struct {
+
+#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+           mng_bool          bHasglobalPLTE;     /* global PLTE chunk processed */
+           mng_bool          bHasglobalTRNS;     /* global tRNS chunk processed */
+           mng_bool          bHasglobalGAMA;     /* global gAMA chunk processed */
+           mng_bool          bHasglobalCHRM;     /* global cHRM chunk processed */
+           mng_bool          bHasglobalSRGB;     /* global sRGB chunk processed */
+           mng_bool          bHasglobalICCP;     /* global iCCP chunk processed */
+           mng_bool          bHasglobalBKGD;     /* global bKGD chunk processed */
+#endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
+
+#ifdef MNG_SUPPORT_DISPLAY
+           mng_uint16        iDEFIobjectid;      /* DEFI fields */
+           mng_uint8         iDEFIdonotshow;
+           mng_uint8         iDEFIconcrete;
+           mng_bool          bDEFIhasloca;
+           mng_int32         iDEFIlocax;
+           mng_int32         iDEFIlocay;
+           mng_bool          bDEFIhasclip;
+           mng_int32         iDEFIclipl;
+           mng_int32         iDEFIclipr;
+           mng_int32         iDEFIclipt;
+           mng_int32         iDEFIclipb;
+
+           mng_uint16        iBACKred;           /* BACK fields */
+           mng_uint16        iBACKgreen;
+           mng_uint16        iBACKblue;
+           mng_uint8         iBACKmandatory;
+           mng_uint16        iBACKimageid;
+           mng_uint8         iBACKtile;
+
+           mng_uint8         iFRAMmode;          /* FRAM fields (global) */
+           mng_uint32        iFRAMdelay;
+           mng_uint32        iFRAMtimeout;
+           mng_bool          bFRAMclipping;
+           mng_int32         iFRAMclipl;
+           mng_int32         iFRAMclipr;
+           mng_int32         iFRAMclipt;
+           mng_int32         iFRAMclipb;
+
+           mng_uint32        iGlobalPLTEcount;   /* global PLTE fields */
+           mng_rgbpaltab     aGlobalPLTEentries;
+
+           mng_uint32        iGlobalTRNSrawlen;  /* global tRNS fields */
+           mng_uint8         aGlobalTRNSrawdata[256];
+
+           mng_uint32        iGlobalGamma;       /* global gAMA fields */
+
+           mng_uint32        iGlobalWhitepointx; /* global cHRM fields */
+           mng_uint32        iGlobalWhitepointy;
+           mng_uint32        iGlobalPrimaryredx;
+           mng_uint32        iGlobalPrimaryredy;
+           mng_uint32        iGlobalPrimarygreenx;
+           mng_uint32        iGlobalPrimarygreeny;
+           mng_uint32        iGlobalPrimarybluex;
+           mng_uint32        iGlobalPrimarybluey;
+
+           mng_uint8         iGlobalRendintent;  /* global sRGB fields */
+
+           mng_uint32        iGlobalProfilesize; /* global iCCP fields */
+           mng_ptr           pGlobalProfile;
+
+           mng_uint16        iGlobalBKGDred;     /* global bKGD fields */
+           mng_uint16        iGlobalBKGDgreen;
+           mng_uint16        iGlobalBKGDblue;
+#endif /* MNG_SUPPORT_DISPLAY */
+
+        } mng_savedata;
+
+typedef mng_savedata * mng_savedatap;
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -127,6 +215,8 @@ typedef struct mng_data_struct {
            mng_processarow   fProcessarow;
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
+           mng_bool          bPreDraft48;        /* flags ancient style draft */
+
            mng_chunkid       iChunkname;         /* read/write-state variables */
            mng_uint32        iChunkseq;
            mng_chunkp        pFirstchunk;        /* double-linked list of */
@@ -188,11 +278,19 @@ typedef struct mng_data_struct {
 
 #ifdef MNG_SUPPORT_READ
            mng_bool          bReading;           /* read processing variables */
-           mng_bool          bHavesig;           
-           mng_bool          bEOF;    
+           mng_bool          bHavesig;
+           mng_bool          bEOF;
            mng_uint32        iReadbufsize;
            mng_uint8p        pReadbuf;
 #endif /* MNG_SUPPORT_READ */
+
+#ifdef MNG_SUPPORT_WRITE
+           mng_bool          bCreating;          /* create/write processing variables */
+           mng_bool          bWriting;
+           mng_chunkid       iFirstchunkadded;           
+           mng_uint32        iWritebufsize;
+           mng_uint8p        pWritebuf;
+#endif
 
 #ifdef MNG_SUPPORT_DISPLAY
            mng_bool          bDisplaying;        /* display-state variables */
@@ -204,7 +302,6 @@ typedef struct mng_data_struct {
            mng_uint32        iStarttime;         /* tickcount at start */
            mng_uint32        iEndtime;           /* tickcount at end */
            mng_bool          bRunning;           /* animation is active */
-           mng_bool          bFrozen;            /* animation is frozen */
            mng_bool          bTimerset;          /* the timer has been set;
                                                     we're expecting a call to
                                                     mng_display_resume! */
@@ -213,11 +310,15 @@ typedef struct mng_data_struct {
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */
+           mng_objectp       pTermaniobj;        /* TERM animation object */
            mng_objectp       pObjzero;           /* "on-the-fly" image (object = 0) */
            mng_objectp       pLastclone;         /* last clone */
            mng_objectp       pStoreobj;          /* current store object for row routines */
            mng_objectp       pStorebuf;          /* current store object-buffer for row routines */
            mng_objectp       pRetrieveobj;       /* current retrieve object for row routines */
+           mng_savedatap     pSavedata;          /* pointer to saved data (after SAVE) */
+
+           mng_bool          bEMNGMAhack;        /* TODO: to be removed in 1.0.0 !!! */
 
            mng_int8          iPass;              /* current interlacing pass;
                                                     negative value means no interlace */
@@ -273,6 +374,8 @@ typedef struct mng_data_struct {
            mng_ptr           fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
 
+           mng_uint32        iPLTEcount;         /* PLTE fields */
+
            mng_uint16        iDEFIobjectid;      /* DEFI fields */
            mng_uint8         iDEFIdonotshow;
            mng_uint8         iDEFIconcrete;
@@ -317,6 +420,8 @@ typedef struct mng_data_struct {
            mng_int32         iFrameclipr;
            mng_int32         iFrameclipt;
            mng_int32         iFrameclipb;
+
+           mng_uint32        iNextdelay;         /* delay for *after* next image */
 
            mng_uint8         iSHOWmode;          /* SAVE fields */
            mng_uint16        iSHOWfromid;
@@ -365,6 +470,9 @@ typedef struct mng_data_struct {
            mng_bool          bInflating;         /* indicates "inflate" in progress */
            mng_bool          bDeflating;         /* indicates "deflate" in progress */
 #endif /* MNG_INCLUDE_ZLIB */
+
+           mng_uint32        aCRCtable [256];    /* CRC prefab table */
+           mng_bool          bCRCcomputed;       /* "has been build" indicator */
 
         } mng_data;
 

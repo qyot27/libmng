@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_filter.c              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Filtering routines (implementation)                        * */
 /* *                                                                        * */
@@ -15,19 +15,25 @@
 /* *                                                                        * */
 /* * comment   : implementation of the filtering routines                   * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
 /* ************************************************************************** */
-
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
 
 #include "libmng.h"
 #include "mng_data.h"
 #include "mng_error.h"
 #include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
 #include "mng_filter.h"
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -37,42 +43,44 @@
 
 mng_retcode filter_a_row (mng_datap pData)
 {
+  mng_retcode iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_A_ROW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_START);
 #endif
 
   switch (pData->pWorkrow[0])
   {
     case 1  : {
-                filter_sub     (pData);
+                iRetcode = filter_sub     (pData);
                 break;
               }
     case 2  : {
-                filter_up      (pData);
+                iRetcode = filter_up      (pData);
                 break;
               }
     case 3  : {
-                filter_average (pData);
+                iRetcode = filter_average (pData);
                 break;
               }
     case 4  : {
-                filter_paeth   (pData);
+                iRetcode = filter_paeth   (pData);
                 break;
               }
 
-    default : return MNG_INVALIDFILTER; 
+    default : iRetcode = MNG_INVALIDFILTER;
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_A_ROW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_END);
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 
 /* ************************************************************************** */
 
-void filter_sub (mng_datap pData)
+mng_retcode filter_sub (mng_datap pData)
 {
   mng_uint32 iBpp;
   mng_uint8p pRawx;
@@ -80,7 +88,7 @@ void filter_sub (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_SUB, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_START);
 #endif
 
   iBpp       = pData->iFilterbpp;
@@ -95,22 +103,22 @@ void filter_sub (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_SUB, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_END);
 #endif
 
-  return;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
 
-void filter_up (mng_datap pData)
+mng_retcode filter_up (mng_datap pData)
 {
   mng_uint8p pRawx;
   mng_uint8p pPriorx;
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_UP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_START);
 #endif
 
   pRawx   = pData->pWorkrow + 1;
@@ -124,15 +132,15 @@ void filter_up (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_UP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_END);
 #endif
 
-  return;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
 
-void filter_average (mng_datap pData)
+mng_retcode filter_average (mng_datap pData)
 {
   mng_int32  iBpp;
   mng_uint8p pRawx;
@@ -141,7 +149,7 @@ void filter_average (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_START);
 #endif
 
   iBpp       = pData->iFilterbpp;
@@ -165,15 +173,15 @@ void filter_average (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_END);
 #endif
 
-  return;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */
 
-void filter_paeth (mng_datap pData)
+mng_retcode filter_paeth (mng_datap pData)
 {
   mng_int32  iBpp;
   mng_uint8p pRawx;
@@ -186,7 +194,7 @@ void filter_paeth (mng_datap pData)
   mng_uint32 iPa, iPb, iPc;
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_PAETH, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_START);
 #endif
 
   iBpp         = pData->iFilterbpp;
@@ -228,10 +236,10 @@ void filter_paeth (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_FILTER_PAETH, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_END);
 #endif
 
-  return;
+  return MNG_NOERROR; 
 }
 
 /* ************************************************************************** */

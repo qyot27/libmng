@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_error.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Error routines (implementation)                            * */
 /* *                                                                        * */
@@ -15,18 +15,22 @@
 /* *                                                                        * */
 /* * comment   : implementation of the general error handling routines      * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __borlandc__
-#pragma option -A
-#endif
-
 #include "libmng.h"
 #include "mng_data.h"
-#include "mng_trace.h"
 #include "mng_error.h"
+#include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -66,7 +70,7 @@ mng_bool mng_process_error (mng_datap   pData,
       };
     };
 
-    if (pData->fErrorproc != 0)        /* callback defined ? */
+    if (pData->fErrorproc)             /* callback defined ? */
     {
       return pData->fErrorproc (((mng_handle)pData), iError, pData->iSeverity,
                                 pData->iChunkname, pData->iChunkseq,

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_io.h            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (definition)                            * */
 /* *                                                                        * */
@@ -15,20 +15,30 @@
 /* *                                                                        * */
 /* * comment   : Definition of the chunk input/output routines              * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/04/2000 - G.Juyn                                * */
+/* *             - changed CRC initializtion to use dynamic structure       * */
+/* *               (wasn't thread-safe the old way !)                       * */
+/* *             0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed write routines definition                        * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_chunk_io_h_
 #define _mng_chunk_io_h_
 
+#include "libmng.h"
+#include "mng_data.h"
+#include "mng_chunks.h"
+
 /* ************************************************************************** */
 
-mng_uint32 crc (mng_uint8p buf,
+mng_uint32 crc (mng_datap  pData,
+                mng_uint8p buf,
                 mng_int32  len);
 
 /* ************************************************************************** */
@@ -153,10 +163,8 @@ READ_CHUNK (read_unknown) ;
 
 #ifdef MNG_INCLUDE_WRITE_PROCS
 
-#define WRITE_CHUNK(n) mng_retcode n (mng_datap   pData,     \
-                                      mng_chunkp  pChunk,    \
-                                      mng_uint32* piRawlen,  \
-                                      mng_uint8p* ppRawdata)
+#define WRITE_CHUNK(n) mng_retcode n (mng_datap  pData,   \
+                                      mng_chunkp pChunk)
 
 WRITE_CHUNK (write_ihdr) ;
 WRITE_CHUNK (write_plte) ;

@@ -101,7 +101,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -112,11 +112,24 @@
 /* * comment   : The main application interface. An application should not  * */
 /* *             need access to any of the other modules!                   * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/06/2000 - G.Juyn                                * */
+/* *             - changed chunk iteration function                         * */
+/* *             0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - added chunk access functions                             * */
+/* *             - added version control constants & functions              * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
+/* *             - added set_outputprofile2 & set_srgbprofile2              * */
+/* *             - added empty-chunk put-routines                           * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - added version_dll & VERSION_DLL (for consistency)        * */
+/* *             - added version control explanatory text & samples         * */
+/* *             0.5.1 - 05/15/2000 - G.Juyn                                * */
+/* *             - added getimgdata & putimgdata functions                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
@@ -297,13 +310,82 @@
 
 /* ************************************************************************** */
 
-#include <mng_types.h>
+#include "mng_types.h"
 
 /* ************************************************************************** */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* *  Versioning control                                                    * */
+/* *                                                                        * */
+/* *  version_so and version_dll will NOT reflect version_major;            * */
+/* *  these will only change for binary incompatible changes (which will    * */
+/* *  hopefully never occur)                                                * */
+/* *  note: they will be set to 1 on the first public release !!!           * */
+/* *                                                                        * */
+/* *  first public release:                                                 * */
+/* *  #define MNG_VERSION_TEXT    "1.0.0"                                   * */
+/* *  #define MNG_VERSION_SO      1       eg. libmng.so.1                   * */
+/* *  #define MNG_VERSION_DLL     1       eg. libmng.dll                    * */
+/* *  #define MNG_VERSION_MAJOR   1                                         * */
+/* *  #define MNG_VERSION_MINOR   0                                         * */
+/* *  #define MNG_VERSION_RELEASE 0                                         * */
+/* *                                                                        * */
+/* *  bug fix & cosmetics :                                                 * */
+/* *  #define MNG_VERSION_TEXT    "1.0.1"                                   * */
+/* *  #define MNG_VERSION_SO      1       eg. libmng.so.1                   * */
+/* *  #define MNG_VERSION_DLL     1       eg. libmng.dll                    * */
+/* *  #define MNG_VERSION_MAJOR   1                                         * */
+/* *  #define MNG_VERSION_MINOR   0                                         * */
+/* *  #define MNG_VERSION_RELEASE 1                                         * */
+/* *                                                                        * */
+/* *  feature change :                                                      * */
+/* *  #define MNG_VERSION_TEXT    "1.2.0"                                   * */
+/* *  #define MNG_VERSION_SO      1       eg. libmng.so.1                   * */
+/* *  #define MNG_VERSION_DLL     1       eg. libmng.dll                    * */
+/* *  #define MNG_VERSION_MAJOR   1                                         * */
+/* *  #define MNG_VERSION_MINOR   2                                         * */
+/* *  #define MNG_VERSION_RELEASE 0                                         * */
+/* *                                                                        * */
+/* *  major rewrite (still binary compatible) :                             * */
+/* *  #define MNG_VERSION_TEXT    "2.0.0"                                   * */
+/* *  #define MNG_VERSION_SO      1       eg. libmng.so.1                   * */
+/* *  #define MNG_VERSION_DLL     1       eg. libmng.dll                    * */
+/* *  #define MNG_VERSION_MAJOR   2                                         * */
+/* *  #define MNG_VERSION_MINOR   0                                         * */
+/* *  #define MNG_VERSION_RELEASE 0                                         * */
+/* *                                                                        * */
+/* *  binary incompatible change:                                           * */
+/* *  #define MNG_VERSION_TEXT    "13.0.0"                                  * */
+/* *  #define MNG_VERSION_SO      2       eg. libmng.so.2                   * */
+/* *  #define MNG_VERSION_DLL     2       eg. libmng2.dll                   * */
+/* *  #define MNG_VERSION_MAJOR   13                                        * */
+/* *  #define MNG_VERSION_MINOR   0                                         * */
+/* *  #define MNG_VERSION_RELEASE 0                                         * */
+/* *                                                                        * */
+/* *  note that version_so & version_dll will always remain equal so it     * */
+/* *  doesn't matter which one is called to do version-checking; they are   * */
+/* *  just provided for their target platform                               * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#define MNG_VERSION_TEXT    "0.5.1"
+#define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test) */
+#define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
+#define MNG_VERSION_MAJOR   0
+#define MNG_VERSION_MINOR   5
+#define MNG_VERSION_RELEASE 1
+
+MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_dll     (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_major   (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_minor   (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_release (void);
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -396,9 +478,9 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_memfree       (mng_handle        hHandle,
                                                       mng_memfree       fProc);
 #endif /* MNG_INTERNAL_MEMMNGMT */
 
-/* opne- & close-stream callbacks */
+/* open- & close-stream callbacks */
 /* called to open & close streams for input or output */
-#if defined(MNG_SUPPORT_READ) || defined(MNG_WRITE_SUPPORT)
+#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
 MNG_EXT mng_retcode MNG_DECL mng_setcb_openstream    (mng_handle        hHandle,
                                                       mng_openstream    fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_closestream   (mng_handle        hHandle,
@@ -450,7 +532,7 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processtext   (mng_handle        hHandle,
    drawing-canvas */
 /* getbkgdline is called to get an access-pointer to a line from the
    background-canvas */
-/* refresh is called to inform the GUI to redraw the current canvas to
+/* refresh is called to inform the GUI to redraw the current canvas onto
    it's output device (eg. in Win32 this would mean sending an
    invalidate message for the specified region */
 #ifdef MNG_SUPPORT_DISPLAY
@@ -587,13 +669,13 @@ MNG_EXT mng_retcode MNG_DECL mng_set_storechunks     (mng_handle        hHandle,
 /* if you've defined MNG_FULL_CMS, you must specify the profile of the
    output-device and the sRGB conditions */
 /* if you're on a sRGB system (Linux (intel), Windows, etc.), you can
-   tell the CMS with mng_set_srgb and specify a default sRGB profile for
+   tell the CMS with mng_set_srgb(2) and specify a default sRGB profile for
    the output-device; otherwise you'll need to specify the correct profile
    for your output-device and a default sRGB profile for input-images tagged
    with the sRGB chunk only */
-/* NOTE: either call set_srgb with MNG_TRUE & call set_outputprofile
-         or call set_srgb with MNG_FALSE & call set_outputprofile &
-         set_srgbprofile */
+/* NOTE: either call set_srgb with MNG_TRUE & call set_outputprofile(2)
+         or call set_srgb with MNG_FALSE & call set_outputprofile(2) &
+         set_srgbprofile(2) */
 /* BTW: the default for set_srgb is MNG_TRUE */
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
 MNG_EXT mng_retcode MNG_DECL mng_set_srgb            (mng_handle        hHandle,
@@ -602,6 +684,12 @@ MNG_EXT mng_retcode MNG_DECL mng_set_outputprofile   (mng_handle        hHandle,
                                                       mng_pchar         zFilename);
 MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile     (mng_handle        hHandle,
                                                       mng_pchar         zFilename);
+MNG_EXT mng_retcode MNG_DECL mng_set_outputprofile2  (mng_handle        hHandle,
+                                                      mng_uint32        iProfilesize,
+                                                      mng_ptr           pProfile);
+MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile2    (mng_handle        hHandle,
+                                                      mng_uint32        iProfilesize,
+                                                      mng_ptr           pProfile);
 #endif
 
 /* Gamma settings */
@@ -696,9 +784,886 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_maxcanvasheight (mng_handle        hHandle)
 
 #ifdef MNG_ACCESS_CHUNKS
 
-/* TODO: pretty much everything */
+/* ************************************************************************** */
 
-MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks (mng_handle hHandle);
+/* use this to iterate the stored chunks */
+/* requires MNG_ACCESS_CHUNKS & MNG_STORE_CHUNKS */
+MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks      (mng_handle       hHandle,
+                                                      mng_uint32       iChunkseq,
+                                                      mng_iteratechunk fProc);
+
+/* ************************************************************************** */
+
+/* use these to get chunk data from within the callback in iterate_chunks */
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_ihdr       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iWidth,
+                                                      mng_uint32       *iHeight,
+                                                      mng_uint8        *iBitdepth,
+                                                      mng_uint8        *iColortype,
+                                                      mng_uint8        *iCompression,
+                                                      mng_uint8        *iFilter,
+                                                      mng_uint8        *iInterlace);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_plte       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount,
+                                                      mng_palette8     *aPalette);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_idat       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iRawlen,
+                                                      mng_ptr          *pRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_trns       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_bool         *bGlobal,
+                                                      mng_uint8        *iType,
+                                                      mng_uint32       *iCount,
+                                                      mng_uint8arr     *aAlphas,
+                                                      mng_uint16       *iGray,
+                                                      mng_uint16       *iRed,
+                                                      mng_uint16       *iGreen,
+                                                      mng_uint16       *iBlue,
+                                                      mng_uint32       *iRawlen,
+                                                      mng_uint8arr     *aRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_gama       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iGamma);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_chrm       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iWhitepointx,
+                                                      mng_uint32       *iWhitepointy,
+                                                      mng_uint32       *iRedx,
+                                                      mng_uint32       *iRedy,
+                                                      mng_uint32       *iGreenx,
+                                                      mng_uint32       *iGreeny,
+                                                      mng_uint32       *iBluex,
+                                                      mng_uint32       *iBluey);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_srgb       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint8        *iRenderingintent);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_iccp       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName,
+                                                      mng_uint8        *iCompression,
+                                                      mng_uint32       *iProfilesize,
+                                                      mng_ptr          *pProfile);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_text       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iKeywordsize,
+                                                      mng_pchar        *zKeyword,
+                                                      mng_uint32       *iTextsize,
+                                                      mng_pchar        *zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_ztxt       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iKeywordsize,
+                                                      mng_pchar        *zKeyword,
+                                                      mng_uint8        *iCompression,
+                                                      mng_uint32       *iTextsize,
+                                                      mng_pchar        *zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_itxt       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iKeywordsize,
+                                                      mng_pchar        *zKeyword,
+                                                      mng_uint8        *iCompressionflag,
+                                                      mng_uint8        *iCompressionmethod,
+                                                      mng_uint32       *iLanguagesize,
+                                                      mng_pchar        *zLanguage,
+                                                      mng_uint32       *iTranslationsize,
+                                                      mng_pchar        *zTranslation,
+                                                      mng_uint32       *iTextsize,
+                                                      mng_pchar        *zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_bkgd       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint8        *iType,
+                                                      mng_uint8        *iIndex,
+                                                      mng_uint16       *iGray,
+                                                      mng_uint16       *iRed,
+                                                      mng_uint16       *iGreen,
+                                                      mng_uint16       *iBlue);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_phys       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iSizex,
+                                                      mng_uint32       *iSizey,
+                                                      mng_uint8        *iUnit);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_sbit       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint8        *iType,
+                                                      mng_uint8arr4    *aBits);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_splt       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName,
+                                                      mng_uint8        *iSampledepth,
+                                                      mng_uint32       *iEntrycount,
+                                                      mng_ptr          *pEntries);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_hist       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iEntrycount,
+                                                      mng_uint16arr    *aEntries);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_time       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iYear,
+                                                      mng_uint8        *iMonth,
+                                                      mng_uint8        *iDay,
+                                                      mng_uint8        *iHour,
+                                                      mng_uint8        *iMinute,
+                                                      mng_uint8        *iSecond);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_mhdr       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iWidth,
+                                                      mng_uint32       *iHeight,
+                                                      mng_uint32       *iTicks,
+                                                      mng_uint32       *iLayercount,
+                                                      mng_uint32       *iFramecount,
+                                                      mng_uint32       *iPlaytime,
+                                                      mng_uint32       *iSimplicity);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_loop       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint8        *iLevel,
+                                                      mng_uint32       *iRepeat,
+                                                      mng_uint8        *iTermination,
+                                                      mng_uint32       *iItermin,
+                                                      mng_uint32       *iItermax,
+                                                      mng_uint32       *iCount,
+                                                      mng_uint32p      *pSignals);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_endl       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint8        *iLevel);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_defi       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iObjectid,
+                                                      mng_uint8        *iDonotshow,
+                                                      mng_uint8        *iConcrete,
+                                                      mng_bool         *bHasloca,
+                                                      mng_int32        *iXlocation,
+                                                      mng_int32        *iYlocation,
+                                                      mng_bool         *bHasclip,
+                                                      mng_int32        *iLeftcb,
+                                                      mng_int32        *iRightcb,
+                                                      mng_int32        *iTopcb,
+                                                      mng_int32        *iBottomcb);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_basi       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iWidth,
+                                                      mng_uint32       *iHeight,
+                                                      mng_uint8        *iBitdepth,
+                                                      mng_uint8        *iColortype,
+                                                      mng_uint8        *iCompression,
+                                                      mng_uint8        *iFilter,
+                                                      mng_uint8        *iInterlace,
+                                                      mng_uint16       *iRed,
+                                                      mng_uint16       *iGreen,
+                                                      mng_uint16       *iBlue,
+                                                      mng_uint16       *iAlpha,
+                                                      mng_uint8        *iViewable);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_clon       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iSourceid,
+                                                      mng_uint16       *iCloneid,
+                                                      mng_uint8        *iClonetype,
+                                                      mng_uint8        *iDonotshow,
+                                                      mng_uint8        *iConcrete,
+                                                      mng_bool         *bHasloca,
+                                                      mng_uint8        *iLocationtype,
+                                                      mng_int32        *iLocationx,
+                                                      mng_int32        *iLocationy);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_past       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iDestid,
+                                                      mng_uint8        *iTargettype,
+                                                      mng_int32        *iTargetx,
+                                                      mng_int32        *iTargety,
+                                                      mng_uint32       *iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_past_src   (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint16       *iSourceid,
+                                                      mng_uint8        *iComposition,
+                                                      mng_uint8        *iOrientation,
+                                                      mng_uint8        *iOffsettype,
+                                                      mng_int32        *iOffsetx,
+                                                      mng_int32        *iOffsety,
+                                                      mng_uint8        *iBoundarytype,
+                                                      mng_int32        *iBoundaryl,
+                                                      mng_int32        *iBoundaryr,
+                                                      mng_int32        *iBoundaryt,
+                                                      mng_int32        *iBoundaryb);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_disc       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount,
+                                                      mng_uint16p      *pObjectids);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_back       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iRed,
+                                                      mng_uint16       *iGreen,
+                                                      mng_uint16       *iBlue,
+                                                      mng_uint8        *iMandatory,
+                                                      mng_uint16       *iImageid,
+                                                      mng_uint8        *iTile);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_fram       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint8        *iMode,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName,
+                                                      mng_uint8        *iChangedelay,
+                                                      mng_uint8        *iChangetimeout,
+                                                      mng_uint8        *iChangeclipping,
+                                                      mng_uint8        *iChangesyncid,
+                                                      mng_uint32       *iDelay,
+                                                      mng_uint32       *iTimeout,
+                                                      mng_uint8        *iBoundarytype,
+                                                      mng_int32        *iBoundaryl,
+                                                      mng_int32        *iBoundaryr,
+                                                      mng_int32        *iBoundaryt,
+                                                      mng_int32        *iBoundaryb,
+                                                      mng_uint32       *iCount,
+                                                      mng_uint32p      *pSyncids);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_move       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iFirstid,
+                                                      mng_uint16       *iLastid,
+                                                      mng_uint8        *iMovetype,
+                                                      mng_int32        *iMovex,
+                                                      mng_int32        *iMovey);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_clip       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iFirstid,
+                                                      mng_uint16       *iLastid,
+                                                      mng_uint8        *iCliptype,
+                                                      mng_int32        *iClipl,
+                                                      mng_int32        *iClipr,
+                                                      mng_int32        *iClipt,
+                                                      mng_int32        *iClipb);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_show       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint16       *iFirstid,
+                                                      mng_uint16       *iLastid,
+                                                      mng_uint8        *iMode);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_term       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint8        *iTermaction,
+                                                      mng_uint8        *iIteraction,
+                                                      mng_uint32       *iDelay,
+                                                      mng_uint32       *iItermax);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_save       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint8        *iOffsettype,
+                                                      mng_uint32       *iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_save_entry (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint8        *iEntrytype,
+                                                      mng_uint32arr2   *iOffset,
+                                                      mng_uint32arr2   *iStarttime,
+                                                      mng_uint32       *iLayernr,
+                                                      mng_uint32       *iFramenr,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_seek       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_expi       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iSnapshotid,
+                                                      mng_uint32       *iNamesize,
+                                                      mng_pchar        *zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_fpri       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint8        *iDeltatype,
+                                                      mng_uint8        *iPriority);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_need       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iKeywordssize,
+                                                      mng_pchar        *zKeywords);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_phyg       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_bool         *bEmpty,
+                                                      mng_uint32       *iSizex,
+                                                      mng_uint32       *iSizey,
+                                                      mng_uint8        *iUnit);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_jhdr       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iWidth,
+                                                      mng_uint32       *iHeight,
+                                                      mng_uint8        *iColortype,
+                                                      mng_uint8        *iImagesampledepth,
+                                                      mng_uint8        *iImagecompression,
+                                                      mng_uint8        *iImageinterlace,
+                                                      mng_uint8        *iAlphasampledepth,
+                                                      mng_uint8        *iAlphacompression,
+                                                      mng_uint8        *iAlphafilter,
+                                                      mng_uint8        *iAlphainterlace);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_jdat       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iRawlen,
+                                                      mng_ptr          *pRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_dhdr       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iObjectid,
+                                                      mng_uint8        *iImagetype,
+                                                      mng_uint8        *iDeltatype,
+                                                      mng_uint32       *iBlockwidth,
+                                                      mng_uint32       *iBlockheight,
+                                                      mng_uint32       *iBlockx,
+                                                      mng_uint32       *iBlocky);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_prom       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint8        *iColortype,
+                                                      mng_uint8        *iSampledepth,
+                                                      mng_uint8        *iFilltype);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_pplt       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint16       *iRed,
+                                                      mng_uint16       *iGreen,
+                                                      mng_uint16       *iBlue,
+                                                      mng_uint16       *iAlpha,
+                                                      mng_bool         *bUsed);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_drop       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount,
+                                                      mng_chunkidp     *pChunknames);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_dbyk       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_chunkid      *iChunkname,
+                                                      mng_uint8        *iPolarity,
+                                                      mng_uint32       *iKeywordssize,
+                                                      mng_pchar        *zKeywords);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_ordr       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_chunkid      *iChunkname,
+                                                      mng_uint8        *iOrdertype);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_unknown    (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_chunkid      *iChunkname,
+                                                      mng_uint32       *iRawlen,
+                                                      mng_ptr          *pRawdata);
+
+/* ************************************************************************** */
+
+/* use these to create new chunks at the end of the chunk-list */
+/* requires at least MNG_ACCESS_CHUNKS (MNG_SUPPORT_WRITE may be nice too) */
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_ihdr       (mng_handle       hHandle,
+                                                      mng_uint32       iWidth,
+                                                      mng_uint32       iHeight,
+                                                      mng_uint8        iBitdepth,
+                                                      mng_uint8        iColortype,
+                                                      mng_uint8        iCompression,
+                                                      mng_uint8        iFilter,
+                                                      mng_uint8        iInterlace);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_plte       (mng_handle       hHandle,
+                                                      mng_uint32       iCount,
+                                                      mng_palette8     aPalette);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_idat       (mng_handle       hHandle,
+                                                      mng_uint32       iRawlen,
+                                                      mng_ptr          pRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_iend       (mng_handle       hHandle);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_trns       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_bool         bGlobal,
+                                                      mng_uint8        iType,
+                                                      mng_uint32       iCount,
+                                                      mng_uint8arr     aAlphas,
+                                                      mng_uint16       iGray,
+                                                      mng_uint16       iRed,
+                                                      mng_uint16       iGreen,
+                                                      mng_uint16       iBlue,
+                                                      mng_uint32       iRawlen,
+                                                      mng_uint8arr     aRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_gama       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iGamma);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_chrm       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iWhitepointx,
+                                                      mng_uint32       iWhitepointy,
+                                                      mng_uint32       iRedx,
+                                                      mng_uint32       iRedy,
+                                                      mng_uint32       iGreenx,
+                                                      mng_uint32       iGreeny,
+                                                      mng_uint32       iBluex,
+                                                      mng_uint32       iBluey);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_srgb       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint8        iRenderingintent);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_iccp       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName,
+                                                      mng_uint8        iCompression,
+                                                      mng_uint32       iProfilesize,
+                                                      mng_ptr          pProfile);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_text       (mng_handle       hHandle,
+                                                      mng_uint32       iKeywordsize,
+                                                      mng_pchar        zKeyword,
+                                                      mng_uint32       iTextsize,
+                                                      mng_pchar        zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_ztxt       (mng_handle       hHandle,
+                                                      mng_uint32       iKeywordsize,
+                                                      mng_pchar        zKeyword,
+                                                      mng_uint8        iCompression,
+                                                      mng_uint32       iTextsize,
+                                                      mng_pchar        zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_itxt       (mng_handle       hHandle,
+                                                      mng_uint32       iKeywordsize,
+                                                      mng_pchar        zKeyword,
+                                                      mng_uint8        iCompressionflag,
+                                                      mng_uint8        iCompressionmethod,
+                                                      mng_uint32       iLanguagesize,
+                                                      mng_pchar        zLanguage,
+                                                      mng_uint32       iTranslationsize,
+                                                      mng_pchar        zTranslation,
+                                                      mng_uint32       iTextsize,
+                                                      mng_pchar        zText);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_bkgd       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint8        iType,
+                                                      mng_uint8        iIndex,
+                                                      mng_uint16       iGray,
+                                                      mng_uint16       iRed,
+                                                      mng_uint16       iGreen,
+                                                      mng_uint16       iBlue);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_phys       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iSizex,
+                                                      mng_uint32       iSizey,
+                                                      mng_uint8        iUnit);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_sbit       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint8        iType,
+                                                      mng_uint8arr4    aBits);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_splt       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName,
+                                                      mng_uint8        iSampledepth,
+                                                      mng_uint32       iEntrycount,
+                                                      mng_ptr          pEntries);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_hist       (mng_handle       hHandle,
+                                                      mng_uint32       iEntrycount,
+                                                      mng_uint16arr    aEntries);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_time       (mng_handle       hHandle,
+                                                      mng_uint16       iYear,
+                                                      mng_uint8        iMonth,
+                                                      mng_uint8        iDay,
+                                                      mng_uint8        iHour,
+                                                      mng_uint8        iMinute,
+                                                      mng_uint8        iSecond);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_mhdr       (mng_handle       hHandle,
+                                                      mng_uint32       iWidth,
+                                                      mng_uint32       iHeight,
+                                                      mng_uint32       iTicks,
+                                                      mng_uint32       iLayercount,
+                                                      mng_uint32       iFramecount,
+                                                      mng_uint32       iPlaytime,
+                                                      mng_uint32       iSimplicity);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_mend       (mng_handle       hHandle);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_loop       (mng_handle       hHandle,
+                                                      mng_uint8        iLevel,
+                                                      mng_uint32       iRepeat,
+                                                      mng_uint8        iTermination,
+                                                      mng_uint32       iItermin,
+                                                      mng_uint32       iItermax,
+                                                      mng_uint32       iCount,
+                                                      mng_uint32p      pSignals);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_endl       (mng_handle       hHandle,
+                                                      mng_uint8        iLevel);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_defi       (mng_handle       hHandle,
+                                                      mng_uint16       iObjectid,
+                                                      mng_uint8        iDonotshow,
+                                                      mng_uint8        iConcrete,
+                                                      mng_bool         bHasloca,
+                                                      mng_int32        iXlocation,
+                                                      mng_int32        iYlocation,
+                                                      mng_bool         bHasclip,
+                                                      mng_int32        iLeftcb,
+                                                      mng_int32        iRightcb,
+                                                      mng_int32        iTopcb,
+                                                      mng_int32        iBottomcb);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_basi       (mng_handle       hHandle,
+                                                      mng_uint32       iWidth,
+                                                      mng_uint32       iHeight,
+                                                      mng_uint8        iBitdepth,
+                                                      mng_uint8        iColortype,
+                                                      mng_uint8        iCompression,
+                                                      mng_uint8        iFilter,
+                                                      mng_uint8        iInterlace,
+                                                      mng_uint16       iRed,
+                                                      mng_uint16       iGreen,
+                                                      mng_uint16       iBlue,
+                                                      mng_uint16       iAlpha,
+                                                      mng_uint8        iViewable);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_clon       (mng_handle       hHandle,
+                                                      mng_uint16       iSourceid,
+                                                      mng_uint16       iCloneid,
+                                                      mng_uint8        iClonetype,
+                                                      mng_uint8        iDonotshow,
+                                                      mng_uint8        iConcrete,
+                                                      mng_bool         bHasloca,
+                                                      mng_uint8        iLocationtype,
+                                                      mng_int32        iLocationx,
+                                                      mng_int32        iLocationy);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_past       (mng_handle       hHandle,
+                                                      mng_uint16       iDestid,
+                                                      mng_uint8        iTargettype,
+                                                      mng_int32        iTargetx,
+                                                      mng_int32        iTargety,
+                                                      mng_uint32       iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_past_src   (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint16       iSourceid,
+                                                      mng_uint8        iComposition,
+                                                      mng_uint8        iOrientation,
+                                                      mng_uint8        iOffsettype,
+                                                      mng_int32        iOffsetx,
+                                                      mng_int32        iOffsety,
+                                                      mng_uint8        iBoundarytype,
+                                                      mng_int32        iBoundaryl,
+                                                      mng_int32        iBoundaryr,
+                                                      mng_int32        iBoundaryt,
+                                                      mng_int32        iBoundaryb);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_disc       (mng_handle       hHandle,
+                                                      mng_uint32       iCount,
+                                                      mng_uint16p      pObjectids);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_back       (mng_handle       hHandle,
+                                                      mng_uint16       iRed,
+                                                      mng_uint16       iGreen,
+                                                      mng_uint16       iBlue,
+                                                      mng_uint8        iMandatory,
+                                                      mng_uint16       iImageid,
+                                                      mng_uint8        iTile);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_fram       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint8        iMode,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName,
+                                                      mng_uint8        iChangedelay,
+                                                      mng_uint8        iChangetimeout,
+                                                      mng_uint8        iChangeclipping,
+                                                      mng_uint8        iChangesyncid,
+                                                      mng_uint32       iDelay,
+                                                      mng_uint32       iTimeout,
+                                                      mng_uint8        iBoundarytype,
+                                                      mng_int32        iBoundaryl,
+                                                      mng_int32        iBoundaryr,
+                                                      mng_int32        iBoundaryt,
+                                                      mng_int32        iBoundaryb,
+                                                      mng_uint32       iCount,
+                                                      mng_uint32p      pSyncids);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_move       (mng_handle       hHandle,
+                                                      mng_uint16       iFirstid,
+                                                      mng_uint16       iLastid,
+                                                      mng_uint8        iMovetype,
+                                                      mng_int32        iMovex,
+                                                      mng_int32        iMovey);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_clip       (mng_handle       hHandle,
+                                                      mng_uint16       iFirstid,
+                                                      mng_uint16       iLastid,
+                                                      mng_uint8        iCliptype,
+                                                      mng_int32        iClipl,
+                                                      mng_int32        iClipr,
+                                                      mng_int32        iClipt,
+                                                      mng_int32        iClipb);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_show       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint16       iFirstid,
+                                                      mng_uint16       iLastid,
+                                                      mng_uint8        iMode);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_term       (mng_handle       hHandle,
+                                                      mng_uint8        iTermaction,
+                                                      mng_uint8        iIteraction,
+                                                      mng_uint32       iDelay,
+                                                      mng_uint32       iItermax);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_save       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint8        iOffsettype,
+                                                      mng_uint32       iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_save_entry (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint8        iEntrytype,
+                                                      mng_uint32arr2   iOffset,
+                                                      mng_uint32arr2   iStarttime,
+                                                      mng_uint32       iLayernr,
+                                                      mng_uint32       iFramenr,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_seek       (mng_handle       hHandle,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_expi       (mng_handle       hHandle,
+                                                      mng_uint16       iSnapshotid,
+                                                      mng_uint32       iNamesize,
+                                                      mng_pchar        zName);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_fpri       (mng_handle       hHandle,
+                                                      mng_uint8        iDeltatype,
+                                                      mng_uint8        iPriority);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_need       (mng_handle       hHandle,
+                                                      mng_uint32       iKeywordssize,
+                                                      mng_pchar        zKeywords);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_phyg       (mng_handle       hHandle,
+                                                      mng_bool         bEmpty,
+                                                      mng_uint32       iSizex,
+                                                      mng_uint32       iSizey,
+                                                      mng_uint8        iUnit);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_jhdr       (mng_handle       hHandle,
+                                                      mng_uint32       iWidth,
+                                                      mng_uint32       iHeight,
+                                                      mng_uint8        iColortype,
+                                                      mng_uint8        iImagesampledepth,
+                                                      mng_uint8        iImagecompression,
+                                                      mng_uint8        iImageinterlace,
+                                                      mng_uint8        iAlphasampledepth,
+                                                      mng_uint8        iAlphacompression,
+                                                      mng_uint8        iAlphafilter,
+                                                      mng_uint8        iAlphainterlace);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_jdat       (mng_handle       hHandle,
+                                                      mng_uint32       iRawlen,
+                                                      mng_ptr          pRawdata);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_jsep       (mng_handle       hHandle);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_dhdr       (mng_handle       hHandle,
+                                                      mng_uint16       iObjectid,
+                                                      mng_uint8        iImagetype,
+                                                      mng_uint8        iDeltatype,
+                                                      mng_uint32       iBlockwidth,
+                                                      mng_uint32       iBlockheight,
+                                                      mng_uint32       iBlockx,
+                                                      mng_uint32       iBlocky);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_prom       (mng_handle       hHandle,
+                                                      mng_uint8        iColortype,
+                                                      mng_uint8        iSampledepth,
+                                                      mng_uint8        iFilltype);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_ipng       (mng_handle       hHandle);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_pplt       (mng_handle       hHandle,
+                                                      mng_uint32       iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint16       iRed,
+                                                      mng_uint16       iGreen,
+                                                      mng_uint16       iBlue,
+                                                      mng_uint16       iAlpha,
+                                                      mng_bool         bUsed);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_jpng       (mng_handle       hHandle);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_drop       (mng_handle       hHandle,
+                                                      mng_uint32       iCount,
+                                                      mng_chunkidp     pChunknames);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_dbyk       (mng_handle       hHandle,
+                                                      mng_chunkid      iChunkname,
+                                                      mng_uint8        iPolarity,
+                                                      mng_uint32       iKeywordssize,
+                                                      mng_pchar        zKeywords);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_ordr       (mng_handle       hHandle,
+                                                      mng_uint32       iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_chunkid      iChunkname,
+                                                      mng_uint8        iOrdertype);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_unknown    (mng_handle       hHandle,
+                                                      mng_chunkid      iChunkname,
+                                                      mng_uint32       iRawlen,
+                                                      mng_ptr          pRawdata);
+
+/* ************************************************************************** */
+/* use these functions to access the actual image-data in stored chunks,
+   as opposed to the IDAT/JDAT data */
+/* to get accurate pixel-data the canvasstyle should seriously reflect the
+   bitdepth/colortype combination of the preceding IHDR/JHDR/BASI/DHDR;
+   all input can be converted to rgb(a)8 (rgb(a)16 for 16-bit images), but
+   there are only limited conversions back (see below for putimgdata)  */
+
+/* call this function if you want to extract the nth image from the list;
+   the first image is designated seqnr 0! */
+/* this function finds the IHDR/JHDR/BASI/DHDR with the appropriate seqnr,
+   starting from the beginning of the chunk-list; this may tend to get a little
+   slow for animations with a large number of chunks for images near the end */
+/* supplying a seqnr past the last image in the animation will return with
+   an errorcode */   
+MNG_EXT mng_retcode MNG_DECL mng_getimgdata_seq      (mng_handle        hHandle,
+                                                      mng_uint32        iSeqnr,
+                                                      mng_uint32        iCanvasstyle,
+                                                      mng_getcanvasline fGetcanvasline);
+
+/* both the following functions will search forward to find the first IDAT/JDAT,
+   and then traverse back to find the start of the image (IHDR,JHDR,DHDR,BASI);
+   note that this is very fast compared to decoding the IDAT/JDAT, so there's
+   not really a need for optimization; either can be called from the
+   iterate_chunks callback when a IHDR/JHDR is encountered; for BASI/DHDR there
+   may not be real image-data so it's wisest to keep iterating till the IEND,
+   and then call either of these functions if necessary (remember the correct seqnr!) */
+
+/* call this function if you want to extract the image starting at or after the nth
+   position in the chunk-list; this number is returned in the iterate_chunks callback */
+MNG_EXT mng_retcode MNG_DECL mng_getimgdata_chunkseq (mng_handle        hHandle,
+                                                      mng_uint32        iSeqnr,
+                                                      mng_uint32        iCanvasstyle,
+                                                      mng_getcanvasline fGetcanvasline);
+
+/* call this function if you want to extract the image starting at or after the
+   indicated chunk; the handle of a chunk is returned in the iterate_chunks callback */
+MNG_EXT mng_retcode MNG_DECL mng_getimgdata_chunk    (mng_handle        hHandle,
+                                                      mng_handle        hChunk,
+                                                      mng_uint32        iCanvasstyle,
+                                                      mng_getcanvasline fGetcanvasline);
+
+/* ************************************************************************** */
+/* use the following functions to add image-data to the list of stored chunks */
+/* note that this only adds the IDAT or JDAT chunks and no others; you must call
+   one of these functions after you 'put' the initial chunks of the image and
+   before you 'put' the closing chunks */
+/* the canvasstyle should seriously reflect the bitdepth/colortype combination;
+   eg. bitdepth=16 would expect a 16-bit canvasstyle,
+   colortype=g or ga would expect a gray or gray+alpha style respectively
+   and so on, and so forth ...
+   (nb. the number of conversions will be extremely limited for the moment!) */
+
+MNG_EXT mng_retcode MNG_DECL mng_putimgdata_ihdr     (mng_handle        hHandle,
+                                                      mng_uint32        iWidth,
+                                                      mng_uint32        iHeight,
+                                                      mng_uint8         iColortype,
+                                                      mng_uint8         iBitdepth,
+                                                      mng_uint8         iCompression,
+                                                      mng_uint8         iFilter,
+                                                      mng_uint8         iInterlace,
+                                                      mng_uint32        iCanvasstyle,
+                                                      mng_getcanvasline fGetcanvasline);
+
+MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
+                                                      mng_uint32        iWidth,
+                                                      mng_uint32        iHeight,
+                                                      mng_uint8         iColortype,
+                                                      mng_uint8         iBitdepth,
+                                                      mng_uint8         iCompression,
+                                                      mng_uint8         iInterlace,
+                                                      mng_uint8         iAlphaBitdepth,
+                                                      mng_uint8         iAlphaCompression,
+                                                      mng_uint8         iAlphaFilter,
+                                                      mng_uint8         iAlphaInterlace,
+                                                      mng_uint32        iCanvasstyle,
+                                                      mng_getcanvasline fGetcanvasline);
+
+/* ************************************************************************** */
 
 #endif /* mng_access_chunks */
 
@@ -732,7 +1697,7 @@ MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks (mng_handle hHandle);
 #define MNG_CANVAS_DX15      0x00000003L         /* not supported yet */
 #define MNG_CANVAS_DX16      0x00000004L         /* not supported yet */
 
-#define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000ffL)
+#define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000FFL)
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)
 #define MNG_CANVAS_HASALPHA(C)   (C & 0x00001000L)
 #define MNG_CANVAS_ALPHAFIRST(C) (C & 0x00002000L)
@@ -838,6 +1803,8 @@ MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks (mng_handle hHandle);
 #define MNG_INTERLACE_SEQUENTIAL      0
 #define MNG_INTERLACE_PROGRESSIVE     8
 #endif /* MNG_INCLUDE_JNG */
+
+/* TODO: plenty more values to be defined */
 
 /* ************************************************************************** */
 /* *                                                                        * */

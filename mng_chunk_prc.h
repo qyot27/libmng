@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_prc.h           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (definition)                * */
 /* *                                                                        * */
@@ -15,22 +15,26 @@
 /* *                                                                        * */
 /* * comment   : definition of the chunk initialization & cleanup routines  * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_chunk_prc_h_
 #define _mng_chunk_prc_h_
 
-#ifndef _libmng_h_                     /* save some compilation-time */
-#include <libmng.h>
-#endif
+#include "libmng.h"
+#include "mng_data.h"
+#include "mng_chunks.h"
 
-#include <mng_chunks.h>
+/* ************************************************************************** */
+
+void add_chunk (mng_datap  pData,
+                mng_chunkp pChunk);
 
 /* ************************************************************************** */
 

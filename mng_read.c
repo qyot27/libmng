@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_read.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -15,26 +15,34 @@
 /* *                                                                        * */
 /* * comment   : implementation of the high-level read logic                * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
+/* *             - added callback error-reporting support                   * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - changed trace to macro for callback error-reporting      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
-#pragma option -A                      /* force ANSI-C */
-#endif
-
 #include "libmng.h"
 #include "mng_data.h"
+#include "mng_error.h"
+#include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
 #include "mng_objects.h"
 #include "mng_object_prc.h"
 #include "mng_chunks.h"
 #include "mng_chunk_prc.h"
 #include "mng_chunk_io.h"
-#include "mng_error.h"
 #include "mng_memory.h"
-#include "mng_trace.h"
 #include "mng_display.h"
 #include "mng_read.h"
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -123,7 +131,7 @@ mng_retcode process_raw_chunk (mng_datap  pData,
   mng_retcode       iRetcode;          /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START);
 #endif
                                        /* get the chunkname */
   iChunkname = (mng_chunkid)(mng_get_uint32 (pBuf));
@@ -175,20 +183,10 @@ mng_retcode process_raw_chunk (mng_datap  pData,
     iRetcode = MNG_NOERROR;
 
   if (pChunk)                          /* store this chunk ? */
-  {
-    if (!pData->pFirstchunk)           /* list is still empty ? */
-      pData->pFirstchunk = pChunk;     /* then this becomes the first */
-    else
-    {                                  /* else we make appropriate links */
-      ((mng_chunk_headerp)pChunk)->pPrev = pData->pLastchunk;
-      ((mng_chunk_headerp)pData->pLastchunk)->pNext = pChunk;
-    }
-
-    pData->pLastchunk = pChunk;        /* and it's always the last */
-  }
+    add_chunk (pData, pChunk);         /* do it */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -208,7 +206,7 @@ mng_retcode read_chunk (mng_datap  pData)
   mng_retcode iRetcode  = MNG_NOERROR; 
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_READ_CHUNK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START);
 #endif
 
   if (pData->pCurraniobj)              /* processing an animation object ? */
@@ -251,8 +249,10 @@ mng_retcode read_chunk (mng_datap  pData)
   if ((!pData->bTimerset) && (!pData->bEOF))
   {
     iBuflen = sizeof (iChunklen);      /* read length */
-    pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead);
 
+    if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
+      iRetcode = MNG_APPIOERROR;
+    else
     if (iRead == iBuflen)              /* not eof ? */
     {                                  /* determine chunklength */
       iChunklen = mng_get_uint32 (pBuf);
@@ -262,14 +262,15 @@ mng_retcode read_chunk (mng_datap  pData)
       if (iBuflen < iBufmax)           /* does it fit in default buffer ? */
       {                                /* note that we don't use the full size
                                           so there's always a zero-byte at the
-                                          end !!! */
-        pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead);
-
+                                          very end !!! */
+        if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pBuf), iBuflen, &iRead))
+          iRetcode = MNG_APPIOERROR;
+        else
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
         {                              /* calculate the crc */
-          iCrc = crc (pBuf, iBuflen - sizeof (iCrc));
+          iCrc = crc (pData, pBuf, iBuflen - sizeof (iCrc));
                                        /* and check it */
           if (!(iCrc == mng_get_uint32 (pBuf + iBuflen - sizeof (iCrc))))
             iRetcode = MNG_INVALIDCRC;
@@ -283,13 +284,14 @@ mng_retcode read_chunk (mng_datap  pData)
                                        /* again reserve space for the last zero-byte */
         MNG_ALLOC (pData, pExtra, iBuflen+1)
 
-        pData->fReaddata (((mng_handle)pData), ((mng_ptr)pExtra), iBuflen, &iRead);
-
+        if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pExtra), iBuflen, &iRead))
+          iRetcode = MNG_APPIOERROR;
+        else
         if (iRead != iBuflen)          /* did we get all the data ? */
           iRetcode = MNG_UNEXPECTEDEOF;
         else
         {                              /* calculate the crc */
-          iCrc = crc (pExtra, iBuflen - sizeof (iCrc));
+          iCrc = crc (pData, pExtra, iBuflen - sizeof (iCrc));
                                        /* and check it */
           if (!(iCrc == mng_get_uint32 (pExtra + iBuflen - sizeof (iCrc))))
             iRetcode = MNG_INVALIDCRC;
@@ -319,7 +321,7 @@ mng_retcode read_chunk (mng_datap  pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_READ_CHUNK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -335,7 +337,7 @@ mng_retcode read_graphic (mng_datap pData)
   mng_retcode iRetcode;                /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START);
 #endif
 
   if (!pData->pReadbuf)                /* buffer allocated ? */
@@ -347,7 +349,9 @@ mng_retcode read_graphic (mng_datap pData)
   if (!pData->bHavesig)                /* haven't processed the signature ? */
   {
     iBuflen = 2 * sizeof (mng_uint32); /* read signature */
-    pData->fReaddata (((mng_handle)pData), ((mng_ptr)pData->pReadbuf), iBuflen, &iRead);
+
+    if (!pData->fReaddata (((mng_handle)pData), ((mng_ptr)pData->pReadbuf), iBuflen, &iRead))
+      MNG_ERROR (pData, MNG_APPIOERROR)
 
     if (iRead != iBuflen)              /* full signature received ? */
       MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
@@ -377,8 +381,9 @@ mng_retcode read_graphic (mng_datap pData)
       return iRetcode;
 
     if (pData->bEOF)                   /* reached EOF ? */
-      pData->fClosestream ((mng_handle)pData);
-        
+      if (!pData->fClosestream ((mng_handle)pData))
+        MNG_ERROR (pData, MNG_APPIOERROR)
+
   }
 #ifdef MNG_SUPPORT_DISPLAY             /* until EOF or the timer has been set */
   while ((!pData->bEOF) && (!pData->bTimerset));
@@ -387,7 +392,7 @@ mng_retcode read_graphic (mng_datap pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

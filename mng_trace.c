@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -15,17 +15,24 @@
 /* *                                                                        * */
 /* * comment   : implementation of the trace functions                      * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                        **nobody**  * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
+/* *             - added callback error-reporting support                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __borlandc__
-#pragma option -A
-#endif
-
 #include "libmng.h"
 #include "mng_data.h"
+#include "mng_error.h"
 #include "mng_trace.h"
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 /* ************************************************************************** */
 
@@ -33,14 +40,14 @@
 
 /* ************************************************************************** */
 
-void mng_trace (mng_datap  pData,
-                mng_uint32 iFunction,
-                mng_uint32 iLocation)
+mng_retcode mng_trace (mng_datap  pData,
+                       mng_uint32 iFunction,
+                       mng_uint32 iLocation)
 {
   mng_pchar zName = 0;                 /* bufferptr for tracestring */
 
   if ((pData == 0) || (pData->iMagic != MNG_MAGIC))
-    return;                            /* no good if the handle is corrupt */
+    return MNG_INVALIDHANDLE;          /* no good if the handle is corrupt */
 
   if (pData->fTraceproc)               /* report back to user ? */
   {
@@ -52,8 +59,12 @@ void mng_trace (mng_datap  pData,
 
 #endif
                                        /* oke, now tell */
-    pData->fTraceproc (((mng_handle)pData), iFunction, iLocation, zName);
+    if (!pData->fTraceproc (((mng_handle)pData), iFunction, iLocation, zName))
+      return MNG_APPTRACEABORT;
+
   }
+
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */

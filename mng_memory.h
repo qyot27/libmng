@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_memory.h              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Memory management (definition)                             * */
 /* *                                                                        * */
@@ -15,26 +15,21 @@
 /* *                                                                        * */
 /* * comment   : Definition of memory management functions                  * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* force ANSI-C */
 #endif
 
 #ifndef _mng_memory_h_
 #define _mng_memory_h_
 
-#include <mem.h>                       /* defines "memcpy" */
-
-#ifdef MNG_INTERNAL_MEMMNGMT
-#include <stdlib.h>                    /* defines calloc & free */
-#endif
-
-#ifndef _libmng_h_                     /* save some compilation-time */
-#include <libmng.h>
-#endif
+#include "libmng.h"
+#include "mng_data.h"
+#include "mng_error.h"
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -56,7 +51,7 @@
 #define MNG_FREEX(H,P,L)  { if (P) { H->fMemfree (P, L); } }
 #endif /* mng_internal_memmngmt */
 
-#define MNG_COPY(S,D,L)  memcpy (S, D, L);
+#define MNG_COPY(S,D,L)   { memcpy (S, D, L); }
 
 /* ************************************************************************** */
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunks.h              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.0                                                      * */
+/* * version   : 0.5.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk structures (definition)                              * */
 /* *                                                                        * */
@@ -15,9 +15,21 @@
 /* *                                                                        * */
 /* * comment   : Definition of known chunk structures                       * */
 /* *                                                                        * */
-/* * changes   : 0.5.0 ../../.. **none**                                    * */
+/* * changes   : 0.5.1 - 05/04/2000 - G.Juyn                                * */
+/* *             - put in some extra comments                               * */
+/* *             0.5.1 - 05/06/2000 - G.Juyn                                * */
+/* *             - fixed layout for sBIT, PPLT                              * */
+/* *             0.5.1 - 05/08/2000 - G.Juyn                                * */
+/* *             - changed write callback definition                        * */
+/* *             - changed strict-ANSI stuff                                * */
+/* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
+/* *             - fixed layout for PPLT again (missed deltatype ?!?)       * */
 /* *                                                                        * */
 /* ************************************************************************** */
+
+#if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
+#pragma option -A                      /* force ANSI-C */
+#endif
 
 #ifndef _mng_chunks_h_
 #define _mng_chunks_h_
@@ -67,13 +79,11 @@ typedef mng_retcode (*mng_readchunk)    (mng_datap   pData,
                                          mng_chunkp* pChunk);
 
 typedef mng_retcode (*mng_writechunk)   (mng_datap   pData,
-                                         mng_chunkp  pChunk,
-                                         mng_uint32* iRawlen,
-                                         mng_uint8p* pRawdata);
+                                         mng_chunkp  pChunk);
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* generic header */
            mng_chunkid       iChunkname;
            mng_createchunk   fCreate;
            mng_cleanupchunk  fCleanup;
@@ -86,7 +96,7 @@ typedef mng_chunk_header * mng_chunk_headerp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* IHDR */
            mng_chunk_header  sHeader;
            mng_uint32        iWidth;
            mng_uint32        iHeight;
@@ -100,7 +110,7 @@ typedef mng_ihdr * mng_ihdrp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* PLTE */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iEntrycount;
@@ -110,7 +120,7 @@ typedef mng_plte * mng_pltep;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* IDAT */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iDatasize;
@@ -120,32 +130,32 @@ typedef mng_idat * mng_idatp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* IEND */
            mng_chunk_header  sHeader;
         } mng_iend;
 typedef mng_iend * mng_iendp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* tRNS */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_bool          bGlobal;
-           mng_uint8         iType;    /* colortype (0,2,3,4,6) */
+           mng_uint8         iType;    /* colortype (0,2,3) */
            mng_uint32        iCount;
-           mng_uint8         aEntries[256];
+           mng_uint8arr      aEntries;
            mng_uint16        iGray;
            mng_uint16        iRed;
            mng_uint16        iGreen;
            mng_uint16        iBlue;
            mng_uint32        iRawlen;
-           mng_uint8         aRawdata[256];
+           mng_uint8arr      aRawdata;
         } mng_trns;
 typedef mng_trns * mng_trnsp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* gAMA */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iGamma;
@@ -154,7 +164,7 @@ typedef mng_gama * mng_gamap;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* cHRM */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iWhitepointx;
@@ -170,7 +180,7 @@ typedef mng_chrm * mng_chrmp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* sRGB */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint8         iRenderingintent;
@@ -179,7 +189,7 @@ typedef mng_srgb * mng_srgbp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* iCCP */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iNamesize;
@@ -192,7 +202,7 @@ typedef mng_iccp * mng_iccpp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* tEXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
            mng_pchar         zKeyword;
@@ -203,7 +213,7 @@ typedef mng_text * mng_textp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* zTXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
            mng_pchar         zKeyword;
@@ -215,7 +225,7 @@ typedef mng_ztxt * mng_ztxtp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* iTXt */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordsize;
            mng_pchar         zKeyword;
@@ -232,7 +242,7 @@ typedef mng_itxt * mng_itxtp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* bKGD */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint8         iType;    /* 3=indexed, 0=gray, 2=rgb */
@@ -246,7 +256,7 @@ typedef mng_bkgd * mng_bkgdp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* pHYs */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iSizex;
@@ -257,17 +267,17 @@ typedef mng_phys * mng_physp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* sBIT */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
-           mng_uint8         iType;    /* colortype (0,2,3,4,6) */
-           mng_uint8         aBits[3];
+           mng_uint8         iType;    /* colortype (0,2,3,4,6,10,12,14,16) */
+           mng_uint8arr4     aBits;
         } mng_sbit;
 typedef mng_sbit * mng_sbitp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* sPLT */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint32        iNamesize;
@@ -280,16 +290,16 @@ typedef mng_splt * mng_spltp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* hIST */
            mng_chunk_header  sHeader;
            mng_uint32        iEntrycount;
-           mng_int16         aEntries[256];
+           mng_uint16arr     aEntries;
         } mng_hist;
 typedef mng_hist * mng_histp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* tIME */
            mng_chunk_header  sHeader;
            mng_uint16        iYear;
            mng_uint8         iMonth;
@@ -302,7 +312,7 @@ typedef mng_time * mng_timep;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* MHDR */
            mng_chunk_header  sHeader;
            mng_uint32        iWidth;
            mng_uint32        iHeight;
@@ -316,14 +326,14 @@ typedef mng_mhdr * mng_mhdrp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* MEND */
            mng_chunk_header  sHeader;
         } mng_mend;
 typedef mng_mend * mng_mendp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* LOOP */
            mng_chunk_header  sHeader;
            mng_uint8         iLevel;
            mng_uint32        iRepeat;
@@ -337,7 +347,7 @@ typedef mng_loop * mng_loopp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* ENDL */
            mng_chunk_header  sHeader;
            mng_uint8         iLevel;
         } mng_endl;
@@ -345,7 +355,7 @@ typedef mng_endl * mng_endlp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* DEFI */
            mng_chunk_header  sHeader;
            mng_uint16        iObjectid;
            mng_uint8         iDonotshow;
@@ -363,7 +373,7 @@ typedef mng_defi * mng_defip;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* BASI */
            mng_chunk_header  sHeader;
            mng_uint32        iWidth;
            mng_uint32        iHeight;
@@ -382,7 +392,7 @@ typedef mng_basi * mng_basip;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* CLON */
            mng_chunk_header  sHeader;
            mng_uint16        iSourceid;
            mng_uint16        iCloneid;
@@ -398,7 +408,7 @@ typedef mng_clon * mng_clonp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* PAST source */
            mng_uint16        iSourceid;
            mng_uint8         iComposition;
            mng_uint8         iOrientation;
@@ -413,7 +423,7 @@ typedef struct {
         } mng_past_source;
 typedef mng_past_source * mng_past_sourcep;
 
-typedef struct {
+typedef struct {                       /* PAST */
            mng_chunk_header  sHeader;
            mng_uint16        iDestid;
            mng_uint8         iTargettype;
@@ -426,7 +436,7 @@ typedef mng_past * mng_pastp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* DISC */
            mng_chunk_header  sHeader;
            mng_uint32        iCount;
            mng_uint16p       pObjectids;
@@ -435,7 +445,7 @@ typedef mng_disc * mng_discp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* BACK */
            mng_chunk_header  sHeader;
            mng_uint16        iRed;
            mng_uint16        iGreen;
@@ -448,7 +458,7 @@ typedef mng_back * mng_backp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* FRAM */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint8         iMode;
@@ -472,7 +482,7 @@ typedef mng_fram * mng_framp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* MOVE */
            mng_chunk_header  sHeader;
            mng_uint16        iFirstid;
            mng_uint16        iLastid;
@@ -484,7 +494,7 @@ typedef mng_move * mng_movep;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* CLIP */
            mng_chunk_header  sHeader;
            mng_uint16        iFirstid;
            mng_uint16        iLastid;
@@ -498,7 +508,7 @@ typedef mng_clip * mng_clipp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* SHOW */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint16        iFirstid;
@@ -509,7 +519,7 @@ typedef mng_show * mng_showp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* TERM */
            mng_chunk_header  sHeader;
            mng_uint8         iTermaction;
            mng_uint8         iIteraction;
@@ -520,10 +530,10 @@ typedef mng_term * mng_termp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* SAVE entry */
            mng_uint8         iEntrytype;
-           mng_uint32        iOffset[2];
-           mng_uint32        iStarttime[2];
+           mng_uint32arr2    iOffset;            /* 0=MSI, 1=LSI */
+           mng_uint32arr2    iStarttime;         /* 0=MSI, 1=LSI */
            mng_uint32        iLayernr;
            mng_uint32        iFramenr;
            mng_uint32        iNamesize;
@@ -531,8 +541,9 @@ typedef struct {
         } mng_save_entry;
 typedef mng_save_entry * mng_save_entryp;
 
-typedef struct {
+typedef struct {                       /* SAVE */
            mng_chunk_header  sHeader;
+           mng_bool          bEmpty;
            mng_uint8         iOffsettype;
            mng_uint32        iCount;
            mng_save_entryp   pEntries;
@@ -541,7 +552,7 @@ typedef mng_save * mng_savep;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* SEEK */
            mng_chunk_header  sHeader;
            mng_uint32        iNamesize;
            mng_pchar         zName;
@@ -550,7 +561,7 @@ typedef mng_seek * mng_seekp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* eXPI */
            mng_chunk_header  sHeader;
            mng_uint16        iSnapshotid;
            mng_uint32        iNamesize;
@@ -560,7 +571,7 @@ typedef mng_expi * mng_expip;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* fPRI */
            mng_chunk_header  sHeader;
            mng_uint8         iDeltatype;
            mng_uint8         iPriority;
@@ -569,7 +580,7 @@ typedef mng_fpri * mng_fprip;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* nEED */
            mng_chunk_header  sHeader;
            mng_uint32        iKeywordssize;
            mng_pchar         zKeywords;
@@ -578,14 +589,14 @@ typedef mng_need * mng_needp;
 
 /* ************************************************************************** */
 
-typedef mng_phys mng_phyg;
+typedef mng_phys mng_phyg;             /* pHYg */
 typedef mng_phyg * mng_phygp;
 
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
 
-typedef struct {
+typedef struct {                       /* JHDR */
            mng_chunk_header  sHeader;
            mng_uint32        iWidth;
            mng_uint32        iHeight;
@@ -602,12 +613,12 @@ typedef mng_jhdr * mng_jhdrp;
 
 /* ************************************************************************** */
 
-typedef mng_idat mng_jdat;
+typedef mng_idat mng_jdat;             /* JDAT */
 typedef mng_jdat * mng_jdatp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* JSEP */
            mng_chunk_header  sHeader;
         } mng_jsep;
 typedef mng_jsep * mng_jsepp;
@@ -616,7 +627,7 @@ typedef mng_jsep * mng_jsepp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* DHDR */
            mng_chunk_header  sHeader;
            mng_uint16        iObjectid;
            mng_uint8         iImagetype;
@@ -630,7 +641,7 @@ typedef mng_dhdr * mng_dhdrp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* PROM */
            mng_chunk_header  sHeader;
            mng_uint8         iColortype;
            mng_uint8         iSampledepth;
@@ -640,22 +651,25 @@ typedef mng_prom * mng_promp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* IPNG */
            mng_chunk_header  sHeader;
         } mng_ipng;
 typedef mng_ipng *mng_ipngp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* PPLT entry */
            mng_uint8         iRed;
            mng_uint8         iGreen;
            mng_uint8         iBlue;
+           mng_uint8         iAlpha;
            mng_bool          bUsed;
         } mng_pplt_entry;
+typedef mng_pplt_entry * mng_pplt_entryp;
 
-typedef struct {
+typedef struct {                       /* PPLT */
            mng_chunk_header  sHeader;
+           mng_uint8         iDeltatype;
            mng_uint32        iCount;
            mng_pplt_entry    aEntries [256];
         } mng_pplt;
@@ -663,14 +677,14 @@ typedef mng_pplt * mng_ppltp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* IJNG */
            mng_chunk_header  sHeader;
         } mng_ijng;
 typedef mng_ijng *mng_ijngp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* DROP */
            mng_chunk_header  sHeader;
            mng_uint32        iCount;
            mng_chunkidp      pChunknames;
@@ -679,7 +693,7 @@ typedef mng_drop * mng_dropp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* DBYK */
            mng_chunk_header  sHeader;
            mng_chunkid       iChunkname;
            mng_uint8         iPolarity;
@@ -690,13 +704,13 @@ typedef mng_dbyk * mng_dbykp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* ORDR entry */
            mng_chunkid       iChunkname;
            mng_uint8         iOrdertype;
         } mng_ordr_entry;
 typedef mng_ordr_entry * mng_ordr_entryp;
 
-typedef struct mng_ordr_struct {
+typedef struct mng_ordr_struct {       /* ORDR */
            mng_chunk_header  sHeader;
            mng_uint32        iCount;
            mng_ordr_entryp   pEntries;
@@ -705,7 +719,7 @@ typedef mng_ordr * mng_ordrp;
 
 /* ************************************************************************** */
 
-typedef struct {
+typedef struct {                       /* unknown chunk */
            mng_chunk_header  sHeader;
            mng_uint32        iDatasize;
            mng_ptr           pData;
