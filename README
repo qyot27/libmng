@@ -1,11 +1,11 @@
-libmng 1.0.5-b3
----------------
+libmng 1.0.5-rc1
+----------------
 
-Third beta of the upcoming 1.0.5 release.
+First release-candidate for the upcoming 1.0.5 version.
 
-This fixes a couple of bad booboo's introduced in b2. The new code for
-termination_action=2 for TERM chunk handling worked great in its own, but had
-some undesirable side-effects. All is well again now!
+This fixes a few small problems and brings the TERM/MEND processing, with
+respect to interframe_delay as per the current discussion on MNG-list,
+up-to-date with the latest proposal.
 
 Gerard
 
