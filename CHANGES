@@ -14,10 +14,14 @@ bugfixes:
 core:
 - added CANVAS_RGB565 and CANVAS_BGR565 (big thanx to Raphael Assenat!!)
 - added CANVAS_RGBA565 and CANVAS_BGRA565 ( -- ditto -- )
+- upgraded to zlib 1.2.1
+- upgraded to lcms 1.11
 
 samples:
 
 contrib:
+- fixed mngtree sample (Raphael)
+- added 5-6-5 canvas to SDL sample (Raphael)
 
 doc:
 
