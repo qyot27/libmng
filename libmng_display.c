@@ -118,6 +118,11 @@
 /* *             - fixed possible loop in display_resume() (Thanks Vova!)   * */
 /* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
 /* *             - fixed unwanted repetition in mng_readdisplay()           * */
+/* *             0.9.4 - 11/24/2000 - G.Juyn                                * */
+/* *             - moved restore of object 0 to libmng_display              * */
+/* *             - added restore of object 0 to TERM processing !!!         * */
+/* *             - fixed TERM delay processing                              * */
+/* *             - fixed TERM end processing (count = 0)                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1486,14 +1491,52 @@ mng_retcode save_state (mng_datap pData)
 
 /* ************************************************************************** */
 
+mng_retcode mng_reset_objzero (mng_datap pData)
+{
+  mng_imagep  pImage   = (mng_imagep)pData->pObjzero;
+  mng_retcode iRetcode = reset_object_details (pData, pImage, 0, 0, 0,
+                                               0, 0, 0, 0, MNG_TRUE);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  pImage->bVisible             = MNG_TRUE;
+  pImage->bViewable            = MNG_TRUE;
+  pImage->iPosx                = 0;
+  pImage->iPosy                = 0;
+  pImage->bClipped             = MNG_FALSE;
+  pImage->iClipl               = 0;
+  pImage->iClipr               = 0;
+  pImage->iClipt               = 0;
+  pImage->iClipb               = 0;
+  pImage->iMAGN_MethodX        = 0;
+  pImage->iMAGN_MethodY        = 0;
+  pImage->iMAGN_MX             = 0;
+  pImage->iMAGN_MY             = 0;
+  pImage->iMAGN_ML             = 0;
+  pImage->iMAGN_MR             = 0;
+  pImage->iMAGN_MT             = 0;
+  pImage->iMAGN_MB             = 0;
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
 mng_retcode restore_state (mng_datap pData)
 {
   mng_savedatap pSave;
   mng_imagep    pImage;
+  mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_START)
 #endif
+                                       /* restore object 0 status !!! */
+  iRetcode = mng_reset_objzero (pData);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
   if (pData->pSavedata)                /* do we have a saved state ? */
   {
@@ -1647,7 +1690,6 @@ mng_retcode restore_state (mng_datap pData)
     {
       mng_imagep  pPrev = (mng_imagep)pImage->sHeader.pPrev;
       mng_imagep  pNext = (mng_imagep)pImage->sHeader.pNext;
-      mng_retcode iRetcode;
 
       if (pPrev)                       /* unlink it */
         pPrev->sHeader.pNext = pNext;
@@ -2353,14 +2395,12 @@ mng_retcode process_display_mend (mng_datap pData)
     switch (pTERM->iTermaction)        /* determine what to do! */
     {
       case 0 : {                       /* show last frame indefinitly */
-                 pData->bRunning       = MNG_FALSE;
                  break;                /* piece of cake, that is... */
                }
 
       case 1 : {                       /* cease displaying anything */
                  pData->bFrameclipping = MNG_FALSE;
                  load_bkgdlayer (pData);
-                 pData->bRunning       = MNG_FALSE;
                  break;
                }
 
@@ -2384,9 +2424,39 @@ mng_retcode process_display_mend (mng_datap pData)
                                        /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
 
-/* always refresh, or a zero delay will terminate the animation !!!! */                   
+/* always refresh, or a zero delay will terminate the animation !!!! */
                    if (pTERM->iDelay)  /* set the delay (?) */
-                     iRetcode = display_progressive_refresh (pData, pTERM->iDelay);
+                   {
+                     mng_uint32 iWaitfor = 1000;
+                                       /* what are we aiming for */
+                     if (pData->iTicks)
+                     {                 /* honor speed modifier */
+                       switch (pData->iSpeed)
+                       {
+                         case mng_st_fast :
+                           {
+                             iWaitfor = (mng_uint32)(( 500 * pTERM->iDelay) / pData->iTicks);
+                             break;
+                           }
+                         case mng_st_slow :
+                           {
+                             iWaitfor = (mng_uint32)((3000 * pTERM->iDelay) / pData->iTicks);
+                             break;
+                           }
+                         case mng_st_slowest :
+                           {
+                             iWaitfor = (mng_uint32)((8000 * pTERM->iDelay) / pData->iTicks);
+                             break;
+                           }
+                         default :
+                           {
+                             iWaitfor = (mng_uint32)((1000 * pTERM->iDelay) / pData->iTicks);
+                           }
+                       }
+                     }
+
+                     iRetcode = display_progressive_refresh (pData, iWaitfor);
+                   }
                    else
                      iRetcode = display_progressive_refresh (pData, 1);
 
@@ -2398,14 +2468,12 @@ mng_retcode process_display_mend (mng_datap pData)
                    switch (pTERM->iIteraction)
                    {
                      case 0 : {        /* show last frame indefinitly */
-                                pData->bRunning       = MNG_FALSE;
                                 break; /* piece of cake, that is... */
                               }
 
                      case 1 : {        /* cease displaying anything */
                                 pData->bFrameclipping = MNG_FALSE;
                                 load_bkgdlayer (pData);
-                                pData->bRunning       = MNG_FALSE;
                                 break;
                               }
 

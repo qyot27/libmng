@@ -112,6 +112,8 @@
 /* *                                                                        * */
 /* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
 /* *             - fixed unwanted repetition in mng_readdisplay()           * */
+/* *             0.9.4 - 11/24/2000 - G.Juyn                                * */
+/* *             - moved restore of object 0 to libmng_display              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -273,40 +275,6 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_END)
 #endif
-
-  return MNG_NOERROR;
-}
-#endif /* MNG_SUPPORT_DISPLAY */
-
-/* ************************************************************************** */
-
-#ifdef MNG_SUPPORT_DISPLAY
-mng_retcode mng_reset_objzero (mng_datap pData)
-{
-  mng_imagep  pImage   = (mng_imagep)pData->pObjzero;
-  mng_retcode iRetcode = reset_object_details (pData, pImage, 0, 0, 0,
-                                               0, 0, 0, 0, MNG_TRUE);
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-
-  pImage->bVisible             = MNG_TRUE;
-  pImage->bViewable            = MNG_TRUE;
-  pImage->iPosx                = 0;
-  pImage->iPosy                = 0;
-  pImage->bClipped             = MNG_FALSE;
-  pImage->iClipl               = 0;
-  pImage->iClipr               = 0;
-  pImage->iClipt               = 0;
-  pImage->iClipb               = 0;
-  pImage->iMAGN_MethodX        = 0;
-  pImage->iMAGN_MethodY        = 0;
-  pImage->iMAGN_MX             = 0;
-  pImage->iMAGN_MY             = 0;
-  pImage->iMAGN_ML             = 0;
-  pImage->iMAGN_MR             = 0;
-  pImage->iMAGN_MT             = 0;
-  pImage->iMAGN_MB             = 0;
 
   return MNG_NOERROR;
 }

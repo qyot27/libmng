@@ -17,7 +17,11 @@ core:
 - fixed unwanted repetition in mng_readdisplay()
 - changed inclusion of the lcms header file for non-windows platforms
 - changed IHDR filter_method check for PNGs                
- 
+- moved restore of object 0 to libmng_display              
+- added restore of object 0 to TERM processing !!!
+- fixed TERM delay processing                             
+- fixed TERM end processing (count = 0)                   
+
 samples:
 
 contrib:

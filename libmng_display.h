@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.h          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (definition)                            * */
 /* *                                                                        * */
@@ -36,6 +36,9 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added JDAA chunk                                         * */
 /* *                                                                        * */
+/* *             0.9.4 - 11/24/2000 - G.Juyn                                * */
+/* *             - moved restore of object 0 to libmng_display              * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -51,6 +54,8 @@ mng_retcode display_progressive_refresh (mng_datap  pData,
                                          mng_uint32 iInterval);
 
 /* ************************************************************************** */
+
+mng_retcode mng_reset_objzero     (mng_datap      pData);
 
 mng_retcode display_image         (mng_datap      pData,
                                    mng_imagep     pImage,
