@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 
-0.9.2 (August 6th 2000)
+0.9.2 (August 7th 2000)
 -----------------------
 
 in short:
@@ -14,9 +14,6 @@ autoconf/automake/libtool stuff and to Ralph Giles for helping me
 put it in the right places.
 
 There's a special README.autoconf so please read it!
-
-Note that autoconf/automake doesn't build a shared library. For those that
-require so, please have a look at the Linux makefile in the makefiles dir.
 
 - fixed bug 110320/110546/110547/111096
 - added several status retrieval functions
