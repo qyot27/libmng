@@ -8,9 +8,10 @@ in short:
 Intermediate for the moment.
 
 - fixed bug 111300
-- added workaround for faulty PhotoShop iCCP chunk      
+- added workaround for faulty PhotoShop iCCP chunk
 - added MAGN chunk
 - fixed other assorted stuff
+- added BCB mngview contribution by Andy Protano
 
 -------------------
 
@@ -27,8 +28,10 @@ core:
 - fixed read-code for iTXt
 - added MAGN chunk
 - fixed sRGB precedence for gamma_only corection
+- fixed internal alpha-blending
 
 samples:
+- added BCB mngview contribution by Andy Protano
 
 contrib:
 

@@ -20,3 +20,10 @@ Another nice contribution. View MNG files on practically any platform
 with this standalone viewer. (Source-code only)
 
 ----------------------------------------------------------------------
+
+mngview - A BCB port of the Delphi sample - by Andy Protano
+
+I have added this nice little port to the BCB samples directory.
+It adds a nifty progressbar while reading a file. Excellent work!
+
+----------------------------------------------------------------------
