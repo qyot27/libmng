@@ -1,7 +1,7 @@
 MNGPLG (for lack of a name)
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>   (c) 2000 by Jason Summers
-Version 0.2.0  May 2000
+Version 0.2.2  June 2000
 Web site: <http://pobox.com/~jason1/imaging/mngplg/>
 
 Based on libmng by Gerard Juyn <http://www.libmng.com/>.
@@ -16,9 +16,9 @@ This software is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 FITNESS FOR A PARTICULAR PURPOSE.
 
-This software is free to use, distribute, and modify. You must not 
-misrepresent the origin of this software. You must not claim that you wrote 
-the original software. Altered versions must be plainly marked as such.
+This software is free to use, distribute, and modify, except that:
+ - You must not misrepresent the origin of this software. 
+ - Altered versions must be plainly marked as such.
 
 This software uses several third-party libraries, some of which are 
 optional. If you redistribute it, it is your responsibility to comply with 
@@ -36,14 +36,26 @@ more serious damage. If you are concerned about security, I recommend that
 you do not leave it enabled in your browser for an extended period of time. 
 To disable it, simply rename the "npmngplg.dll" file to "npmngplg.old".
 
-In short, USE AT YOUR OWN RISK!
-
 
 REQUIREMENTS
 
 MNG Requires a 32-bit Windows operating system, and a 32-bit web browser 
 that supports Netscape-style plug-ins. For example, it supports current 
-versions of Netscape, Opera, and (more or less) Internet Explorer.
+versions of Netscape, Opera, and (more or less) Microsoft Internet Explorer.
+
+
+INTRODUCTION
+
+MNGPLG is a free Netscape-style browser plug-in which displays the MNG 
+image/animation format. It is configured to claim the following MIME types:
+
+video/mng
+video/x-mng
+image/jng
+image/x-jng
+
+It also claims the file extensions ".mng" and ".jng", but file extensions 
+should only apply when no MIME type is available.
 
 
 INSTALLATION
@@ -59,8 +71,11 @@ c:\program files\internet explorer\plugins            or
 c:\program files\microsoft internet\plugins           or
 c:\program files\Plus!\microsoft internet\plugins     etc.
 
-Note: Windows explorer, by default, is configured to hide files that end in 
+Note: Windows Explorer, by default, is configured to hide files that end in 
 ".dll". You should probably change that.
+
+In Netscape 4.x, you can verify that the plug-in is installed by choosing 
+Help|About Plug-ins from the main menu (with JavaScript enabled).
 
 
 HOW TO USE
@@ -74,8 +89,8 @@ match the actual width and height of the image.
 
 If possible, configure your web server (not browser) to assign the MIME type 
 "video/mng" (or "video/x-mng") to files that end in ".mng". Strictly 
-speaking, this is required, but the "type" attribute will allow you to work 
-around it in most browsers.
+speaking, this is *required*, but the "type" attribute will allow you to 
+work around it in most browsers.
 
 Right-click on an MNG image as it is being displayed to get a menu with some 
 of the usual features.
@@ -83,4 +98,5 @@ of the usual features.
 
 SOURCE CODE
 
-The C source code is included. I don't have any instructions for it yet.
+The C source code is included. I don't have any instructions for it yet. 
+It's compatible with libmng 0.5.1 and 0.5.2 (possibly also later versions).
