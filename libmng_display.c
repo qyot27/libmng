@@ -125,6 +125,9 @@
 /* *             - fixed TERM end processing (count = 0)                    * */
 /* *             0.9.4 - 12/16/2000 - G.Juyn                                * */
 /* *             - fixed mixup of data- & function-pointers (thanks Dimitri)* */
+/* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
+/* *             - removed test filter-methods 1 & 65                       * */
+/* *             - added default level-set for filtertype=64                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2121,8 +2124,12 @@ mng_retcode process_display_ihdr (mng_datap pData)
     }
 
     pData->iFilterofs = 0;             /* determine filter characteristics */
-
-    if (pData->iFilter & 0x40)         /* leveling & differing ? */
+    pData->iLevel0    = 1028;          /* default levels */
+    pData->iLevel1    = 33924;
+    pData->iLevel2    = 1028;
+    pData->iLevel3    = 1028;
+                                       /* leveling & differing ? */
+/*    if (pData->iFilter & 0x40)
     {
       switch (pData->iColortype)
       {
@@ -2163,11 +2170,11 @@ mng_retcode process_display_ihdr (mng_datap pData)
                    break;
                  }
       }
-    }
-
-    if (pData->iFilter & 0x01)         /* no adaptive filtering ? */
+    } */
+                                       /* no adaptive filtering ? */
+/*    if (pData->iFilter & 0x01)
       pData->iPixelofs = pData->iFilterofs;
-    else
+    else */
       pData->iPixelofs = pData->iFilterofs + 1;
 
   }
@@ -2944,8 +2951,12 @@ mng_retcode process_display_basi (mng_datap  pData,
   }
 
   pData->iFilterofs = 0;               /* determine filter characteristics */
-
-  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+  pData->iLevel0    = 1028;            /* default levels */
+  pData->iLevel1    = 33924;
+  pData->iLevel2    = 1028;
+  pData->iLevel3    = 1028;
+                                       /* leveling & differing ? */
+/*  if (pData->iFilter & 0x40)
   {
     switch (pData->iColortype)
     {
@@ -2986,11 +2997,11 @@ mng_retcode process_display_basi (mng_datap  pData,
                  break;
                }
     }
-  }
-
-  if (pData->iFilter & 0x01)           /* no adaptive filtering ? */
+  } */
+                                       /* no adaptive filtering ? */
+/*  if (pData->iFilter & 0x01)
     pData->iPixelofs = pData->iFilterofs;
-  else
+  else */
     pData->iPixelofs = pData->iFilterofs + 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3800,19 +3811,23 @@ mng_retcode process_display_jhdr (mng_datap pData)
     }
 
     pData->iFilterofs = 0;             /* determine filter characteristics */
+    pData->iLevel0    = 1028;          /* default levels */
+    pData->iLevel1    = 33924;
+    pData->iLevel2    = 1028;
+    pData->iLevel3    = 1028;
                                        /* leveling & differing ? */
-    if (pData->iJHDRalphafilter & 0x40)
+/*    if (pData->iJHDRalphafilter & 0x40)
     {
        if (pData->iJHDRalphabitdepth <= 8)
          pData->iFilterofs = 1;
        else
          pData->iFilterofs = 2;
 
-    }
+    } */
                                        /* no adaptive filtering ? */
-    if (pData->iJHDRalphafilter & 0x01)
+/*    if (pData->iJHDRalphafilter & 0x01)
       pData->iPixelofs = pData->iFilterofs;
-    else
+    else */
       pData->iPixelofs = pData->iFilterofs + 1;
 
   }

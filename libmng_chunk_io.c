@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -135,6 +135,9 @@
 /* *                                                                        * */
 /* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
 /* *             - changed IHDR filter_method check for PNGs                * */
+/* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
+/* *             - added errorchecking for MAGN methods                     * */
+/* *             - removed test filter-methods 1 & 65                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -600,7 +603,7 @@ READ_CHUNK (read_ihdr)
   if ((pData->eSigtype == mng_it_png) && (pData->iFilter))
     MNG_ERROR (pData, MNG_INVALIDFILTER)
   else
-  if (pData->iFilter & (~MNG_FILTER_MASK))
+  if (pData->iFilter & (~MNG_FILTER_DIFFERING))
     MNG_ERROR (pData, MNG_INVALIDFILTER)
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
@@ -3450,7 +3453,7 @@ READ_CHUNK (read_basi)
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  if (pData->iFilter != MNG_FILTER_ADAPTIVE)
+  if (pData->iFilter & (~MNG_FILTER_DIFFERING))
     MNG_ERROR (pData, MNG_INVALIDFILTER)
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
@@ -4977,6 +4980,14 @@ mng_bool CheckKeyword (mng_datap  pData,
       iDraft = (*(pKeyword+6) - '0') * 10 + (*(pKeyword+7) - '0');
       bOke   = (mng_bool)(iDraft <= MNG_MNG_DRAFT);
     }
+                                       /* test MNG 1.0 ? */
+    if ((!bOke) && (pNull - pKeyword == 7) &&
+        (*pKeyword     == 'M') && (*(pKeyword+1) == 'N') &&
+        (*(pKeyword+2) == 'G') && (*(pKeyword+3) == '-') &&
+        (*(pKeyword+4) == '1') && (*(pKeyword+5) == '.') &&
+        (*(pKeyword+6) == '0'))
+      bOke   = MNG_TRUE;
+
   }
 
   return bOke;
@@ -5184,7 +5195,7 @@ READ_CHUNK (read_jhdr)
         (pData->iJHDRalphabitdepth    !=  8                          )    )
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
-    if (pData->iJHDRalphafilter & (~MNG_FILTER_MASK))
+    if (pData->iJHDRalphafilter & (~MNG_FILTER_DIFFERING))
       MNG_ERROR (pData, MNG_INVALIDFILTER)
 
     if ((pData->iJHDRalphainterlace != MNG_INTERLACE_NONE ) &&
@@ -6131,6 +6142,9 @@ READ_CHUNK (read_magn)
     iMethodY = mng_get_uint16 (pRawdata+18);
   else
     iMethodY = iMethodX;
+                                       /* check field validity */
+  if ((iMethodX > 5) || (iMethodY > 5))
+    MNG_ERROR (pData, MNG_INVALIDMETHOD)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {

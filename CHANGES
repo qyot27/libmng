@@ -10,20 +10,34 @@ intermediate for now
 -------------------
 
 bugfixes:
-- B123314 - fixed number of TERM related problems
+B123314 - fixed number of TERM related problems
+B123322 - fixed unwanted repetition in mng_readdisplay()
+B123443 - fixed by Ralph
+B124910 - fixed definition for WIN32_LEAN_AND_MEAN (thanks Chad)
+B125750 - fixed by Ralph
+B125756 - fixed mixup of data- & function-pointers (thanks Dimitri)
+B127517 - changed inclusion of the lcms header file for non-windows platforms
+B127518 -
 
 core:
 - version numbers
 - fixed possible loop in display_resume() (Thanks Vova!)
 - fixed unwanted repetition in mng_readdisplay()
 - changed inclusion of the lcms header file for non-windows platforms
-- changed IHDR filter_method check for PNGs                
-- moved restore of object 0 to libmng_display              
+- changed IHDR filter_method check for PNGs
+- moved restore of object 0 to libmng_display
 - added restore of object 0 to TERM processing (B123314)
 - fixed TERM delay processing (B123314)
-- fixed TERM end processing when count = 0 (B123314)                   
+- fixed TERM end processing when count = 0 (B123314)
 - changed callback convention for MSVC (Thanks Chad)
 - fixed mixup of data- & function-pointers (thanks Dimitri)
+- added support for "nEED MNG-1.0"
+- added errorcode for MAGN methods                        
+- added errorchecking for MAGN methods                     
+- removed "old" MAGN methods 3 & 4
+- added "new" MAGN methods 3, 4 & 5                       
+- removed test filter-methods 1 & 65                      
+- added default level-set for filtertype=64                
 
 samples:
 
@@ -33,6 +47,7 @@ contrib:
 - updated Jason Summer's mngplg to version 0.9.2
   (that's mngplg-0.9.2 based on libmng-0.9.3 !!!)
 - rearranged contrib directory slightly
+- added MSVC project to build libmng.dll by Chad Austin
 
 doc:
 - added README.dll
@@ -79,8 +94,8 @@ suggestions and testing this little baby. This would get nowhere without YOU!!!
 -------------------
 
 bugfixes:
-- B111300 - fixup for improved portability
-- B117103 - fixed compilation errors on *nix with lcms (thanks Ralph!)
+B111300 - fixup for improved portability
+B117103 - fixed compilation errors on *nix with lcms (thanks Ralph!)
 
 core:
 - fixed compiler-warnings from Mozilla
