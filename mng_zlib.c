@@ -198,12 +198,14 @@ mng_retcode mngzlib_inflaterows (mng_datap  pData,
 
         if (!iRslt)
         {
+#ifdef MNG_INCLUDE_JNG
           if (pData->bHasJHDR)         /* is JNG alpha-channel ? */
           {                            /* just store in object ? */
             if ((!iRslt) && (pData->fStorerow))
               iRslt = ((mng_storerow)pData->fStorerow)     (pData);
           }
           else
+#endif /* MNG_INCLUDE_JNG */
           {                            /* process this row */
             if ((!iRslt) && (pData->fProcessrow))
               iRslt = ((mng_processrow)pData->fProcessrow) (pData);

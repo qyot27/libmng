@@ -62,6 +62,10 @@
    so choose the one you've defined in jconfig.h; if you don't know what
    the heck I'm talking about, just leave it at 8-bit support (thank you!) */
 
+#ifdef MNG_SUPPORT_FULL                /* full support includes JNG */
+#define MNG_SUPPORT_IJG6B
+#endif
+
 #ifndef MNG_SUPPORT_IJG6B
 #if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
 #define MNG_SUPPORT_IJG6B
