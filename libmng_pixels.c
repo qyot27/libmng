@@ -130,12 +130,13 @@
 /* *             1.0.6 - 03/09/2003 - G.Juyn                                * */
 /* *             - hiding 12-bit JPEG stuff                                 * */
 /* *             1.0.6 - 05/11/2003 - Glenn RP                              * */
-/* *             - added size-optimiation COMPOSE routine usage             * */
+/* *             - added size-optimization COMPOSE routine usage            * */
 /* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
 /* *             - added conditionals around canvas update routines         * */
+/* *             1.0.6 - 05/25/2003 - Glenn RP                              * */
+/* *             - added size-optimization DIV255B8 routine usage           * */
 /* *                                                                        * */
 /* ************************************************************************** */
-
 #include "libmng.h"
 #include "libmng_data.h"
 #include "libmng_error.h"
@@ -1493,6 +1494,8 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
   mng_uint8  iFGa8, iBGa8, iCa8;
 #ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#else
+  mng_uint16 iFGg16;
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
@@ -1742,9 +1745,17 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
 			}
 			else
 			{
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                int i;
+                for (i=0; i<3; i++)
+                {
+              pScanline[i] = DIV255B8(s * pDataline[4-i-i]);
+                }
+#else
               pScanline[0] = DIV255B8(s * pDataline[4]);
               pScanline[1] = DIV255B8(s * pDataline[2]);
               pScanline[2] = DIV255B8(s * pDataline[0]);
+#endif           
               pScanline[3] = (mng_uint8)s;
 			}
 		  }
@@ -1769,9 +1780,17 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
 			}
 			else
 			{
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                int i;
+                for (i=0; i<3; i++)
+                {
+              pScanline[i] = DIV255B8(s * pDataline[2-i]);
+                }
+#else
 		      pScanline[0] = DIV255B8(s * pDataline[2]);
               pScanline[1] = DIV255B8(s * pDataline[1]);
               pScanline[2] = DIV255B8(s * pDataline[0]);
+#endif
               pScanline[3] = (mng_uint8)s;
 			}
 		  }
@@ -1799,9 +1818,19 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             else
             {                          /* now blend (premultiplied) */
 			  t = 255 - s;
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                {
+                int i;
+                for (i=0; i<3; i++)
+                {
+              pScanline[i] = DIV255B8(s * pDataline[2-i] + t * pScanline[i]);
+                }
+                }
+#else
 			  pScanline[0] = DIV255B8(s * pDataline[4] + t * pScanline[0]);
               pScanline[1] = DIV255B8(s * pDataline[2] + t * pScanline[1]);
               pScanline[2] = DIV255B8(s * pDataline[0] + t * pScanline[2]);
+#endif
               pScanline[3] = (mng_uint8)(255 - DIV255B8(t * (255 - pScanline[3])));
             }
           }
@@ -1826,9 +1855,19 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             else
             {                          /* now blend (premultiplied) */
 			  t = 255 - s;
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                {
+                int i;
+                for (i=0; i<3; i++)
+                {
+              pScanline[i] = DIV255B8(s * pDataline[2-i] + t * pScanline[i]);
+                }
+                }
+#else
 			  pScanline[0] = DIV255B8(s * pDataline[2] + t * pScanline[0]);
               pScanline[1] = DIV255B8(s * pDataline[1] + t * pScanline[1]);
               pScanline[2] = DIV255B8(s * pDataline[0] + t * pScanline[2]);
+#endif
               pScanline[3] = (mng_uint8)(255 - DIV255B8(t * (255 - pScanline[3])));
             }
           }
