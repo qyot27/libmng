@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_data.h                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -65,6 +65,9 @@
 /* *             - added variable for freeze & reset processing             * */
 /* *             0.9.1 - 07/17/2000 - G.Juyn                                * */
 /* *             - fixed suspension-buffering for 32K+ chunks               * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/29/2000 - G.Juyn                                * */
+/* *             - removed Nextbackxxx fields (no longer used)              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -469,14 +472,6 @@ typedef struct mng_data_struct {
            mng_uint8         iBACKmandatory;
            mng_uint16        iBACKimageid;
            mng_uint8         iBACKtile;
-
-           mng_bool          bHasnextBACK;       /* next frame BACK fields */
-           mng_uint16        iNextBACKred;
-           mng_uint16        iNextBACKgreen;
-           mng_uint16        iNextBACKblue;
-           mng_uint8         iNextBACKmandatory;
-           mng_uint16        iNextBACKimageid;
-           mng_uint8         iNextBACKtile;
 
            mng_uint8         iFRAMmode;          /* FRAM fields (global) */
            mng_uint32        iFRAMdelay;

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -50,6 +50,9 @@
 /* *             - added support for freeze/restart/resume & go_xxxx        * */
 /* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
 /* *             - fixed support for mng_display() after mng_read()         * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/29/2000 - G.Juyn                                * */
+/* *             - fixed small bugs in display processing                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2167,12 +2170,12 @@ mng_retcode process_ani_back (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_START)
 #endif
 
-  pData->iNextBACKred       = pBACK->iRed;
-  pData->iNextBACKgreen     = pBACK->iGreen;
-  pData->iNextBACKblue      = pBACK->iBlue;
-  pData->iNextBACKmandatory = pBACK->iMandatory;
-  pData->iNextBACKimageid   = pBACK->iImageid;
-  pData->iNextBACKtile      = pBACK->iTile;
+  pData->iBACKred       = pBACK->iRed;
+  pData->iBACKgreen     = pBACK->iGreen;
+  pData->iBACKblue      = pBACK->iBlue;
+  pData->iBACKmandatory = pBACK->iMandatory;
+  pData->iBACKimageid   = pBACK->iImageid;
+  pData->iBACKtile      = pBACK->iTile;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_BACK, MNG_LC_END)

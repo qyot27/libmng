@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_hlapi.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -82,6 +82,9 @@
 /* *             - added error cleanup processing                           * */
 /* *             - fixed support for mng_display_reset()                    * */
 /* *             - fixed suspension-buffering for 32K+ chunks               * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/29/2000 - G.Juyn                                * */
+/* *             - fixed small bugs in display processing                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -736,14 +739,6 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iBACKmandatory        = 0;
   pData->iBACKimageid          = 0;
   pData->iBACKtile             = 0;
-                                       /* no next frame BACK data */
-  pData->bHasnextBACK          = MNG_FALSE;
-  pData->iNextBACKred          = 0;
-  pData->iNextBACKgreen        = 0;
-  pData->iNextBACKblue         = 0;
-  pData->iNextBACKmandatory    = 0;
-  pData->iNextBACKimageid      = 0;
-  pData->iNextBACKtile         = 0;
 
   pData->iFRAMmode             = 1;     /* default global FRAM variables */
   pData->iFRAMdelay            = 1;
@@ -1182,6 +1177,11 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
 
   if (pData->bTimerset)                /* indicate timer break ? */
     MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
+  else
+  if (pData->bSectionwait)             /* indicate section break ? */
+    MNG_RETURN (pData, MNG_NEEDSECTIONWAIT)
+
+  pData->bRunning = MNG_FALSE;         /* no breaks = end of run */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
@@ -1250,9 +1250,11 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
-  
+
   if (pData->bTimerset)                /* indicate timer break ? */
     MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
+
+  pData->bRunning        = MNG_FALSE;  /* no breaks = end of run */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END)
@@ -1335,16 +1337,16 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
   if (pData->bSectionwait)             /* indicate section break ? */
     MNG_RETURN (pData, MNG_NEEDSECTIONWAIT)
 
+  pData->bRunning        = MNG_FALSE;  /* no breaks = end of run */
+
   if (pData->bFreezing)                /* trying to freeze ? */
   {
-    pData->bRunning      = MNG_FALSE;  /* then we're there ! */
-    pData->bFreezing     = MNG_FALSE;
+    pData->bFreezing     = MNG_FALSE;  /* then we're there ! */
   }
 
   if (pData->bResetting)               /* trying to reset as well ? */
   {
     pData->bDisplaying   = MNG_FALSE;  /* full stop!!! */
-    pData->bRunning      = MNG_FALSE;
     pData->bTimerset     = MNG_FALSE;
     pData->iBreakpoint   = 0;
     pData->bSectionwait  = MNG_FALSE;
