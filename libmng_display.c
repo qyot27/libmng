@@ -169,6 +169,8 @@
 /* *             - added proposed change in handling of TERM- & if-delay    * */
 /* *             - added another fix for misplaced TERM chunk               * */
 /* *             - completed support for condition=2 in TERM chunk          * */
+/* *             1.0.5 - 10/18/2002 - G.Juyn                                * */
+/* *             - fixed clipping-problem with BACK tiling (Thanks Sakura!) * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -615,15 +617,17 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
                 (pImage->iClipl < pData->iDestr)   && (pImage->iClipr >= pData->iDestl)      &&
                 (pImage->iClipt < pData->iDestb)   && (pImage->iClipb >= pData->iDestt)         )))
           {                            /* right; we've got ourselves something to do */
-                                       /* clip output region with image's clipping region */
-            if (pImage->iClipl > pData->iDestl)
-              pData->iDestl = pImage->iClipl;
-            if (pImage->iClipr < pData->iDestr)
-              pData->iDestr = pImage->iClipr;
-            if (pImage->iClipt > pData->iDestt)
-              pData->iDestt = pImage->iClipt;
-            if (pImage->iClipb < pData->iDestb)
-              pData->iDestb = pImage->iClipb;
+            if (pImage->bClipped)      /* clip output region with image's clipping region ? */
+            {
+              if (pImage->iClipl > pData->iDestl)
+                pData->iDestl = pImage->iClipl;
+              if (pImage->iClipr < pData->iDestr)
+                pData->iDestr = pImage->iClipr;
+              if (pImage->iClipt > pData->iDestt)
+                pData->iDestt = pImage->iClipt;
+              if (pImage->iClipb < pData->iDestb)
+                pData->iDestb = pImage->iClipb;
+            }
                                        /* image offset does some extra clipping too ! */
             if (pImage->iPosx > pData->iDestl)
               pData->iDestl = pImage->iPosx;
@@ -644,7 +648,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
             pData->iSourceb    = pData->iDestb - pData->iDestt;
                                        /* 16-bit background ? */
             pData->bIsRGBA16      = (mng_bool)(pImage->pImgbuf->iBitdepth > 8);
-                                       /* let restore routine now the offsets !!! */
+                                       /* let restore routine know the offsets !!! */
             pData->iBackimgoffsx  = pImage->iPosx;
             pData->iBackimgoffsy  = pImage->iPosy;
             pData->iBackimgwidth  = pImage->pImgbuf->iWidth;
