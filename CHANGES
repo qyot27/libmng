@@ -62,6 +62,8 @@ core:
 - added optional support for bKGD for PNG images
 - raised initial maximum canvas size to 10000x10000
 - added support for delta-JNG                             
+- added callback to process non-critical unknown chunks   
+- fixed support for delta-images during read() / display()
 
 samples:
 - added BCB mngview contribution by Andy Protano

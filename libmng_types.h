@@ -81,6 +81,8 @@
 /* *               (these freeking libraries make me mad)                   * */
 /* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
 /* *             - added support for nEED                                   * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added callback to process non-critical unknown chunks    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -401,7 +403,10 @@ typedef mng_bool   MNG_DECL (*mng_processsave)   (mng_handle  hHandle);
 typedef mng_bool   MNG_DECL (*mng_processseek)   (mng_handle  hHandle,
                                                   mng_pchar   zName);
 typedef mng_bool   MNG_DECL (*mng_processneed)   (mng_handle  hHandle,
-                                                  mng_pchar   zKeywords);
+                                                  mng_pchar   zKeyword);
+typedef mng_bool   MNG_DECL (*mng_processunknown) (mng_handle  hHandle,
+                                                   mng_uint32  iRawlen,
+                                                   mng_ptr     pRawdata);
 
                                        /* display processing callbacks */
 typedef mng_ptr    MNG_DECL (*mng_getcanvasline) (mng_handle  hHandle,

@@ -197,6 +197,8 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added functions to retrieve PNG/JNG specific header-info * */
 /* *             - added JDAA chunk                                         * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added callback to process non-critical unknown chunks    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -513,6 +515,7 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc     (mng_handle        hHandle,
 /* processsave & processseek are called for SAVE/SEEK chunks */
 /* processneed is called for the nEED chunk; you should specify a callback
    for this as the default behavior will be to abort processing */
+/* processunknown is called after reading each non-critical unknown chunk */
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
                                                       mng_processheader fProc);
@@ -524,6 +527,8 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processseek   (mng_handle        hHandle,
                                                       mng_processseek   fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processneed   (mng_handle        hHandle,
                                                       mng_processneed   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processunknown(mng_handle        hHandle,
+                                                      mng_processunknown fProc);
 #endif
 
 /* callbacks for display processing */
@@ -625,6 +630,7 @@ MNG_EXT mng_processtext   MNG_DECL mng_getcb_processtext   (mng_handle hHandle);
 MNG_EXT mng_processsave   MNG_DECL mng_getcb_processsave   (mng_handle hHandle);
 MNG_EXT mng_processseek   MNG_DECL mng_getcb_processseek   (mng_handle hHandle);
 MNG_EXT mng_processneed   MNG_DECL mng_getcb_processneed   (mng_handle hHandle);
+MNG_EXT mng_processunknown MNG_DECL mng_getcb_processunknown (mng_handle hHandle);
 #endif
 
 /* see _setcb_ */

@@ -125,6 +125,10 @@
 /* *             - added support for nEED                                   * */
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added support for JDAA                                   * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - fixed support for MAGN                                   * */
+/* *             - implemented nEED "xxxx" (where "xxxx" is a chunkid)      * */
+/* *             - added callback to process non-critical unknown chunks    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4885,19 +4889,106 @@ READ_CHUNK (read_fpri)
 mng_bool CheckKeyword (mng_datap  pData,
                        mng_uint8p pKeyword)
 {
+  mng_chunkid handled_chunks [] =
+  {
+    {MNG_UINT_BACK},
+    {MNG_UINT_BASI},
+    {MNG_UINT_CLIP},
+    {MNG_UINT_CLON},
+/* TODO:    {MNG_UINT_DBYK},  */
+    {MNG_UINT_DEFI},
+    {MNG_UINT_DHDR},
+    {MNG_UINT_DISC},
+/* TODO:    {MNG_UINT_DROP},  */
+    {MNG_UINT_ENDL},
+    {MNG_UINT_FRAM},
+    {MNG_UINT_IDAT},
+    {MNG_UINT_IEND},
+    {MNG_UINT_IHDR},
+    {MNG_UINT_IJNG},
+    {MNG_UINT_IPNG},
+#ifdef MNG_INCLUDE_JNG
+    {MNG_UINT_JDAA},
+    {MNG_UINT_JDAT},
+    {MNG_UINT_JHDR},
+/* TODO:    {MNG_UINT_JSEP},  */
+    {MNG_UINT_JdAA},
+#endif
+    {MNG_UINT_LOOP},
+    {MNG_UINT_MAGN},
+    {MNG_UINT_MEND},
+    {MNG_UINT_MHDR},
+    {MNG_UINT_MOVE},
+/* TODO:    {MNG_UINT_ORDR},  */
+/* TODO:    {MNG_UINT_PAST},  */
+    {MNG_UINT_PLTE},
+    {MNG_UINT_PPLT},
+    {MNG_UINT_PROM},
+    {MNG_UINT_SAVE},
+    {MNG_UINT_SEEK},
+    {MNG_UINT_SHOW},
+    {MNG_UINT_TERM},
+    {MNG_UINT_bKGD},
+    {MNG_UINT_cHRM},
+/* TODO:    {MNG_UINT_eXPI},  */
+/* TODO:    {MNG_UINT_fPRI},  */
+    {MNG_UINT_gAMA},
+/* TODO:    {MNG_UINT_hIST},  */
+    {MNG_UINT_iCCP},
+    {MNG_UINT_iTXt},
+    {MNG_UINT_nEED},
+/* TODO:    {MNG_UINT_oFFs},  */
+/* TODO:    {MNG_UINT_pCAL},  */
+/* TODO:    {MNG_UINT_pHYg},  */
+/* TODO:    {MNG_UINT_pHYs},  */
+/* TODO:    {MNG_UINT_sBIT},  */
+/* TODO:    {MNG_UINT_sCAL},  */
+/* TODO:    {MNG_UINT_sPLT},  */
+    {MNG_UINT_sRGB},
+    {MNG_UINT_tEXt},
+    {MNG_UINT_tIME},
+    {MNG_UINT_tRNS},
+    {MNG_UINT_zTXt},
+  };
+
   mng_bool bOke = MNG_FALSE;
 
   if (pData->fProcessneed)             /* does the app handle it ? */
     bOke = pData->fProcessneed ((mng_handle)pData, (mng_pchar)pKeyword);
 
   if (!bOke)
-  {
+  {                                    /* find the keyword length */
     mng_uint8p pNull = find_null (pKeyword);
 
     if (pNull - pKeyword == 4)         /* test a chunk ? */
-    {
+    {                                  /* get the chunk-id */
+      mng_chunkid iChunkid = (*pKeyword     << 24) + (*(pKeyword+1) << 16) +
+                             (*(pKeyword+2) <<  8) + (*(pKeyword+3)      );
+                                       /* binary search variables */
+      mng_int32   iTop, iLower, iUpper, iMiddle;
+                                       /* determine max index of table */
+      iTop = (sizeof (handled_chunks) / sizeof (handled_chunks [0])) - 1;
 
+      /* binary search; with 52 chunks, worst-case is 7 comparisons */
+      iLower  = 0;
+      iMiddle = iTop >> 1;
+      iUpper  = iTop;
 
+      do                                   /* the binary search itself */
+        {
+          if (handled_chunks [iMiddle] < iChunkid)
+            iLower = iMiddle + 1;
+          else if (handled_chunks [iMiddle] > iChunkid)
+            iUpper = iMiddle - 1;
+          else
+          {
+            bOke = MNG_TRUE;
+            break;
+          }
+
+          iMiddle = (iLower + iUpper) >> 1;
+        }
+      while (iLower <= iUpper);
     }
                                        /* test draft ? */
     if ((!bOke) && (pNull - pKeyword == 8) &&
@@ -6094,7 +6185,6 @@ READ_CHUNK (read_magn)
     iMethodY = iMethodX;
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
   {
     mng_retcode iRetcode;
 
@@ -6160,8 +6250,16 @@ READ_CHUNK (read_unknown)
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
                                        /* critical chunk ? */
-  if ((((mng_chunk_headerp)pHeader)->iChunkname & 0x10000000) == 0)
+  if ((((mng_chunk_headerp)pHeader)->iChunkname & 0x20000000) == 0)
     MNG_ERROR (pData, MNG_UNKNOWNCRITICAL)
+
+  if (pData->fProcessunknown)          /* let the app handle it ? */
+  {
+    mng_bool bOke = pData->fProcessunknown ((mng_handle)pData, iRawlen, (mng_ptr)pRawdata);
+
+    if (!bOke)
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+  }
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)

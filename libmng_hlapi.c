@@ -102,6 +102,9 @@
 /* *             - added optional support for bKGD for PNG images           * */
 /* *             - raised initial maximum canvas size                       * */
 /* *             - added support for JDAA                                   * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added callback to process non-critical unknown chunks    * */
+/* *             - fixed support for delta-images during read() / display() * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -415,6 +418,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->fProcesssave          = MNG_NULL;
   pData->fProcessseek          = MNG_NULL;
   pData->fProcessneed          = MNG_NULL;
+  pData->fProcessunknown       = MNG_NULL;
   pData->fGetcanvasline        = MNG_NULL;
   pData->fGetbkgdline          = MNG_NULL;
   pData->fGetalphaline         = MNG_NULL;
@@ -1010,7 +1014,11 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
     iRetcode = read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */
+  {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+                                       /* drop stored objects */
+    mng_drop_objects (pData, MNG_FALSE);
+  }
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1060,7 +1068,11 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
   iRetcode = read_graphic (pData);     /* continue reading now */
 
   if (pData->bEOF)                     /* at EOF ? */
+  {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
+                                       /* drop stored objects */
+    mng_drop_objects (pData, MNG_FALSE);
+  }
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;

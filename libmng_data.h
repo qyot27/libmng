@@ -88,6 +88,8 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added optional support for bKGD for PNG images           * */
 /* *             - added support for JDAA                                   * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added callback to process non-critical unknown chunks    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -262,6 +264,7 @@ typedef struct mng_data_struct {
            mng_processsave   fProcesssave;
            mng_processseek   fProcessseek;
            mng_processneed   fProcessneed;
+           mng_processunknown fProcessunknown;
            mng_getcanvasline fGetcanvasline;
            mng_getbkgdline   fGetbkgdline;
            mng_getalphaline  fGetalphaline;
