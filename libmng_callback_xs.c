@@ -46,6 +46,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *             1.0.7 - 03/19/2004 - G.R-P                                 * */
+/* *             - fixed typo (MNG_SKIPCHUNK_SAVE -> MNG_SKIPCHUNK_nEED     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -889,7 +891,7 @@ mng_processseek MNG_DECL mng_getcb_processseek (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
-#ifndef MNG_SKIPCHUNK_SAVE
+#ifndef MNG_SKIPCHUNK_nEED
 mng_processneed MNG_DECL mng_getcb_processneed (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
