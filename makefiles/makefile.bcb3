@@ -1,9 +1,13 @@
-# Makefile for libmng - THE MNG library
-# This makefile is suitable for Borland C++ Builder.
-# It works (at least) with Borland C++ Builder v3
+#
+# For conditions of distribution and use, see copyright notice in libmng.h
+#
+# makefile for libmng - THE MNG library
+# this makefile is suitable for Borland C++ Builder.
+# it works (at least) with Borland C++ Builder v3
 
-# Configuration options
-MNGOPT= -DMNG_SUPPORT_FULL;MNG_SUPPORT_IJG6B;MNG_SUPPORT_JPEG8;MNG_SUPPORT_READ;MNG_SUPPORT_WRITE;MNG_SUPPORT_DISPLAY;MNG_ACCESS_CHUNKS;MNG_FULL_CMS;MNG_STORE_CHUNKS;MNG_SUPPORT_TRACE
+# Configuration options are now in mng_conf.h
+# this option forces dll compatibility
+MNGOPT = -DMNG_BUILD_DLL
 
 # The name of your C compiler:
 CC= bcc32
@@ -74,3 +78,4 @@ mng_zlib.obj: mng_zlib.c libmng.h mng_data.h mng_memory.h mng_error.h mng_trace.
 	mng_filter.h mng_zlib.h
 mng_jpeg.obj: mng_jpeg.c libmng.h mng_data.h mng_memory.h mng_error.h mng_trace.h mng_pixels.h mng_jpeg.h
 mng_cms.obj: mng_cms.c libmng.h mng_data.h mng_objects.h mng_error.h mng_trace.h mng_cms.h
+

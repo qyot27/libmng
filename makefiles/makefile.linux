@@ -1,7 +1,16 @@
-# makefile for libmng on Linux ELF with gcc
+#
+# For conditions of distribution and use, see copyright notice in libmng.h
+#
+# makefile for libmng - THE MNG library
+# this makefile is suitable for Linux ELF with gcc
+#
+# (this file is heavily copied from makefile.linux in the libpng package)
 
 # compiler
 CC=gcc
+
+# default build options (this forces shared library compatibility!!)
+OPTIONS = -DMNG_BUILD_SO
 
 # where "make install" puts libmng.a, libmng.so*, libmng.h and mng_conf.h
 prefix=/usr/local
@@ -29,19 +38,19 @@ WARNMORE=-Wwrite-strings -Wpointer-arith -Wshadow \
 # for pgcc version 2.95.1, -O3 is buggy; don't use it.
 
 CFLAGS=-I$(ZLIBINC) -I$(JPEGINC) -I$(LCMSINC) -Wall -O3 -funroll-loops \
-	-DMNG_BUILD_SO $(ALIGN) # $(WARNMORE) -g
+	$(OPTIONS) $(ALIGN) # $(WARNMORE) -g
 LDFLAGS=-L. -Wl,-rpath,. \
 	-L$(ZLIBLIB) -Wl,-rpath,$(ZLIBLIB) \
 	-L$(JPEGLIB) -Wl,-rpath,$(JPEGLIB) \
 	-L$(LCMSLIB) -Wl,-rpath,$(LCMSLIB) \
-	-lmng -lz -lm
+	-lmng -lz -ljpeg -llcms -lm
 
 RANLIB=ranlib
 #RANLIB=echo
 
 # current version numbers
 MNGMAJ = 0
-MNGMIN = 0.5.1
+MNGMIN = 0.5.2
 MNGVER = $(MNGMAJ).$(MNGMIN)
 
 INCPATH=$(prefix)/include
@@ -141,3 +150,4 @@ mng_jpeg.o mng_jpeg.pic.o: mng_jpeg.c libmng.h mng_data.h mng_memory.h mng_error
 	mng_pixels.h mng_jpeg.h
 mng_cms.o mng_cms.pic.o: mng_cms.c libmng.h mng_data.h mng_objects.h mng_error.h mng_trace.h \
 	mng_cms.h
+

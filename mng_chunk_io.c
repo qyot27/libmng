@@ -330,7 +330,7 @@ mng_retcode deflate_buffer (mng_datap  pData,
                             mng_uint32 *iOutsize,
                             mng_uint32 *iRealsize)
 {
-  mng_retcode iRetcode;
+  mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DEFLATE_BUFFER, MNG_LC_START)
@@ -1799,15 +1799,15 @@ READ_CHUNK (read_ztxt)
     }
 
     MNG_ALLOCX (pData, ((mng_ztxtp)*ppChunk)->zKeyword, iKeywordlen + 1)
-
-    if (!zKeyword)                     /* on error bail out */
+                                       /* on error bail out */
+    if (!((mng_ztxtp)*ppChunk)->zKeyword)
     {                                  /* don't forget to drop the temp buffers */
       MNG_FREEX (pData, pBuf, iBufsize)
       MNG_FREEX (pData, zKeyword, iKeywordlen+1)
       MNG_ERROR (pData, MNG_OUTOFMEMORY);
     }
 
-    MNG_COPY  (((mng_ztxtp)*ppChunk)->zKeyword, pRawdata, iKeywordlen)
+    MNG_COPY (((mng_ztxtp)*ppChunk)->zKeyword, pRawdata, iKeywordlen)
 
     ((mng_ztxtp)*ppChunk)->iTextsize = iTextlen;
 
@@ -2426,6 +2426,13 @@ READ_CHUNK (read_splt)
          ((iSampledepth == 2) && (iRemain % 10 != 0))    )
       MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
+  }
+  else
+  {
+    pTemp        = MNG_NULL;
+    iNamelen     = 0;
+    iSampledepth = 0;
+    iRemain      = 0;
   }
 
 #ifdef MNG_SUPPORT_DISPLAY
@@ -3559,7 +3566,7 @@ READ_CHUNK (read_fram)
   mng_uint8p pTemp;
   mng_uint32 iNamelen;
   mng_uint32 iRemain;
-  mng_uint32 iRequired;
+  mng_uint32 iRequired = 0;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_FRAM, MNG_LC_START)
@@ -4196,7 +4203,7 @@ READ_CHUNK (read_save)
       mng_uint32      iFramenr;
       mng_uint32      iLayernr;
       mng_uint32      iX;
-      mng_save_entryp pEntry;
+      mng_save_entryp pEntry = MNG_NULL;
       mng_uint32      iNamesize;
 
       if ((iOtype != 4) && (iOtype != 8))
@@ -4298,7 +4305,7 @@ READ_CHUNK (read_save)
               MNG_ERROR (pData, MNG_ENDWITHNULL)
           }
 
-          if (iX == 0)
+          if (!pEntry)
           {
             iCount++;
           }
@@ -7668,7 +7675,7 @@ WRITE_CHUNK (write_pplt)
   mng_uint8p      pTemp;
   mng_uint32      iX;
   mng_bool        bHasgroup;
-  mng_uint8p      pLastid;
+  mng_uint8p      pLastid = 0;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_WRITE_PPLT, MNG_LC_START)

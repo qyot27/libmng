@@ -1,5 +1,8 @@
-# Makefile for libmng - THE MNG library
-# This makefile is suitable for generic unix
+#
+# For conditions of distribution and use, see copyright notice in libmng.h
+#
+# makefile for libmng - THE MNG library
+# this makefile is suitable for generic unix
 
 # Configuration options are now in mng_conf.h
 
@@ -7,14 +10,14 @@
 CC= cc
 
 # Location of jpeg header files
-JPEG_INC = /cs/include/jpeg
+JPEG_INC= /cs/include/jpeg
 
 # Location of zlib header files
-ZLIB_INC = /cs/include
+ZLIB_INC= /cs/include
 
-# Location of lcms header files 
+# Location of lcms header files
 # (switch on MNG_FULL_CMS in mng_conf.h if you want to use this)
-LCMS_INC = /ltmp/lcms-1.06/source
+LCMS_INC= /ltmp/lcms-1.06/source
 
 # compiler options:
 CFLAGS= -O -I. -I$(ZLIB_INC) -I$(JPEG_INC) -I$(LCMS_INC)

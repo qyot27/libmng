@@ -1,3 +1,5 @@
+For conditions of distribution and use, see copyright notice in libmng.h
+
 This directory hosts the makefiles for all currently supported platforms.
 
 Copy the module for your environment (or the closest thing) and change it
@@ -8,5 +10,6 @@ send it to me (gerard@libmng.com) and I'll include it in the next release!
 Current files:
 
 makefile.bcb3 - Borland C++ Builder
-makefile.unix - generic unix
-makefile.linux - Linux ELF
+makefile.unix - generic Unix
+makefile.linux - Linux ELF (builds shared library)
+
