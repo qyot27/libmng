@@ -202,6 +202,7 @@ mng_retcode mng_process_display_magn  (mng_datap      pData,
                                        mng_uint8      iMethodY);
 mng_retcode mng_process_display_magn2 (mng_datap      pData);
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_process_display_past  (mng_datap      pData,
                                        mng_uint16     iTargetid,
                                        mng_uint8      iTargettype,
@@ -210,6 +211,7 @@ mng_retcode mng_process_display_past  (mng_datap      pData,
                                        mng_uint32     iCount,
                                        mng_ptr        pSources);
 mng_retcode mng_process_display_past2 (mng_datap      pData);
+#endif
 
 /* ************************************************************************** */
 

@@ -51,6 +51,8 @@
 /* *             - added MNG_NO_DELTA_PNG reduction feature                 * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -586,6 +588,7 @@ INIT_CHUNK_HDR (mng_init_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 INIT_CHUNK_HDR (mng_init_past)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -601,6 +604,7 @@ INIT_CHUNK_HDR (mng_init_past)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1663,6 +1667,7 @@ FREE_CHUNK_HDR (mng_free_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 FREE_CHUNK_HDR (mng_free_past)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1681,6 +1686,7 @@ FREE_CHUNK_HDR (mng_free_past)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3028,6 +3034,7 @@ ASSIGN_CHUNK_HDR (mng_assign_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 ASSIGN_CHUNK_HDR (mng_assign_past)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -3057,6 +3064,7 @@ ASSIGN_CHUNK_HDR (mng_assign_past)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 

@@ -48,7 +48,9 @@
 /* *             - fixed definition of iMethodX/Y for MAGN chunk            * */
 /* *                                                                        * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
-/* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *               added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -447,6 +449,7 @@ typedef mng_clon * mng_clonp;
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 typedef struct {                       /* PAST source */
            mng_uint16        iSourceid;
            mng_uint8         iComposition;
@@ -472,6 +475,7 @@ typedef struct {                       /* PAST */
            mng_past_sourcep  pSources;
         } mng_past;
 typedef mng_past * mng_pastp;
+#endif
 
 /* ************************************************************************** */
 

@@ -33,6 +33,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added NO_DELTA_PNG support                               * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -79,7 +81,9 @@ INIT_CHUNK_HDR (mng_init_endl) ;
 INIT_CHUNK_HDR (mng_init_defi) ;
 INIT_CHUNK_HDR (mng_init_basi) ;
 INIT_CHUNK_HDR (mng_init_clon) ;
+#ifndef MNG_SKIPCHUNK_PAST
 INIT_CHUNK_HDR (mng_init_past) ;
+#endif
 INIT_CHUNK_HDR (mng_init_disc) ;
 INIT_CHUNK_HDR (mng_init_back) ;
 INIT_CHUNK_HDR (mng_init_fram) ;
@@ -145,7 +149,9 @@ FREE_CHUNK_HDR (mng_free_endl) ;
 FREE_CHUNK_HDR (mng_free_defi) ;
 FREE_CHUNK_HDR (mng_free_basi) ;
 FREE_CHUNK_HDR (mng_free_clon) ;
+#ifndef MNG_SKIPCHUNK_PAST
 FREE_CHUNK_HDR (mng_free_past) ;
+#endif
 FREE_CHUNK_HDR (mng_free_disc) ;
 FREE_CHUNK_HDR (mng_free_back) ;
 FREE_CHUNK_HDR (mng_free_fram) ;
@@ -214,7 +220,9 @@ ASSIGN_CHUNK_HDR (mng_assign_endl) ;
 ASSIGN_CHUNK_HDR (mng_assign_defi) ;
 ASSIGN_CHUNK_HDR (mng_assign_basi) ;
 ASSIGN_CHUNK_HDR (mng_assign_clon) ;
+#ifndef MNG_SKIPCHUNK_PAST
 ASSIGN_CHUNK_HDR (mng_assign_past) ;
+#endif
 ASSIGN_CHUNK_HDR (mng_assign_disc) ;
 ASSIGN_CHUNK_HDR (mng_assign_back) ;
 ASSIGN_CHUNK_HDR (mng_assign_fram) ;
@@ -278,7 +286,9 @@ ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 #define mng_assign_defi 0
 #define mng_assign_basi 0
 #define mng_assign_clon 0
+#ifndef MNG_SKIPCHUNK_PAST
 #define mng_assign_past 0
+#endif
 #define mng_assign_disc 0
 #define mng_assign_back 0
 #define mng_assign_fram 0

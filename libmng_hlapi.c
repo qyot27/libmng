@@ -162,6 +162,8 @@
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added conditionals around "mng_display_go*" and other    * */
 /* *               unused functions                                         * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -489,8 +491,10 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iMAGNfromid           = 0;
   pData->iMAGNtoid             = 0;
 
+#ifndef MNG_SKIPCHUNK_PAST
   pData->iPastx                = 0;
   pData->iPasty                = 0;
+#endif
 
   pData->pLastseek             = MNG_NULL;
   
@@ -767,8 +771,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getchunk_ordr_entry",    1, 0, 0},
 #endif
 #endif
+#ifndef MNG_SKIPCHUNK_PAST
     {"mng_getchunk_past",          1, 0, 0},
     {"mng_getchunk_past_src",      1, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_pHYg
     {"mng_getchunk_phyg",          1, 0, 0},
 #endif
@@ -886,8 +892,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_putchunk_ordr_entry",    1, 0, 0},
 #endif
 #endif
+#ifndef MNG_SKIPCHUNK_PAST
     {"mng_putchunk_past",          1, 0, 0},
     {"mng_putchunk_past_src",      1, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_pHYg
     {"mng_putchunk_phyg",          1, 0, 0},
 #endif
@@ -1541,8 +1549,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->fDifferrow            = MNG_NULL;
   pData->fScalerow             = MNG_NULL;
   pData->fDeltarow             = MNG_NULL;
+#ifndef MNG_SKIPCHUNK_PAST
   pData->fFliprow              = MNG_NULL;
   pData->fTilerow              = MNG_NULL;
+#endif
   pData->fInitrowproc          = MNG_NULL;
 
   pData->iPLTEcount            = 0;    /* no PLTE data */
@@ -1651,8 +1661,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iMAGNfromid           = 0;
   pData->iMAGNtoid             = 0;
 
+#ifndef MNG_SKIPCHUNK_PAST
   pData->iPastx                = 0;
   pData->iPasty                = 0;
+#endif
 
   pData->pLastseek             = MNG_NULL;
 #endif

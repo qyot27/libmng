@@ -128,6 +128,8 @@
 /* *             - added conditionals around JNG and Delta-PNG code         * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added conditionals around various unused functions       * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -411,7 +413,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GETCHUNK_DEFI,             "getchunk_defi"},
     {MNG_FN_GETCHUNK_BASI,             "getchunk_basi"},
     {MNG_FN_GETCHUNK_CLON,             "getchunk_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_GETCHUNK_PAST,             "getchunk_past"},
+#endif
     {MNG_FN_GETCHUNK_DISC,             "getchunk_disc"},
     {MNG_FN_GETCHUNK_BACK,             "getchunk_back"},
     {MNG_FN_GETCHUNK_FRAM,             "getchunk_fram"},
@@ -469,7 +473,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GETCHUNK_EVNT,             "getchunk_evnt"},
 #endif
 
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_GETCHUNK_PAST_SRC,         "getchunk_past_src"},
+#endif
 #ifndef MNG_SKIPCHUNK_SAVE
     {MNG_FN_GETCHUNK_SAVE_ENTRY,       "getchunk_save_entry"},
 #endif
@@ -532,7 +538,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PUTCHUNK_DEFI,             "putchunk_defi"},
     {MNG_FN_PUTCHUNK_BASI,             "putchunk_basi"},
     {MNG_FN_PUTCHUNK_CLON,             "putchunk_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_PUTCHUNK_PAST,             "putchunk_past"},
+#endif
     {MNG_FN_PUTCHUNK_DISC,             "putchunk_disc"},
     {MNG_FN_PUTCHUNK_BACK,             "putchunk_back"},
     {MNG_FN_PUTCHUNK_FRAM,             "putchunk_fram"},
@@ -588,7 +596,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PUTCHUNK_EVNT,             "putchunk_evnt"},
 #endif
 
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_PUTCHUNK_PAST_SRC,         "putchunk_past_src"},
+#endif
 #ifndef MNG_SKIPCHUNK_SAVE
     {MNG_FN_PUTCHUNK_SAVE_ENTRY,       "putchunk_save_entry"},
 #endif
@@ -821,7 +831,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_CREATE_ANI_DEFI,           "create_ani_defi"},
     {MNG_FN_CREATE_ANI_BASI,           "create_ani_basi"},
     {MNG_FN_CREATE_ANI_CLON,           "create_ani_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_CREATE_ANI_PAST,           "create_ani_past"},
+#endif
     {MNG_FN_CREATE_ANI_DISC,           "create_ani_disc"},
     {MNG_FN_CREATE_ANI_BACK,           "create_ani_back"},
     {MNG_FN_CREATE_ANI_FRAM,           "create_ani_fram"},
@@ -857,7 +869,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_FREE_ANI_DEFI,             "free_ani_defi"},
     {MNG_FN_FREE_ANI_BASI,             "free_ani_basi"},
     {MNG_FN_FREE_ANI_CLON,             "free_ani_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_FREE_ANI_PAST,             "free_ani_past"},
+#endif
     {MNG_FN_FREE_ANI_DISC,             "free_ani_disc"},
     {MNG_FN_FREE_ANI_BACK,             "free_ani_back"},
     {MNG_FN_FREE_ANI_FRAM,             "free_ani_fram"},
@@ -893,7 +907,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PROCESS_ANI_DEFI,          "process_ani_defi"},
     {MNG_FN_PROCESS_ANI_BASI,          "process_ani_basi"},
     {MNG_FN_PROCESS_ANI_CLON,          "process_ani_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_PROCESS_ANI_PAST,          "process_ani_past"},
+#endif
     {MNG_FN_PROCESS_ANI_DISC,          "process_ani_disc"},
     {MNG_FN_PROCESS_ANI_BACK,          "process_ani_back"},
     {MNG_FN_PROCESS_ANI_FRAM,          "process_ani_fram"},
@@ -957,7 +973,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_INIT_DEFI,                 "init_defi"},
     {MNG_FN_INIT_BASI,                 "init_basi"},
     {MNG_FN_INIT_CLON,                 "init_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_INIT_PAST,                 "init_past"},
+#endif
     {MNG_FN_INIT_DISC,                 "init_disc"},
     {MNG_FN_INIT_BACK,                 "init_back"},
     {MNG_FN_INIT_FRAM,                 "init_fram"},
@@ -1018,7 +1036,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_ASSIGN_DEFI,               "assign_defi"},
     {MNG_FN_ASSIGN_BASI,               "assign_basi"},
     {MNG_FN_ASSIGN_CLON,               "assign_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_ASSIGN_PAST,               "assign_past"},
+#endif
     {MNG_FN_ASSIGN_DISC,               "assign_disc"},
     {MNG_FN_ASSIGN_BACK,               "assign_back"},
     {MNG_FN_ASSIGN_FRAM,               "assign_fram"},
@@ -1079,7 +1099,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_FREE_DEFI,                 "free_defi"},
     {MNG_FN_FREE_BASI,                 "free_basi"},
     {MNG_FN_FREE_CLON,                 "free_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_FREE_PAST,                 "free_past"},
+#endif
     {MNG_FN_FREE_DISC,                 "free_disc"},
     {MNG_FN_FREE_BACK,                 "free_back"},
     {MNG_FN_FREE_FRAM,                 "free_fram"},
@@ -1140,7 +1162,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_READ_DEFI,                 "read_defi"},
     {MNG_FN_READ_BASI,                 "read_basi"},
     {MNG_FN_READ_CLON,                 "read_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_READ_PAST,                 "read_past"},
+#endif
     {MNG_FN_READ_DISC,                 "read_disc"},
     {MNG_FN_READ_BACK,                 "read_back"},
     {MNG_FN_READ_FRAM,                 "read_fram"},
@@ -1201,7 +1225,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_WRITE_DEFI,                "write_defi"},
     {MNG_FN_WRITE_BASI,                "write_basi"},
     {MNG_FN_WRITE_CLON,                "write_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_WRITE_PAST,                "write_past"},
+#endif
     {MNG_FN_WRITE_DISC,                "write_disc"},
     {MNG_FN_WRITE_BACK,                "write_back"},
     {MNG_FN_WRITE_FRAM,                "write_fram"},
@@ -1269,7 +1295,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PROCESS_DISPLAY_DEFI,      "process_display_defi"},
     {MNG_FN_PROCESS_DISPLAY_BASI,      "process_display_basi"},
     {MNG_FN_PROCESS_DISPLAY_CLON,      "process_display_clon"},
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_PROCESS_DISPLAY_PAST,      "process_display_past"},
+#endif
     {MNG_FN_PROCESS_DISPLAY_DISC,      "process_display_disc"},
     {MNG_FN_PROCESS_DISPLAY_BACK,      "process_display_back"},
     {MNG_FN_PROCESS_DISPLAY_FRAM,      "process_display_fram"},

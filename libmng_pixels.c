@@ -144,8 +144,11 @@
 /* *             - reversed many loops to use decrementing counter          * */
 /* *             - combined init functions                                  * */
 /* *             - converted some switches to array references              * */
-/* *             1.0.6 - 29/07/2003 - G.Juyn                                * */
+/* *             1.0.6 - 07/29/2003 - G.Juyn                                * */
 /* *             - fixed duplicate for-loop                                 * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
+/* *             - fixed "FOOTPRINT_COMPOSEIV" typo (now "FOOTPRINT_DIV")   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 #include "libmng.h"
@@ -1757,7 +1760,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             }
             else
             {
-#ifdef MNG_OPTIMIZE_FOOTPRINT_COMPOSEIV
+#ifdef MNG_OPTIMIZE_FOOTPRINT_DIV
               int i;
               for (i=2; i >= 0; i--)
               {
@@ -1792,7 +1795,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             }
             else
             {
-#ifdef MNG_OPTIMIZE_FOOTPRINT_COMPOSEIV
+#ifdef MNG_OPTIMIZE_FOOTPRINT_DIV
               int i;
               for (i=2; i >= 0; i--)
               {
@@ -1830,7 +1833,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             else
             {                          /* now blend (premultiplied) */
               t = 255 - s;
-#ifdef MNG_OPTIMIZE_FOOTPRINT_COMPOSEIV
+#ifdef MNG_OPTIMIZE_FOOTPRINT_DIV
               {
                 int i;
                 for (i=2; i >= 0; i--)
@@ -1868,7 +1871,7 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
             else
             {                          /* now blend (premultiplied) */
               t = 255 - s;
-#ifdef MNG_OPTIMIZE_FOOTPRINT_COMPOSEIV
+#ifdef MNG_OPTIMIZE_FOOTPRINT_DIV
               {
                 int i;
                 for (i=2; i >= 0; i--)
@@ -17437,6 +17440,7 @@ mng_retcode mng_composeunder_rgba16 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_flip_rgba8 (mng_datap pData)
 {
   mng_uint32p pWorkrow;
@@ -17603,6 +17607,7 @@ mng_retcode mng_tile_rgba16 (mng_datap pData)
   return MNG_NOERROR;
 }
 #endif
+#endif /* MNG_SKIPCHUNK_PAST */
 
 /* ************************************************************************** */
 

@@ -119,8 +119,8 @@
 /* *             - added conditionals around delta-png and 16-bit code      * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
-/* *             1.0.6 - 29/14/2003 - G.Juyn                                * */
-/* *             - fixed invalid test in promote_imageobject                * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -536,8 +536,10 @@ mng_retcode mng_create_imageobject (mng_datap  pData,
   pImage->iMAGN_MR         = 0;
   pImage->iMAGN_MT         = 0;
   pImage->iMAGN_MB         = 0;
+#ifndef MNG_SKIPCHUNK_PAST
   pImage->iPastx           = 0;
   pImage->iPasty           = 0;
+#endif
   pImage->pImgbuf          = pImgbuf;
 
   if (iId)                             /* only if not object 0 ! */
@@ -713,8 +715,10 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   pNew->iMAGN_MT         = pSource->iMAGN_MT;
   pNew->iMAGN_MB         = pSource->iMAGN_MB; */
 
+#ifndef MNG_SKIPCHUNK_PAST
   pNew->iPastx           = 0;          /* initialize PAST info */
   pNew->iPasty           = 0;
+#endif
 
   if (iId)                             /* not for object 0 */
   {                                    /* find previous lower object-id */
@@ -1007,8 +1011,10 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
 
   if (bResetall)                       /* reset the other characteristics ? */
   {
+#ifndef MNG_SKIPCHUNK_PAST
     pImage->iPastx = 0;
     pImage->iPasty = 0;
+#endif
 
     pBuf->bHasPLTE = MNG_FALSE;
     pBuf->bHasTRNS = MNG_FALSE;
@@ -1629,7 +1635,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
 #endif /* JNG */
 
   /* found a proper promotion ? */
-  if (pData->fPromoterow)
+  if (pData->fPromoterow && pData->fPromBitdepth)
   {
     pData->pPromBuf    = (mng_ptr)pBuf;
     pData->iPromWidth  = pBuf->iWidth;
@@ -1719,7 +1725,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 #ifdef MNG_OPTIMIZE_FOOTPRINT_MAGN
   /* Promote everything to RGBA, using fill method 0 (LBR) */
   iRetcode = mng_promote_imageobject (pData, pImage, 8, 6, 0);           
-  if (iRetcode)                        /* on error bail out */
+  if (iRetcode)                      /* on error bail out */
     return iRetcode;
 #endif
 
@@ -4719,8 +4725,8 @@ mng_retcode mng_process_ani_magn (mng_datap   pData,
 }
 
 /* ************************************************************************** */
-/* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_create_ani_past (mng_datap  pData,
                                  mng_uint16 iTargetid,
                                  mng_uint8  iTargettype,
@@ -4763,9 +4769,11 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_free_ani_past (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4786,9 +4794,11 @@ mng_retcode mng_free_ani_past (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_process_ani_past (mng_datap   pData,
                                   mng_objectp pObject)
 {
@@ -4812,6 +4822,7 @@ mng_retcode mng_process_ani_past (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */

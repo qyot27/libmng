@@ -37,6 +37,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added SKIP_CHUNK and NO_DELTA_PNG support                * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -108,7 +110,9 @@ READ_CHUNK (mng_read_endl) ;
 READ_CHUNK (mng_read_defi) ;
 READ_CHUNK (mng_read_basi) ;
 READ_CHUNK (mng_read_clon) ;
+#ifndef MNG_SKIPCHUNK_PAST
 READ_CHUNK (mng_read_past) ;
+#endif
 READ_CHUNK (mng_read_disc) ;
 READ_CHUNK (mng_read_back) ;
 READ_CHUNK (mng_read_fram) ;
@@ -182,7 +186,9 @@ READ_CHUNK (mng_read_unknown) ;
 #define mng_read_defi 0
 #define mng_read_basi 0
 #define mng_read_clon 0
+#ifndef MNG_SKIPCHUNK_PAST
 #define mng_read_past 0
+#endif
 #define mng_read_disc 0
 #define mng_read_back 0
 #define mng_read_fram 0
@@ -251,7 +257,9 @@ WRITE_CHUNK (mng_write_endl) ;
 WRITE_CHUNK (mng_write_defi) ;
 WRITE_CHUNK (mng_write_basi) ;
 WRITE_CHUNK (mng_write_clon) ;
+#ifndef MNG_SKIPCHUNK_PAST
 WRITE_CHUNK (mng_write_past) ;
+#endif
 WRITE_CHUNK (mng_write_disc) ;
 WRITE_CHUNK (mng_write_back) ;
 WRITE_CHUNK (mng_write_fram) ;
@@ -315,7 +323,9 @@ WRITE_CHUNK (mng_write_unknown) ;
 #define mng_write_defi 0
 #define mng_write_basi 0
 #define mng_write_clon 0
+#ifndef MNG_SKIPCHUNK_PAST
 #define mng_write_past 0
+#endif
 #define mng_write_disc 0
 #define mng_write_back 0
 #define mng_write_fram 0

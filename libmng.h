@@ -1423,6 +1423,7 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_clon       (mng_handle       hHandle,
                                                       mng_int32        *iLocationx,
                                                       mng_int32        *iLocationy);
 
+#ifndef MNG_SKIPCHUNK_PAST
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_past       (mng_handle       hHandle,
                                                       mng_handle       hChunk,
                                                       mng_uint16       *iDestid,
@@ -1445,6 +1446,7 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_past_src   (mng_handle       hHandle,
                                                       mng_int32        *iBoundaryr,
                                                       mng_int32        *iBoundaryt,
                                                       mng_int32        *iBoundaryb);
+#endif
 
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_disc       (mng_handle       hHandle,
                                                       mng_handle       hChunk,
@@ -1859,6 +1861,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_clon       (mng_handle       hHandle,
                                                       mng_int32        iLocationx,
                                                       mng_int32        iLocationy);
 
+#ifndef MNG_SKIPCHUNK_PAST
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_past       (mng_handle       hHandle,
                                                       mng_uint16       iDestid,
                                                       mng_uint8        iTargettype,
@@ -1879,6 +1882,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_past_src   (mng_handle       hHandle,
                                                       mng_int32        iBoundaryr,
                                                       mng_int32        iBoundaryt,
                                                       mng_int32        iBoundaryb);
+#endif
 
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_disc       (mng_handle       hHandle,
                                                       mng_uint32       iCount,
@@ -2513,6 +2517,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_LOCATION_ABSOLUTE            0       /* CLON, MOVE */
 #define MNG_LOCATION_RELATIVE            1
 
+#ifndef MNG_SKIPCHUNK_PAST
 #define MNG_TARGET_ABSOLUTE              0       /* PAST */
 #define MNG_TARGET_RELATIVE_SAMEPAST     1
 #define MNG_TARGET_RELATIVE_PREVPAST     2
@@ -2529,6 +2534,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 
 #define MNG_OFFSET_ABSOLUTE              0       /* PAST */
 #define MNG_OFFSET_RELATIVE              1
+#endif
 
 #define MNG_BOUNDARY_ABSOLUTE            0       /* PAST, FRAM */
 #define MNG_BOUNDARY_RELATIVE            1

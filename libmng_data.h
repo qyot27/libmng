@@ -132,6 +132,8 @@
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
 /* *             1.0.6 - 07/05/2003 - G. R-P                                * */
 /* *             - optionally use zlib's crc32() function                   * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -556,10 +558,12 @@ typedef struct mng_data_struct {
                                                     delta-row to the bitdepth of its target */
            mng_fptr          fDeltarow;          /* internal callback to execute a
                                                     delta-row onto a target */
+#ifndef MNG_SKIPCHUNK_PAST
            mng_fptr          fFliprow;           /* internal callback to flip a row of pixels
                                                     left<->right for a PAST operation */
            mng_fptr          fTilerow;           /* internal callback to tile a row of pixels
                                                     during a PAST operation */
+#endif
            mng_fptr          fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
 
@@ -671,9 +675,11 @@ typedef struct mng_data_struct {
            mng_uint16        iMAGNcurrentid;
            mng_uint16        iMAGNtoid;
 
+#ifndef MNG_SKIPCHUNK_PAST
            mng_uint16        iPASTid;
            mng_int32         iPastx;             /* target x/y of last PAST */
            mng_int32         iPasty;
+#endif
 
            mng_objectp       pLastseek;          /* last processed ani_seek object */  
 #endif /* MNG_SUPPORT_DISPLAY */

@@ -69,6 +69,8 @@
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_DELTA_PNG reduction and more SKIPCHUNK      * */
 /* *               optimizations                                            * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1116,6 +1118,7 @@ mng_retcode MNG_DECL mng_getchunk_clon (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode MNG_DECL mng_getchunk_past (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint16 *iDestid,
@@ -1150,9 +1153,11 @@ mng_retcode MNG_DECL mng_getchunk_past (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode MNG_DECL mng_getchunk_past_src (mng_handle hHandle,
                                             mng_handle hChunk,
                                             mng_uint32 iEntry,
@@ -1206,6 +1211,7 @@ mng_retcode MNG_DECL mng_getchunk_past_src (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3720,6 +3726,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
                                         mng_uint16 iDestid,
                                         mng_uint8  iTargettype,
@@ -3771,9 +3778,11 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode MNG_DECL mng_putchunk_past_src (mng_handle hHandle,
                                             mng_uint32 iEntry,
                                             mng_uint16 iSourceid,
@@ -3833,6 +3842,7 @@ mng_retcode MNG_DECL mng_putchunk_past_src (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 

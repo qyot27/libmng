@@ -196,8 +196,8 @@
 /* *             - combined init functions into one function                * */
 /* *             1.0.6 - 07/10/2003 - G.R-P                                 * */
 /* *             - replaced nested switches with simple init setup function * */
-/* *             1.0.6 - 07/13/2003 - G.R-P                                 * */
-/* *             - restored two misplaced #else/#endif blocks               * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2381,7 +2381,9 @@ mng_retcode mng_process_display (mng_datap pData)
         case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
         case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
+#ifndef MNG_SKIPCHUNK_PAST
         case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
+#endif
         default : MNG_ERROR (pData, MNG_INTERNALERROR)
       }
     }
@@ -5669,6 +5671,7 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_process_display_past (mng_datap  pData,
                                       mng_uint16 iTargetid,
                                       mng_uint8  iTargettype,
@@ -6207,9 +6210,11 @@ mng_retcode mng_process_display_past (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCHUNK_PAST */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_process_display_past2 (mng_datap pData)
 {
   mng_retcode iRetcode;
@@ -6236,6 +6241,7 @@ mng_retcode mng_process_display_past2 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCHUNK_PAST */
 
 /* ************************************************************************** */
 

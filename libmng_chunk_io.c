@@ -188,6 +188,8 @@
 /* *               local mng_update_crc                                     * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3851,6 +3853,7 @@ READ_CHUNK (mng_read_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 READ_CHUNK (mng_read_past)
 {
 #if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
@@ -3967,6 +3970,7 @@ READ_CHUNK (mng_read_past)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -8349,6 +8353,7 @@ WRITE_CHUNK (mng_write_clon)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 WRITE_CHUNK (mng_write_past)
 {
   mng_pastp        pPAST;
@@ -8415,6 +8420,7 @@ WRITE_CHUNK (mng_write_past)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 

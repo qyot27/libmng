@@ -73,6 +73,8 @@
 /* *             1.0.6 - 07/07/2003 - G. R-P                                * */
 /* *             - added MNG_SKIPCHUNK_CHNK, MNG_NO_DELTA_PNG reductions.   * */
 /* *             - skipped more code when MNG_INCLUDE_JNG is not enabled.   * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditional around evNT chunk support              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -175,7 +177,9 @@ MNG_LOCAL mng_error_entry const error_table [] =
 #ifndef MNG_SKIPCHUNK_evNT
     {MNG_SEEKNOTFOUND,     "evNT points to unknown SEEK"},
 #endif
+#ifndef MNG_SKIPCHUNK_evNT
     {MNG_OBJNOTABSTRACT,   "Destination object for PAST must be abstract"},
+#endif
     {MNG_TERMSEQERROR,     "TERM misplaced during creation of MNG stream"},
 
     {MNG_INVALIDCNVSTYLE,  "Canvas_style is invalid"},

@@ -78,6 +78,8 @@
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_DELTA_PNG reduction                         * */
 /* *             - skip additional code when MNG_INCLUDE_JNG is not enabled * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -339,7 +341,9 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_ORDR, mng_init_ordr, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0},
 #endif
 #endif
+#ifndef MNG_SKIPCHUNK_PAST
     {MNG_UINT_PAST, mng_init_past, mng_free_past, mng_read_past, mng_write_past, mng_assign_past, 0, 0},
+#endif
     {MNG_UINT_PLTE, mng_init_plte, mng_free_plte, mng_read_plte, mng_write_plte, mng_assign_plte, 0, 0},
 #ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_PPLT, mng_init_pplt, mng_free_pplt, mng_read_pplt, mng_write_pplt, mng_assign_pplt, 0, 0},
@@ -553,7 +557,9 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
         case  8 : { iRetcode = mng_process_display_iend  (pData); break; }
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
         case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
+#ifndef MNG_SKIPCHUNK_PAST
         case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
+#endif
       }
     }
   }

@@ -55,6 +55,8 @@
 /* *             1.0.6 - 07/07/2003 - G.R-P                                 * */
 /* *             - added conditionals around Delta-PNG code                 * */
 /* *             - added SKIP_CHUNK feature                                 * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -338,6 +340,7 @@ mng_retcode mng_create_ani_magn   (mng_datap      pData,
                                    mng_uint16     iMB,
                                    mng_uint8      iMethodY);
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_create_ani_past   (mng_datap      pData,
                                    mng_uint16     iTargetid,
                                    mng_uint8      iTargettype,
@@ -345,6 +348,7 @@ mng_retcode mng_create_ani_past   (mng_datap      pData,
                                    mng_int32      iTargety,
                                    mng_uint32     iCount,
                                    mng_ptr        pSources);
+#endif
 
 mng_retcode mng_create_ani_disc   (mng_datap      pData,
                                    mng_uint32     iCount,
@@ -419,8 +423,10 @@ mng_retcode mng_free_ani_pplt     (mng_datap    pData,
 #endif
 mng_retcode mng_free_ani_magn     (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_free_ani_past     (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_free_ani_disc     (mng_datap    pData,
                                    mng_objectp  pObject);
 
@@ -493,8 +499,10 @@ mng_retcode mng_process_ani_pplt  (mng_datap    pData,
 #endif
 mng_retcode mng_process_ani_magn  (mng_datap    pData,
                                    mng_objectp  pObject);
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_process_ani_past  (mng_datap    pData,
                                    mng_objectp  pObject);
+#endif
 mng_retcode mng_process_ani_disc  (mng_datap    pData,
                                    mng_objectp  pObject);
 

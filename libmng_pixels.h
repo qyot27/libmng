@@ -69,6 +69,8 @@
 /* *             - removed conditionals around 8-bit magn routines          * */
 /* *             - added conditionals around 16-bit and delta-PNG           * */
 /* *               supporting code                                          * */
+/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1010,10 +1012,12 @@ mng_retcode mng_magnify_rgba16_y5      (mng_datap  pData,
 /* ************************************************************************** */
 
 mng_retcode mng_composeover_rgba8      (mng_datap  pData);
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_composeunder_rgba8     (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_composeover_rgba16     (mng_datap  pData);
 mng_retcode mng_composeunder_rgba16    (mng_datap  pData);
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -1022,11 +1026,13 @@ mng_retcode mng_composeunder_rgba16    (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_PAST
 mng_retcode mng_flip_rgba8             (mng_datap  pData);
 mng_retcode mng_tile_rgba8             (mng_datap  pData);
 #ifndef MNG_NO_16BIT_SUPPORT
 mng_retcode mng_flip_rgba16            (mng_datap  pData);
 mng_retcode mng_tile_rgba16            (mng_datap  pData);
+#endif
 #endif
 
 /* ************************************************************************** */
