@@ -1,7 +1,8 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
+
 By Jason Summers  <jason1@pobox.com>
-Version 1.0.0  9 Aug 2002
+Version 1.0.1  2 Oct 2002
 Web site: <http://pobox.com/~jason1/mngplg/>
 
 
@@ -27,7 +28,18 @@ SUCH DAMAGES.
 
 Permission is granted to anyone to use this software for any purpose, 
 including commercial applications, and to alter it and redistribute it 
-freely.
+freely, subject to the following restrictions:
+
+ 1. The origin of this source code must not be misrepresented;
+    you must not claim that you wrote the original software.
+ 2. Altered source versions must be plainly marked as such, and must not
+    be misrepresented as being the original source.
+ 3. Altered binary versions must not be misrepresented as being the
+    original.
+ 4. This Copyright notice may not be removed or altered from any source
+    or altered source distribution, although you may add a Copyright
+    notice for yourself for any code that you have written.
+
 
 This software uses several third-party libraries (listed below), some of 
 which are optional. If you redistribute MNGPLG, it is your responsibility to 
@@ -39,8 +51,9 @@ best of my understanding, that basically means that anyone distributing that
 file must (1) make it possible for the recipient to modify the plug-in to 
 use a new or modified version of lcms, and (2) make available the lcms 
 source code. Requirement (1) is satisfied by the inclusion of the source 
-code to the plug-in. For requirement (2), you can get the lcms source code 
+code. For requirement (2), you can find out how to get the lcms source code
 at the web site listed at the beginning of this document, if necessary.
+
 
 ---------
 
@@ -49,7 +62,7 @@ Based on libmng.
    <http://www.libmng.com/>
 
 Uses the zlib compression library.
-   (C) 1995-1998 Jean-loup Gailly and Mark Adler
+   (C) 1995-2002 Jean-loup Gailly and Mark Adler
 
 This software is based in part on the work of the Independent JPEG Group.
    Copyright (C) 1991-1998, Thomas G. Lane
@@ -59,22 +72,20 @@ Uses the lcms color management library by Martí Maria Saguer.
 
 ---------
 
-SECURITY WARNING
+SECURITY NOTICE
 
 Although I've tried to write it carefully, MNGPLG has not had any sort of 
 security audit. Due to the nature of plug-ins, it is possible for certain 
 types of bugs to exist which may allow remote web sites to take control of 
 your computer or do harm to it by sending a carefully constructed data file 
-to the plug-in. (Many bugs like this have been discovered in every popular
-web browser.) If you are paranoid about security, you may not wish to 
-leave MNGPLG enabled in your browser for an extended period of time. To
-disable it, simply rename the "npmngplg.dll" file to "npmngplg.old".
+to the plug-in. If you are paranoid about security, you may not wish to 
+leave MNGPLG enabled in your browser for an extended period of time.
 
 ---------
 
 INTRODUCTION
 
-MNGPLG is a free Netscape-style browser plug-in which displays the MNG 
+MNGPLG is a Netscape-style browser plug-in which displays the MNG 
 image/animation format. It is configured to claim the following MIME types:
 
  video/x-mng
@@ -100,8 +111,8 @@ MNG requires a 32-bit Windows operating system, and a 32-bit web browser
 that supports Netscape-style plug-ins. For example, it works in Netscape 3 
 and higher, Opera 3.51 and higher, and Microsoft Internet Explorer from 
 about version 3 to 5.0. (It does not readily work in IE 5.5sp2 and 
-higher.) Netscape 6 includes native support for MNG, so it should not be 
-necessary to use a plug-in in most cases.
+higher.) Netscape 6 and higher (and related browsers) include native
+support for MNG, so it should not be necessary to use this plug-in.
 
 
 INSTALLATION
@@ -123,27 +134,30 @@ To uninstall, delete the npmngplg.dll file. It does not create any other
 files. It currently does not write anything to the Windows registry.
 
 
-HOW TO USE
+HOW TO USE (FOR END USERS)
 
-In your web page, use the <embed> tag. For example:
+Right-click on an MNG image as it is being displayed to get a menu with some 
+of the usual features.
+
+Right-click and choose "Properties" to display some internal information
+about the image. Some images have embedded text information that will be
+shown in the "Image comments" area. For technical reasons, some or all of
+the comments may not be available until the animation completes a full loop.
+
+
+HOW TO USE (FOR WEB DEVELOPERS)
+
+First, if at all possible, configure your web server (not browser) to 
+assign the MIME type "video/x-mng" to files that end in ".mng", and
+assign type "image/x-jng" to files that end in ".jng".
+
+The most reliable way to embed MNG files in a web page is (unfortunately)
+to use the  nonstandard <embed> tag. For example:
 
 <embed src="foo.mng" width="100" height="100" type="video/x-mng">
 
 The src, width, and height attributes are required. Width and height should 
 match the actual width and height of the image.
-
-If possible, configure your web server (not browser) to assign the MIME type 
-"video/x-mng" to files that end in ".mng", and assign type "image/x-jng" to
-files that end in ".jng". Strictly speaking, this is *required*, but the
-"type" attribute will allow you to work around it in most browsers.
-
-Right-click on an MNG image as it is being displayed to get a menu with some 
-of the usual features.
-
-If an image contains embedded comments or other text, there will be a "Show
-Image Comments" item on the menu to allow you to view them. For technical
-reasons, some or all of the comments may not be available until the
-animation completes a full loop.
 
 Transparency is not supported, and probably never will be. However, you can 
 supply a background color to use in transparent areas by using the BGCOLOR 
@@ -163,7 +177,7 @@ TARGET attribute in the EMBED tag. For example:
 
 SOURCE CODE
 
-The C source code is included. I've only tested it with libmng 1.0.4,
+The C source code is included. I've only tested it with libmng 1.0.5,
 but it's probably also compatible with other versions, maybe with
 minor changes.
 
@@ -187,8 +201,8 @@ executable files.
 If you don't include lcms, comment out the "#define MNGPLG_CMS" line in 
 npmngplg.c.
 
-I also recommend turning on the MNG_ERROR_TELLTALE option in 
-libmng_conf.h.
+I also recommend turning on the MNG_ERROR_TELLTALE and
+MNG_SUPPORT_DYNAMICMNG options in libmng_conf.h.
 
 The files from the Netscape plug-in SDK are no longer needed as of MNGPNG
 0.9.4.
