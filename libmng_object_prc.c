@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.c       copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -106,6 +106,7 @@
 /* *             - fixed magnification bug with object 0                    * */
 /* *             1.0.5 - 01/19/2003 - G.Juyn                                * */
 /* *             - B664911 - fixed buffer overflow during init              * */
+/* *                                                                        * */
 /* *             1.0.6 - 04/19/2003 - G.Juyn                                * */
 /* *             - fixed problem with infinite loops during readdisplay()   * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */

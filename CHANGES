@@ -18,7 +18,7 @@ core:
 - fixed problem with infinite loops during readdisplay()
 - added size-optimiation COMPOSE routine usage
 - added conditionals around canvas update routines
-- added special conditional to optimize Mozilla footprint
+- added MNG_SKIPCHUNK_cHNK footprint optimizations
 
 samples:
 

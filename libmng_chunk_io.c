@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.c         copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -367,6 +367,7 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 
 /* ************************************************************************** */
 
+#if !defined(MNG_SKIPCHUNK_iCCP) && !defined(MNG_SKIPCHUNK_zTXt) && !defined(MNG_SKIPCHUNK_iTXt)
 MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
                                       mng_uint8p pInbuf,
                                       mng_uint32 iInsize,
@@ -428,6 +429,7 @@ MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -438,11 +440,10 @@ MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
 /* * Helper routines to simplify chunk writing                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
-/* B004 */
 #ifdef MNG_INCLUDE_WRITE_PROCS
-/* B004 */
 /* ************************************************************************** */
 
+#if !defined(MNG_SKIPCHUNK_iCCP) && !defined(MNG_SKIPCHUNK_zTXt) && !defined(MNG_SKIPCHUNK_iTXt)
 MNG_LOCAL mng_retcode deflate_buffer (mng_datap  pData,
                                       mng_uint8p pInbuf,
                                       mng_uint32 iInsize,
@@ -497,6 +498,7 @@ MNG_LOCAL mng_retcode deflate_buffer (mng_datap  pData,
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1708,6 +1710,7 @@ READ_CHUNK (mng_read_srgb)
 }
 
 /* ************************************************************************** */
+
 #ifndef MNG_SKIPCHUNK_iCCP
 READ_CHUNK (mng_read_iccp)
 {
@@ -1847,7 +1850,7 @@ READ_CHUNK (mng_read_iccp)
           MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
 
         pData->iGlobalProfilesize = 0; /* reset to null */
-        pData->pGlobalProfile     = MNG_NULL; 
+        pData->pGlobalProfile     = MNG_NULL;
       }
       else
       {                                /* allocate a global buffer & copy it */
@@ -1935,9 +1938,9 @@ READ_CHUNK (mng_read_iccp)
 }
 #endif
 
-#ifndef MNG_SKIPCHUNK_tEXt
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tEXt
 READ_CHUNK (mng_read_text)
 {
   mng_uint32 iKeywordlen, iTextlen;
@@ -5042,6 +5045,7 @@ READ_CHUNK (mng_read_fpri)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_nEED
 MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
                                  mng_uint8p pKeyword)
 {
@@ -5183,6 +5187,7 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
 
   return bOke;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -7213,6 +7218,7 @@ WRITE_CHUNK (mng_write_srgb)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iCCP
 WRITE_CHUNK (mng_write_iccp)
 {
   mng_iccpp   pICCP;
@@ -7277,9 +7283,11 @@ WRITE_CHUNK (mng_write_iccp)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tEXt
 WRITE_CHUNK (mng_write_text)
 {
   mng_textp   pTEXT;
@@ -7326,9 +7334,11 @@ WRITE_CHUNK (mng_write_text)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_zTXt
 WRITE_CHUNK (mng_write_ztxt)
 {
   mng_ztxtp   pZTXT;
@@ -7389,9 +7399,11 @@ WRITE_CHUNK (mng_write_ztxt)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_iTXt
 WRITE_CHUNK (mng_write_itxt)
 {
   mng_itxtp   pITXT;
@@ -7492,9 +7504,11 @@ WRITE_CHUNK (mng_write_itxt)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_bKGD
 WRITE_CHUNK (mng_write_bkgd)
 {
   mng_bkgdp   pBKGD;
@@ -7549,9 +7563,11 @@ WRITE_CHUNK (mng_write_bkgd)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYs
 WRITE_CHUNK (mng_write_phys)
 {
   mng_physp   pPHYS;
@@ -7587,9 +7603,11 @@ WRITE_CHUNK (mng_write_phys)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sBIT
 WRITE_CHUNK (mng_write_sbit)
 {
   mng_sbitp   pSBIT;
@@ -7690,9 +7708,11 @@ WRITE_CHUNK (mng_write_sbit)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_sPLT
 WRITE_CHUNK (mng_write_splt)
 {
   mng_spltp   pSPLT;
@@ -7742,9 +7762,11 @@ WRITE_CHUNK (mng_write_splt)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_hIST
 WRITE_CHUNK (mng_write_hist)
 {
   mng_histp   pHIST;
@@ -7780,9 +7802,11 @@ WRITE_CHUNK (mng_write_hist)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_tIME
 WRITE_CHUNK (mng_write_time)
 {
   mng_timep   pTIME;
@@ -7816,6 +7840,7 @@ WRITE_CHUNK (mng_write_time)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -8793,6 +8818,7 @@ WRITE_CHUNK (mng_write_need)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_pHYg
 WRITE_CHUNK (mng_write_phyg)
 {
   mng_phygp   pPHYG;
@@ -8828,6 +8854,7 @@ WRITE_CHUNK (mng_write_phyg)
 
   return iRetcode;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -9548,8 +9575,4 @@ WRITE_CHUNK (mng_write_unknown)
 /* ************************************************************************** */
 /* * end of file                                                            * */
 /* ************************************************************************** */
-
-
-
-
 
