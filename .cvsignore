@@ -1,3 +1,12 @@
 libmng.so
 libmng.so.*
-
+Makefile.in
+aclocal.m4
+configure
+config.sub
+config.guess
+install-sh
+ltconfig
+ltmain.sh
+missing
+mkinstalldirs
