@@ -388,6 +388,7 @@ mng_retcode MNG_DECL mng_set_srgb (mng_handle hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode MNG_DECL mng_set_outputprofile (mng_handle hHandle,
                                             mng_pchar  zFilename)
 {
@@ -419,11 +420,13 @@ mng_retcode MNG_DECL mng_set_outputprofile (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
+#ifndef MNG_SKIPCHUNK_iCCP
 mng_retcode MNG_DECL mng_set_outputprofile2 (mng_handle hHandle,
                                              mng_uint32 iProfilesize,
                                              mng_ptr    pProfile)
@@ -456,6 +459,7 @@ mng_retcode MNG_DECL mng_set_outputprofile2 (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
@@ -713,6 +717,7 @@ mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIP_MAXCANVAS
 mng_retcode MNG_DECL mng_set_maxcanvaswidth (mng_handle hHandle,
                                              mng_uint32 iMaxwidth)
 {
@@ -769,6 +774,7 @@ mng_retcode MNG_DECL mng_set_maxcanvassize (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1830,6 +1836,7 @@ mng_uint32 MNG_DECL mng_get_dfltimggammaint (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIP_MAXCANVAS
 mng_uint32 MNG_DECL mng_get_maxcanvaswidth (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1861,6 +1868,7 @@ mng_uint32 MNG_DECL mng_get_maxcanvasheight (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->iMaxheight;
 }
+#endif
 
 /* ************************************************************************** */
 

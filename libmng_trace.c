@@ -235,21 +235,27 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SET_SRGB,                  "set_srgb"},
     {MNG_FN_SET_OUTPUTPROFILE,         "set_outputprofile"},
     {MNG_FN_SET_SRGBPROFILE,           "set_srgbprofile"},
+#ifndef MNG_SKIP_MAXCANVAS
     {MNG_FN_SET_MAXCANVASWIDTH,        "set_maxcanvaswidth"},
     {MNG_FN_SET_MAXCANVASHEIGHT,       "set_maxcanvasheight"},
     {MNG_FN_SET_MAXCANVASSIZE,         "set_maxcanvassize"},
+#endif
+#ifndef MNG_NO_ACCESS_ZLIB
     {MNG_FN_SET_ZLIB_LEVEL,            "set_zlib_level"},
     {MNG_FN_SET_ZLIB_METHOD,           "set_zlib_method"},
     {MNG_FN_SET_ZLIB_WINDOWBITS,       "set_zlib_windowbits"},
     {MNG_FN_SET_ZLIB_MEMLEVEL,         "set_zlib_memlevel"},
     {MNG_FN_SET_ZLIB_STRATEGY,         "set_zlib_strategy"},
     {MNG_FN_SET_ZLIB_MAXIDAT,          "set_zlib_maxidat"},
+#endif
+#ifndef MNG_NO_ACCESS_JPEG
     {MNG_FN_SET_JPEG_DCTMETHOD,        "set_jpeg_dctmethod"},
     {MNG_FN_SET_JPEG_QUALITY,          "set_jpeg_quality"},
     {MNG_FN_SET_JPEG_SMOOTHING,        "set_jpeg_smoothing"},
     {MNG_FN_SET_JPEG_PROGRESSIVE,      "set_jpeg_progressive"},
     {MNG_FN_SET_JPEG_OPTIMIZED,        "set_jpeg_optimized"},
     {MNG_FN_SET_JPEG_MAXJDAT,          "set_jpeg_maxjdat"},
+#endif
     {MNG_FN_SET_SPEED,                 "set_speed"},
     {MNG_FN_SET_SUSPENSIONMODE,        "set_suspensionmode"},
     {MNG_FN_SET_SECTIONBREAKS,         "set_sectionbreaks"},
@@ -279,20 +285,26 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_DISPLAYGAMMA,          "get_displaygamma"},
     {MNG_FN_GET_DFLTIMGGAMMA,          "get_dfltimggamma"},
     {MNG_FN_GET_SRGB,                  "get_srgb"},
+#ifndef MNG_SKIP_MAXCANVAS
     {MNG_FN_GET_MAXCANVASWIDTH,        "get_maxcanvaswidth"},
     {MNG_FN_GET_MAXCANVASHEIGHT,       "get_maxcanvasheight"},
+#endif
+#ifndef MNG_NO_ACCESS_ZLIB
     {MNG_FN_GET_ZLIB_LEVEL,            "get_zlib_level"},
     {MNG_FN_GET_ZLIB_METHOD,           "get_zlib_method"},
     {MNG_FN_GET_ZLIB_WINDOWBITS,       "get_zlib_windowbits"},
     {MNG_FN_GET_ZLIB_MEMLEVEL,         "get_zlib_memlevel"},
     {MNG_FN_GET_ZLIB_STRATEGY,         "get_zlib_strategy"},
     {MNG_FN_GET_ZLIB_MAXIDAT,          "get_zlib_maxidat"},
+#endif
+#ifndef MNG_NO_ACCESS_JPEG
     {MNG_FN_GET_JPEG_DCTMETHOD,        "get_jpeg_dctmethod"},
     {MNG_FN_GET_JPEG_QUALITY,          "get_jpeg_quality"},
     {MNG_FN_GET_JPEG_SMOOTHING,        "get_jpeg_smoothing"},
     {MNG_FN_GET_JPEG_PROGRESSIVE,      "get_jpeg_progressive"},
     {MNG_FN_GET_JPEG_OPTIMIZED,        "get_jpeg_optimized"},
     {MNG_FN_GET_JPEG_MAXJDAT,          "get_jpeg_maxjdat"},
+#endif
     {MNG_FN_GET_SPEED,                 "get_speed"},
     {MNG_FN_GET_IMAGELEVEL,            "get_imagelevel"},
     {MNG_FN_GET_SUSPENSIONMODE,        "get_speed"},

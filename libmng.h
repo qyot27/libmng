@@ -886,6 +886,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_displaygammaint (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle        hHandle,
                                                       mng_uint32        iGamma);
 
+#ifndef MNG_SKIP_MAXCANVAS
 /* Ultimate clipping size */
 /* used to limit extreme graphics from overloading the system */
 /* if a graphic exceeds these limits a warning is issued, which can
@@ -899,6 +900,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_maxcanvasheight (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_maxcanvassize   (mng_handle        hHandle,
                                                       mng_uint32        iMaxwidth,
                                                       mng_uint32        iMaxheight);
+#endif
 
 /* ZLIB default compression parameters */
 /* these are used when writing out chunks */
@@ -1059,9 +1061,11 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_viewgammaint    (mng_handle        hHandle)
 MNG_EXT mng_uint32  MNG_DECL mng_get_displaygammaint (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_dfltimggammaint (mng_handle        hHandle);
 
+#ifndef MNG_SKIP_MAXCANVAS
 /* see _set_ */
 MNG_EXT mng_uint32  MNG_DECL mng_get_maxcanvaswidth  (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_maxcanvasheight (mng_handle        hHandle);
+#endif
 
 /* see _set_ */
 #ifdef MNG_INCLUDE_ZLIB

@@ -626,8 +626,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_lastbackchunk",      1, 0, 3},
     {"mng_get_lastseekname",       1, 0, 5},
     {"mng_get_layercount",         1, 0, 0},
+#ifndef MNG_SKIP_MAXCANVAS
     {"mng_get_maxcanvasheight",    1, 0, 0},
     {"mng_get_maxcanvaswidth",     1, 0, 0},
+#endif
     {"mng_get_playtime",           1, 0, 0},
     {"mng_get_refreshpass",        1, 0, 0},
     {"mng_get_runtime",            1, 0, 0},
@@ -937,9 +939,11 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_jpeg_quality",       1, 0, 0},
     {"mng_set_jpeg_smoothing",     1, 0, 0},
 #endif
+#ifndef MNG_SKIP_MAXCANVAS
     {"mng_set_maxcanvasheight",    1, 0, 0},
     {"mng_set_maxcanvassize",      1, 0, 0},
     {"mng_set_maxcanvaswidth",     1, 0, 0},
+#endif
     {"mng_set_outputprofile",      1, 0, 0},
     {"mng_set_outputprofile2",     1, 0, 0},
     {"mng_set_outputsrgb",         1, 0, 1},
