@@ -6473,9 +6473,11 @@ mng_retcode mng_process_display_past (mng_datap  pData)
     mng_bool       bTargetRGBA16 = MNG_FALSE;
     mng_int32      iTemprowsize;
     mng_imagedatap pBuf;
+#ifndef MNG_SKIPCHUNK_MAGN
                                        /* needs magnification ? */
     if ((pTargetimg->iMAGN_MethodX) || (pTargetimg->iMAGN_MethodY))
       iRetcode = mng_magnify_imageobject (pData, pTargetimg);
+#endif
 
     if (!iRetcode)                     /* still ok ? */
     {
@@ -6538,8 +6540,10 @@ mng_retcode mng_process_display_past (mng_datap  pData)
                                        /* exists and viewable? */
       if ((pSourceimg) && (pSourceimg->bViewable))
       {                                /* needs magnification ? */
+#ifndef MNG_SKIPCHUNK_MAGN
         if ((pSourceimg->iMAGN_MethodX) || (pSourceimg->iMAGN_MethodY))
           iRetcode = mng_magnify_imageobject (pData, pSourceimg);
+#endif
 
         if (!iRetcode)                 /* still ok ? */
         {
