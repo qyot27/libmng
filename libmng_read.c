@@ -102,6 +102,8 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
+/* *             1.0.9 - 12/31/2004 - G.R-P                                 * */
+/* *             - removed stray characters from #ifdef directive           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -444,7 +446,7 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
                                          mng_uint32 iBuflen)
 {
 
-#ifndef MNG_OPTIMIZE_CHUNKREADER*/
+#ifndef MNG_OPTIMIZE_CHUNKREADER
   /* the table-idea & binary search code was adapted from
      libpng 1.1.0 (pngread.c) */
   /* NOTE1: the table must remain sorted by chunkname, otherwise the binary

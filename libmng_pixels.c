@@ -179,6 +179,8 @@
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)  * */
 /* *             - fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG           * */
+/* *             1.0.9 - 12/31/2004 - G.R-P.                                * */
+/* *             - fixed warnings about C++ style (//) comments             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3875,27 +3877,27 @@ mng_retcode mng_restore_bkgd_backcolor (mng_datap pData)
 #endif
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
-  // fast way for big endian
+  /* fast way for big endian */
   iWrite = (((mng_uint8)(pData->iBACKred   >> 8)) << 24) |
 		   (((mng_uint8)(pData->iBACKgreen >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBACKblue  >> 8)) <<  8) |
            ( 0xFF                                      );
 #elif defined(MNG_LITTLEENDIAN_SUPPORTED)
-  // fast way for little endian
+  /* fast way for little endian */
   iWrite = ( 0xFF                                 << 24) |
            (((mng_uint8)(pData->iBACKblue  >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBACKgreen >> 8)) <<  8) |
 		   (((mng_uint8)(pData->iBACKred   >> 8))      );
 #else
-  // generic way, works on all platforms
-  // put the data in memory in the correct order
+  /* generic way, works on all platforms */
+  /* put the data in memory in the correct order */
   {
     mng_uint8 aBytes[4];
     aBytes[0] = (mng_uint8)(pData->iBACKred   >> 8);
     aBytes[1] = (mng_uint8)(pData->iBACKgreen >> 8);
     aBytes[2] = (mng_uint8)(pData->iBACKblue  >> 8);
     aBytes[3] = 0xFF;
-    // load that data into a register
+    /* load that data into a register */
     iWrite = *(mng_uint32*) aBytes;
   }
 #endif
@@ -3987,25 +3989,25 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
   }
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
-  // fast way for big endian
+  /* fast way for big endian */
   iWrite = (iRed   << 24) |
 		   (iGreen << 16) |
 		   (iBlue  <<  8);
 #elif defined(MNG_LITTLEENDIAN_SUPPORTED)
-  // fast way for little endian
+  /* fast way for little endian */
   iWrite = (iBlue  << 16) |
 		   (iGreen <<  8) |
 		   (iRed        );
 #else
-  // generic way, works on all platforms
-  // put the data in memory in the correct order
+  /* generic way, works on all platforms */
+  /* put the data in memory in the correct order */
   {
     mng_uint8 aBytes[4];
     aBytes[0] = (mng_uint8)(iRed);
     aBytes[1] = (mng_uint8)(iGreen);
     aBytes[2] = (mng_uint8)(iBlue);
     aBytes[3] = 0x00;
-    // load that data into a register
+    /* load that data into a register */
     iWrite = *(mng_uint32*) aBytes;
   }
 #endif
@@ -4034,25 +4036,25 @@ mng_retcode mng_restore_bkgd_bgcolor (mng_datap pData)
 #endif
 
 #ifdef MNG_BIGENDIAN_SUPPORTED
-  // fast way for big endian
+  /* fast way for big endian */
   iWrite = (((mng_uint8)(pData->iBGred   >> 8)) << 24) |
 		   (((mng_uint8)(pData->iBGgreen >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBGblue  >> 8)) <<  8);
 #elif defined(MNG_LITTLEENDIAN_SUPPORTED)
-  // fast way for little endian
+  /* fast way for little endian */
   iWrite = (((mng_uint8)(pData->iBGblue  >> 8)) << 16) |
 		   (((mng_uint8)(pData->iBGgreen >> 8)) <<  8) |
 		   (((mng_uint8)(pData->iBGred   >> 8))      );
 #else
-  // generic way, works on all platforms
-  // put the data in memory in the correct order
+  /* generic way, works on all platforms */
+  /* put the data in memory in the correct order */
   {
     mng_uint8 aBytes[4];
     aBytes[0] = (mng_uint8)(pData->iBGred   >> 8);
     aBytes[1] = (mng_uint8)(pData->iBGgreen >> 8);
     aBytes[2] = (mng_uint8)(pData->iBGblue  >> 8);
     aBytes[3] = 0x00;
-    // load that data into a register
+    /* load that data into a register */
     iWrite = *(mng_uint32*) aBytes;
   }
 #endif

@@ -119,20 +119,22 @@
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
 /* *             1.0.6 - 07/29/2003 - G.Juyn                                * */
 /* *             - fixed invalid test in promote_imageobject                * */
-/* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
+/* *             1.0.6 - 07/29/2003 - G.R-P.                                * */
 /* *             - added conditionals around PAST chunk support             * */
-/* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
+/* *             1.0.6 - 08/17/2003 - G.R-P.                                * */
 /* *             - added conditionals around MAGN chunk support             * */
 /* *                                                                        * */
 /* *             1.0.7 - 03/21/2004 - G.Juyn                                * */
 /* *             - fixed some 64-bit platform compiler warnings             * */
 /* *                                                                        * */
-/* *             1.0.9 - 10/10/2004 - G.R-P                                 * */
+/* *             1.0.9 - 10/10/2004 - G.R-P.                                * */
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT support                    * */
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_OBJCLEANUP                * */
 /* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
+/* *             1.0.9 - 12/31/2004 - G.R-P.                                * */
+/* *             - fixed warnings about possible uninitialized pointers     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3458,8 +3460,9 @@ mng_retcode mng_create_ani_endl (mng_datap pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+    mng_retcode iRetcode;
 #ifdef MNG_OPTIMIZE_OBJCLEANUP
-    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_endl),
+    iRetcode = create_obj_general (pData, sizeof (mng_ani_endl),
                                                mng_free_obj_general,
                                                mng_process_ani_endl,
                                                &pENDL);
@@ -5255,7 +5258,7 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
                                  mng_chunkp pChunk)
 #endif
 {
-  mng_ani_promp pPROM;
+  mng_ani_promp pPROM=NULL;
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -5674,7 +5677,7 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
                                  mng_chunkp pChunk)
 #endif
 {
-  mng_ani_magnp pMAGN;
+  mng_ani_magnp pMAGN=NULL;
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
