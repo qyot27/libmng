@@ -44,6 +44,9 @@
 #define MNG_SKIPCHUNK_SEEK
 #define MNG_SKIPCHUNK_DBYK
 #define MNG_SKIPCHUNK_ORDR
+/* Eliminate unused zlib and jpeg "get" and "set" accessors */
+#define MNG_NO_ACCESS_ZLIB
+#define MNG_NO_ACCESS_JPEG
 #endif
 
 #if 1
