@@ -1003,8 +1003,8 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
       pData->iFrameclipb    = pData->iFRAMclipb;
     }
   }
-                                       /* still running and timer still off ? */
-  if ((pData->bRunning) && (!pData->bTimerset))
+
+  if (!pData->bTimerset)               /* timer still off ? */
   {
     if ((pData->iFramemode == 4) ||    /* insert background layer after a new frame */
         (!pData->iLayerseq))           /* and certainly before the very first layer */
@@ -1173,8 +1173,8 @@ mng_retcode mng_display_image (mng_datap  pData,
     next_layer (pData);                /* advance to next layer */
     pData->pCurrentobj  = pSave;
   }
-                                       /* still running & need to restore the background ? */
-  if ((pData->bRunning) && (!pData->bTimerset) && (pData->bRestorebkgd))
+                                       /* need to restore the background ? */
+  if ((!pData->bTimerset) && (pData->bRestorebkgd))
   {
     mng_imagep pSave    = pData->pCurrentobj;
     pData->pCurrentobj  = pImage;
@@ -1986,15 +1986,15 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iFRAMclipr           = pSave->iFRAMclipr;
     pData->iFRAMclipt           = pSave->iFRAMclipt;
     pData->iFRAMclipb           = pSave->iFRAMclipb;
-                                       /* also the next subframe parms */
-    pData->iFramemode           = pSave->iFRAMmode;
-/*    pData->iFramedelay          = pSave->iFRAMdelay; */
+                                       /* NOOOOOOOOOOOO */
+/*    pData->iFramemode           = pSave->iFRAMmode;
+    pData->iFramedelay          = pSave->iFRAMdelay;
     pData->iFrametimeout        = pSave->iFRAMtimeout;
     pData->bFrameclipping       = pSave->bFRAMclipping;
     pData->iFrameclipl          = pSave->iFRAMclipl;
     pData->iFrameclipr          = pSave->iFRAMclipr;
     pData->iFrameclipt          = pSave->iFRAMclipt;
-    pData->iFrameclipb          = pSave->iFRAMclipb;
+    pData->iFrameclipb          = pSave->iFRAMclipb; */
 
     pData->iNextdelay           = pSave->iFRAMdelay;
 
@@ -2059,15 +2059,15 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iFRAMclipr           = 0;
     pData->iFRAMclipt           = 0;
     pData->iFRAMclipb           = 0;
-                                       /* also the next subframe parms */
-    pData->iFramemode           = 1;
-/*    pData->iFramedelay          = 1; */
+                                       /* NOOOOOOOOOOOO */
+/*    pData->iFramemode           = 1;
+    pData->iFramedelay          = 1;
     pData->iFrametimeout        = 0x7fffffffl;
     pData->bFrameclipping       = MNG_FALSE;
     pData->iFrameclipl          = 0;
     pData->iFrameclipr          = 0;
     pData->iFrameclipt          = 0;
-    pData->iFrameclipb          = 0;
+    pData->iFrameclipb          = 0; */
 
     pData->iNextdelay           = 1;
 
@@ -2373,7 +2373,6 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       if (pData->bTimerset)            /* timer break ? */
         pData->iBreakpoint = 2;
       else
-      if (pData->bRunning)             /* still running */ 
       {
         pData->iBreakpoint = 0;
                                        /* anything to display ? */
@@ -2382,8 +2381,8 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       }
     }
   }
-                                       /* still runing and no timer break ? */
-  if ((pData->bRunning) && (!pData->bTimerset))             
+
+  if (!pData->bTimerset)               /* no timer break ? */
   {
     switch (pData->iColortype)         /* determine row initialization routine */
     {
@@ -2859,14 +2858,21 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                    pData->iFramedelay = pTERM->iDelay;
 
                  iRetcode = interframe_delay (pData);
+                                       /* no interframe_delay? then fake it */
+                 if ((!iRetcode) && (!pData->bTimerset))
+                   iRetcode = set_delay (pData, 1);
 
                  if (iRetcode)
                    return iRetcode;
+
+                 pData->iBreakpoint = 10;
 /* end of change */
                  break;
                }
 
       case 2 : {                       /* show first image after TERM */
+/*                 mng_uint32 iWaitfor; */
+
                  iRetcode = restore_state (pData);
 
                  if (iRetcode)         /* on error bail out */
@@ -2884,6 +2890,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                           of TERM delay and current interframe_delay */
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
+
+/*                 iWaitfor = calculate_delay (pData, pData->iFramedelay);
+                 iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
+
+                 if (iRetcode)
+                   return iRetcode; */
 
                  break;
                }
@@ -2913,17 +2925,19 @@ mng_retcode mng_process_display_mend (mng_datap pData)
    as proposed by Adam M. Costello (option 4)
    see 'mng-list' archives for more details */
 
-/*                   mng_uint32 iWaitfor = calculate_delay (pData, pTERM->iDelay);
+/*                     mng_uint32 iWaitfor; */
+                                       /* new interframe_delay is the greater
+                                          of TERM delay and current interframe_delay */
+                     if (pTERM->iDelay > pData->iFramedelay)
+                       pData->iFramedelay = pTERM->iDelay;
 
+/*                     iWaitfor = calculate_delay (pData, pData->iFramedelay);
                      iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
 
                      if (iRetcode)
                        return iRetcode; */
 
-                                       /* new interframe_delay is the greater
-                                          of TERM delay and current interframe_delay */
-                     if (pTERM->iDelay > pData->iFramedelay)
-                       pData->iFramedelay = pTERM->iDelay;
+                     pData->bNeedrefresh = MNG_TRUE;
 /* end of change */
                    }
                  }
@@ -2947,14 +2961,21 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                   pData->iFramedelay = pTERM->iDelay;
 
                                 iRetcode = interframe_delay (pData);
+                                       /* no interframe_delay? then fake it */
+                                if ((!iRetcode) && (!pData->bTimerset))
+                                  iRetcode = set_delay (pData, 1);
 
                                 if (iRetcode)
                                   return iRetcode;
+
+                                pData->iBreakpoint = 10;
 /* end of change */
                                 break;
                               }
 
                      case 2 : {        /* show first image after TERM */
+/*                                mng_uint32 iWaitfor; */
+
                                 iRetcode = restore_state (pData);
                                        /* on error bail out */
                                 if (iRetcode)
@@ -2974,6 +2995,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
 
+/*                                iWaitfor = calculate_delay (pData, pData->iFramedelay);
+                                iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
+
+                                if (iRetcode)
+                                  return iRetcode; */
+
                                 break;
                               }
 
@@ -2989,9 +3016,6 @@ mng_retcode mng_process_display_mend (mng_datap pData)
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
     pData->bNeedrefresh = MNG_TRUE;
 
-  if (pData->bTimerset)                /* broken ? */
-    pData->iBreakpoint = 10;
-  
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END)
 #endif
@@ -5145,7 +5169,7 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
     else
     {
       pImage = mng_find_imageobject (pData, iX);
-                                           /* object exists & is not frozen ? */
+                                       /* object exists & is not frozen ? */
       if ((pImage) && (!pImage->bFrozen))
       {                                /* previous magnification to be done ? */
         if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
@@ -5175,7 +5199,7 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
     if (iX)                            /* only real objects ! */
     {
       pImage = mng_find_imageobject (pData, iX);
-                                           /* object exists & is not frozen  &
+                                       /* object exists & is not frozen  &
                                           is visible & is viewable ? */
       if ((pImage) && (!pImage->bFrozen) &&
           (pImage->bVisible) && (pImage->bViewable))

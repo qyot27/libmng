@@ -128,6 +128,8 @@
 /* *             - added in-memory color-correction of abstract images      * */
 /* *             - added compose over/under routines for PAST processing    * */
 /* *             - added flip & tile routines for PAST processing           * */
+/* *             1.0.5 - 10/09/2002 - G.Juyn                                * */
+/* *             - fixed trace-constants for PAST chunk                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -740,7 +742,6 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_IJNG       1826
 #define MNG_FN_CREATE_ANI_PPLT       1827
 #define MNG_FN_CREATE_ANI_MAGN       1828
-#define MNG_FN_CREATE_ANI_PAST       1829
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 #define MNG_FN_CREATE_EVENT          1892
@@ -775,7 +776,6 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_IJNG         1926
 #define MNG_FN_FREE_ANI_PPLT         1927
 #define MNG_FN_FREE_ANI_MAGN         1928
-#define MNG_FN_FREE_ANI_PAST         1929
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 #define MNG_FN_FREE_EVENT            1992
@@ -810,7 +810,6 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_IJNG      2026
 #define MNG_FN_PROCESS_ANI_PPLT      2027
 #define MNG_FN_PROCESS_ANI_MAGN      2028
-#define MNG_FN_PROCESS_ANI_PAST      2029
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 #define MNG_FN_PROCESS_EVENT         2092
@@ -1173,7 +1172,6 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_DISPLAY_ORDR  3246
 #define MNG_FN_PROCESS_DISPLAY_MAGN  3247
 #define MNG_FN_PROCESS_DISPLAY_JDAA  3248
-#define MNG_FN_PROCESS_DISPLAY_PAST  3249
 
 /* ************************************************************************** */
 

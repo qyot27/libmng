@@ -119,6 +119,8 @@
 /* *             - added in-memory color-correction of abstract images      * */
 /* *             - added compose over/under routines for PAST processing    * */
 /* *             - added flip & tile routines for PAST processing           * */
+/* *             1.0.5 - 10/09/2002 - G.Juyn                                * */
+/* *             - fixed trace-constants for PAST chunk                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -682,7 +684,6 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_CREATE_ANI_IJNG,           "create_ani_ijng"},
     {MNG_FN_CREATE_ANI_PPLT,           "create_ani_pplt"},
     {MNG_FN_CREATE_ANI_MAGN,           "create_ani_magn"},
-    {MNG_FN_CREATE_ANI_PAST,           "create_ani_past"},
 
     {MNG_FN_CREATE_ANI_IMAGE,          "create_ani_image"},
     {MNG_FN_CREATE_EVENT,              "create_event"},
@@ -715,7 +716,6 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_FREE_ANI_IJNG,             "free_ani_ijng"},
     {MNG_FN_FREE_ANI_PPLT,             "free_ani_pplt"},
     {MNG_FN_FREE_ANI_MAGN,             "free_ani_magn"},
-    {MNG_FN_FREE_ANI_PAST,             "free_ani_past"},
 
     {MNG_FN_FREE_ANI_IMAGE,            "free_ani_image"},
     {MNG_FN_FREE_EVENT,                "free_event"},
@@ -748,7 +748,6 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PROCESS_ANI_IJNG,          "process_ani_ijng"},
     {MNG_FN_PROCESS_ANI_PPLT,          "process_ani_pplt"},
     {MNG_FN_PROCESS_ANI_MAGN,          "process_ani_magn"},
-    {MNG_FN_PROCESS_ANI_PAST,          "process_ani_past"},
 
     {MNG_FN_PROCESS_ANI_IMAGE,         "process_ani_image"},
     {MNG_FN_PROCESS_EVENT,             "process_event"},
@@ -1095,7 +1094,6 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_PROCESS_DISPLAY_ORDR,      "process_display_ordr"},
     {MNG_FN_PROCESS_DISPLAY_MAGN,      "process_display_magn"},
     {MNG_FN_PROCESS_DISPLAY_JDAA,      "process_display_jdaa"},
-    {MNG_FN_PROCESS_DISPLAY_PAST,      "process_display_past"},
 
     {MNG_FN_JPEG_INITIALIZE,           "jpeg_initialize"},
     {MNG_FN_JPEG_CLEANUP,              "jpeg_cleanup"},
