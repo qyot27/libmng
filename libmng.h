@@ -608,7 +608,16 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_traceproc     (mng_handle        hHandle,
                 in most other case -> level == 1) */
 /* processsave & processseek are called for SAVE/SEEK chunks */
 /* processneed is called for the nEED chunk; you should specify a callback
-   for this as the default behavior will be to abort processing */
+   for this as the default behavior will be to abort processing, unless
+   the requirement is one of:
+   - a supported chunk
+   - the text "draft nn" where nn is a numeric value
+   - the text "MNG-1.0" or "MNG-1.1"
+   - the text "CACHEOFF" */
+/* processmend is called at the very end of the animation-stream;
+   note that this may not be the end of the animation though! */
+/* processterm is called when a TERM chunk is encountered; there can be only
+   1 in the stream (or none) */
 /* processunknown is called after reading each non-critical unknown chunk */
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processheader (mng_handle        hHandle,
@@ -623,10 +632,10 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processneed   (mng_handle        hHandle,
                                                       mng_processneed   fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processmend   (mng_handle        hHandle,
                                                       mng_processmend   fProc);
-MNG_EXT mng_retcode MNG_DECL mng_setcb_processunknown(mng_handle        hHandle,
-                                                      mng_processunknown fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processterm   (mng_handle        hHandle,
                                                       mng_processterm   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processunknown(mng_handle        hHandle,
+                                                      mng_processunknown fProc);
 #endif
 
 /* callbacks for display processing */
