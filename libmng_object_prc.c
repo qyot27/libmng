@@ -100,6 +100,8 @@
 /* *             - fixed problem cloning frozen object_buffers              * */
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - fixed DISC support                                       * */
+/* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
+/* *             - fixed goframe/golayer/gotime processing                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -475,8 +477,8 @@ mng_retcode mng_create_imageobject (mng_datap  pData,
   pImage->bVisible         = bVisible;
   pImage->bViewable        = bViewable;
   pImage->bValid           = (mng_bool)((pData->bDisplaying) &&
-                                        (pData->bRunning   ) &&
-                                        (!pData->bFreezing )    ); 
+                                        ((pData->bRunning) || (pData->bSearching)) &&
+                                        (!pData->bFreezing));
   pImage->iPosx            = iPosx;
   pImage->iPosy            = iPosy;
   pImage->bClipped         = bClipped;
@@ -2947,7 +2949,7 @@ mng_retcode mng_process_ani_endl (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_START)
 #endif
 
-  if ((pData->bDisplaying) && (pData->bRunning))
+  if ((pData->bDisplaying) && ((pData->bRunning) || (pData->bSearching)))
   {
     pLOOP = pENDL->pLOOP;              /* determine matching LOOP */
 

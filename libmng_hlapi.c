@@ -148,6 +148,8 @@
 /* *             - added beta version function & constant                   * */
 /* *             1.0.5 - 10/11/2002 - G.Juyn                                * */
 /* *             - added mng_status_dynamic to supports function            * */
+/* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
+/* *             - changed FRAMECOUNT/LAYERCOUNT/PLAYTIME error to warning  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2174,9 +2176,17 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
   if (iFramenr > pData->iFramecount)   /* is the parameter within bounds ? */
-    MNG_ERROR (pData, MNG_FRAMENRTOOHIGH);
+    MNG_WARNING (pData, MNG_FRAMENRTOOHIGH);
 
   cleanup_errors (pData);              /* cleanup previous errors */
+                                       /* search from current or go back to start ? */
+  if ((pData->pCurraniobj) &&
+      (((mng_object_headerp)pData->pCurraniobj)->iFramenr > iFramenr))
+  {
+    iRetcode = mng_reset_rundata (pData);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
   pData->iRequestframe = iFramenr;     /* go find the requested frame then */
   iRetcode = mng_process_display (pData);
@@ -2218,9 +2228,17 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
   if (iLayernr > pData->iLayercount)   /* is the parameter within bounds ? */
-    MNG_ERROR (pData, MNG_LAYERNRTOOHIGH)
+    MNG_WARNING (pData, MNG_LAYERNRTOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
+                                       /* search from current or go back to start ? */
+  if ((pData->pCurraniobj) &&
+      (((mng_object_headerp)pData->pCurraniobj)->iLayernr > iLayernr))
+  {
+    iRetcode = mng_reset_rundata (pData);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
   pData->iRequestlayer = iLayernr;     /* go find the requested layer then */
   iRetcode = mng_process_display (pData);
@@ -2262,9 +2280,17 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
   if (iPlaytime > pData->iPlaytime)    /* is the parameter within bounds ? */
-    MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH)
+    MNG_WARNING (pData, MNG_PLAYTIMETOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
+                                       /* search from current or go back to start ? */
+  if ((pData->pCurraniobj) &&
+      (((mng_object_headerp)pData->pCurraniobj)->iPlaytime > iPlaytime))
+  {
+    iRetcode = mng_reset_rundata (pData);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
   pData->iRequesttime = iPlaytime;     /* go find the requested playtime then */
   iRetcode = mng_process_display (pData);

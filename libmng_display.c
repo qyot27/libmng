@@ -177,6 +177,10 @@
 /* *             1.0.5 - 10/30/2002 - G.Juyn                                * */
 /* *             - modified TERM/MEND processing for max(1, TERM_delay,     * */
 /* *               interframe_delay)                                        * */
+/* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
+/* *             - fixed layer- & frame-counting during read()              * */
+/* *             - fixed goframe/golayer/gotime processing                 * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -212,8 +216,9 @@ MNG_LOCAL mng_retcode set_delay (mng_datap  pData,
   if (!iInterval)                      /* at least 1 msec please! */
     iInterval = 1;
 
-  if (!pData->fSettimer ((mng_handle)pData, iInterval))
-    MNG_ERROR (pData, MNG_APPTIMERERROR)
+  if (!pData->bSearching)              /* only when really displaying */
+    if (!pData->fSettimer ((mng_handle)pData, iInterval))
+      MNG_ERROR (pData, MNG_APPTIMERERROR)
 
   pData->bTimerset = MNG_TRUE;         /* and indicate so */
 
@@ -272,7 +277,7 @@ MNG_LOCAL mng_uint32 calculate_delay (mng_datap  pData,
 mng_retcode mng_display_progressive_refresh (mng_datap  pData,
                                              mng_uint32 iInterval)
 {
-  if (!pData->bSearching)              /* we mustn't be searching !!! */
+/*  if (!pData->bSearching) */             /* we mustn't be searching !!! */
   {                                    /* let the app refresh first ? */
     if ((pData->bRunning) && (!pData->bSkipping) &&
         (pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
@@ -319,7 +324,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
 #endif
 
-  if (!pData->bSearching)              /* we mustn't be searching !!! */
+/*  if (!pData->bSearching) */             /* we mustn't be searching !!! */
   {
     if (pData->iFramedelay > 0)        /* real delay ? */
     {                                  /* let the app refresh first ? */
@@ -369,7 +374,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       else
         iInterval = 1;                 /* force app to process messageloop */
                                        /* set the timer ? */
-      if ((pData->bRunning) && (!pData->bSkipping))
+      if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
       {
         iRetcode = set_delay (pData, iInterval);
 
@@ -395,7 +400,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 
 MNG_LOCAL void set_display_routine (mng_datap pData)
 {                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bSkipping))
+  if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     switch (pData->iCanvasstyle)         /* determine display routine */
     {
@@ -439,7 +444,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bSkipping))
+  if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     mng_int32   iY;
     mng_retcode iRetcode;
@@ -1022,11 +1027,8 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
-    {
-      pData->iFrameseq++;              /* count the frame ! */
-      pData->bFramedone = MNG_TRUE;    /* and indicate we've done one */
-    }
+    pData->iFrameseq++;                /* count the frame ! */
+    pData->bFramedone = MNG_TRUE;      /* and indicate we've done one */
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1068,9 +1070,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
       else
       {                                /* for MNG we do it right away */
         iRetcode = load_bkgdlayer (pData);
-
-        if ((pData->bRunning) && (!pData->bSkipping))
-          pData->iLayerseq++;          /* and it counts as a layer then ! */
+        pData->iLayerseq++;            /* and it counts as a layer then ! */
       }
     }
     else
@@ -1138,8 +1138,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
       pData->iSourceb = pData->iSourcet + pData->iDestb - pData->iDestt;
     }
 
-    if ((pData->bRunning) && (!pData->bSkipping))
-      pData->iLayerseq++;              /* count the layer ! */
+    pData->iLayerseq++;                /* count the layer ! */
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1161,7 +1160,7 @@ mng_retcode mng_display_image (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bSkipping))
+  if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     if ( (!pData->iBreakpoint) &&      /* needs magnification ? */
          ( (pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY) ) )
@@ -1194,11 +1193,10 @@ mng_retcode mng_display_image (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bRunning) && (!pData->bSkipping))
-      pData->iLayerseq++;              /* and it counts as a layer then ! */
+    pData->iLayerseq++;                /* and it counts as a layer then ! */
   }
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bSkipping))
+  if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     if (!pData->bTimerset)             /* all systems still go ? */
     {
@@ -1385,7 +1383,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_EXECUTE_DELTA_IMAGE, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bSkipping))
+  if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     if (pBufdelta->bHasPLTE)           /* palette in delta ? */
     {
@@ -2191,29 +2189,6 @@ mng_retcode mng_process_display (mng_datap pData)
 
   do                                   /* process the objects */
   {
-    if (pData->bSearching)             /* are we looking sor something ? */
-    {
-      if ((pData->iRequestframe) &&
-          (pData->iRequestframe < ((mng_object_headerp)pData->pCurraniobj)->iFramenr))
-      {
-        pData->iRequestframe = 0;      /* found the frame ! */
-        pData->bSearching    = MNG_FALSE;
-      }
-      else
-      if ((pData->iRequestlayer) &&
-          (pData->iRequestlayer < ((mng_object_headerp)pData->pCurraniobj)->iLayernr))
-      {
-        pData->iRequestlayer = 0;      /* found the layer ! */
-        pData->bSearching    = MNG_FALSE;
-      }
-      else
-      if ((pData->iRequesttime) &&
-          (pData->iRequesttime < ((mng_object_headerp)pData->pCurraniobj)->iPlaytime))
-      {
-        pData->iRequesttime  = 0;      /* found the playtime ! */
-        pData->bSearching    = MNG_FALSE;
-      }
-    }
                                        /* do we need to finish something first ? */
     if ((pData->iBreakpoint) && (pData->iBreakpoint < 99))
     {
@@ -2249,8 +2224,29 @@ mng_retcode mng_process_display (mng_datap pData)
       if (!pData->pCurraniobj)         /* refresh after last image ? */
         pData->bNeedrefresh = MNG_TRUE;
     }
+
+    if (pData->bSearching)             /* are we looking for something ? */
+    {
+      if ((pData->iRequestframe) && (pData->iRequestframe <= pData->iFrameseq))
+      {
+        pData->iRequestframe = 0;      /* found the frame ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+      else
+      if ((pData->iRequestlayer) && (pData->iRequestlayer <= pData->iLayerseq))
+      {
+        pData->iRequestlayer = 0;      /* found the layer ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+      else
+      if ((pData->iRequesttime) && (pData->iRequesttime <= pData->iFrametime))
+      {
+        pData->iRequesttime  = 0;      /* found the playtime ! */
+        pData->bSearching    = MNG_FALSE;
+      }
+    }
   }                                    /* until error or a break or no more objects */
-  while ((!iRetcode) && (pData->pCurraniobj) &&
+  while ((!iRetcode) && (pData->pCurraniobj) && ((pData->bRunning) || (pData->bSearching)) &&
          (!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bFreezing));
 
   if (iRetcode)                        /* on error bail out */
@@ -2640,8 +2636,7 @@ mng_retcode mng_process_display_idat (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
-      pData->iLayerseq++;              /* and it counts as a layer then ! */
+    pData->iLayerseq++;                /* and it counts as a layer then ! */
   }
 
   if (pData->fInitrowproc)             /* need to initialize row processing? */
@@ -3032,6 +3027,11 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 
     }
   }
+                                       /* just reading ? */
+  if ((!pData->bDisplaying) && (pData->bReading))
+    if (pData->fProcessmend)           /* inform the app ? */
+      if (!pData->fProcessmend ((mng_handle)pData, 0, 0))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
     pData->bNeedrefresh = MNG_TRUE;
@@ -4472,8 +4472,7 @@ mng_retcode mng_process_display_jdat (mng_datap  pData,
     pData->bRestorebkgd = MNG_FALSE;
     iRetcode            = load_bkgdlayer (pData);
 
-    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
-      pData->iLayerseq++;              /* and it counts as a layer then ! */
+    pData->iLayerseq++;                /* and it counts as a layer then ! */
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4726,7 +4725,8 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
         }
                                        /* process immediately if bitdepth & colortype are equal */
         pData->bDeltaimmediate =
-          (mng_bool)((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning) &&
+          (mng_bool)((pData->bDisplaying) && (!pData->bSkipping) &&
+                     ((pData->bRunning) || (pData->bSearching)) &&
                      (pData->iBitdepth  == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iBitdepth ) &&
                      (pData->iColortype == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iColortype)    );
       }

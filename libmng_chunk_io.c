@@ -174,6 +174,9 @@
 /* *             - added another fix for misplaced TERM chunk               * */
 /* *             1.0.5 - 10/17/2002 - G.Juyn                                * */
 /* *             - fixed initializtion of pIds in dISC read routine         * */
+/* *             1.0.5 - 11/06/2002 - G.Juyn                                * */
+/* *             - added support for nEED "MNG 1.1"                         * */
+/* *             - added support for nEED "CACHEOFF"                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5122,14 +5125,27 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
       iDraft = (*(pKeyword+6) - '0') * 10 + (*(pKeyword+7) - '0');
       bOke   = (mng_bool)(iDraft <= MNG_MNG_DRAFT);
     }
-                                       /* test MNG 1.0 ? */
+                                       /* test MNG 1.0/1.1 ? */
     if ((!bOke) && (pNull - pKeyword == 7) &&
         (*pKeyword     == 'M') && (*(pKeyword+1) == 'N') &&
         (*(pKeyword+2) == 'G') && (*(pKeyword+3) == '-') &&
         (*(pKeyword+4) == '1') && (*(pKeyword+5) == '.') &&
-        (*(pKeyword+6) == '0'))
+        ((*(pKeyword+6) == '0') || (*(pKeyword+6) == '1')))
       bOke   = MNG_TRUE;
-
+                                       /* test CACHEOFF ? */
+    if ((!bOke) && (pNull - pKeyword == 8) &&
+        (*pKeyword     == 'C') && (*(pKeyword+1) == 'A') &&
+        (*(pKeyword+2) == 'C') && (*(pKeyword+3) == 'H') &&
+        (*(pKeyword+4) == 'E') && (*(pKeyword+5) == 'O') &&
+        (*(pKeyword+6) == 'F') && (*(pKeyword+7) == 'F'))
+    {
+      if (!pData->pFirstaniobj)        /* only if caching hasn't started yet ! */
+      {
+        bOke                  = MNG_TRUE;
+        pData->bCacheplayback = MNG_FALSE;
+        pData->bStorechunks   = MNG_FALSE;
+      }
+    }
   }
 
   return bOke;

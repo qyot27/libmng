@@ -1,11 +1,41 @@
 -----------------------------------------------------------
 
+1.0.5-rc2 (... ... 2002)
+------------------------
+
+in short:
+
+intermediate CVS
+
+-------------------
+
+bugfixes:
+
+core:
+- fixed layer- & frame-counting during read()
+- changed FRAMECOUNT/LAYERCOUNT/PLAYTIME error to warning
+- fixed goframe/golayer/gotime processing
+- added support for nEED "MNG 1.1"
+- added support for nEED "CACHEOFF"; turn playback caching off streaming MNG
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.5-rc1 (nov 1st 2002)
 ------------------------
 
 in short:
 
-First release-candidate for the  upcoming 1.0.5 version.
+First release-candidate for the upcoming 1.0.5 version.
 This fixes a few small problems and brings the TERM/MEND processing, with
 respect to interframe_delay as per the current discussion on MNG-list,
 up-to-date with the latest proposal.
@@ -15,7 +45,7 @@ up-to-date with the latest proposal.
 bugfixes:
 
 core:
-- fixed initializtion of pIds in dISC read routine (Thanks Winfried!)
+- fixed initialization of pIds in dISC read routine (Thanks Winfried!)
 - fixed issue in freeing evNT chunk (Thanks Winfried!)
 - fixed clipping-problem with BACK tiling (Thanks Sakura!)
 - fixed processing for multiple objects in MAGN (Thanks Sakura!)
