@@ -18,6 +18,7 @@ core:
 - upgraded to lcms 1.11
 - added premultiplied alpha canvas' for RGBA, ARGB, ABGR (thx to John Stiles)
 - fixed inclusion of IJNG chunk for non-JNG use (J.S)
+- fixed bug in chunk-storage of SHOW chunk (where from == to)
 
 samples:
 

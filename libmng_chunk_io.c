@@ -197,6 +197,8 @@
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *             1.0.7 - 01/27/2004 - J.S                                   * */
 /* *             - fixed inclusion of IJNG chunk for non-JNG use            * */
+/* *             1.0.7 - 02/26/2004 - G.Juyn                                * */
+/* *             - fixed bug in chunk-storage of SHOW chunk (from == to)    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4667,6 +4669,8 @@ READ_CHUNK (mng_read_show)
 
       if (iRawlen > 2)
         ((mng_showp)*ppChunk)->iLastid = mng_get_uint16 (pRawdata+2);
+      else
+        ((mng_showp)*ppChunk)->iLastid = ((mng_showp)*ppChunk)->iFirstid;
 
       if (iRawlen > 4)
         ((mng_showp)*ppChunk)->iMode   = *(pRawdata+4);
