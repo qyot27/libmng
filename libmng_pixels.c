@@ -1541,7 +1541,9 @@ mng_retcode restore_bkgd_bkgd (mng_datap pData)
   mng_uint8p     pWork = pData->pRGBArow;
   mng_imagep     pImage;
   mng_imagedatap pBuf;
-  mng_uint8      iRed, iGreen, iBlue;
+  mng_uint8      iRed   = 0;
+  mng_uint8      iGreen = 0;
+  mng_uint8      iBlue  = 0;
 
 
 #ifdef MNG_SUPPORT_TRACE

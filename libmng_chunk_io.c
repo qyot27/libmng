@@ -4861,64 +4861,64 @@ mng_bool CheckKeyword (mng_datap  pData,
 {
   mng_chunkid handled_chunks [] =
   {
-    {MNG_UINT_BACK},
-    {MNG_UINT_BASI},
-    {MNG_UINT_CLIP},
-    {MNG_UINT_CLON},
-/* TODO:    {MNG_UINT_DBYK},  */
-    {MNG_UINT_DEFI},
-    {MNG_UINT_DHDR},
-    {MNG_UINT_DISC},
-/* TODO:    {MNG_UINT_DROP},  */
-    {MNG_UINT_ENDL},
-    {MNG_UINT_FRAM},
-    {MNG_UINT_IDAT},
-    {MNG_UINT_IEND},
-    {MNG_UINT_IHDR},
-    {MNG_UINT_IJNG},
-    {MNG_UINT_IPNG},
+    MNG_UINT_BACK,
+    MNG_UINT_BASI,
+    MNG_UINT_CLIP,
+    MNG_UINT_CLON,
+/* TODO:    MNG_UINT_DBYK,  */
+    MNG_UINT_DEFI,
+    MNG_UINT_DHDR,
+    MNG_UINT_DISC,
+/* TODO:    MNG_UINT_DROP,  */
+    MNG_UINT_ENDL,
+    MNG_UINT_FRAM,
+    MNG_UINT_IDAT,
+    MNG_UINT_IEND,
+    MNG_UINT_IHDR,
+    MNG_UINT_IJNG,
+    MNG_UINT_IPNG,
 #ifdef MNG_INCLUDE_JNG
-    {MNG_UINT_JDAA},
-    {MNG_UINT_JDAT},
-    {MNG_UINT_JHDR},
-/* TODO:    {MNG_UINT_JSEP},  */
-    {MNG_UINT_JdAA},
+    MNG_UINT_JDAA,
+    MNG_UINT_JDAT,
+    MNG_UINT_JHDR,
+/* TODO:    MNG_UINT_JSEP,  */
+    MNG_UINT_JdAA,
 #endif
-    {MNG_UINT_LOOP},
-    {MNG_UINT_MAGN},
-    {MNG_UINT_MEND},
-    {MNG_UINT_MHDR},
-    {MNG_UINT_MOVE},
-/* TODO:    {MNG_UINT_ORDR},  */
-/* TODO:    {MNG_UINT_PAST},  */
-    {MNG_UINT_PLTE},
-    {MNG_UINT_PPLT},
-    {MNG_UINT_PROM},
-    {MNG_UINT_SAVE},
-    {MNG_UINT_SEEK},
-    {MNG_UINT_SHOW},
-    {MNG_UINT_TERM},
-    {MNG_UINT_bKGD},
-    {MNG_UINT_cHRM},
-/* TODO:    {MNG_UINT_eXPI},  */
-/* TODO:    {MNG_UINT_fPRI},  */
-    {MNG_UINT_gAMA},
-/* TODO:    {MNG_UINT_hIST},  */
-    {MNG_UINT_iCCP},
-    {MNG_UINT_iTXt},
-    {MNG_UINT_nEED},
-/* TODO:    {MNG_UINT_oFFs},  */
-/* TODO:    {MNG_UINT_pCAL},  */
-/* TODO:    {MNG_UINT_pHYg},  */
-/* TODO:    {MNG_UINT_pHYs},  */
-/* TODO:    {MNG_UINT_sBIT},  */
-/* TODO:    {MNG_UINT_sCAL},  */
-/* TODO:    {MNG_UINT_sPLT},  */
-    {MNG_UINT_sRGB},
-    {MNG_UINT_tEXt},
-    {MNG_UINT_tIME},
-    {MNG_UINT_tRNS},
-    {MNG_UINT_zTXt},
+    MNG_UINT_LOOP,
+    MNG_UINT_MAGN,
+    MNG_UINT_MEND,
+    MNG_UINT_MHDR,
+    MNG_UINT_MOVE,
+/* TODO:    MNG_UINT_ORDR,  */
+/* TODO:    MNG_UINT_PAST,  */
+    MNG_UINT_PLTE,
+    MNG_UINT_PPLT,
+    MNG_UINT_PROM,
+    MNG_UINT_SAVE,
+    MNG_UINT_SEEK,
+    MNG_UINT_SHOW,
+    MNG_UINT_TERM,
+    MNG_UINT_bKGD,
+    MNG_UINT_cHRM,
+/* TODO:    MNG_UINT_eXPI,  */
+/* TODO:    MNG_UINT_fPRI,  */
+    MNG_UINT_gAMA,
+/* TODO:    MNG_UINT_hIST,  */
+    MNG_UINT_iCCP,
+    MNG_UINT_iTXt,
+    MNG_UINT_nEED,
+/* TODO:    MNG_UINT_oFFs,  */
+/* TODO:    MNG_UINT_pCAL,  */
+/* TODO:    MNG_UINT_pHYg,  */
+/* TODO:    MNG_UINT_pHYs,  */
+/* TODO:    MNG_UINT_sBIT,  */
+/* TODO:    MNG_UINT_sCAL,  */
+/* TODO:    MNG_UINT_sPLT,  */
+    MNG_UINT_sRGB,
+    MNG_UINT_tEXt,
+    MNG_UINT_tIME,
+    MNG_UINT_tRNS,
+    MNG_UINT_zTXt,
   };
 
   mng_bool bOke = MNG_FALSE;
