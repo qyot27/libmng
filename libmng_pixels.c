@@ -71,6 +71,8 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
 /* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 09/30/2000 - G.Juyn                                * */
+/* *             - fixed MAGN rounding errors (thanks Matthias!)            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -7262,7 +7264,7 @@ mng_retcode next_jpeg_row (mng_datap pData)
 
         if (!iRetcode)                 /* check progressive display refresh */
           iRetcode = display_progressive_check (pData);
-      }  
+      }
     }
 
     if (iRetcode)                      /* on error bail out */
@@ -7394,7 +7396,7 @@ mng_retcode magnify_g8_x2 (mng_datap  pData,
           for (iS = 1; iS < iM; iS++)  /* calculate the distances */
           {
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
             pTempdst++;
           }
@@ -7535,7 +7537,7 @@ mng_retcode magnify_rgb8_x2 (mng_datap  pData,
             *pTempdst = *pTempsrc1;    /* just repeat the first */
           else                         /* calculate the distance */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
 
           pTempdst++;
@@ -7544,7 +7546,7 @@ mng_retcode magnify_rgb8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+1);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
-                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
 
           pTempdst++;
@@ -7553,7 +7555,7 @@ mng_retcode magnify_rgb8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+2);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
-                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
 
           pTempdst++;
@@ -7692,7 +7694,7 @@ mng_retcode magnify_ga8_x2 (mng_datap  pData,
             *pTempdst = *pTempsrc1;    /* just repeat the first */
           else                         /* calculate the distance */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
 
           pTempdst++;
@@ -7701,7 +7703,7 @@ mng_retcode magnify_ga8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+1);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
-                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
 
           pTempdst++;
@@ -7787,7 +7789,7 @@ mng_retcode magnify_ga8_x3 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+1);
           else                         /* calculate distance for alpha */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
-                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
 
           pTempdst++;
@@ -7870,7 +7872,7 @@ mng_retcode magnify_ga8_x4 (mng_datap  pData,
             *pTempdst = *pTempsrc1;    /* just repeat the first */
           else                         /* calculate the distance */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
 
           pTempdst++;
@@ -8022,7 +8024,7 @@ mng_retcode magnify_rgba8_x2 (mng_datap  pData,
             *pTempdst = *pTempsrc1;    /* just repeat the first */
           else                         /* calculate the distance */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
 
           pTempdst++;
@@ -8031,7 +8033,7 @@ mng_retcode magnify_rgba8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+1);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
-                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
 
           pTempdst++;
@@ -8040,7 +8042,7 @@ mng_retcode magnify_rgba8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+2);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
-                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
 
           pTempdst++;
@@ -8049,7 +8051,7 @@ mng_retcode magnify_rgba8_x2 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+3);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+3)) -
-                                                 (mng_int32)(*(pTempsrc1+3)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+3)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+3))         );
 
           pTempdst++;
@@ -8147,7 +8149,7 @@ mng_retcode magnify_rgba8_x3 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+3);
           else                         /* calculate the distance for alpha */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+3)) -
-                                                 (mng_int32)(*(pTempsrc1+3)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+3)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+3))         );
 
           pTempdst++;
@@ -8238,7 +8240,7 @@ mng_retcode magnify_rgba8_x4 (mng_datap  pData,
             *pTempdst = *pTempsrc1;    /* just repeat the first */
           else                         /* calculate the distance */
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
-                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                                 (mng_int32)(*pTempsrc1)     ) + iM) /
                                      (iM * 2)) + (mng_int32)(*pTempsrc1)             );
 
           pTempdst++;
@@ -8247,7 +8249,7 @@ mng_retcode magnify_rgba8_x4 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+1);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
-                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
 
           pTempdst++;
@@ -8256,7 +8258,7 @@ mng_retcode magnify_rgba8_x4 (mng_datap  pData,
             *pTempdst = *(pTempsrc1+2);
           else
             *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
-                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + iM) /
                                      (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
 
           pTempdst++;
@@ -8345,7 +8347,7 @@ mng_retcode magnify_g8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8419,7 +8421,7 @@ mng_retcode magnify_rgb8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8430,7 +8432,7 @@ mng_retcode magnify_rgb8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8441,7 +8443,7 @@ mng_retcode magnify_rgb8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8515,7 +8517,7 @@ mng_retcode magnify_ga8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8526,7 +8528,7 @@ mng_retcode magnify_ga8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8583,7 +8585,7 @@ mng_retcode magnify_ga8_y3 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else                             /* calculate the distance for alpha */
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8634,7 +8636,7 @@ mng_retcode magnify_ga8_y4 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8714,7 +8716,7 @@ mng_retcode magnify_rgba8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8725,7 +8727,7 @@ mng_retcode magnify_rgba8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8736,7 +8738,7 @@ mng_retcode magnify_rgba8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8747,7 +8749,7 @@ mng_retcode magnify_rgba8_y2 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8816,7 +8818,7 @@ mng_retcode magnify_rgba8_y3 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else                             /* calculate the distance for alpha */
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8867,7 +8869,7 @@ mng_retcode magnify_rgba8_y4 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8878,7 +8880,7 @@ mng_retcode magnify_rgba8_y4 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;
@@ -8889,7 +8891,7 @@ mng_retcode magnify_rgba8_y4 (mng_datap  pData,
         *pTempdst = *pTempsrc1;
       else
         *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
-                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                               (mng_int32)(*pTempsrc1) ) + iM) /
                                    (iM * 2) ) + (mng_int32)(*pTempsrc1) );
 
       pTempdst++;

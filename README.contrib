@@ -17,7 +17,8 @@ mngplay - An SDL based MNG viewer - by Ralph Giles
 http://snow.ashlu.bc.ca/~giles/mng/
 
 Another nice contribution. View MNG files on practically any platform
-with this standalone viewer. (Source-code only)
+with this standalone viewer.
+Source-code only; Requires SDL library and libmng.so
 
 ----------------------------------------------------------------------
 
@@ -25,5 +26,15 @@ mngview - A BCB port of the Delphi sample - by Andy Protano
 
 I have added this nice little port to the BCB samples directory.
 It adds a nifty progressbar while reading a file. Excellent work!
+Requires libmng.dll
+(note: this is in the BCB samples directory)
+
+----------------------------------------------------------------------
+
+mngdump - A BCB GUI-based dump utility - by Andy Protano
+
+Andy has sent me this fully functional MNG dump utility, that gives
+detailed information of the contents of any MNG file.
+Requires libmng.dll
 
 ----------------------------------------------------------------------

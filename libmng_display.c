@@ -206,8 +206,8 @@ mng_retcode interframe_delay (mng_datap pData)
     if (!pData->bRunning)              /* sanity check for frozen status */
       MNG_WARNING (pData, MNG_IMAGEFROZEN)
 
-    if (pData->iFramedelay > 0)        /* let the app refresh first */
-    {
+    if (pData->iFramedelay > 0)        /* real delay ? */
+    {                                  /* let the app refresh first */
       if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
         if (!pData->fRefresh (((mng_handle)pData),
                               pData->iUpdateleft,  pData->iUpdatetop,
@@ -220,62 +220,63 @@ mng_retcode interframe_delay (mng_datap pData)
       pData->iUpdatetop    = 0;
       pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
       pData->bNeedrefresh  = MNG_FALSE;
-    }
                                        /* get current tickcount */
-    pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
+      pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
                                        /* calculate interval since last sync-point */
-    if (pData->iRuntime < pData->iSynctime)
-      iRuninterval    = pData->iRuntime + ~pData->iSynctime + 1;
-    else
-      iRuninterval    = pData->iRuntime - pData->iSynctime;
-                                       /* calculate actual run-time */
-    if (pData->iRuntime < pData->iStarttime)
-      pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
-    else
-      pData->iRuntime = pData->iRuntime - pData->iStarttime;
-
-    if (pData->iTicks)                 /* what are we aiming for */
-    {
-      switch (pData->iSpeed)           /* honor speed modifier */
-      {
-        case mng_st_fast :
-          {
-            iWaitfor = (mng_uint32)(( 500 * pData->iFramedelay) / pData->iTicks);
-            break;
-          }
-        case mng_st_slow :
-          {
-            iWaitfor = (mng_uint32)((3000 * pData->iFramedelay) / pData->iTicks);
-            break;
-          }
-        case mng_st_slowest :
-          {
-            iWaitfor = (mng_uint32)((8000 * pData->iFramedelay) / pData->iTicks);
-            break;
-          }
-        default :
-          {
-            iWaitfor = (mng_uint32)((1000 * pData->iFramedelay) / pData->iTicks);
-          }
-      }
-    }
-    else
-    {
-      if (pData->eImagetype == mng_it_mng)
-        iWaitfor = 1000;
+      if (pData->iRuntime < pData->iSynctime)
+        iRuninterval    = pData->iRuntime + ~pData->iSynctime + 1;
       else
-        iWaitfor = 1;
-    }
+        iRuninterval    = pData->iRuntime - pData->iSynctime;
+                                       /* calculate actual run-time */
+      if (pData->iRuntime < pData->iStarttime)
+        pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
+      else
+        pData->iRuntime = pData->iRuntime - pData->iStarttime;
 
-    if (iWaitfor > iRuninterval)       /* delay necessary ? */
-      iInterval = iWaitfor - iRuninterval;
-    else
-      iInterval = 1;                   /* force app to process messageloop */
+      if (pData->iTicks)               /* what are we aiming for */
+      {
+        switch (pData->iSpeed)         /* honor speed modifier */
+        {
+          case mng_st_fast :
+            {
+              iWaitfor = (mng_uint32)(( 500 * pData->iFramedelay) / pData->iTicks);
+              break;
+            }
+          case mng_st_slow :
+            {
+              iWaitfor = (mng_uint32)((3000 * pData->iFramedelay) / pData->iTicks);
+              break;
+            }
+          case mng_st_slowest :
+            {
+              iWaitfor = (mng_uint32)((8000 * pData->iFramedelay) / pData->iTicks);
+              break;
+            }
+          default :
+            {
+              iWaitfor = (mng_uint32)((1000 * pData->iFramedelay) / pData->iTicks);
+            }
+        }
+      }
+      else
+      {
+        if (pData->eImagetype == mng_it_mng)
+          iWaitfor = 1000;
+        else
+          iWaitfor = 1;
+      }
+
+      if (iWaitfor > iRuninterval)     /* delay necessary ? */
+        iInterval = iWaitfor - iRuninterval;
+      else
+        iInterval = 1;                 /* force app to process messageloop */
                                        /* set the timer */
-    iRetcode = set_delay (pData, iInterval);
+      iRetcode = set_delay (pData, iInterval);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+
+    }
                                        /* increase frametime in advance */
     pData->iFrametime  = pData->iFrametime + iWaitfor;
                                        /* setup for next delay */
@@ -527,9 +528,11 @@ mng_retcode next_frame (mng_datap  pData,
                                        /* interframe delay required ? */
     if ((iOldmode == 2) || (iOldmode == 4))
     {
-      if (pData->iFrameseq)
+/* removing this as it seems superfluous */
+/*      if (pData->iFrameseq)
         iRetcode = interframe_delay (pData);
-      else
+      else */
+      if (!pData->iFrameseq)
         pData->iFramedelay = pData->iNextdelay;
     }
 
@@ -549,7 +552,7 @@ mng_retcode next_frame (mng_datap  pData,
       pData->iNextdelay = iDelay;      /* for *after* next subframe */
 
       if ((iOldmode == 2) || (iOldmode == 4))
-        pData->iFramedelay = pData->iNextdelay;
+        pData->iFramedelay = iDelay;
 
       if (iChangedelay == 2)           /* also overall ? */
         pData->iFRAMdelay = iDelay;
@@ -3420,7 +3423,7 @@ mng_retcode process_display_dhdr (mng_datap  pData,
       {
         mng_retcode iRetcode = magnify_imageobject (pData, pImage);
 
-        if (iRetcode)                /* on error bail out */
+        if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
                                        /* save delta fields */

@@ -10,9 +10,11 @@ Intermediate for the moment.
 - fixed bug 111300
 - added workaround for faulty PhotoShop iCCP chunk
 - added MAGN chunk
-- added support for new filter_types                      
+- added support for new filter_types
 - fixed other assorted stuff
 - added BCB mngview contribution by Andy Protano
+- added BCB mngdump; a GUI-based MNG dumping utility (by Andy Protano)
+- removed trace-options from default SO/DLL builds (!!!)
 
 -------------------
 
@@ -30,18 +32,21 @@ core:
 - added MAGN chunk
 - fixed sRGB precedence for gamma_only corection
 - fixed internal alpha-blending
-- added support for new filter_types                     
-- fixed problem with no refresh after TERM                
-- fixed DEFI behavior                                     
+- added support for new filter_types
+- fixed problem with no refresh after TERM
+- fixed DEFI behavior
 - fixed inclusion parameters to make the external libs work together
-- added export of zlib functions from windows dll         
-- fixed timing & refresh behavior for single PNG/JNG      
-- removed trace-options from default SO/DLL builds        
+- added export of zlib functions from windows dll
+- fixed timing & refresh behavior for single PNG/JNG
+- removed trace-options from default SO/DLL builds (!!!)
+- fixed MAGN rounding errors (thanks Matthias!)
+- fixed small timing problem when FRAM delay = 0
 
 samples:
 - added BCB mngview contribution by Andy Protano
 
 contrib:
+- added BCB mngdump; a GUI-based MNG dumping utility (by Andy Protano)
 
 doc:
 - updated RPM spec-file by MATSUURA Takanori
