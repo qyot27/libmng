@@ -43,6 +43,8 @@
 /* *             - added event handling for dynamic MNG                     * */
 /* *             1.0.5 - 10/04/2002 - G.Juyn                                * */
 /* *             - fixed chunk-storage for evNT chunk                       * */
+/* *             1.0.5 - 10/17/2002 - G.Juyn                                * */
+/* *             - fixed issue in freeing evNT chunk                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2117,7 +2119,7 @@ FREE_CHUNK_HDR (mng_free_evnt)
     if (pEntry->iSegmentnamesize)
       MNG_FREEX (pData, pEntry->zSegmentname, pEntry->iSegmentnamesize+1)
 
-    pEntry = pEntry++;
+    pEntry++;
   }
 
   if (((mng_evntp)pHeader)->iCount)

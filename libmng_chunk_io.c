@@ -172,6 +172,8 @@
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - fixed DISC support                                       * */
 /* *             - added another fix for misplaced TERM chunk               * */
+/* *             1.0.5 - 10/17/2002 - G.Juyn                                * */
+/* *             - fixed initializtion of pIds in dISC read routine         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3845,7 +3847,7 @@ READ_CHUNK (mng_read_disc)
 {
 #if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
   mng_uint32  iCount;
-  mng_uint16p pIds;
+  mng_uint16p pIds = MNG_NULL;
   mng_retcode iRetcode;
 #endif
 
