@@ -1,5 +1,3 @@
-/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
-/* *             - added fields to support delta-images                     * */
 /* ************************************************************************** */
 /* *             For conditions of distribution and use,                    * */
 /* *                see copyright notice in libmng.h                        * */
@@ -7,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -115,6 +113,9 @@
 /* *             - added storage for pixel-/alpha-sampledepth for delta's   * */
 /* *             0.9.3 - 10/27/2000 - G.Juyn                                * */
 /* *             - fixed seperate read() & display() processing             * */
+/* *                                                                        * */
+/* *             0.9.4 - 10/31/2000 - G.Juyn                                * */
+/* *             - fixed possible loop in display_resume() (Thanks Vova!)   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1803,7 +1804,7 @@ mng_retcode process_display (mng_datap pData)
   if (!pData->bTimerset)
     pData->iBreakpoint = 0;            /* reset if no timer break */
 
-  if (!pData->pCurraniobj)
+  if ((!pData->bTimerset) && (!pData->pCurraniobj))
     pData->bRunning = MNG_FALSE;       /* all done now ! */
 
 #ifdef MNG_SUPPORT_TRACE

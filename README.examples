@@ -22,6 +22,9 @@ mngtree  - sample project to create a little command-line tool that dumps
 bogus    - a completely bogus example on how to create a perfectly valid
            (though slightly biased) MNG.
 
+mngview  - port of the Delphi mngview sample. contributed by Andy Protano.
+           see also README.contrib
+
 
 delphi - Borland Delphi (3.0+)
 ------------------------------

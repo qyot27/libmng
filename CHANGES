@@ -12,6 +12,7 @@ intermediate for now
 bugfixes:
 
 core:
+- fixed possible loop in display_resume() (Thanks Vova!)
 
 samples:
 
@@ -19,8 +20,10 @@ contrib:
 - added GTK mng-view example by Vova Babin
 
 doc:
+- added README.dll
 
 makefiles:
+- fixed configure.in for lcms (FreeBSD port by Mikhail Teterin)
 
 -----------------------------------------------------------
 
