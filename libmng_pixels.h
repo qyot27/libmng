@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_pixels.h           copyright (c) 2000-2003 G.Juyn   * */
+/* * file      : libmng_pixels.h           copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
@@ -68,7 +68,7 @@
 /* *             - added conditionals around 16-bit and delta-PNG           * */
 /* *               supporting code                                          * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
-/* *             - added conditionals around PAST chunk support             * */
+/* *             - added SKIPCHUNK conditionals around PAST chunk support   * */
 /* *             1.0.6 - 08/18/2003 - G.R-P                                 * */
 /* *             - added conditionals around 1, 2, and 4-bit prototypes     * */
 /* *                                                                        * */

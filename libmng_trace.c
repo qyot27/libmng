@@ -423,10 +423,14 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
 #endif
     {MNG_FN_GETCHUNK_MHDR,             "getchunk_mhdr"},
     {MNG_FN_GETCHUNK_MEND,             "getchunk_mend"},
+#ifndef MNG_SKIPCHUNK_LOOP
     {MNG_FN_GETCHUNK_LOOP,             "getchunk_loop"},
     {MNG_FN_GETCHUNK_ENDL,             "getchunk_endl"},
+#endif
     {MNG_FN_GETCHUNK_DEFI,             "getchunk_defi"},
+#ifndef MNG_SKIPCHUNK_BASI
     {MNG_FN_GETCHUNK_BASI,             "getchunk_basi"},
+#endif
     {MNG_FN_GETCHUNK_CLON,             "getchunk_clon"},
 #ifndef MNG_SKIPCHUNK_PAST
     {MNG_FN_GETCHUNK_PAST,             "getchunk_past"},
@@ -522,7 +526,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
 #ifndef MNG_SKIPCHUNK_tEXt
     {MNG_FN_PUTCHUNK_TEXT,             "putchunk_text"},
 #endif
-#ifndef MNG_SKIPCHUNK_zEXt
+#ifndef MNG_SKIPCHUNK_zTXt
     {MNG_FN_PUTCHUNK_ZTXT,             "putchunk_ztxt"},
 #endif
 #ifndef MNG_SKIPCHUNK_iTXt

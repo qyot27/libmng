@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_display.c          copyright (c) 2000-2003 G.Juyn   * */
+/* * file      : libmng_display.c          copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
@@ -2138,6 +2138,7 @@ mng_retcode mng_reset_objzero (mng_datap pData)
   pImage->iClipr               = 0;
   pImage->iClipt               = 0;
   pImage->iClipb               = 0;
+#ifndef MNG_SKIPCHUNK_MAGN
   pImage->iMAGN_MethodX        = 0;
   pImage->iMAGN_MethodY        = 0;
   pImage->iMAGN_MX             = 0;
@@ -2146,6 +2147,7 @@ mng_retcode mng_reset_objzero (mng_datap pData)
   pImage->iMAGN_MR             = 0;
   pImage->iMAGN_MT             = 0;
   pImage->iMAGN_MB             = 0;
+#endif
 
   return MNG_NOERROR;
 }

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_prc.c        copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_chunk_prc.c        copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (implementation)            * */
 /* *                                                                        * */
@@ -53,6 +53,9 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around non-VLC chunk support          * */
+/* *                                                                        * */
+/* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
+/* *             - fixed SKIPCHUNK_eXPI -> fPRI typo                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1955,7 +1958,7 @@ FREE_CHUNK_HDR (mng_free_expi)
 
 /* ************************************************************************** */
 
-#ifndef MNG_SKIPCHUNK_eXPI
+#ifndef MNG_SKIPCHUNK_fPRI
 FREE_CHUNK_HDR (mng_free_fpri)
 {
 #ifdef MNG_SUPPORT_TRACE

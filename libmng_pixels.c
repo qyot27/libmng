@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_pixels.c           copyright (c) 2000-2003 G.Juyn   * */
+/* * file      : libmng_pixels.c           copyright (c) 2000-2004 G.Juyn   * */
 /* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
@@ -145,7 +145,7 @@
 /* *             1.0.6 - 07/29/2003 - G.Juyn                                * */
 /* *             - fixed duplicate for-loop                                 * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
-/* *             - added conditionals around PAST chunk support             * */
+/* *             - added SKIPCHUNK conditionals around PAST chunk support   * */
 /* *             - fixed "FOOTPRINT_COMPOSEIV" typo (now "FOOTPRINT_DIV")   * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added more conditionals around "promote" functions       * */

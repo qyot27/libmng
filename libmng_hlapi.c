@@ -167,6 +167,8 @@
 /* *             - put gamma, cms-related declarations inside #ifdef        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
+/* *             - fixed zTXT -> zTXt typo                                  * */
 /* *                                                                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
@@ -492,8 +494,10 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->pPromSrc              = MNG_NULL;
   pData->pPromDst              = MNG_NULL;
 
+#ifndef MNG_SKIPCHUNK_MAGN
   pData->iMAGNfromid           = 0;
   pData->iMAGNtoid             = 0;
+#endif
 
 #ifndef MNG_SKIPCHUNK_PAST
   pData->iPastx                = 0;
@@ -944,7 +948,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
 #endif
     {"mng_putchunk_trns",          1, 0, 0},
     {"mng_putchunk_unkown",        1, 0, 0},
-#ifndef MNG_SKIPCHUNK_zTXT
+#ifndef MNG_SKIPCHUNK_zTXt
     {"mng_putchunk_ztxt",          1, 0, 0},
 #endif
     {"mng_putimgdata_ihdr",        0, 0, 0},
@@ -1340,8 +1344,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #ifdef MNG_SUPPORT_DISPLAY
   mng_drop_objects (pData, MNG_TRUE);  /* drop stored objects (if any) */
 
+#ifndef MNG_SKIPCHUNK_iCCP
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
     MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+#endif
 #endif
 
   pData->eSigtype              = mng_it_unknown;
@@ -1643,8 +1649,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
   pData->iGlobalRendintent     = 0;    /* no global sRGB data */
 
+#ifndef MNG_SKIPCHUNK_iCCP
   pData->iGlobalProfilesize    = 0;    /* no global iCCP data */
   pData->pGlobalProfile        = MNG_NULL;
+#endif
 
 #ifndef MNG_SKIPCHUNK_bKGD
   pData->iGlobalBKGDred        = 0;    /* no global bKGD data */

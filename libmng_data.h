@@ -131,12 +131,14 @@
 /* *             1.0.6 - 07/05/2003 - G. R-P                                * */
 /* *             - optionally use zlib's crc32() function                   * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
-/* *             - added conditionals around PAST chunk support             * */
+/* *             - added SKIPCHUNK conditionals around PAST chunk support   * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added iPNGdepth member to pData structure                * */
 /* *                                                                        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
+/* *             - added more SKIPCHUNK conditionals                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -206,6 +208,7 @@ typedef struct mng_savedata_struct {
 
            mng_uint32        iGlobalGamma;       /* global gAMA fields */
 
+#ifndef MNG_SKIPCHUNK_cHRM
            mng_uint32        iGlobalWhitepointx; /* global cHRM fields */
            mng_uint32        iGlobalWhitepointy;
            mng_uint32        iGlobalPrimaryredx;
@@ -214,6 +217,7 @@ typedef struct mng_savedata_struct {
            mng_uint32        iGlobalPrimarygreeny;
            mng_uint32        iGlobalPrimarybluex;
            mng_uint32        iGlobalPrimarybluey;
+#endif
 
            mng_uint8         iGlobalRendintent;  /* global sRGB fields */
 
@@ -598,6 +602,7 @@ typedef struct mng_data_struct {
            mng_uint32        iBackimgwidth;
            mng_uint32        iBackimgheight;
 
+#ifndef MNG_SKIPCHUNK_FRAM
            mng_uint8         iFRAMmode;          /* FRAM fields (global) */
            mng_uint32        iFRAMdelay;
            mng_uint32        iFRAMtimeout;
@@ -616,13 +621,16 @@ typedef struct mng_data_struct {
            mng_int32         iFrameclipt;
            mng_int32         iFrameclipb;
 
-           mng_uint32        iNextdelay;         /* delay for *after* next image */
+           mng_uint32        iNextdelay;         /* delay *after* next image */
+#endif
 
-           mng_uint8         iSHOWmode;          /* SAVE fields */
+#ifndef MNG_SKIPCHUNK_SHOW
+           mng_uint8         iSHOWmode;          /* SHOW fields */
            mng_uint16        iSHOWfromid;
            mng_uint16        iSHOWtoid;
            mng_uint16        iSHOWnextid;
            mng_int16         iSHOWskip;
+#endif
 
            mng_uint32        iGlobalPLTEcount;   /* global PLTE fields */
            mng_rgbpaltab     aGlobalPLTEentries;
@@ -632,6 +640,7 @@ typedef struct mng_data_struct {
 
            mng_uint32        iGlobalGamma;       /* global gAMA fields */
 
+#ifndef MNG_SKIPCHUNK_cHRM
            mng_uint32        iGlobalWhitepointx; /* global cHRM fields */
            mng_uint32        iGlobalWhitepointy;
            mng_uint32        iGlobalPrimaryredx;
@@ -640,11 +649,14 @@ typedef struct mng_data_struct {
            mng_uint32        iGlobalPrimarygreeny;
            mng_uint32        iGlobalPrimarybluex;
            mng_uint32        iGlobalPrimarybluey;
+#endif
 
            mng_uint8         iGlobalRendintent;  /* global sRGB fields */
 
+#ifndef MNG_SKIPCHUNK_iCCP
            mng_uint32        iGlobalProfilesize; /* global iCCP fields */
            mng_ptr           pGlobalProfile;
+#endif
 
            mng_uint16        iGlobalBKGDred;     /* global bKGD fields */
            mng_uint16        iGlobalBKGDgreen;
@@ -666,6 +678,7 @@ typedef struct mng_data_struct {
            mng_fptr          fDeltareplacerow;
            mng_fptr          fDeltaputrow;
 
+#ifndef MNG_SKIPCHUNK_PROM
            mng_fptr          fPromoterow;        /* internal PROM fields */
            mng_fptr          fPromBitdepth;
            mng_ptr           pPromBuf;
@@ -675,10 +688,13 @@ typedef struct mng_data_struct {
            mng_uint32        iPromWidth;
            mng_ptr           pPromSrc;
            mng_ptr           pPromDst;
+#endif
 
+#ifndef MNG_SKIPCHUNK_MAGN
            mng_uint16        iMAGNfromid;
            mng_uint16        iMAGNcurrentid;
            mng_uint16        iMAGNtoid;
+#endif
 
 #ifndef MNG_SKIPCHUNK_PAST
            mng_uint16        iPASTid;
