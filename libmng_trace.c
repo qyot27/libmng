@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.c            copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -128,6 +128,9 @@
 /* *             - added conditionals around various unused functions       * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
+/* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -680,6 +683,10 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RGB8_A8,           "display_rgb8_a8"},
     {MNG_FN_DISPLAY_BGRA8PM,           "display_bgra8_pm"},
     {MNG_FN_DISPLAY_BGRX8,             "display_bgrx8"},
+    (MNG_FN_DISPLAY_RGB565,            "display_rgb565"},
+    {MNG_FN_DISPLAY_RGBA565,           "display_rgba565"},
+    {MNG_FN_DISPLAY_BGR565,            "display_bgr565"},
+    {MNG_FN_DISPLAY_BGRA565,           "display_bgra565"},
 
     {MNG_FN_INIT_FULL_CMS,             "init_full_cms"},
     {MNG_FN_CORRECT_FULL_CMS,          "correct_full_cms"},
@@ -945,6 +952,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_RESTORE_BGR8,              "restore_bgr8"},
     {MNG_FN_RESTORE_BKGD,              "restore_bkgd"},
     {MNG_FN_RESTORE_BGRX8,             "restore_bgrx8"},
+    {MNG_FN_RESTORE_RGB565,            "restore_rgb565"},
 
     {MNG_FN_INIT_IHDR,                 "init_ihdr"},
     {MNG_FN_INIT_PLTE,                 "init_plte"},

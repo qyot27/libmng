@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -198,6 +198,9 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around non-VLC chunk support          * */
+/* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -460,6 +463,13 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #ifndef MNG_SKIPCANVAS_ABGR8
       case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_fptr)mng_display_abgr8;    break; }
 #endif
+#ifndef MNG_SKIPCANVAS_RGB565
+      case MNG_CANVAS_RGB565  : { pData->fDisplayrow = (mng_fptr)mng_display_rgb565;   break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+      case MNG_CANVAS_BGR565  : { pData->fDisplayrow = (mng_fptr)mng_display_bgr565;   break; }
+#endif
+
 #ifndef MNG_NO_16BIT_SUPPORT
 /*      case MNG_CANVAS_RGB16   : { pData->fDisplayrow = (mng_fptr)mng_display_rgb16;    break; } */
 /*      case MNG_CANVAS_RGBA16  : { pData->fDisplayrow = (mng_fptr)mng_display_rgba16;   break; } */
@@ -587,6 +597,12 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
 #endif
 #ifndef MNG_SKIPCANVAS_BGRX8
           case MNG_CANVAS_BGRX8   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgrx8;   break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+          case MNG_CANVAS_BGR565  : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgr565;  break; }
+#endif
+#ifndef MNG_SKIPCANVAS_RGB565
+          case MNG_CANVAS_RGB565  : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb565;  break; }
 #endif
 #ifndef MNG_NO_16BIT_SUPPORT
   /*        case MNG_CANVAS_RGB16   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb16;   break; } */

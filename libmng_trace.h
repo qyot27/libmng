@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.h            copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -133,6 +133,9 @@
 /* *                                                                        * */
 /* *             1.0.6 - 07/14/2003 - G.Randers-Pehrson                     * */
 /* *             - added conditionals around rarely used features           * */
+/* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -568,6 +571,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_RGB8_A8       1124
 #define MNG_FN_DISPLAY_BGRA8PM       1125
 #define MNG_FN_DISPLAY_BGRX8         1126
+#define MNG_FN_DISPLAY_RGB565        1127
+#define MNG_FN_DISPLAY_RGBA565       1128
+#define MNG_FN_DISPLAY_BGR565        1129
+#define MNG_FN_DISPLAY_BGRA565       1130
 
 /* ************************************************************************** */
 
@@ -831,6 +838,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_RESTORE_BGR8          2105
 #define MNG_FN_RESTORE_BKGD          2106
 #define MNG_FN_RESTORE_BGRX8         2107
+#define MNG_FN_RESTORE_RGB565        2108
+#define MNG_FN_RESTORE_BGR565        2109
 
 /* ************************************************************************** */
 

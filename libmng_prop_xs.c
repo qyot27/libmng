@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_prop_xs.c          copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -90,6 +90,9 @@
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added conditionals around various unused functions       * */
 /* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -170,6 +173,12 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
 #ifndef MNG_SKIPCANVAS_ABGR8
     case MNG_CANVAS_ABGR8   : break;
 #endif
+#ifndef MNG_SKIPCANVAS_RGB565
+    case MNG_CANVAS_RGB565  : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+    case MNG_CANVAS_BGR565  : break;
+#endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_RGBA16  : break; */
 /*    case MNG_CANVAS_ARGB16  : break; */
@@ -220,6 +229,12 @@ mng_retcode MNG_DECL mng_set_bkgdstyle (mng_handle hHandle,
 #endif
 #ifndef MNG_SKIPCANVAS_BGRX8
     case MNG_CANVAS_BGRX8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_RGB565
+    case MNG_CANVAS_RGB565  : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+    case MNG_CANVAS_BGR565  : break;
 #endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_BGR16   : break; */

@@ -11,6 +11,7 @@
 /* *                                                                        * */
 /* *    Gerard Juyn                 - gjuyn :at: users.sourceforge.net      * */
 /* *    Glenn Randers-Pehrson       - glennrp :at: users.sourceforge.net    * */
+/* *    Raphael Assenat             - raph :at: raphnet.net                 * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
@@ -101,7 +102,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng.h                  copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -260,6 +261,9 @@
 /* *             1.0.6 - 07/14/2003 - G. Randers-Pehrson                    * */
 /* *             - further optional removal of unused functions             * */
 /* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -398,13 +402,13 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.6"
+#define MNG_VERSION_TEXT    "1.0.7-alpha"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
-#define MNG_VERSION_RELEASE 6
-#define MNG_VERSION_BETA    MNG_FALSE
+#define MNG_VERSION_RELEASE 7
+#define MNG_VERSION_BETA    MNG_TRUE
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text      (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so        (void);
@@ -2333,6 +2337,11 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_DX15      0x00000003L         /* not supported yet */
 #define MNG_CANVAS_DX16      0x00000004L         /* not supported yet */
 
+#define MNG_CANVAS_RGB565    0x00000005L         /* not supported yet */
+#define MNG_CANVAS_RGBA565   0x00001005L         /* not supported yet */
+#define MNG_CANVAS_BGR565    0x00000006L
+#define MNG_CANVAS_BGRA565   0x00001006L         /* not supported yet */
+
 #define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000FFL)
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)
 #define MNG_CANVAS_HASALPHA(C)   (C & 0x00001000L)
@@ -2346,6 +2355,8 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_GRAY(C)       (MNG_CANVAS_PIXELTYPE (C) == 2)
 #define MNG_CANVAS_DIRECTX15(C)  (MNG_CANVAS_PIXELTYPE (C) == 3)
 #define MNG_CANVAS_DIRECTX16(C)  (MNG_CANVAS_PIXELTYPE (C) == 4)
+#define MNG_CANVAS_RGB_565(C)    (MNG_CANVAS_PIXELTYPE (C) == 5)
+#define MNG_CANVAS_BGR_565(C)    (MNG_CANVAS_PIXELTYPE (C) == 6)
 #define MNG_CANVAS_8BIT(C)       (!MNG_CANVAS_BITDEPTH (C))
 #define MNG_CANVAS_16BIT(C)      (MNG_CANVAS_BITDEPTH (C))
 #define MNG_CANVAS_PIXELFIRST(C) (!MNG_CANVAS_ALPHAFIRST (C))

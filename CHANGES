@@ -1,5 +1,31 @@
 -----------------------------------------------------------
 
+1.0.7 alpha1 (xxx xxth 2003)
+----------------------------
+
+in short:
+
+intermediate CVS
+
+-------------------
+
+bugfixes:
+
+core:
+- added CANVAS_RGB565 and CANVAS_BGR565 (big thanx to Raphael Assenat!!)
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.6 (oct 19th 2003)
 ---------------------
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.h           copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
 /* *                                                                        * */
@@ -72,6 +72,9 @@
 /* *             1.0.6 - 08/18/2003 - G.R-P                                 * */
 /* *             - added conditionals around 1, 2, and 4-bit prototypes     * */
 /* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -131,6 +134,12 @@ mng_retcode mng_display_bgra8_pm       (mng_datap  pData);
 #ifndef MNG_SKIPCANVAS_ABGR8
 mng_retcode mng_display_abgr8          (mng_datap  pData);
 #endif
+#ifndef MNG_SKIPCANVAS_RGB565
+mng_retcode mng_display_rgb565         (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+mng_retcode mng_display_bgr565         (mng_datap  pData);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -151,6 +160,12 @@ mng_retcode mng_restore_bkgd_bgr8      (mng_datap  pData);
 #endif
 #ifndef MNG_SKIPCANVAS_BGRX8
 mng_retcode mng_restore_bkgd_bgrx8     (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_RGB565
+mng_retcode mng_restore_bkgd_rgb565    (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGR565
+mng_retcode mng_restore_bkgd_bgr565    (mng_datap  pData);
 #endif
 
 /* ************************************************************************** */

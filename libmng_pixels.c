@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -149,6 +149,9 @@
 /* *             - fixed "FOOTPRINT_COMPOSEIV" typo (now "FOOTPRINT_DIV")   * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added more conditionals around "promote" functions       * */
+/* *                                                                        * */
+/* *             1.0.7 - 11/27/2003 - R.A                                   * */
+/* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 #include "libmng.h"
@@ -2123,6 +2126,301 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
 #endif /* MNG_SKIPCANVAS_ABGR8 */
 
 /* ************************************************************************** */
+
+#ifndef MNG_SKIPCANVAS_BGR565
+mng_retcode mng_display_bgr565 (mng_datap pData)
+{
+  mng_uint8p pScanline;
+  mng_uint8p pDataline;
+  mng_int32  iX;
+  mng_uint16 iA16;
+  mng_uint16 iFGr16, iFGg16, iFGb16;
+  mng_uint16 iBGr16, iBGg16, iBGb16;
+  mng_uint8  iA8;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR565, MNG_LC_START)
+#endif
+                                       /* viewable row ? */
+  if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
+  {                                    /* address destination row */
+    pScanline = (mng_uint8p)pData->fGetcanvasline (((mng_handle)pData),
+                                                   pData->iRow + pData->iDestt -
+                                                   pData->iSourcet);
+                                       /* adjust destination row starting-point */
+    pScanline = pScanline + (pData->iCol * 2) + (pData->iDestl * 2);
+    pDataline = pData->pRGBArow;       /* address source row */
+
+    if (pData->bIsRGBA16)              /* adjust source row starting-point */
+      pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
+    else
+      pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
+
+    if (pData->bIsOpaque)              /* forget about transparency ? */
+    {
+      if (pData->bIsRGBA16)            /* 16-bit input row ? */
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {                              /* scale down by dropping the LSB */
+          *(pScanline+1) = (mng_uint8)( ( (*(pDataline))&0xF8 ) | (   (*(pDataline+2)>>5)       ) );
+          *pScanline     = (mng_uint8)( ( (*(pDataline+4)) >>3) | (   (*(pDataline+2)&0xFC) << 3) );
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 8;
+        }
+      }
+      else
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {                              /* copy the values */
+          *(pScanline+1) = (mng_uint8)( ( (*(pDataline))&0xF8 )  |  ( (*(pDataline+1)>>5   )     ) );
+          *pScanline     = (mng_uint8)( (  *(pDataline+2) >>3 )  |  ( (*(pDataline+1)&0xFC ) << 3) );
+
+		  
+          pScanline += (pData->iColinc * 2);
+          pDataline += 4;
+        }
+      }
+    }
+    else
+    {
+      if (pData->bIsRGBA16)            /* 16-bit input row ? */
+      {
+
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {
+          iA16 = mng_get_uint16 (pDataline+6);
+
+          if (iA16)                    /* any opacity at all ? */
+          {
+            if (iA16 == 0xFFFF)        /* fully opaque ? */
+            {                          /* scale down by dropping the LSB */
+              *(pScanline+1) = (mng_uint8)( (*(pDataline))&0xF8 )  |  (mng_uint8)( (*(pDataline+2)>>5  )     );
+              *pScanline     = (mng_uint8)( (*(pDataline+4)) >>3)  |  (mng_uint8)( (*(pDataline+2)&0xFC) << 3);
+            }
+            else
+            {                          /* get the proper values */
+              iFGr16 = mng_get_uint16 (pDataline  );
+              iFGg16 = mng_get_uint16 (pDataline+2);
+              iFGb16 = mng_get_uint16 (pDataline+4);
+                                       /* scale background up */
+			  
+              iBGb16 = (mng_uint16)( (*(pScanline+1)) & 0xF8 );
+              iBGg16 = (mng_uint16)( (*(pScanline+1) << 5)  |  (((*(pScanline  )) & 0xE0) >>3 ) );
+              iBGr16 = (mng_uint16)( (*(pScanline  )) << 3   );
+
+              iBGr16 = (mng_uint16)((mng_uint32)iBGr16 << 8) | iBGr16;
+              iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+              iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
+                                       /* now compose */
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+                                       /* and return the composed values */
+              *(pScanline+1) = (mng_uint8) ( ( (iFGr16 >> 8)&0xF8 )  |  ( (mng_uint8)(iFGg16>>8) >> 5)      );
+              *pScanline     = (mng_uint8) ( ( (iFGb16>>11)       )  |  (((mng_uint8)(iFGg16>>8)&0xFC) << 3) );
+            }
+          }
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 8;
+        }
+      }
+      else
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {
+          iA8 = *(pDataline+3);        /* get alpha value */
+
+          if (iA8)                     /* any opacity at all ? */
+          {
+            if (iA8 == 0xFF)           /* fully opaque ? */
+            {                          /* then simply copy the values */
+              *(pScanline+1) = (mng_uint8)( (  (*(pDataline)) &0xF8 )  |   (*(pDataline+1) >>5 )       );
+              *pScanline     = (mng_uint8)( ( ((*(pDataline+2))>>3) )  |  ((*(pDataline+1)&0xFC) << 3) );
+            }
+            else
+            {                          /* do alpha composing */
+              mng_uint8 iRed, iGreen, iBlue;
+			  
+              iRed   = (mng_uint8) (  *(pScanline+1) & 0xF8 );
+              iGreen = (mng_uint8) ( (*(pScanline+1) << 5)  |  ( ((*pScanline) & 0xE0)>>3 ) );
+              iBlue  = (mng_uint8) ( (*pScanline << 3) );
+
+              MNG_COMPOSE8 (iRed,     *pDataline,     iA8, iRed    )
+              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  )
+              MNG_COMPOSE8 (iBlue,    *(pDataline+2), iA8, iBlue   )
+
+              *(pScanline+1) = (mng_uint8) ( ( iRed  & 0xF8 )  |   (iGreen>>5) );
+              *pScanline     = (mng_uint8) ( ( iBlue >>  3  )  | ( (iGreen & 0xFC) << 3) );
+            }
+          }
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 4;
+        }
+      }
+    }
+  }
+
+  check_update_region (pData);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR565, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SKIPCANVAS_BGR565 */
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCANVAS_RGB565
+mng_retcode mng_display_rgb565 (mng_datap pData)
+{
+  mng_uint8p pScanline;
+  mng_uint8p pDataline;
+  mng_int32  iX;
+  mng_uint16 iA16;
+  mng_uint16 iFGr16, iFGg16, iFGb16;
+  mng_uint16 iBGr16, iBGg16, iBGb16;
+  mng_uint8  iA8;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB565, MNG_LC_START)
+#endif
+                                       /* viewable row ? */
+  if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
+  {                                    /* address destination row */
+    pScanline = (mng_uint8p)pData->fGetcanvasline (((mng_handle)pData),
+                                                   pData->iRow + pData->iDestt -
+                                                   pData->iSourcet);
+                                       /* adjust destination row starting-point */
+    pScanline = pScanline + (pData->iCol * 2) + (pData->iDestl * 2);
+    pDataline = pData->pRGBArow;       /* address source row */
+
+    if (pData->bIsRGBA16)              /* adjust source row starting-point */
+      pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 3);
+    else
+      pDataline = pDataline + ((pData->iSourcel / pData->iColinc) << 2);
+
+    if (pData->bIsOpaque)              /* forget about transparency ? */
+    {
+      if (pData->bIsRGBA16)            /* 16-bit input row ? */
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {                              /* scale down by dropping the LSB */
+          *(pScanline+1) = (mng_uint8)( ( ( *(pDataline+4)) & 0xF8)  |   (*(pDataline+2) >> 5  )       );
+          *pScanline     = (mng_uint8)( ( ( *(pDataline  )) >> 3  )  |  ((*(pDataline+2) & 0xFC) << 3) );
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 8;
+        }
+      }
+      else
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {                              /* copy the values */
+          *(pScanline+1) = (mng_uint8)( ( (*(pDataline+2)) & 0xF8)  |   (*(pDataline+1) >> 5        ) );
+          *pScanline     = (mng_uint8)( (  *(pDataline  )  >> 3  )  |  ((*(pDataline+1) & 0xFC) << 3) );
+		  
+          pScanline += (pData->iColinc * 2);
+          pDataline += 4;
+        }
+      }
+    }
+    else
+    {
+      if (pData->bIsRGBA16)            /* 16-bit input row ? */
+      {
+
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {
+          iA16 = mng_get_uint16 (pDataline+6);
+
+          if (iA16)                    /* any opacity at all ? */
+          {
+            if (iA16 == 0xFFFF)        /* fully opaque ? */
+            {                          /* scale down by dropping the LSB */
+              *(pScanline+1) = (mng_uint8)( ( (*(pDataline+4)) & 0xF8)  |   (*(pDataline+2)>>5) );
+              *pScanline     = (mng_uint8)( ( (*(pDataline  )) >> 3  )  |  ((*(pDataline+2)&0xFC) << 3) );
+            }
+            else
+            {                          /* get the proper values */
+              iFGr16 = mng_get_uint16 (pDataline  );
+              iFGg16 = mng_get_uint16 (pDataline+2);
+              iFGb16 = mng_get_uint16 (pDataline+4);
+                                       
+			                           /* scale background up */			  
+              iBGr16 = (mng_uint8)(  *(pScanline+1) & 0xF8 );
+              iBGg16 = (mng_uint8)( (*(pScanline+1) << 5)  |  ( ((*pScanline) & 0xE0) >> 3 ) );
+              iBGb16 = (mng_uint8)(  *(pScanline  ) << 3   );
+
+              iBGr16 = (mng_uint16)((mng_uint32)iBGr16 << 8) | iBGr16;
+              iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+              iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
+                                       /* now compose */
+              MNG_COMPOSE16(iFGr16, iFGr16, iA16, iBGr16)
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+              MNG_COMPOSE16(iFGb16, iFGb16, iA16, iBGb16)
+                                       /* and return the composed values */
+              *(pScanline+1) = (mng_uint8)( (mng_uint8)((iFGb16 >> 8) &0xF8) |   (   (mng_uint8)(iFGg16 >> 8) >> 5  )        );
+              *pScanline     = (mng_uint8)( (mng_uint8) (iFGr16 >>11)        |   ( ( (mng_uint8)(iFGg16 >> 8) & 0xFC) << 3)  );
+            }
+          }
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 8;
+        }
+      }
+      else
+      {
+        for (iX = pData->iSourcel + pData->iCol; iX < pData->iSourcer; iX += pData->iColinc)
+        {
+          iA8 = *(pDataline+3);        /* get alpha value */
+
+          if (iA8)                     /* any opacity at all ? */
+          {
+            if (iA8 == 0xFF)           /* fully opaque ? */
+            {                          /* then simply copy the values */
+              *(pScanline+1) = (mng_uint8)( ( (*(pDataline+2)) & 0xF8)  |  (  *(pDataline+1) >> 5         ) );
+              *pScanline     = (mng_uint8)( ( (*(pDataline  )) >> 3  )  |  ( (*(pDataline+1) & 0xFC) << 3 ) );
+            }
+            else
+            {                          /* do alpha composing */
+              mng_uint8 iRed, iGreen, iBlue;
+
+              iRed   = (mng_uint8)(   *(pScanline+1) & 0xF8);
+              iGreen = (mng_uint8)( ( *(pScanline+1) << 5  )  |  ( ( (*pScanline)&0xE0)>>3 ) );
+              iBlue  = (mng_uint8)(   *(pScanline  ) << 3 );
+
+              MNG_COMPOSE8 (iRed,     *(pDataline+2),     iA8, iRed    )
+              MNG_COMPOSE8 (iGreen,   *(pDataline+1), iA8, iGreen  )
+              MNG_COMPOSE8 (iBlue,    *(pDataline+0), iA8, iBlue   )  
+
+              *(pScanline+1) = (mng_uint8)( ( iRed & 0xF8)  |  (  iGreen >> 5        ) );
+              *pScanline     = (mng_uint8)( (iBlue >> 3  )  |  ( (iGreen & 0xFC) << 3) );
+            }
+          }
+
+          pScanline += (pData->iColinc * 2);
+          pDataline += 4;
+        }
+      }
+    }
+  }
+
+  check_update_region (pData);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB565, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SKIPCANVAS_RGB565 */
+
+/* ************************************************************************** */
 /* *                                                                        * */
 /* * Background restore routines - restore the background with info from    * */
 /* * the BACK and/or bKGD chunk or the app's background canvas              * */
@@ -2478,6 +2776,85 @@ mng_retcode mng_restore_bkgd_bgrx8 (mng_datap pData)
   return MNG_NOERROR;
 }
 #endif /* MNG_SKIPCANVAS_BGRX8 */
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCANVAS_BGR565
+mng_retcode mng_restore_bkgd_bgr565 (mng_datap pData)
+{
+  mng_int32  iX;
+  mng_uint8p pBkgd;
+  mng_uint8p pWork = pData->pRGBArow;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGR565, MNG_LC_START)
+#endif
+
+  if (pData->fGetbkgdline)             /* can we access the background ? */
+  {                                    /* point to the right pixel then */
+    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData,
+                                             pData->iRow + pData->iDestt) +
+            (3 * pData->iDestl);
+
+    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    {
+      *pWork     = (mng_uint8)(  *(pBkgd+1) & 0xF8);             /* ok; copy the pixel */
+      *(pWork+1) = (mng_uint8)( (*(pBkgd+1) << 5 )  |  ( ((*pBkgd)&0xE0)>>3 ) );
+      *(pWork+2) = (mng_uint8)(  *(pBkgd) << 3 );
+      *(pWork+3) = 0x00;               /* transparant for alpha-canvasses */
+
+      pWork += 4;
+      pBkgd += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGR565, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SKIPCANVAS_BGR565 */
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCANVAS_RGB565
+mng_retcode mng_restore_bkgd_rgb565 (mng_datap pData)
+{
+  mng_int32  iX;
+  mng_uint8p pBkgd;
+  mng_uint8p pWork = pData->pRGBArow;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_RGB565, MNG_LC_START)
+#endif
+ 
+  if (pData->fGetbkgdline)             /* can we access the background ? */
+  {                                    /* point to the right pixel then */
+    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData,
+                                             pData->iRow + pData->iDestt) +
+            (3 * pData->iDestl);
+
+    for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+    {
+      *pWork     = (mng_uint8)(  *(pBkgd)&0xF8);             /* ok; copy the pixel */
+      *(pWork+1) = (mng_uint8)( (*(pBkgd+1) << 5)  |  ( ((*pBkgd)&0xE0)>>3 ) );
+      *(pWork+2) = (mng_uint8)(  *(pBkgd+1) << 3);
+      *(pWork+3) = 0x00;               /* transparant for alpha-canvasses */
+      
+      pWork += 4;
+      pBkgd += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RESTORE_RGB565, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SKIPCANVAS_RBB565 */
+
 
 /* ************************************************************************** */
 /* *                                                                        * */
