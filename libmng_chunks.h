@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunks.h           copyright (c) 2000 G.Juyn        * */
+/* * file      : libmng_chunks.h           copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk structures (definition)                              * */

@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_io.c         copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_chunk_io.c         copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
@@ -180,6 +180,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 06/02/2003 - G.R-P                                 * */
+/* *             - removed some redundant checks for iRawlen==0             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1121,7 +1123,7 @@ READ_CHUNK (mng_read_trns)
 
         pBuf = pImage->pImgbuf;        /* address object buffer */
 
-        if ((iRawlen == 0) || (iRawlen > pBuf->iPLTEcount))
+        if (iRawlen > pBuf->iPLTEcount)
           MNG_ERROR (pData, MNG_INVALIDLENGTH)
       }
 #endif
@@ -5523,13 +5525,10 @@ READ_CHUNK (mng_read_jdaa)
   pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (iRawlen)
-  {                                    /* display processing for non-empty chunks */
-    mng_retcode iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
+  mng_retcode iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  if (iRetcode)                      /* on error bail out */
+    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
@@ -5579,13 +5578,10 @@ READ_CHUNK (mng_read_jdat)
   pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if (iRawlen)
-  {                                    /* display processing for non-empty chunks */
-    mng_retcode iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
+  mng_retcode iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  if (iRetcode)                      /* on error bail out */
+    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS

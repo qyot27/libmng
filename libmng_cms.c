@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_cms.c              copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_cms.c              copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : color management routines (implementation)                 * */
@@ -64,7 +64,7 @@
 /* *             1.0.5 - 11/08/2002 - G.Juyn                                * */
 /* *             - fixed issues in init_app_cms()                           * */
 /* *                                                                        * */
-/* *             1.0.6 - 11/04/2003 - G.Juyn                                * */
+/* *             1.0.6 - 04/11/2003 - G.Juyn                                * */
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
 /* *                                                                        * */
 /* ************************************************************************** */

@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_types.h            copyright (c) 2000 G.Juyn        * */
+/* * file      : libmng_types.h            copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : type specifications                                        * */
@@ -103,13 +103,8 @@
 /* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
 /* *             - B597134 - libmng pollutes the linker namespace           * */
 /* *                                                                        * */
-/* *             1.0.6 - 11/04/2003 - G.Juyn                                * */
+/* *             1.0.6 - 04/11/2003 - G.Juyn                                * */
 /* *             - B719420 - fixed several MNG_APP_CMS problems             * */
-/* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
-/* *             - added special conditional to optimize Mozilla footprint  * */
-/* *             1.0.6 - 05/25/2003 - G. R-P                                * */
-/* *             - removed conditional to optimize Mozilla footprint        * */
-/* *             - it belongs in the Mozilla Makefile, not here.            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
