@@ -1,14 +1,11 @@
-libmng 1.0.6
+libmng 1.0.7
 ------------
 
-Final release.
+Minor upgrade for Mozilla re-integration.
 
-There's been no feedback after the 1.0.6 beta, so here you go.
-
-This release is mostly in the light of footprint-reduction to please the
-Mozilla crew with a leaner and meaner libmng. See bug 18574 if you're
-interested:
-http://bugzilla.mozilla.org/show_bug.cgi?id=18574
+A bunch of new canvas-styles thanks to Raphael Assenat and John Stiles.
+A couple of bug-fixes & cleaning up warnings.
+Also upgraded to the latest zlib/lcms releases.
 
 
 Y.T.

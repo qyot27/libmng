@@ -1,11 +1,15 @@
 -----------------------------------------------------------
 
-1.0.7 alpha1 (xxx xxth 2003)
-----------------------------
+1.0.7 (March 21st 2004)
+-----------------------
 
 in short:
 
-intermediate CVS
+A bunch of new canvas-styles, some bug-fixes, upgraded to latest zlib/lcms
+and yet more work to please the Mozilla crowd.
+Releasing beta's doesn't seem very responsive, and this one's hardly changed
+much anyway. I just wanted to bump to a regular version for Mozilla
+re-integration.
 
 -------------------
 
