@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -126,6 +126,9 @@
 /* *             1.0.5 - 09/23/2002 - G.Juyn                                * */
 /* *             - added compose over/under routines for PAST processing    * */
 /* *             - added flip & tile routines for PAST processing           * */
+/* *                                                                        * */
+/* *             1.0.6 - 03/09/2003 - G.Juyn                                * */
+/* *             - hiding 12-bit JPEG stuff                                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3844,6 +3847,7 @@ mng_retcode mng_store_jpeg_rgb8_a16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_JPEG12
 mng_retcode mng_store_jpeg_g12_a1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -3887,9 +3891,11 @@ mng_retcode mng_store_jpeg_g12_a1 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif /* MNG_SUPPORT_JPEG12 */
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_JPEG12
 mng_retcode mng_store_jpeg_g12_a2 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -3940,9 +3946,11 @@ mng_retcode mng_store_jpeg_g12_a2 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif /* MNG_SUPPORT_JPEG12 */
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_JPEG12
 mng_retcode mng_store_jpeg_g12_a4 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -3992,9 +4000,11 @@ mng_retcode mng_store_jpeg_g12_a4 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif /* MNG_SUPPORT_JPEG12 */
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_JPEG12
 mng_retcode mng_store_jpeg_g12_a8 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -4028,9 +4038,11 @@ mng_retcode mng_store_jpeg_g12_a8 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif /* MNG_SUPPORT_JPEG12 */
 
 /* ************************************************************************** */
 
+#ifdef MNG_SUPPORT_JPEG12
 mng_retcode mng_store_jpeg_g12_a16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -4060,6 +4072,7 @@ mng_retcode mng_store_jpeg_g12_a16 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif /* MNG_SUPPORT_JPEG12 */
 
 /* ************************************************************************** */
 
