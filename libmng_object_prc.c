@@ -119,6 +119,8 @@
 /* *             - added conditionals around delta-png and 16-bit code      * */
 /* *             1.0.6 - 07/14/2003 - G.R-P                                 * */
 /* *             - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional          * */
+/* *             1.0.6 - 07/29/2003 - G.Juyn                                * */
+/* *             - fixed invalid test in promote_imageobject                * */
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
@@ -1635,7 +1637,7 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
 #endif /* JNG */
 
   /* found a proper promotion ? */
-  if (pData->fPromoterow && pData->fPromBitdepth)
+  if (pData->fPromoterow)
   {
     pData->pPromBuf    = (mng_ptr)pBuf;
     pData->iPromWidth  = pBuf->iWidth;

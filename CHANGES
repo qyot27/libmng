@@ -38,6 +38,8 @@ core:
 - added MNG_NO_LOOP_SIGNALS_SUPPORTED conditional
 - fixed duplicate for-loop
 - fixed invalid test in promote_imageobject
+- added conditionals around PAST chunk support
+- fixed "FOOTPRINT_COMPOSEIV" typo (now "FOOTPRINT_DIV")
 
 samples:
 
