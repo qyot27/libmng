@@ -12,6 +12,7 @@
 /* *    Gerard Juyn                 - gjuyn :at: users.sourceforge.net      * */
 /* *    Glenn Randers-Pehrson       - glennrp :at: users.sourceforge.net    * */
 /* *    Raphael Assenat             - raph :at: raphnet.net                 * */
+/* *    John Stiles                 -                                       * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
@@ -265,6 +266,8 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 12/06/2003 - R.A                                   * */
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2326,13 +2329,17 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 
 #define MNG_CANVAS_RGB8      0x00000000L
 #define MNG_CANVAS_RGBA8     0x00001000L
+#define MNG_CANVAS_RGBA8_PM  0x00009000L
 #define MNG_CANVAS_ARGB8     0x00003000L
+#define MNG_CANVAS_ARGB8_PM  0x0000B000L
 #define MNG_CANVAS_RGB8_A8   0x00005000L
 #define MNG_CANVAS_BGR8      0x00000001L
 #define MNG_CANVAS_BGRX8     0x00010001L
 #define MNG_CANVAS_BGRA8     0x00001001L
-#define MNG_CANVAS_BGRA8PM   0x00009001L
+#define MNG_CANVAS_BGRA8PM   0x00009001L         /* backward compatibility */
+#define MNG_CANVAS_BGRA8_PM  0x00009001L
 #define MNG_CANVAS_ABGR8     0x00003001L
+#define MNG_CANVAS_ABGR8_PM  0x0000B001L
 #define MNG_CANVAS_RGB16     0x00000100L         /* not supported yet */
 #define MNG_CANVAS_RGBA16    0x00001100L         /* not supported yet */
 #define MNG_CANVAS_ARGB16    0x00003100L         /* not supported yet */
@@ -2351,7 +2358,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_RGB565    0x00000005L
 #define MNG_CANVAS_RGBA565   0x00001005L
 #define MNG_CANVAS_BGR565    0x00000006L
-#define MNG_CANVAS_BGRA565   0x00001006L         
+#define MNG_CANVAS_BGRA565   0x00001006L
 
 #define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000FFL)
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)

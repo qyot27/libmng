@@ -94,6 +94,8 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 12/06/2003 - R.A                                   * */
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -154,8 +156,14 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
 #ifndef MNG_SKIPCANVAS_RGBA8
     case MNG_CANVAS_RGBA8   : break;
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA8_PM
+    case MNG_CANVAS_RGBA8_PM: break;
+#endif
 #ifndef MNG_SKIPCANVAS_ARGB8
     case MNG_CANVAS_ARGB8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8_PM
+    case MNG_CANVAS_ARGB8_PM: break;
 #endif
 #ifndef MNG_SKIPCANVAS_RGB8_A8
     case MNG_CANVAS_RGB8_A8 : break;
@@ -170,10 +178,13 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
     case MNG_CANVAS_BGRA8   : break;
 #endif
 #ifndef MNG_SKIPCANVAS_BGRA8_PM
-    case MNG_CANVAS_BGRA8PM : break;
+    case MNG_CANVAS_BGRA8_PM: break;
 #endif
 #ifndef MNG_SKIPCANVAS_ABGR8
     case MNG_CANVAS_ABGR8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8_PM
+    case MNG_CANVAS_ABGR8_PM: break;
 #endif
 #ifndef MNG_SKIPCANVAS_RGB565
     case MNG_CANVAS_RGB565  : break;

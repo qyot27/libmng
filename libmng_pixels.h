@@ -76,6 +76,8 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 12/06/2003 - R.A                                   * */
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -115,8 +117,14 @@ mng_retcode mng_display_rgb8           (mng_datap  pData);
 #ifndef MNG_SKIPCANVAS_RGBA8
 mng_retcode mng_display_rgba8          (mng_datap  pData);
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA8_PM
+mng_retcode mng_display_rgba8_pm       (mng_datap  pData);
+#endif
 #ifndef MNG_SKIPCANVAS_ARGB8
 mng_retcode mng_display_argb8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8_PM
+mng_retcode mng_display_argb8_pm       (mng_datap  pData);
 #endif
 #ifndef MNG_SKIPCANVAS_RGB8_A8
 mng_retcode mng_display_rgb8_a8        (mng_datap  pData);
@@ -135,6 +143,9 @@ mng_retcode mng_display_bgra8_pm       (mng_datap  pData);
 #endif
 #ifndef MNG_SKIPCANVAS_ABGR8
 mng_retcode mng_display_abgr8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8_PM
+mng_retcode mng_display_abgr8_pm       (mng_datap  pData);
 #endif
 #ifndef MNG_SKIPCANVAS_RGB565
 mng_retcode mng_display_rgb565         (mng_datap  pData);

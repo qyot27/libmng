@@ -131,6 +131,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 11/27/2003 - R.A                                   * */
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -687,6 +689,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RGBA565,           "display_rgba565"},
     {MNG_FN_DISPLAY_BGR565,            "display_bgr565"},
     {MNG_FN_DISPLAY_BGRA565,           "display_bgra565"},
+    {MNG_FN_DISPLAY_RGBA8_PM,          "display_rgba8_pm"},
+    {MNG_FN_DISPLAY_ARGB8_PM,          "display_argb8_pm"},
+    {MNG_FN_DISPLAY_ABGR8_PM,          "display_abgr8_pm"},
 
     {MNG_FN_INIT_FULL_CMS,             "init_full_cms"},
     {MNG_FN_CORRECT_FULL_CMS,          "correct_full_cms"},

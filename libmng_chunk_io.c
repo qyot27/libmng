@@ -193,6 +193,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 10/29/2003 - G.R-P                                 * */
 /* *             - revised JDAA and JDAT readers to avoid compiler bug      * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 

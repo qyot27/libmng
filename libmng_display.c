@@ -203,6 +203,8 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 12/06/2003 - R.A                                   * */
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
+/* *             1.0.7 - 01/25/2004 - J.S                                   * */
+/* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -444,8 +446,14 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #ifndef MNG_SKIPCANVAS_RGBA8
       case MNG_CANVAS_RGBA8   : { pData->fDisplayrow = (mng_fptr)mng_display_rgba8;    break; }
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA8_PM
+      case MNG_CANVAS_RGBA8_PM: { pData->fDisplayrow = (mng_fptr)mng_display_rgba8_pm; break; }
+#endif
 #ifndef MNG_SKIPCANVAS_ARGB8
       case MNG_CANVAS_ARGB8   : { pData->fDisplayrow = (mng_fptr)mng_display_argb8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8_PM
+      case MNG_CANVAS_ARGB8_PM: { pData->fDisplayrow = (mng_fptr)mng_display_argb8_pm; break; }
 #endif
 #ifndef MNG_SKIPCANVAS_RGB8_A8
       case MNG_CANVAS_RGB8_A8 : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8_a8;  break; }
@@ -460,10 +468,13 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
       case MNG_CANVAS_BGRA8   : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8;    break; }
 #endif
 #ifndef MNG_SKIPCANVAS_BGRA8_PM
-      case MNG_CANVAS_BGRA8PM : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8_pm; break; }
+      case MNG_CANVAS_BGRA8_PM: { pData->fDisplayrow = (mng_fptr)mng_display_bgra8_pm; break; }
 #endif
 #ifndef MNG_SKIPCANVAS_ABGR8
       case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_fptr)mng_display_abgr8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8_PM
+      case MNG_CANVAS_ABGR8_PM: { pData->fDisplayrow = (mng_fptr)mng_display_abgr8_pm; break; }
 #endif
 #ifndef MNG_SKIPCANVAS_RGB565
       case MNG_CANVAS_RGB565  : { pData->fDisplayrow = (mng_fptr)mng_display_rgb565;   break; }
