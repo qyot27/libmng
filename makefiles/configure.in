@@ -118,7 +118,7 @@ AC_ARG_WITH(lcms,
   AC_CHECK_HEADER(lcms/lcms.h,
     AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
       LIBS="$LIBS -llcms"
-      AC_DEFINE(MNG_INCLUDE_LCMS)
+      dnl for now this implies MNG_INCLUDE_LCMS in the headers:
       AC_DEFINE(MNG_FULL_CMS)
     ],[
       AC_MSG_WARN([lcms not found...disabling])

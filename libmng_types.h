@@ -133,7 +133,11 @@
 #ifndef ZLIB_DLL
 #undef FAR
 #endif
+#ifdef WIN32				/* differnt header locations */
 #include "lcms.h"
+#else
+#include "lcms/lcms.h"
+#endif
 #endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_INCLUDE_IJG6B               /* IJG's jpgsrc6b */
