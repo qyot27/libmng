@@ -190,7 +190,7 @@ int dumptree (char * zFilename)
          ((iRC = mng_setcb_readdata    (hMNG, myreaddata   )) != 0)    )
       fprintf (stderr, "Cannot set callbacks for libmng.\n");
     else
-    {                                  /* reaad the file into memory */
+    {                                  /* read the file into memory */
       if ((iRC = mng_read (hMNG)) != 0)
         fprintf (stderr, "Cannot read the file.\n");
       else

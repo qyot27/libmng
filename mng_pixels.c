@@ -661,7 +661,7 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
                                        /* adjust destination rows starting-point */
     pScanline  = pScanline  + (pData->iCol * 3) + (pData->iDestl * 3);
     pAlphaline = pAlphaline + pData->iCol + pData->iDestl;
-    
+
     pDataline  = pData->pRGBArow;      /* address source row */
 
     if (pData->bIsRGBA16)              /* adjust source row starting-point */
@@ -872,9 +872,6 @@ mng_retcode display_bgr8 (mng_datap pData)
           *pScanline     = *(pDataline+4);
           *(pScanline+1) = *(pDataline+2);
           *(pScanline+2) = *pDataline;
-/*          *pScanline     = *(pDataline+5);
-          *(pScanline+1) = *(pDataline+3);
-          *(pScanline+2) = *(pDataline+1); */
 
           pScanline += (pData->iColinc * 3);
           pDataline += 8;

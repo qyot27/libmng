@@ -85,11 +85,7 @@
 mng_retcode interframe_delay (mng_datap pData)
 {
   mng_uint32 iWaitfor;
-#ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
-  mng_bool   bOke = MNG_TRUE;
-#else
   mng_bool   bOke;
-#endif    
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
@@ -97,7 +93,7 @@ mng_retcode interframe_delay (mng_datap pData)
 
   if (pData->iFramedelay > 0)          /* let the app refresh first */
     if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                          pData->iDataheight, pData->iDatawidth))
+                          pData->iHeight, pData->iWidth))
       MNG_ERROR (pData, MNG_APPMISCERROR)
                                        /* get current tickcount */
   pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
@@ -129,7 +125,9 @@ mng_retcode interframe_delay (mng_datap pData)
 #ifndef MNG_ALWAYS_DELAY               /* THIS IS FOR TESTING ONLY !!!! */
   }
   else
-  {
+  {                                    /* just give the app some breathing space */
+    bOke = pData->fSettimer ((mng_handle)pData, 0);
+    
     if (!pData->bRunning)              /* sanity check for frozen status */
       MNG_WARNING (pData, MNG_IMAGEFROZEN)
   }
@@ -1391,7 +1389,7 @@ mng_retcode process_display_iend (mng_datap pData)
                                        /* we'll have to make the app refresh */
     if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
       if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                            pData->iDataheight, pData->iDatawidth))
+                            pData->iHeight, pData->iWidth))
         MNG_ERROR (pData, MNG_APPMISCERROR)
 
   }
@@ -1482,7 +1480,7 @@ mng_retcode process_display_mend (mng_datap pData)
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
     if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                          pData->iDataheight, pData->iDatawidth))
+                          pData->iHeight, pData->iWidth))
       MNG_ERROR (pData, MNG_APPMISCERROR)
 
 #ifdef MNG_SUPPORT_TRACE
