@@ -2316,8 +2316,8 @@ READ_CHUNK (mng_read_itxt)
       iTextlen = iCompressedsize;
       iBufsize = iTextlen+1;           /* plus 1 for terminator byte!!! */
 
-      MNG_ALLOCX (pData, pBuf, iBufsize);
-      MNG_COPY   (pBuf, pNull3+1, iTextlen);
+      MNG_ALLOC (pData, pBuf, iBufsize);
+      MNG_COPY  (pBuf, pNull3+1, iTextlen);
     }
 
     MNG_ALLOCX (pData, zKeyword,     iKeywordlen     + 1)
@@ -2390,8 +2390,8 @@ READ_CHUNK (mng_read_itxt)
         iTextlen = iCompressedsize;
         iBufsize = iTextlen+1;         /* plus 1 for terminator byte!!! */
 
-        MNG_ALLOCX (pData, pBuf, iBufsize);
-        MNG_COPY   (pBuf, pNull3+1, iTextlen);
+        MNG_ALLOC (pData, pBuf, iBufsize);
+        MNG_COPY  (pBuf, pNull3+1, iTextlen);
       }
     }
 
