@@ -10,6 +10,7 @@ intermediate for now
 -------------------
 
 bugfixes:
+- B123314 - fixed number of TERM related problems
 
 core:
 - version numbers
@@ -18,9 +19,9 @@ core:
 - changed inclusion of the lcms header file for non-windows platforms
 - changed IHDR filter_method check for PNGs                
 - moved restore of object 0 to libmng_display              
-- added restore of object 0 to TERM processing !!!
-- fixed TERM delay processing                             
-- fixed TERM end processing (count = 0)                   
+- added restore of object 0 to TERM processing (B123314)
+- fixed TERM delay processing (B123314)
+- fixed TERM end processing when count = 0 (B123314)                   
 
 samples:
 

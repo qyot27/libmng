@@ -114,8 +114,11 @@
 /* ************************************************************************** */
 
 #ifdef WIN32                           /* only include needed stuff */
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#endif
+
 #ifdef MNG_USE_DLL
 #ifdef MNG_SKIP_ZLIB
 #undef MNG_INCLUDE_ZLIB
