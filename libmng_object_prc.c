@@ -1128,12 +1128,26 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   pData->iPromBitdepth  = iBitdepth;
   pData->iPromFilltype  = iFilltype;
 
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (iBitdepth > 8)
+     iBitdepth=8;
+#endif
+
   if (iBitdepth != pBuf->iBitdepth)    /* determine bitdepth promotion */
   {
     if (pBuf->iColortype == MNG_COLORTYPE_INDEXED)
       iTempdepth = 8;
     else
+    {
+#ifndef MNG_NO_16BIT_SUPPORT
       iTempdepth = pBuf->iBitdepth;
+#else
+      if (pBuf->iBitdepth > 8)  
+        iTempdepth = 8;
+      else
+        iTempdepth = pBuf->iBitdepth;
+#endif
+    }
 
 #ifndef MNG_NO_DELTA_PNG
     if (iFilltype == MNG_FILLMETHOD_ZEROFILL)
@@ -1330,15 +1344,13 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   if ((pBuf->iColortype == MNG_COLORTYPE_GRAYA) &&
       (iColortype == MNG_COLORTYPE_GRAYA))
   {
+    iNewsamplesize = 2;
 #ifndef MNG_NO_16BIT_SUPPORT
     if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
       if (iBitdepth == 16)
-      {
         pData->fPromoterow = (mng_fptr)mng_promote_ga8_ga16;
-        iNewsamplesize = 4;
-      }
-#else
-    iNewsamplesize = 2;
+    if (iBitdepth == 16)
+      iNewsamplesize = 4;
 #endif
   }
   else                                 /* ga -> rgba */
@@ -1374,10 +1386,9 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
 #ifndef MNG_NO_16BIT_SUPPORT
     if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
       if (iBitdepth == 16)
-      {
         pData->fPromoterow = (mng_fptr)mng_promote_rgb8_rgb16;
-        iNewsamplesize = 6;
-      }
+    if (iBitdepth == 16)
+      iNewsamplesize = 6;
 #endif
   }
   else                                 /* rgb -> rgba */
@@ -1556,13 +1567,13 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   if ((pBuf->iColortype == MNG_COLORTYPE_JPEGGRAYA) &&
       (iColortype == MNG_COLORTYPE_JPEGGRAYA))
   {
+    iNewsamplesize = 2;
 #ifndef MNG_NO_16BIT_SUPPORT
     if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
       if (iBitdepth == 16)
         pData->fPromoterow = (mng_fptr)mng_promote_ga8_ga16;
-    iNewsamplesize = 4;
-#else
-    iNewsamplesize = 2;
+    if (iBitdepth == 16)
+      iNewsamplesize = 4;
 #endif
 
   }
@@ -1595,13 +1606,13 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   if ((pBuf->iColortype == MNG_COLORTYPE_JPEGCOLOR) &&
       (iColortype == MNG_COLORTYPE_JPEGCOLOR))
   {
+    iNewsamplesize = 3;
 #ifndef MNG_NO_16BIT_SUPPORT
     if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
       if (iBitdepth == 16)
         pData->fPromoterow = (mng_fptr)mng_promote_rgb8_rgb16;
-    iNewsamplesize = 6;
-#else
-    iNewsamplesize = 3;
+    if (iBitdepth == 16)
+      iNewsamplesize = 6;
 #endif
 
   }
@@ -1634,13 +1645,13 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
   if ((pBuf->iColortype == MNG_COLORTYPE_JPEGCOLORA) &&
       (iColortype == MNG_COLORTYPE_JPEGCOLORA))
   {
+    iNewsamplesize = 4;
 #ifndef MNG_NO_16BIT_SUPPORT
     if (pBuf->iBitdepth <= 8)          /* source <= 8 bits */
       if (iBitdepth == 16)
         pData->fPromoterow = (mng_fptr)mng_promote_rgba8_rgba16;
-    iNewsamplesize = 8;
-#else
-    iNewsamplesize = 4;
+    if (iBitdepth == 16)
+      iNewsamplesize = 8;
 #endif
   }
 #endif /* JNG */
