@@ -6,8 +6,6 @@ VERSION=0.1
 AC_INIT(mngplay.c)
 AM_INIT_AUTOMAKE(mngplay, $VERSION)
 
-AC_DEFINE_UNQUOTED(VERSION,"$VERSION")
-
 dnl AC_CANONICAL_SYSTEM
 AC_LANG_C
 
@@ -27,7 +25,7 @@ fi
 CFLAGS="$CFLAGS `sdl-config --cflags`"
 LDFLAGS="$LDFLAGS `sdl-config --libs`"
 
-dnl check for libmng
+dnl check for libmng - macro in acinclude.m4
 LIBMNG_CHECK()
 
 AC_OUTPUT(Makefile)

@@ -12,14 +12,22 @@ AC_DEFUN(LIBMNG_CHECK, [
   dnl prerequisites first
   AC_CHECK_LIB(jpeg, jpeg_set_defaults)
   dnl now the library
-  AC_CHECK_LIB(mng, mng_readdisplay, [], [
-	dnl try it with lcms -- optional link dependency
-	AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
-		AC_CHECK_HEADER(lcms/lcms.h)
-		AC_CHECK_LIB(mng, mng_readdisplay)
+  AC_CHECK_LIB(mng, mng_readdisplay, [_libmng_present=1])
+  AC_CHECK_HEADER(libmng.h)
+  dnl see if we need the optional link dependency
+  AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
+	AC_CHECK_HEADER(lcms/lcms.h)
+	AC_CHECK_LIB(mng, mnglcms_initlibrary, [
+		LIBS="$LIBS -llcms"
+		AC_DEFINE(HAVE_LIBLCMS)
+		_libmng_present=1
 	])
   ])
-  AC_CHECK_HEADER(libmng.h)
+  if test $_libmng_present -eq 1; then
+	LIBS="$LIBS -lmng"
+	AC_DEFINE(HAVE_LIBMNG)
+  fi
+  _libmng_present=
 ])
 
 dnl end LIBMNG macros
