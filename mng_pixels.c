@@ -144,13 +144,13 @@ void check_update_region (mng_datap pData)
 {                                      /* determine actual canvas row */
   mng_int32 iRow = pData->iRow + pData->iDestt - pData->iSourcet;
                                        /* check for change in update-region */
-  if ((pData->iDestl < (mng_int32)pData->iUpdateleft) || (pData->iUpdateleft == 0))
+  if ((pData->iDestl < (mng_int32)pData->iUpdateleft) || (pData->iUpdateright == 0))
     pData->iUpdateleft   = pData->iDestl;
 
   if (pData->iDestr > (mng_int32)pData->iUpdateright)
     pData->iUpdateright  = pData->iDestr;
 
-  if ((iRow < (mng_int32)pData->iUpdatetop) || (pData->iUpdatetop == 0))
+  if ((iRow < (mng_int32)pData->iUpdatetop) || (pData->iUpdatebottom == 0))
     pData->iUpdatetop    = iRow;
 
   if (iRow+1 > (mng_int32)pData->iUpdatebottom)
