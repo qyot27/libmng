@@ -218,6 +218,8 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
 /* *             1.0.9 - 12/07/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
+/* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -657,20 +659,20 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
                                             mng_chunkp      pHeader,
                                             mng_uint32      iRawlen,
                                             mng_uint8p      pRawdata,
-                                            mng_field_desc2p pField,
+                                            mng_field_descp pField,
                                             mng_uint16      iFields,
                                             mng_chunkp*     ppChunk,
                                             mng_bool        bWorkcopy)
 {
-  mng_field_desc2p pTempfield  = pField;
-  mng_uint16       iFieldcount = iFields;
-  mng_uint8p       pTempdata   = pRawdata;
-  mng_uint32       iTemplen    = iRawlen;
-  mng_uint16       iLastgroup  = 0;
-  mng_uint8p       pChunkdata;
-  mng_uint32       iDatalen;
-  mng_uint8        iColortype;
-  mng_bool         bProcess;
+  mng_field_descp pTempfield  = pField;
+  mng_uint16      iFieldcount = iFields;
+  mng_uint8p      pTempdata   = pRawdata;
+  mng_uint32      iTemplen    = iRawlen;
+  mng_uint16      iLastgroup  = 0;
+  mng_uint8p      pChunkdata;
+  mng_uint32      iDatalen;
+  mng_uint8       iColortype;
+  mng_bool        bProcess;
                                        /* initialize storage */
   mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
   if (iRetcode)                        /* on error bail out */
@@ -870,10 +872,10 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
 
 READ_CHUNK (mng_read_general)
 {
-  mng_chunk_descp  pDescr  = ((mng_chunk_headerp)pHeader)->pChunkdescr;
-  mng_field_desc2p pField  = pDescr->pFielddesc;
-  mng_uint16       iFields = pDescr->iFielddesc;
-  mng_retcode      iRetcode;
+  mng_chunk_descp pDescr   = ((mng_chunk_headerp)pHeader)->pChunkdescr;
+  mng_field_descp pField   = pDescr->pFielddesc;
+  mng_uint16      iFields  = pDescr->iFielddesc;
+  mng_retcode     iRetcode = MNG_NOERROR;
 
   if (!pDescr)                         /* this is a bad booboo !!! */
     MNG_ERROR (pData, MNG_INTERNALERROR)
@@ -932,7 +934,7 @@ READ_CHUNK (mng_read_general)
       ((pDescr->iMustNOThaves & MNG_DESCR_NOSAVE) && (pData->bHasSAVE))   )
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
-  if (pData->eSigtype == mng_it_mng)   /* check global and embedded empty chunks */  
+  if (pData->eSigtype == mng_it_mng)   /* check global and embedded empty chunks */
   {
 #ifdef MNG_INCLUDE_JNG
     if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
@@ -986,24 +988,34 @@ READ_CHUNK (mng_read_general)
 #ifdef MNG_SUPPORT_DISPLAY
   if (iRawlen)
   {
+#ifdef MNG_OPTIMIZE_DISPLAYCALLS
+    pData->iRawlen  = iRawlen;
+    pData->pRawdata = pRawdata;
+#endif
+
+                                       /* display processing */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
-    {                                  /* display processing */
       iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT)
-    {                                  /* display processing */
       iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    else
     if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)
-    {                                  /* display processing */
       iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+#else
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
+      iRetcode = mng_process_display_idat (pData);
+    else
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT)
+      iRetcode = mng_process_display_jdat (pData);
+    else
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)
+      iRetcode = mng_process_display_jdaa (pData);
+#endif
+
+    if (iRetcode)
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -1361,7 +1373,6 @@ READ_CHUNK (mng_read_plte)
     {                                  /* create an animation object */
       mng_retcode iRetcode = mng_create_ani_plte (pData, pData->iGlobalPLTEcount,
                                                   pData->aGlobalPLTEentries);
-
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
     }
@@ -1501,12 +1512,10 @@ READ_CHUNK (mng_read_iend)
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create an animation object */
     mng_retcode iRetcode = mng_create_ani_image (pData);
-                               
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* display processing */
     iRetcode = mng_process_display_iend (pData);
-
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }

@@ -16,6 +16,8 @@
 /* *                                                                        * */
 /* * changes   : 1.0.9 - 12/06/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
+/* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
+/* *             - made all constants 'static'                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -50,7 +52,7 @@
 /* ************************************************************************** */
 /* PNG chunks */
 
-mng_field_descriptor2 mng_fields_ihdr [] =
+MNG_LOCAL mng_field_descriptor mng_fields_ihdr [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
@@ -84,7 +86,7 @@ mng_field_descriptor2 mng_fields_ihdr [] =
 
 /* ************************************************************************** */
 
-mng_field_descriptor2 mng_fields_plte [] =
+MNG_LOCAL mng_field_descriptor mng_fields_plte [] =
   {
     {mng_debunk_plte,
      MNG_NULL,
@@ -94,7 +96,7 @@ mng_field_descriptor2 mng_fields_plte [] =
 
 /* ************************************************************************** */
 
-mng_field_descriptor2 mng_fields_idat [] =
+MNG_LOCAL mng_field_descriptor mng_fields_idat [] =
   {
     {MNG_NULL,
      MNG_NULL,
@@ -104,7 +106,7 @@ mng_field_descriptor2 mng_fields_idat [] =
 
 /* ************************************************************************** */
 
-mng_field_descriptor2 mng_fields_trns [] =
+MNG_LOCAL mng_field_descriptor mng_fields_trns [] =
   {
     {mng_debunk_trns,
      MNG_NULL,
@@ -115,7 +117,7 @@ mng_field_descriptor2 mng_fields_trns [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_gAMA
-mng_field_descriptor2 mng_fields_gama [] =
+MNG_LOCAL mng_field_descriptor mng_fields_gama [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -127,7 +129,7 @@ mng_field_descriptor2 mng_fields_gama [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_cHRM
-mng_field_descriptor2 mng_fields_chrm [] =
+MNG_LOCAL mng_field_descriptor mng_fields_chrm [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -167,7 +169,7 @@ mng_field_descriptor2 mng_fields_chrm [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sRGB
-mng_field_descriptor2 mng_fields_srgb [] =
+MNG_LOCAL mng_field_descriptor mng_fields_srgb [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -179,7 +181,7 @@ mng_field_descriptor2 mng_fields_srgb [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_iCCP
-mng_field_descriptor2 mng_fields_iccp [] =
+MNG_LOCAL mng_field_descriptor mng_fields_iccp [] =
   {
     {MNG_NULL,
      MNG_FIELD_TERMINATOR,
@@ -199,7 +201,7 @@ mng_field_descriptor2 mng_fields_iccp [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_tEXt
-mng_field_descriptor2 mng_fields_text [] =
+MNG_LOCAL mng_field_descriptor mng_fields_text [] =
   {
     {MNG_NULL,
      MNG_FIELD_TERMINATOR,
@@ -215,7 +217,7 @@ mng_field_descriptor2 mng_fields_text [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_zTXt
-mng_field_descriptor2 mng_fields_ztxt [] =
+MNG_LOCAL mng_field_descriptor mng_fields_ztxt [] =
   {
     {MNG_NULL,
      MNG_FIELD_TERMINATOR,
@@ -235,7 +237,7 @@ mng_field_descriptor2 mng_fields_ztxt [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_iTXt
-mng_field_descriptor2 mng_fields_itxt [] =
+MNG_LOCAL mng_field_descriptor mng_fields_itxt [] =
   {
     {MNG_NULL,
      MNG_FIELD_TERMINATOR,
@@ -267,7 +269,7 @@ mng_field_descriptor2 mng_fields_itxt [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_bKGD
-mng_field_descriptor2 mng_fields_bkgd [] =
+MNG_LOCAL mng_field_descriptor mng_fields_bkgd [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE,
@@ -299,7 +301,7 @@ mng_field_descriptor2 mng_fields_bkgd [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_pHYs
-mng_field_descriptor2 mng_fields_phys [] =
+MNG_LOCAL mng_field_descriptor mng_fields_phys [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -319,7 +321,7 @@ mng_field_descriptor2 mng_fields_phys [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sBIT
-mng_field_descriptor2 mng_fields_sbit [] =
+MNG_LOCAL mng_field_descriptor mng_fields_sbit [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE,
@@ -347,7 +349,7 @@ mng_field_descriptor2 mng_fields_sbit [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sPLT
-mng_field_descriptor2 mng_fields_splt [] =
+MNG_LOCAL mng_field_descriptor mng_fields_splt [] =
   {
     {MNG_NULL,
      MNG_NULL,
@@ -367,7 +369,7 @@ mng_field_descriptor2 mng_fields_splt [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_hIST
-mng_field_descriptor2 mng_fields_hist [] =
+MNG_LOCAL mng_field_descriptor mng_fields_hist [] =
   {
     {mng_hist_entries,
      MNG_NULL,
@@ -379,7 +381,7 @@ mng_field_descriptor2 mng_fields_hist [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_tIME
-mng_field_descriptor2 mng_fields_time [] =
+MNG_LOCAL mng_field_descriptor mng_fields_time [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -413,7 +415,7 @@ mng_field_descriptor2 mng_fields_time [] =
 /* JNG chunks */
 
 #ifdef MNG_INCLUDE_JNG
-mng_field_descriptor2 mng_fields_jhdr [] =
+MNG_LOCAL mng_field_descriptor mng_fields_jhdr [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
@@ -469,7 +471,7 @@ mng_field_descriptor2 mng_fields_jhdr [] =
 /* ************************************************************************** */
 /* MNG chunks */
 
-mng_field_descriptor2 mng_fields_mhdr [] =
+MNG_LOCAL mng_field_descriptor mng_fields_mhdr [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -504,7 +506,7 @@ mng_field_descriptor2 mng_fields_mhdr [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_field_descriptor2 mng_fields_loop [] =
+MNG_LOCAL mng_field_descriptor mng_fields_loop [] =
   {
     {mng_debunk_loop,
      MNG_NULL,
@@ -516,7 +518,7 @@ mng_field_descriptor2 mng_fields_loop [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_field_descriptor2 mng_fields_endl [] =
+MNG_LOCAL mng_field_descriptor mng_fields_endl [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -528,7 +530,7 @@ mng_field_descriptor2 mng_fields_endl [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_DEFI
-mng_field_descriptor2 mng_fields_defi [] =
+MNG_LOCAL mng_field_descriptor mng_fields_defi [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -572,7 +574,7 @@ mng_field_descriptor2 mng_fields_defi [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_BASI
-mng_field_descriptor2 mng_fields_basi [] =
+MNG_LOCAL mng_field_descriptor mng_fields_basi [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -628,7 +630,7 @@ mng_field_descriptor2 mng_fields_basi [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLON
-mng_field_descriptor2 mng_fields_clon [] =
+MNG_LOCAL mng_field_descriptor mng_fields_clon [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -668,7 +670,7 @@ mng_field_descriptor2 mng_fields_clon [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_PAST
-mng_field_descriptor2 mng_fields_past [] =
+MNG_LOCAL mng_field_descriptor mng_fields_past [] =
   {
     {mng_debunk_past,
      MNG_NULL,
@@ -680,7 +682,7 @@ mng_field_descriptor2 mng_fields_past [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_DISC
-mng_field_descriptor2 mng_fields_disc [] =
+MNG_LOCAL mng_field_descriptor mng_fields_disc [] =
   {
     {mng_disc_entries,
      MNG_NULL,
@@ -692,7 +694,7 @@ mng_field_descriptor2 mng_fields_disc [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_BACK
-mng_field_descriptor2 mng_fields_back [] =
+MNG_LOCAL mng_field_descriptor mng_fields_back [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -724,7 +726,7 @@ mng_field_descriptor2 mng_fields_back [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_FRAM
-mng_field_descriptor2 mng_fields_fram [] =
+MNG_LOCAL mng_field_descriptor mng_fields_fram [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
@@ -744,7 +746,7 @@ mng_field_descriptor2 mng_fields_fram [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MOVE
-mng_field_descriptor2 mng_fields_move [] =
+MNG_LOCAL mng_field_descriptor mng_fields_move [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -772,7 +774,7 @@ mng_field_descriptor2 mng_fields_move [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLIP
-mng_field_descriptor2 mng_fields_clip [] =
+MNG_LOCAL mng_field_descriptor mng_fields_clip [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -808,7 +810,7 @@ mng_field_descriptor2 mng_fields_clip [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SHOW
-mng_field_descriptor2 mng_fields_show [] =
+MNG_LOCAL mng_field_descriptor mng_fields_show [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -828,7 +830,7 @@ mng_field_descriptor2 mng_fields_show [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_TERM
-mng_field_descriptor2 mng_fields_term [] =
+MNG_LOCAL mng_field_descriptor mng_fields_term [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -852,7 +854,7 @@ mng_field_descriptor2 mng_fields_term [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SAVE
-mng_field_descriptor2 mng_fields_save [] =
+MNG_LOCAL mng_field_descriptor mng_fields_save [] =
   {
     {mng_save_entries,
      MNG_NULL,
@@ -864,7 +866,7 @@ mng_field_descriptor2 mng_fields_save [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SEEK
-mng_field_descriptor2 mng_fields_seek [] =
+MNG_LOCAL mng_field_descriptor mng_fields_seek [] =
   {
     {MNG_NULL,
      MNG_NULL,
@@ -876,7 +878,7 @@ mng_field_descriptor2 mng_fields_seek [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_eXPI
-mng_field_descriptor2 mng_fields_expi [] =
+MNG_LOCAL mng_field_descriptor mng_fields_expi [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -892,7 +894,7 @@ mng_field_descriptor2 mng_fields_expi [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_fPRI
-mng_field_descriptor2 mng_fields_fpri [] =
+MNG_LOCAL mng_field_descriptor mng_fields_fpri [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -908,7 +910,7 @@ mng_field_descriptor2 mng_fields_fpri [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_nEED
-mng_field_descriptor2 mng_fields_need [] =
+MNG_LOCAL mng_field_descriptor mng_fields_need [] =
   {
     {MNG_NULL,
      MNG_NULL,
@@ -926,7 +928,7 @@ mng_field_descriptor2 mng_fields_need [] =
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor2 mng_fields_dhdr [] =
+MNG_LOCAL mng_field_descriptor mng_fields_dhdr [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -962,7 +964,7 @@ mng_field_descriptor2 mng_fields_dhdr [] =
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor2 mng_fields_prom [] =
+MNG_LOCAL mng_field_descriptor mng_fields_prom [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -982,7 +984,7 @@ mng_field_descriptor2 mng_fields_prom [] =
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor2 mng_fields_pplt [] =
+MNG_LOCAL mng_field_descriptor mng_fields_pplt [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -998,7 +1000,7 @@ mng_field_descriptor2 mng_fields_pplt [] =
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor2 mng_fields_drop [] =
+MNG_LOCAL mng_field_descriptor mng_fields_drop [] =
   {
     {mng_drop_entries,
      MNG_NULL,
@@ -1011,7 +1013,7 @@ mng_field_descriptor2 mng_fields_drop [] =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
-mng_field_descriptor2 mng_fields_dbyk [] =
+MNG_LOCAL mng_field_descriptor mng_fields_dbyk [] =
   {
     {MNG_NULL,
      MNG_FIELD_INT,
@@ -1033,7 +1035,7 @@ mng_field_descriptor2 mng_fields_dbyk [] =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
-mng_field_descriptor2 mng_fields_ordr [] =
+MNG_LOCAL mng_field_descriptor mng_fields_ordr [] =
   {
     {mng_drop_entries,
      MNG_NULL,
@@ -1046,7 +1048,7 @@ mng_field_descriptor2 mng_fields_ordr [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MAGN
-mng_field_descriptor2 mng_fields_magn [] =
+MNG_LOCAL mng_field_descriptor mng_fields_magn [] =
   {
     {mng_debunk_magn,
      MNG_NULL,
@@ -1058,7 +1060,7 @@ mng_field_descriptor2 mng_fields_magn [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_evNT
-mng_field_descriptor2 mng_fields_evnt [] =
+MNG_LOCAL mng_field_descriptor mng_fields_evnt [] =
   {
     {mng_evnt_entries,
      MNG_NULL,
@@ -1069,7 +1071,7 @@ mng_field_descriptor2 mng_fields_evnt [] =
 
 /* ************************************************************************** */
 
-mng_field_descriptor2 mng_fields_unknown [] =
+MNG_LOCAL mng_field_descriptor mng_fields_unknown [] =
   {
     {MNG_NULL,
      MNG_NULL,
@@ -1081,31 +1083,31 @@ mng_field_descriptor2 mng_fields_unknown [] =
 /* ************************************************************************** */
 /* PNG chunks */
 
-mng_chunk_descriptor mng_chunk_descr_ihdr =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_ihdr =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ihdr,
-     mng_fields_ihdr, (sizeof(mng_fields_ihdr) / sizeof(mng_field_descriptor2)),
+     mng_fields_ihdr, (sizeof(mng_fields_ihdr) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL,
      MNG_NULL,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOJHDR | MNG_DESCR_NOBASI | MNG_DESCR_NOIDAT | MNG_DESCR_NOPLTE};
 
-mng_chunk_descriptor mng_chunk_descr_plte =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_plte =
     {mng_it_png, mng_create_none, 0, offsetof(mng_plte, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_plte,
-     mng_fields_plte, (sizeof(mng_fields_plte) / sizeof(mng_field_descriptor2)),
+     mng_fields_plte, (sizeof(mng_fields_plte) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 
-mng_chunk_descriptor mng_chunk_descr_idat =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_idat =
     {mng_it_png, mng_create_none, 0, offsetof(mng_idat, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_idat,
-     mng_fields_idat, (sizeof(mng_fields_idat) / sizeof(mng_field_descriptor2)),
+     mng_fields_idat, (sizeof(mng_fields_idat) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOJSEP};
 
-mng_chunk_descriptor mng_chunk_descr_iend =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_iend =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_iend,
      MNG_NULL, 0,
@@ -1113,139 +1115,139 @@ mng_chunk_descriptor mng_chunk_descr_iend =
      MNG_DESCR_GenHDR,
      MNG_NULL};
 
-mng_chunk_descriptor mng_chunk_descr_trns =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_trns =
     {mng_it_png, mng_create_none, 0, offsetof(mng_trns, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_trns,
-     mng_fields_trns, (sizeof(mng_fields_trns) / sizeof(mng_field_descriptor2)),
+     mng_fields_trns, (sizeof(mng_fields_trns) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 
 #ifndef MNG_SKIPCHUNK_gAMA
-mng_chunk_descriptor mng_chunk_descr_gama =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_gama =
     {mng_it_png, mng_create_none, 0, offsetof(mng_gama, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_gama,
-     mng_fields_gama, (sizeof(mng_fields_gama) / sizeof(mng_field_descriptor2)),
+     mng_fields_gama, (sizeof(mng_fields_gama) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_cHRM
-mng_chunk_descriptor mng_chunk_descr_chrm =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_chrm =
     {mng_it_png, mng_create_none, 0, offsetof(mng_chrm, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_chrm,
-     mng_fields_chrm, (sizeof(mng_fields_chrm) / sizeof(mng_field_descriptor2)),
+     mng_fields_chrm, (sizeof(mng_fields_chrm) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_sRGB
-mng_chunk_descriptor mng_chunk_descr_srgb =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_srgb =
     {mng_it_png, mng_create_none, 0, offsetof(mng_srgb, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_srgb,
-     mng_fields_srgb, (sizeof(mng_fields_srgb) / sizeof(mng_field_descriptor2)),
+     mng_fields_srgb, (sizeof(mng_fields_srgb) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_iCCP
-mng_chunk_descriptor mng_chunk_descr_iccp =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_iccp =
     {mng_it_png, mng_create_none, 0, offsetof(mng_iccp, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_iccp,
-     mng_fields_iccp, (sizeof(mng_fields_iccp) / sizeof(mng_field_descriptor2)),
+     mng_fields_iccp, (sizeof(mng_fields_iccp) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_tEXt
-mng_chunk_descriptor mng_chunk_descr_text =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_text =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_text,
-     mng_fields_text, (sizeof(mng_fields_text) / sizeof(mng_field_descriptor2)),
+     mng_fields_text, (sizeof(mng_fields_text) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
 #endif
 
 #ifndef MNG_SKIPCHUNK_zTXt
-mng_chunk_descriptor mng_chunk_descr_ztxt =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_ztxt =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ztxt,
-     mng_fields_ztxt, (sizeof(mng_fields_ztxt) / sizeof(mng_field_descriptor2)),
+     mng_fields_ztxt, (sizeof(mng_fields_ztxt) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
 #endif
 
 #ifndef MNG_SKIPCHUNK_iTXt
-mng_chunk_descriptor mng_chunk_descr_itxt =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_itxt =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_itxt,
-     mng_fields_itxt, (sizeof(mng_fields_itxt) / sizeof(mng_field_descriptor2)),
+     mng_fields_itxt, (sizeof(mng_fields_itxt) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
 #endif
 
 #ifndef MNG_SKIPCHUNK_bKGD
-mng_chunk_descriptor mng_chunk_descr_bkgd =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_bkgd =
     {mng_it_png, mng_create_none, 0, offsetof(mng_bkgd, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_bkgd,
-     mng_fields_bkgd, (sizeof(mng_fields_bkgd) / sizeof(mng_field_descriptor2)),
+     mng_fields_bkgd, (sizeof(mng_fields_bkgd) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_pHYs
-mng_chunk_descriptor mng_chunk_descr_phys =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_phys =
     {mng_it_png, mng_create_none, 0, offsetof(mng_phys, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_phys,
-     mng_fields_phys, (sizeof(mng_fields_phys) / sizeof(mng_field_descriptor2)),
+     mng_fields_phys, (sizeof(mng_fields_phys) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_sBIT
-mng_chunk_descriptor mng_chunk_descr_sbit =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_sbit =
     {mng_it_png, mng_create_none, 0, offsetof(mng_sbit, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_sbit,
-     mng_fields_sbit, (sizeof(mng_fields_sbit) / sizeof(mng_field_descriptor2)),
+     mng_fields_sbit, (sizeof(mng_fields_sbit) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_sPLT
-mng_chunk_descriptor mng_chunk_descr_splt =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_splt =
     {mng_it_png, mng_create_none, 0, offsetof(mng_splt, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_splt,
-     mng_fields_splt, (sizeof(mng_fields_splt) / sizeof(mng_field_descriptor2)),
+     mng_fields_splt, (sizeof(mng_fields_splt) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_hIST
-mng_chunk_descriptor mng_chunk_descr_hist =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_hist =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_hist,
-     mng_fields_hist, (sizeof(mng_fields_hist) / sizeof(mng_field_descriptor2)),
+     mng_fields_hist, (sizeof(mng_fields_hist) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_GenHDR | MNG_DESCR_PLTE,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
 #endif
 
 #ifndef MNG_SKIPCHUNK_tIME
-mng_chunk_descriptor mng_chunk_descr_time =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_time =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_time,
-     mng_fields_time, (sizeof(mng_fields_time) / sizeof(mng_field_descriptor2)),
+     mng_fields_time, (sizeof(mng_fields_time) / sizeof(mng_field_descriptor)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
@@ -1255,37 +1257,37 @@ mng_chunk_descriptor mng_chunk_descr_time =
 /* JNG chunks */
 
 #ifdef MNG_INCLUDE_JNG
-mng_chunk_descriptor mng_chunk_descr_jhdr =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_jhdr =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jhdr,
-     mng_fields_jhdr, (sizeof(mng_fields_jhdr) / sizeof(mng_field_descriptor2)),
+     mng_fields_jhdr, (sizeof(mng_fields_jhdr) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_NULL,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifdef MNG_INCLUDE_JNG
-mng_chunk_descriptor mng_chunk_descr_jdaa =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_jdaa =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jdaa,
-     mng_fields_jdaa, (sizeof(mng_fields_jdaa) / sizeof(mng_field_descriptor2)),
+     mng_fields_jdaa, (sizeof(mng_fields_jdaa) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_JngHDR,
      MNG_DESCR_NOJSEP};
 #endif
 
 #ifdef MNG_INCLUDE_JNG
-mng_chunk_descriptor mng_chunk_descr_jdat =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_jdat =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jdat,
-     mng_fields_jdat, (sizeof(mng_fields_jdat) / sizeof(mng_field_descriptor2)),
+     mng_fields_jdat, (sizeof(mng_fields_jdat) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_JngHDR,
      MNG_NULL};
 #endif
 
 #ifdef MNG_INCLUDE_JNG
-mng_chunk_descriptor mng_chunk_descr_jsep =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_jsep =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jsep,
      MNG_NULL, 0,
@@ -1297,15 +1299,15 @@ mng_chunk_descriptor mng_chunk_descr_jsep =
 /* ************************************************************************** */
 /* MNG chunks */
 
-mng_chunk_descriptor mng_chunk_descr_mhdr =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_mhdr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_mhdr,
-     mng_fields_mhdr, (sizeof(mng_fields_mhdr) / sizeof(mng_field_descriptor2)),
+     mng_fields_mhdr, (sizeof(mng_fields_mhdr) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_NULL,
      MNG_DESCR_NOMHDR | MNG_DESCR_NOIHDR | MNG_DESCR_NOJHDR};
 
-mng_chunk_descriptor mng_chunk_descr_mend =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_mend =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_mend,
      MNG_NULL, 0,
@@ -1314,215 +1316,215 @@ mng_chunk_descriptor mng_chunk_descr_mend =
      MNG_NULL};
 
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_chunk_descriptor mng_chunk_descr_loop =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_loop =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_loop,
-     mng_fields_loop, (sizeof(mng_fields_loop) / sizeof(mng_field_descriptor2)),
+     mng_fields_loop, (sizeof(mng_fields_loop) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 
-mng_chunk_descriptor mng_chunk_descr_endl =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_endl =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_endl,
-     mng_fields_endl, (sizeof(mng_fields_endl) / sizeof(mng_field_descriptor2)),
+     mng_fields_endl, (sizeof(mng_fields_endl) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_DEFI
-mng_chunk_descriptor mng_chunk_descr_defi =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_defi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_defi,
-     mng_fields_defi, (sizeof(mng_fields_defi) / sizeof(mng_field_descriptor2)),
+     mng_fields_defi, (sizeof(mng_fields_defi) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_BASI
-mng_chunk_descriptor mng_chunk_descr_basi =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_basi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_basi,
-     mng_fields_basi, (sizeof(mng_fields_basi) / sizeof(mng_field_descriptor2)),
+     mng_fields_basi, (sizeof(mng_fields_basi) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_CLON
-mng_chunk_descriptor mng_chunk_descr_clon =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_clon =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_clon,
-     mng_fields_clon, (sizeof(mng_fields_clon) / sizeof(mng_field_descriptor2)),
+     mng_fields_clon, (sizeof(mng_fields_clon) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_PAST
-mng_chunk_descriptor mng_chunk_descr_past =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_past =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_past,
-     mng_fields_past, (sizeof(mng_fields_past) / sizeof(mng_field_descriptor2)),
+     mng_fields_past, (sizeof(mng_fields_past) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_DISC
-mng_chunk_descriptor mng_chunk_descr_disc =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_disc =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_disc,
-     mng_fields_disc, (sizeof(mng_fields_disc) / sizeof(mng_field_descriptor2)),
+     mng_fields_disc, (sizeof(mng_fields_disc) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_BACK
-mng_chunk_descriptor mng_chunk_descr_back =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_back =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_back,
-     mng_fields_back, (sizeof(mng_fields_back) / sizeof(mng_field_descriptor2)),
+     mng_fields_back, (sizeof(mng_fields_back) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_FRAM
-mng_chunk_descriptor mng_chunk_descr_fram =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_fram =
     {mng_it_mng, mng_create_none, 0, offsetof(mng_fram, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_fram,
-     mng_fields_fram, (sizeof(mng_fields_fram) / sizeof(mng_field_descriptor2)),
+     mng_fields_fram, (sizeof(mng_fields_fram) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_MOVE
-mng_chunk_descriptor mng_chunk_descr_move =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_move =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_move,
-     mng_fields_move, (sizeof(mng_fields_move) / sizeof(mng_field_descriptor2)),
+     mng_fields_move, (sizeof(mng_fields_move) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_CLIP
-mng_chunk_descriptor mng_chunk_descr_clip =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_clip =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_clip,
-     mng_fields_clip, (sizeof(mng_fields_clip) / sizeof(mng_field_descriptor2)),
+     mng_fields_clip, (sizeof(mng_fields_clip) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_SHOW
-mng_chunk_descriptor mng_chunk_descr_show =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_show =
     {mng_it_mng, mng_create_none, 0, offsetof(mng_show, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_show,
-     mng_fields_show, (sizeof(mng_fields_show) / sizeof(mng_field_descriptor2)),
+     mng_fields_show, (sizeof(mng_fields_show) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_TERM
-mng_chunk_descriptor mng_chunk_descr_term =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_term =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_term,
-     mng_fields_term, (sizeof(mng_fields_term) / sizeof(mng_field_descriptor2)),
+     mng_fields_term, (sizeof(mng_fields_term) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR | MNG_DESCR_NOTERM | MNG_DESCR_NOLOOP};
 #endif
 
 #ifndef MNG_SKIPCHUNK_SAVE
-mng_chunk_descriptor mng_chunk_descr_save =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_save =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_save,
-     mng_fields_save, (sizeof(mng_fields_save) / sizeof(mng_field_descriptor2)),
+     mng_fields_save, (sizeof(mng_fields_save) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOSAVE | MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_SEEK
-mng_chunk_descriptor mng_chunk_descr_seek =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_seek =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_seek,
-     mng_fields_seek, (sizeof(mng_fields_seek) / sizeof(mng_field_descriptor2)),
+     mng_fields_seek, (sizeof(mng_fields_seek) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR | MNG_DESCR_SAVE,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_eXPI
-mng_chunk_descriptor mng_chunk_descr_expi =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_expi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_expi,
-     mng_fields_expi, (sizeof(mng_fields_expi) / sizeof(mng_field_descriptor2)),
+     mng_fields_expi, (sizeof(mng_fields_expi) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_fPRI
-mng_chunk_descriptor mng_chunk_descr_fpri =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_fpri =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_fpri,
-     mng_fields_fpri, (sizeof(mng_fields_fpri) / sizeof(mng_field_descriptor2)),
+     mng_fields_fpri, (sizeof(mng_fields_fpri) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_nEED
-mng_chunk_descriptor mng_chunk_descr_need =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_need =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_need,
-     mng_fields_need, (sizeof(mng_fields_need) / sizeof(mng_field_descriptor2)),
+     mng_fields_need, (sizeof(mng_fields_need) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_pHYg
-mng_chunk_descriptor mng_chunk_descr_phyg =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_phyg =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_phyg,
-     mng_fields_phyg, (sizeof(mng_fields_phyg) / sizeof(mng_field_descriptor2)),
+     mng_fields_phyg, (sizeof(mng_fields_phyg) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_NO_DELTA_PNG
-mng_chunk_descriptor mng_chunk_descr_dhdr =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_dhdr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_dhdr,
-     mng_fields_dhdr, (sizeof(mng_fields_dhdr) / sizeof(mng_field_descriptor2)),
+     mng_fields_dhdr, (sizeof(mng_fields_dhdr) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_NO_DELTA_PNG
-mng_chunk_descriptor mng_chunk_descr_prom =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_prom =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_prom,
-     mng_fields_prom, (sizeof(mng_fields_prom) / sizeof(mng_field_descriptor2)),
+     mng_fields_prom, (sizeof(mng_fields_prom) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
 #endif
 
 #ifndef MNG_NO_DELTA_PNG
-mng_chunk_descriptor mng_chunk_descr_ipng =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_ipng =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ipng,
      MNG_NULL, 0,
@@ -1532,10 +1534,10 @@ mng_chunk_descriptor mng_chunk_descr_ipng =
 #endif
 
 #ifndef MNG_NO_DELTA_PNG
-mng_chunk_descriptor mng_chunk_descr_pplt =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_pplt =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_pplt,
-     mng_fields_pplt, (sizeof(mng_fields_pplt) / sizeof(mng_field_descriptor2)),
+     mng_fields_pplt, (sizeof(mng_fields_pplt) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1543,7 +1545,7 @@ mng_chunk_descriptor mng_chunk_descr_pplt =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifdef MNG_INCLUDE_JNG
-mng_chunk_descriptor mng_chunk_descr_ijng =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_ijng =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ijng,
      MNG_NULL, 0,
@@ -1554,10 +1556,10 @@ mng_chunk_descriptor mng_chunk_descr_ijng =
 #endif
 
 #ifndef MNG_NO_DELTA_PNG
-mng_chunk_descriptor mng_chunk_descr_drop =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_drop =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_drop,
-     mng_fields_drop, (sizeof(mng_fields_drop) / sizeof(mng_field_descriptor2)),
+     mng_fields_drop, (sizeof(mng_fields_drop) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1565,10 +1567,10 @@ mng_chunk_descriptor mng_chunk_descr_drop =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
-mng_chunk_descriptor mng_chunk_descr_dbyk =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_dbyk =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_dbyk,
-     mng_fields_dbyk, (sizeof(mng_fields_dbyk) / sizeof(mng_field_descriptor2)),
+     mng_fields_dbyk, (sizeof(mng_fields_dbyk) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1577,10 +1579,10 @@ mng_chunk_descriptor mng_chunk_descr_dbyk =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
-mng_chunk_descriptor mng_chunk_descr_ordr =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_ordr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ordr,
-     mng_fields_ordr, (sizeof(mng_fields_ordr) / sizeof(mng_field_descriptor2)),
+     mng_fields_ordr, (sizeof(mng_fields_ordr) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1588,20 +1590,20 @@ mng_chunk_descriptor mng_chunk_descr_ordr =
 #endif
 
 #ifndef MNG_SKIPCHUNK_MAGN
-mng_chunk_descriptor mng_chunk_descr_magn =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_magn =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_magn,
-     mng_fields_magn, (sizeof(mng_fields_magn) / sizeof(mng_field_descriptor2)),
+     mng_fields_magn, (sizeof(mng_fields_magn) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_evNT
-mng_chunk_descriptor mng_chunk_descr_evnt =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_evnt =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_evnt,
-     mng_fields_evnt, (sizeof(mng_fields_evnt) / sizeof(mng_field_descriptor2)),
+     mng_fields_evnt, (sizeof(mng_fields_evnt) / sizeof(mng_field_descriptor)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOSAVE};
@@ -1611,10 +1613,10 @@ mng_chunk_descriptor mng_chunk_descr_evnt =
 /* ************************************************************************** */
 /* the good ol' unknown babe */
 
-mng_chunk_descriptor mng_chunk_descr_unknown =
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_unknown =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_unknown,
-     mng_fields_unknown, (sizeof(mng_fields_unknown) / sizeof(mng_field_descriptor2)),
+     mng_fields_unknown, (sizeof(mng_fields_unknown) / sizeof(mng_field_descriptor)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
      MNG_NULL,
      MNG_NULL};
@@ -1622,9 +1624,10 @@ mng_chunk_descriptor mng_chunk_descr_unknown =
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-mng_chunk_header mng_chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
-                                      mng_read_general, mng_write_unknown, mng_assign_unknown,
-                                      0, 0, sizeof(mng_unknown_chunk), &mng_chunk_descr_unknown};
+MNG_LOCAL mng_chunk_header mng_chunk_unknown =
+    {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
+     mng_read_general, mng_write_unknown, mng_assign_unknown,
+     0, 0, sizeof(mng_unknown_chunk), &mng_chunk_descr_unknown};
 
 /* ************************************************************************** */
 
@@ -1636,7 +1639,7 @@ mng_chunk_header mng_chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_u
      chunk-structures (yes, that means even the pNext and pPrev fields;
      it's wasting a bit of space, but hey, the code is a lot easier) */
 
-mng_chunk_header mng_chunk_table [] =
+MNG_LOCAL mng_chunk_header mng_chunk_table [] =
   {
 #ifndef MNG_SKIPCHUNK_BACK
     {MNG_UINT_BACK, mng_init_general, mng_free_general, mng_read_general, mng_write_back, mng_assign_general, 0, 0, sizeof(mng_back), &mng_chunk_descr_back},
@@ -1831,6 +1834,8 @@ void mng_get_chunkheader (mng_chunkid       iChunkname,
 }
 
 /* ************************************************************************** */
+/* ************************************************************************** */
+/* PNG chunks */
 
 MNG_C_SPECIALFUNC (mng_special_ihdr)
 {
@@ -1965,14 +1970,10 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
     pData->iImagelevel++;              /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode = mng_process_display_ihdr (pData);
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  return mng_process_display_ihdr (pData);
+#else
+  return MNG_NOERROR;                 
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 
 /* ************************************************************************** */
@@ -2086,14 +2087,8 @@ MNG_C_SPECIALFUNC (mng_special_plte)
     pData->iGlobalPLTEcount = ((mng_pltep)pChunk)->iEntrycount;
     MNG_COPY (pData->aGlobalPLTEentries, ((mng_pltep)pChunk)->aEntries,
               sizeof (pData->aGlobalPLTEentries))
-
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = mng_create_ani_plte (pData, pData->iGlobalPLTEcount,
-                                                  pData->aGlobalPLTEentries);
-
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+                                       /* create an animation object */
+    return mng_create_ani_plte (pData);
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2439,10 +2434,7 @@ MNG_C_SPECIALFUNC (mng_special_trns)
   }
   else
   {                                    /* create an animation object */
-    mng_retcode iRetcode = mng_create_ani_trns (pData, pData->iGlobalTRNSrawlen,
-                                                pData->aGlobalTRNSrawdata);
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
+    return mng_create_ani_trns (pData);
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2489,13 +2481,8 @@ MNG_C_SPECIALFUNC (mng_special_gama)
   {                                    /* store as global */
     if (!((mng_gamap)pChunk)->bEmpty)
       pData->iGlobalGamma = ((mng_gamap)pChunk)->iGamma;
-
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = mng_create_ani_gama (pData, ((mng_gamap)pChunk)->bEmpty,
-                                                  pData->iGlobalGamma);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+                                       /* create an animation object */
+    return mng_create_ani_gama (pData, pChunk);
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2563,20 +2550,8 @@ MNG_C_SPECIALFUNC (mng_special_chrm)
         pData->iGlobalPrimarybluex  = ((mng_chrmp)pChunk)->iBluex;
         pData->iGlobalPrimarybluey  = ((mng_chrmp)pChunk)->iBluey;
       }
-
-      {                                /* create an animation object */
-        mng_retcode iRetcode = mng_create_ani_chrm (pData, ((mng_chrmp)pChunk)->bEmpty,
-                                                    ((mng_chrmp)pChunk)->iWhitepointx,
-                                                    ((mng_chrmp)pChunk)->iWhitepointy,
-                                                    ((mng_chrmp)pChunk)->iRedx,
-                                                    ((mng_chrmp)pChunk)->iRedy,
-                                                    ((mng_chrmp)pChunk)->iGreenx,
-                                                    ((mng_chrmp)pChunk)->iGreeny,
-                                                    ((mng_chrmp)pChunk)->iBluex,
-                                                    ((mng_chrmp)pChunk)->iBluey);
-        if (iRetcode)                  /* on error bail out */
-          return iRetcode;
-      }
+                                       /* create an animation object */
+      return mng_create_ani_chrm (pData, pChunk);
     }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
@@ -2625,13 +2600,8 @@ MNG_C_SPECIALFUNC (mng_special_srgb)
   {                                    /* store as global */
     if (!((mng_srgbp)pChunk)->bEmpty)
       pData->iGlobalRendintent = ((mng_srgbp)pChunk)->iRenderingintent;
-
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = mng_create_ani_srgb (pData, ((mng_srgbp)pChunk)->bEmpty,
-                                                  pData->iGlobalRendintent);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+                                       /* create an animation object */
+    return mng_create_ani_srgb (pData, pChunk);
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2732,14 +2702,8 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
                                        /* store it's length as well */
         pData->iGlobalProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
       }
-
                                        /* create an animation object */
-      iRetcode = mng_create_ani_iccp (pData, ((mng_iccpp)pChunk)->bEmpty,
-                                      pData->iGlobalProfilesize,
-                                      pData->pGlobalProfile);
-
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
+      return mng_create_ani_iccp (pData, pChunk);
     }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -2928,14 +2892,8 @@ MNG_C_SPECIALFUNC (mng_special_bkgd)
       pData->iGlobalBKGDgreen = ((mng_bkgdp)pChunk)->iGreen;
       pData->iGlobalBKGDblue  = ((mng_bkgdp)pChunk)->iBlue;
     }
-
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = mng_create_ani_bkgd (pData, pData->iGlobalBKGDred,
-                                                  pData->iGlobalBKGDgreen,
-                                                  pData->iGlobalBKGDblue);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+                                       /* create an animation object */
+    return mng_create_ani_bkgd (pData);
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -3099,6 +3057,182 @@ MNG_C_SPECIALFUNC (mng_special_time)
 /* ************************************************************************** */
 /* JNG chunks */
 
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jhdr)
+{
+  if ((pData->eSigtype == mng_it_jng) && (pData->iChunkseq > 1))
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* inside a JHDR-IEND block now */
+  pData->bHasJHDR              = MNG_TRUE;
+                                       /* and store interesting fields */
+  pData->iDatawidth            = ((mng_jhdrp)pChunk)->iWidth;
+  pData->iDataheight           = ((mng_jhdrp)pChunk)->iHeight;
+  pData->iJHDRcolortype        = ((mng_jhdrp)pChunk)->iColortype;
+  pData->iJHDRimgbitdepth      = ((mng_jhdrp)pChunk)->iImagesampledepth;
+  pData->iJHDRimgcompression   = ((mng_jhdrp)pChunk)->iImagecompression;
+  pData->iJHDRimginterlace     = ((mng_jhdrp)pChunk)->iImageinterlace;
+  pData->iJHDRalphabitdepth    = ((mng_jhdrp)pChunk)->iAlphasampledepth;
+  pData->iJHDRalphacompression = ((mng_jhdrp)pChunk)->iAlphacompression;
+  pData->iJHDRalphafilter      = ((mng_jhdrp)pChunk)->iAlphafilter;
+  pData->iJHDRalphainterlace   = ((mng_jhdrp)pChunk)->iAlphainterlace;
+
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
+  pData->iPNGmult = 1;
+  pData->iPNGdepth = pData->iJHDRalphabitdepth;
+#endif
+
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (pData->iJHDRalphabitdepth < 8)
+    pData->iJHDRalphabitdepth = 8;
+#endif
+
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (pData->iJHDRalphabitdepth > 8)
+  {
+    pData->iPNGmult = 2;
+    pData->iJHDRalphabitdepth = 8;
+  }
+#endif
+                                       /* parameter validity checks */
+  if ((pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAY  ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLORA)    )
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+
+  if ((pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8     ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG12    ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8AND12)    )
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+  if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+      (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+  {
+    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 )
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 )
+#endif
+#ifndef MNG_NO_16BIT_SUPPORT
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
+#endif
+        )
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+    if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
+        (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)    )
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+
+    if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
+        (pData->iJHDRalphabitdepth    !=  MNG_BITDEPTH_8             )    )
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+#if defined(FILTER192) || defined(FILTER193)
+    if ((pData->iJHDRalphafilter != MNG_FILTER_ADAPTIVE ) &&
+#if defined(FILTER192) && defined(FILTER193)
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING) &&
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#else
+#ifdef FILTER192
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING)    )
+#else
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#endif
+#endif
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+#else
+    if (pData->iJHDRalphafilter)
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+#endif
+
+  }
+  else
+  {
+    if (pData->iJHDRalphabitdepth)
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    if (pData->iJHDRalphacompression)
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+    if (pData->iJHDRalphafilter)
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+    if (pData->iJHDRalphainterlace)
+      MNG_ERROR (pData, MNG_INVALIDINTERLACE)
+  }
+
+  if (!pData->bHasheader)              /* first chunk ? */
+  {
+    pData->bHasheader = MNG_TRUE;      /* we've got a header */
+    pData->eImagetype = mng_it_jng;    /* then this must be a JNG */
+    pData->iWidth     = ((mng_jhdrp)pChunk)->iWidth;
+    pData->iHeight    = ((mng_jhdrp)pChunk)->iHeight;
+                                       /* predict alpha-depth ! */
+    if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+        (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+      pData->iAlphadepth = pData->iJHDRalphabitdepth;
+    else
+      pData->iAlphadepth = 0;
+                                       /* fits on maximum canvas ? */
+    if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
+      MNG_WARNING (pData, MNG_IMAGETOOLARGE)
+
+    if (pData->fProcessheader)         /* inform the app ? */
+      if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
+
+  }
+
+  pData->iColortype = 0;               /* fake grayscale for other routines */
+  pData->iImagelevel++;                /* one level deeper */
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+    mng_retcode iRetcode = mng_process_display_jhdr (pData);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (((mng_jhdrp)pChunk)->iAlphasampledepth > 8)
+    ((mng_jhdrp)pChunk)->iAlphasampledepth = 8;
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jdaa)
+{
+  if (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jdat)
+{
+  pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jsep)
+{
+  pData->bHasJSEP = MNG_TRUE;          /* indicate we've had the 8-/12-bit separator */
+  return MNG_NOERROR;
+}
+#endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -3283,13 +3417,7 @@ MNG_C_SPECIALFUNC (mng_special_loop)
 
     pData->bHasLOOP = MNG_TRUE;        /* indicate we're inside a loop */
                                        /* create the LOOP ani-object */
-    iRetcode = mng_create_ani_loop (pData,
-                                    ((mng_loopp)pChunk)->iLevel,
-                                    ((mng_loopp)pChunk)->iRepeat,
-                                    ((mng_loopp)pChunk)->iTermination,
-                                    ((mng_loopp)pChunk)->iItermin,
-                                    ((mng_loopp)pChunk)->iItermax, 0, 0);
-
+    iRetcode = mng_create_ani_loop (pData, pChunk);
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* skip till matching ENDL if iteration=0 */
@@ -3312,17 +3440,7 @@ MNG_C_SPECIALFUNC (mng_special_endl)
   {
     mng_uint8 iLevel = ((mng_endlp)pChunk)->iLevel;
                                        /* create an ENDL animation object */
-    mng_retcode iRetcode = mng_create_ani_endl (pData, iLevel);
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-
-    {                                  /* process it */
-      mng_ani_endlp pENDL = (mng_ani_endlp)pData->pLastaniobj;
-
-      iRetcode = pENDL->sHeader.fProcess (pData, pENDL);
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    return mng_create_ani_endl (pData, iLevel);
   }
   else
     MNG_ERROR (pData, MNG_NOMATCHINGLOOP)
@@ -3357,11 +3475,10 @@ MNG_C_SPECIALFUNC (mng_special_defi)
   iRetcode = mng_create_ani_defi (pData);
   if (!iRetcode)                       /* do display processing */
     iRetcode = mng_process_display_defi (pData);
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-#endif /* MNG_SUPPORT_DISPLAY */
-
+  return iRetcode;
+#else
   return MNG_NOERROR;                  /* done */
+#endif /* MNG_SUPPORT_DISPLAY */
 }
 #endif
 
@@ -3447,20 +3564,7 @@ MNG_C_SPECIALFUNC (mng_special_basi)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create an animation object */
-    mng_retcode iRetcode = mng_create_ani_basi (pData,
-                                                ((mng_basip)pChunk)->iRed,
-                                                ((mng_basip)pChunk)->iGreen,
-                                                ((mng_basip)pChunk)->iBlue,
-                                                ((mng_basip)pChunk)->bHasalpha,
-                                                ((mng_basip)pChunk)->iAlpha,
-                                                ((mng_basip)pChunk)->iViewable);
-
-    if (!iRetcode)                     /* display-processing... */
-    {
-      mng_object_headerp pObj = pData->pLastaniobj;
-      iRetcode = pObj->fProcess (pData, pObj);
-    }
-
+    mng_retcode iRetcode = mng_create_ani_basi (pData, pChunk);
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
@@ -3481,29 +3585,10 @@ MNG_C_SPECIALFUNC (mng_special_basi)
 MNG_C_SPECIALFUNC (mng_special_clon)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode = mng_create_ani_clon (pData,
-                                              ((mng_clonp)pChunk)->iSourceid,
-                                              ((mng_clonp)pChunk)->iCloneid,
-                                              ((mng_clonp)pChunk)->iClonetype,
-                                              ((mng_clonp)pChunk)->bHasdonotshow,
-                                              ((mng_clonp)pChunk)->iDonotshow,
-                                              ((mng_clonp)pChunk)->iConcrete,
-                                              ((mng_clonp)pChunk)->bHasloca,
-                                              ((mng_clonp)pChunk)->iLocationtype,
-                                              ((mng_clonp)pChunk)->iLocationx,
-                                              ((mng_clonp)pChunk)->iLocationy);
-
-  if (!iRetcode)                       /* do display processing */
-  {
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-#endif /* MNG_SUPPORT_DISPLAY */
-
+  return mng_create_ani_clon (pData, pChunk);
+#else
   return MNG_NOERROR;                  /* done */
+#endif /* MNG_SUPPORT_DISPLAY */
 }
 #endif
 
@@ -3565,26 +3650,10 @@ MNG_F_SPECIALFUNC (mng_debunk_past)
 MNG_C_SPECIALFUNC (mng_special_past)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-                                       /* create playback object */
-  mng_retcode iRetcode = mng_create_ani_past (pData,
-                                              ((mng_pastp)pChunk)->iDestid,
-                                              ((mng_pastp)pChunk)->iTargettype,
-                                              ((mng_pastp)pChunk)->iTargetx,
-                                              ((mng_pastp)pChunk)->iTargety,
-                                              ((mng_pastp)pChunk)->iCount,
-                                              ((mng_pastp)pChunk)->pSources);
-
-  if (!iRetcode)                       /* do display processing */
-  {
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)
-    return iRetcode;
+  return mng_create_ani_past (pData, pChunk);
+#else
+  return MNG_NOERROR;
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3635,22 +3704,10 @@ MNG_F_SPECIALFUNC (mng_disc_entries)
 MNG_C_SPECIALFUNC (mng_special_disc)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-                                       /* create playback object */
-  mng_retcode iRetcode = mng_create_ani_disc (pData,
-                                              ((mng_discp)pChunk)->iCount,
-                                              ((mng_discp)pChunk)->pObjectids);
-
-  if (!iRetcode)
-  {
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_disc (pData, pChunk);
+#else
+  return MNG_NOERROR;                  
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3660,7 +3717,6 @@ MNG_C_SPECIALFUNC (mng_special_disc)
 MNG_C_SPECIALFUNC (mng_special_back)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode;
                                        /* retrieve the fields */
   pData->bHasBACK       = MNG_TRUE;
   pData->iBACKred       = ((mng_backp)pChunk)->iRed;
@@ -3670,14 +3726,10 @@ MNG_C_SPECIALFUNC (mng_special_back)
   pData->iBACKimageid   = ((mng_backp)pChunk)->iImageid;
   pData->iBACKtile      = ((mng_backp)pChunk)->iTile;
 
-  iRetcode = mng_create_ani_back (pData, pData->iBACKred, pData->iBACKgreen,
-                                  pData->iBACKblue, pData->iBACKmandatory,
-                                  pData->iBACKimageid, pData->iBACKtile);
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_back (pData);
+#else
+  return MNG_NOERROR;
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3793,30 +3845,10 @@ MNG_F_SPECIALFUNC (mng_fram_remainder)
 MNG_C_SPECIALFUNC (mng_special_fram)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode = mng_create_ani_fram (pData,
-                                              ((mng_framp)pChunk)->iMode,
-                                              ((mng_framp)pChunk)->iChangedelay,
-                                              ((mng_framp)pChunk)->iDelay,
-                                              ((mng_framp)pChunk)->iChangetimeout,
-                                              ((mng_framp)pChunk)->iTimeout,
-                                              ((mng_framp)pChunk)->iChangeclipping,
-                                              ((mng_framp)pChunk)->iBoundarytype,
-                                              ((mng_framp)pChunk)->iBoundaryl,
-                                              ((mng_framp)pChunk)->iBoundaryr,
-                                              ((mng_framp)pChunk)->iBoundaryt,
-                                              ((mng_framp)pChunk)->iBoundaryb);
-
-  if (!iRetcode)                       /* now go and do something */
-  {
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_fram (pData, pChunk);
+#else
+  return MNG_NOERROR;
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3826,25 +3858,10 @@ MNG_C_SPECIALFUNC (mng_special_fram)
 MNG_C_SPECIALFUNC (mng_special_move)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-                                       /* create a MOVE animation object */
-  mng_retcode iRetcode = mng_create_ani_move (pData,
-                                              ((mng_movep)pChunk)->iFirstid,
-                                              ((mng_movep)pChunk)->iLastid,
-                                              ((mng_movep)pChunk)->iMovetype,
-                                              ((mng_movep)pChunk)->iMovex,
-                                              ((mng_movep)pChunk)->iMovey);
-
-  if (!iRetcode)
-  {                                    /* process the move */
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_move (pData, pChunk);
+#else
+  return MNG_NOERROR;
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3854,27 +3871,10 @@ MNG_C_SPECIALFUNC (mng_special_move)
 MNG_C_SPECIALFUNC (mng_special_clip)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-                                       /* create a CLIP animation object */
-  mng_retcode iRetcode = mng_create_ani_clip (pData,
-                                              ((mng_clipp)pChunk)->iFirstid,
-                                              ((mng_clipp)pChunk)->iLastid,
-                                              ((mng_clipp)pChunk)->iCliptype,
-                                              ((mng_clipp)pChunk)->iClipl,
-                                              ((mng_clipp)pChunk)->iClipr,
-                                              ((mng_clipp)pChunk)->iClipt,
-                                              ((mng_clipp)pChunk)->iClipb);
-
-  if (!iRetcode)
-  {                                    /* process the clipping */
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_clip (pData, pChunk);
+#else
+  return MNG_NOERROR;                  
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -3902,19 +3902,13 @@ MNG_C_SPECIALFUNC (mng_special_show)
     pData->iSHOWmode   = 2;
   }
                                        /* create a SHOW animation object */
-  iRetcode = mng_create_ani_show (pData,
-                                  pData->iSHOWfromid,
-                                  pData->iSHOWtoid,
-                                  pData->iSHOWmode);
-
+  iRetcode = mng_create_ani_show (pData);
   if (!iRetcode)                       /* go and do it! */
     iRetcode = mng_process_display_show (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
-  return MNG_NOERROR;                  /* done */
+  return iRetcode;
 }
 #endif
 
@@ -3943,11 +3937,7 @@ MNG_C_SPECIALFUNC (mng_special_term)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create the TERM ani-object */
-    mng_retcode iRetcode = mng_create_ani_term (pData,
-                                                ((mng_termp)pChunk)->iTermaction,
-                                                ((mng_termp)pChunk)->iIteraction,
-                                                ((mng_termp)pChunk)->iDelay,
-                                                ((mng_termp)pChunk)->iItermax);
+    mng_retcode iRetcode = mng_create_ani_term (pData, pChunk);
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* save for future reference */
@@ -4158,10 +4148,7 @@ MNG_C_SPECIALFUNC (mng_special_seek)
 
 #ifdef MNG_SUPPORT_DISPLAY
                                        /* create a SEEK animation object */
-  iRetcode = mng_create_ani_seek (pData,
-                                  ((mng_seekp)pChunk)->iNamesize,
-                                  ((mng_seekp)pChunk)->zName);
-
+  iRetcode = mng_create_ani_seek (pData, pChunk);
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
@@ -4172,13 +4159,10 @@ MNG_C_SPECIALFUNC (mng_special_seek)
       MNG_ERROR (pData, MNG_APPMISCERROR)
 
 #ifdef MNG_SUPPORT_DISPLAY
-                                       /* do display processing of the SEEK */
-  iRetcode = mng_process_display_seek (pData);
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_process_display_seek (pData);
+#else
+  return MNG_NOERROR;                  
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -4387,14 +4371,15 @@ MNG_C_SPECIALFUNC (mng_special_need)
 {
                                        /* let's check it */
   mng_bool   bOke = MNG_TRUE;
-  mng_uint8p pNull, pTemp;
+  mng_uint8p pNull, pTemp, pMax;
 
   pTemp = (mng_uint8p)((mng_needp)pChunk)->zKeywords;
+  pMax  = (mng_uint8p)(pTemp + ((mng_needp)pChunk)->iKeywordssize);
   pNull = pTemp;
   while (*pNull)
     pNull++;
 
-  while ((bOke) && (pNull < (mng_uint8p)(((mng_needp)pChunk)->zKeywords + ((mng_needp)pChunk)->iKeywordssize)))
+  while ((bOke) && (pNull < pMax))
   {
     bOke  = CheckKeyword (pData, pTemp);
     pTemp = pNull + 1;
@@ -4434,185 +4419,6 @@ MNG_C_SPECIALFUNC (mng_special_phyg)
 
 /* ************************************************************************** */
 
-#ifdef MNG_INCLUDE_JNG
-MNG_C_SPECIALFUNC (mng_special_jhdr)
-{
-  if ((pData->eSigtype == mng_it_jng) && (pData->iChunkseq > 1))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
-                                       /* inside a JHDR-IEND block now */
-  pData->bHasJHDR              = MNG_TRUE;
-                                       /* and store interesting fields */
-  pData->iDatawidth            = ((mng_jhdrp)pChunk)->iWidth;
-  pData->iDataheight           = ((mng_jhdrp)pChunk)->iHeight;
-  pData->iJHDRcolortype        = ((mng_jhdrp)pChunk)->iColortype;
-  pData->iJHDRimgbitdepth      = ((mng_jhdrp)pChunk)->iImagesampledepth;
-  pData->iJHDRimgcompression   = ((mng_jhdrp)pChunk)->iImagecompression;
-  pData->iJHDRimginterlace     = ((mng_jhdrp)pChunk)->iImageinterlace;
-  pData->iJHDRalphabitdepth    = ((mng_jhdrp)pChunk)->iAlphasampledepth;
-  pData->iJHDRalphacompression = ((mng_jhdrp)pChunk)->iAlphacompression;
-  pData->iJHDRalphafilter      = ((mng_jhdrp)pChunk)->iAlphafilter;
-  pData->iJHDRalphainterlace   = ((mng_jhdrp)pChunk)->iAlphainterlace;
-
-#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
-  pData->iPNGmult = 1;
-  pData->iPNGdepth = pData->iJHDRalphabitdepth;
-#endif
-
-#ifdef MNG_NO_1_2_4BIT_SUPPORT
-  if (pData->iJHDRalphabitdepth < 8)
-    pData->iJHDRalphabitdepth = 8;
-#endif
-
-#ifdef MNG_NO_16BIT_SUPPORT
-  if (pData->iJHDRalphabitdepth > 8)
-  {
-    pData->iPNGmult = 2;
-    pData->iJHDRalphabitdepth = 8;
-  }
-#endif
-                                       /* parameter validity checks */
-  if ((pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAY  ) &&
-      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
-      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
-      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLORA)    )
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
-
-  if ((pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8     ) &&
-      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG12    ) &&
-      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8AND12)    )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
-
-  if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
-      (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
-  {
-    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 )
-#ifndef MNG_NO_1_2_4BIT_SUPPORT
-        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
-        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
-        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 )
-#endif
-#ifndef MNG_NO_16BIT_SUPPORT
-        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
-#endif
-        )
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
-
-    if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
-        (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)    )
-      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
-
-    if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
-        (pData->iJHDRalphabitdepth    !=  MNG_BITDEPTH_8             )    )
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
-
-#if defined(FILTER192) || defined(FILTER193)
-    if ((pData->iJHDRalphafilter != MNG_FILTER_ADAPTIVE ) &&
-#if defined(FILTER192) && defined(FILTER193)
-        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING) &&
-        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
-#else
-#ifdef FILTER192
-        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING)    )
-#else
-        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
-#endif
-#endif
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
-#else
-    if (pData->iJHDRalphafilter)
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
-#endif
-
-  }
-  else
-  {
-    if (pData->iJHDRalphabitdepth)
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
-    if (pData->iJHDRalphacompression)
-      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
-    if (pData->iJHDRalphafilter)
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
-    if (pData->iJHDRalphainterlace)
-      MNG_ERROR (pData, MNG_INVALIDINTERLACE)
-  }
-
-  if (!pData->bHasheader)              /* first chunk ? */
-  {
-    pData->bHasheader = MNG_TRUE;      /* we've got a header */
-    pData->eImagetype = mng_it_jng;    /* then this must be a JNG */
-    pData->iWidth     = ((mng_jhdrp)pChunk)->iWidth;
-    pData->iHeight    = ((mng_jhdrp)pChunk)->iHeight;
-                                       /* predict alpha-depth ! */
-    if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
-        (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
-      pData->iAlphadepth = pData->iJHDRalphabitdepth;
-    else
-      pData->iAlphadepth = 0;
-                                       /* fits on maximum canvas ? */
-    if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
-      MNG_WARNING (pData, MNG_IMAGETOOLARGE)
-
-    if (pData->fProcessheader)         /* inform the app ? */
-      if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
-
-  }
-
-  pData->iColortype = 0;               /* fake grayscale for other routines */
-  pData->iImagelevel++;                /* one level deeper */
-
-#ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode = mng_process_display_jhdr (pData);
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
-#endif /* MNG_SUPPORT_DISPLAY */
-
-#ifdef MNG_NO_16BIT_SUPPORT
-  if (((mng_jhdrp)pChunk)->iAlphasampledepth > 8)
-    ((mng_jhdrp)pChunk)->iAlphasampledepth = 8;
-#endif
-
-  return MNG_NOERROR;                  /* done */
-}
-#endif /* MNG_INCLUDE_JNG */
-
-/* ************************************************************************** */
-
-#ifdef MNG_INCLUDE_JNG
-MNG_C_SPECIALFUNC (mng_special_jdaa)
-{
-  if (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
-
-  pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
-  return MNG_NOERROR;                  /* done */
-}
-#endif /* MNG_INCLUDE_JNG */
-
-/* ************************************************************************** */
-
-#ifdef MNG_INCLUDE_JNG
-MNG_C_SPECIALFUNC (mng_special_jdat)
-{
-  pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
-  return MNG_NOERROR;                  /* done */
-}
-#endif /* MNG_INCLUDE_JNG */
-
-/* ************************************************************************** */
-
-#ifdef MNG_INCLUDE_JNG
-MNG_C_SPECIALFUNC (mng_special_jsep)
-{
-  pData->bHasJSEP = MNG_TRUE;          /* indicate we've had the 8-/12-bit separator */
-  return MNG_NOERROR;                  /* done */
-}
-#endif /* MNG_INCLUDE_JNG */
-
-/* ************************************************************************** */
-
 #ifndef MNG_NO_DELTA_PNG
 MNG_C_SPECIALFUNC (mng_special_dhdr)
 {
@@ -4627,28 +4433,10 @@ MNG_C_SPECIALFUNC (mng_special_dhdr)
   pData->iImagelevel++;                /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode = mng_create_ani_dhdr (pData,
-                                                ((mng_dhdrp)pChunk)->iObjectid,
-                                                ((mng_dhdrp)pChunk)->iImagetype,
-                                                ((mng_dhdrp)pChunk)->iDeltatype,
-                                                ((mng_dhdrp)pChunk)->iBlockwidth,
-                                                ((mng_dhdrp)pChunk)->iBlockheight,
-                                                ((mng_dhdrp)pChunk)->iBlockx,
-                                                ((mng_dhdrp)pChunk)->iBlocky);
-
-    if (!iRetcode)                     /* display processing ? */
-    {
-      mng_object_headerp pObj = pData->pLastaniobj;
-      iRetcode = pObj->fProcess (pData, pObj);
-    }
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  return mng_create_ani_dhdr (pData, pChunk);
+#else
+  return MNG_NOERROR;                  
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -4681,17 +4469,7 @@ MNG_C_SPECIALFUNC (mng_special_prom)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = mng_create_ani_prom (pData,
-                                                ((mng_promp)pChunk)->iSampledepth,
-                                                ((mng_promp)pChunk)->iColortype,
-                                                ((mng_promp)pChunk)->iFilltype);
-
-    if (!iRetcode)                     /* display processing ? */
-    {
-      mng_object_headerp pObj = pData->pLastaniobj;
-      iRetcode = pObj->fProcess (pData, pObj);
-    }
-
+    mng_retcode iRetcode = mng_create_ani_prom (pData, pChunk);
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
@@ -4867,17 +4645,7 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
 #ifndef MNG_NO_DELTA_PNG
 MNG_C_SPECIALFUNC (mng_special_pplt)
 {
-#ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode;
-                                       /* execute it now ? */
-  mng_object_headerp pObj = pData->pLastaniobj;
-  iRetcode = pObj->fProcess (pData, pObj);
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-#endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
+  return MNG_NOERROR;                 
 }
 #endif
 
@@ -4891,11 +4659,10 @@ MNG_C_SPECIALFUNC (mng_special_ijng)
   mng_retcode iRetcode = mng_create_ani_ijng (pData);
   if (!iRetcode)                       /* process it */
     iRetcode = mng_process_display_ijng (pData);
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-#endif /* MNG_SUPPORT_DISPLAY */
-
+  return iRetcode;
+#else
   return MNG_NOERROR;                  /* done */
+#endif /* MNG_SUPPORT_DISPLAY */
 }
 #endif
 #endif
@@ -5177,29 +4944,10 @@ MNG_F_SPECIALFUNC (mng_debunk_magn)
 MNG_C_SPECIALFUNC (mng_special_magn)
 {
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode = mng_create_ani_magn (pData,
-                                              ((mng_magnp)pChunk)->iFirstid,
-                                              ((mng_magnp)pChunk)->iLastid,
-                                              ((mng_magnp)pChunk)->iMethodX,
-                                              ((mng_magnp)pChunk)->iMX,
-                                              ((mng_magnp)pChunk)->iMY,
-                                              ((mng_magnp)pChunk)->iML,
-                                              ((mng_magnp)pChunk)->iMR,
-                                              ((mng_magnp)pChunk)->iMT,
-                                              ((mng_magnp)pChunk)->iMB,
-                                              ((mng_magnp)pChunk)->iMethodY);
-
-  if (!iRetcode)                       /* display processing ? */
-  {
-    mng_object_headerp pObj = pData->pLastaniobj;
-    iRetcode = pObj->fProcess (pData, pObj);
-  }
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+  return mng_create_ani_magn (pData, pChunk);
+#else
+  return MNG_NOERROR;                  
 #endif /* MNG_SUPPORT_DISPLAY */
-
-  return MNG_NOERROR;                  /* done */
 }
 #endif
 
@@ -5382,15 +5130,13 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
           MNG_COPY (pEntry->zSegmentname, pRawdata, iNamesize)
         }
 
-        pEntry++;
-      
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_SUPPORT_DYNAMICMNG)
-        iRetcode = mng_create_event (pData, iEventtype, iMasktype, iLeft, iRight,
-                                            iTop, iBottom, iObjectid, iIndex,
-                                            iNamesize, (mng_pchar)pRawdata);
+        iRetcode = mng_create_event (pData, (mng_ptr)pEntry);
         if (iRetcode)                    /* on error bail out */
           return iRetcode;
 #endif
+
+        pEntry++;
       }
 
       pRawdata = pRawdata + iNamesize + 1;

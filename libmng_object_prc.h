@@ -179,6 +179,8 @@ mng_retcode mng_colorcorrect_object  (mng_datap  pData,
 
 mng_retcode mng_create_ani_image  (mng_datap      pData);
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
+
 mng_retcode mng_create_ani_plte   (mng_datap      pData,
                                    mng_uint32     iEntrycount,
                                    mng_palette8ep paEntries);
@@ -362,6 +364,76 @@ mng_retcode mng_create_ani_disc   (mng_datap      pData,
                                    mng_uint16p    pIds);
 #endif
 
+#else /* MNG_OPTIMIZE_CHUNKREADER */
+
+mng_retcode mng_create_ani_plte   (mng_datap      pData);
+mng_retcode mng_create_ani_trns   (mng_datap      pData);
+mng_retcode mng_create_ani_gama   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_chrm   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_srgb   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_iccp   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_bkgd   (mng_datap      pData);
+mng_retcode mng_create_ani_loop   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_endl   (mng_datap      pData,
+                                   mng_uint8      iLevel);
+mng_retcode mng_create_ani_defi   (mng_datap      pData);
+mng_retcode mng_create_ani_basi   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_clon   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_back   (mng_datap      pData);
+mng_retcode mng_create_ani_fram   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_move   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_clip   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_show   (mng_datap      pData);
+mng_retcode mng_create_ani_term   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+#ifndef MNG_SKIPCHUNK_SAVE
+mng_retcode mng_create_ani_save   (mng_datap      pData);
+#endif
+#ifndef MNG_SKIPCHUNK_SEEK
+mng_retcode mng_create_ani_seek   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+#endif
+#ifndef MNG_NO_DELTA_PNG
+mng_retcode mng_create_ani_dhdr   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_prom   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+mng_retcode mng_create_ani_ipng   (mng_datap      pData);
+mng_retcode mng_create_ani_ijng   (mng_datap      pData);
+
+mng_retcode mng_create_ani_pplt   (mng_datap      pData,
+                                   mng_uint8      iType,
+                                   mng_uint32     iCount,
+                                   mng_palette8ep paIndexentries,
+                                   mng_uint8p     paAlphaentries,
+                                   mng_uint8p     paUsedentries);
+#endif
+
+#ifndef MNG_SKIPCHUNK_MAGN
+mng_retcode mng_create_ani_magn   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+#endif
+#ifndef MNG_SKIPCHUNK_PAST
+mng_retcode mng_create_ani_past   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+#endif
+#ifndef MNG_SKIPCHUNK_DISC
+mng_retcode mng_create_ani_disc   (mng_datap      pData,
+                                   mng_chunkp     pChunk);
+#endif
+
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
+
 /* ************************************************************************** */
 
 mng_retcode mng_free_ani_image    (mng_datap    pData,
@@ -535,6 +607,7 @@ mng_retcode mng_process_ani_disc  (mng_datap    pData,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DYNAMICMNG
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 mng_retcode mng_create_event      (mng_datap    pData,
                                    mng_uint8    iEventtype,
                                    mng_uint8    iMasktype,
@@ -546,10 +619,12 @@ mng_retcode mng_create_event      (mng_datap    pData,
                                    mng_uint8    iIndex,
                                    mng_uint32   iSegmentnamesize,
                                    mng_pchar    zSegmentname);
-
+#else
+mng_retcode mng_create_event      (mng_datap    pData,
+                                   mng_ptr      pEntry);
+#endif
 mng_retcode mng_free_event        (mng_datap    pData,
                                    mng_objectp  pObject);
-
 mng_retcode mng_process_event     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif

@@ -125,24 +125,8 @@ typedef struct {                       /* chunk-field descriptor */
            mng_uint16        iOffsetchunk;
            mng_uint16        iOffsetchunkind;
            mng_uint16        iOffsetchunklen;
-           mng_uint16        iOffsetobject;
-           mng_uint16        iOffsetobjectind;
-           mng_uint16        iOffsetobjectlen;
         } mng_field_descriptor;
 typedef mng_field_descriptor * mng_field_descp;
-
-typedef struct {                       /* chunk-field descriptor (short) */
-           mng_f_specialfunc pSpecialfunc;
-           mng_uint16        iFlags;
-           mng_uint16        iMinvalue;
-           mng_uint16        iMaxvalue;
-           mng_uint16        iLengthmin;
-           mng_uint16        iLengthmax;
-           mng_uint16        iOffsetchunk;
-           mng_uint16        iOffsetchunkind;
-           mng_uint16        iOffsetchunklen;
-        } mng_field_descriptor2;
-typedef mng_field_descriptor2 * mng_field_desc2p;
 
 #define MNG_DESCR_GLOBAL      0x0001
 #define MNG_DESCR_EMPTY       0x0002

@@ -217,6 +217,8 @@
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT                            * */
 /* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
 /* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
+/* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1045,6 +1047,7 @@ MNG_LOCAL mng_retcode clear_canvas (mng_datap pData)
 }
 
 /* ************************************************************************** */
+
 MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
                                   mng_uint8  iFramemode,
                                   mng_uint8  iChangedelay,
@@ -2977,9 +2980,13 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_idat (mng_datap  pData,
                                       mng_uint32 iRawlen,
                                       mng_uint8p pRawdata)
+#else
+mng_retcode mng_process_display_idat (mng_datap  pData)
+#endif
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -3009,7 +3016,11 @@ mng_retcode mng_process_display_idat (mng_datap  pData,
     iRetcode = mngzlib_inflateinit (pData);
 
   if (!iRetcode)                       /* all ok? then inflate, my man */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     iRetcode = mngzlib_inflaterows (pData, iRawlen, pRawdata);
+#else
+    iRetcode = mngzlib_inflaterows (pData, pData->iRawlen, pData->pRawdata);
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3491,6 +3502,7 @@ mng_retcode mng_process_display_defi (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_BASI
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_basi (mng_datap  pData,
                                       mng_uint16 iRed,
                                       mng_uint16 iGreen,
@@ -3498,6 +3510,9 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                                       mng_bool   bHasalpha,
                                       mng_uint16 iAlpha,
                                       mng_uint8  iViewable)
+#else
+mng_retcode mng_process_display_basi (mng_datap  pData)
+#endif
 {                                      /* address the current "object" if any */
   mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
   mng_uint8p     pWork;
@@ -3526,7 +3541,11 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* save the viewable flag */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   pImage->bViewable = (mng_bool)(iViewable == 1);
+#else
+  pImage->bViewable = (mng_bool)(pData->iBASIviewable == 1);
+#endif
   pBuf->bViewable   = pImage->bViewable;
   pData->pStoreobj  = pImage;          /* let row-routines know which object */
 
@@ -3545,7 +3564,11 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    mng_put_uint16 (pWork, iRed);
+#else
+                   mng_put_uint16 (pWork, pData->iBASIred);
+#endif
                    pWork += 2;
                  }
                }
@@ -3559,15 +3582,27 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    *pWork = (mng_uint8)iRed;
+#else
+                   *pWork = (mng_uint8)pData->iBASIred;
+#endif
                    pWork++;
                  }
                }
                                        /* force tRNS ? */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                if ((bHasalpha) && (!iAlpha))
+#else
+               if ((pData->bBASIhasalpha) && (!pData->iBASIalpha))
+#endif
                {
                  pBuf->bHasTRNS  = MNG_TRUE;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                  pBuf->iTRNSgray = iRed;
+#else
+                 pBuf->iTRNSgray = pData->iBASIred;
+#endif
                }
 
                break;
@@ -3584,9 +3619,15 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    mng_put_uint16 (pWork,   iRed  );
                    mng_put_uint16 (pWork+2, iGreen);
                    mng_put_uint16 (pWork+4, iBlue );
+#else
+                   mng_put_uint16 (pWork,   pData->iBASIred  );
+                   mng_put_uint16 (pWork+2, pData->iBASIgreen);
+                   mng_put_uint16 (pWork+4, pData->iBASIblue );
+#endif
                    pWork += 6;
                  }
                }
@@ -3600,19 +3641,35 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    *pWork     = (mng_uint8)iRed;
                    *(pWork+1) = (mng_uint8)iGreen;
                    *(pWork+2) = (mng_uint8)iBlue;
+#else
+                   *pWork     = (mng_uint8)pData->iBASIred;
+                   *(pWork+1) = (mng_uint8)pData->iBASIgreen;
+                   *(pWork+2) = (mng_uint8)pData->iBASIblue;
+#endif
                    pWork += 3;
                  }
                }
                                        /* force tRNS ? */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                if ((bHasalpha) && (!iAlpha))
+#else
+               if ((pData->bBASIhasalpha) && (!pData->iBASIalpha))
+#endif
                {
                  pBuf->bHasTRNS   = MNG_TRUE;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                  pBuf->iTRNSred   = iRed;
                  pBuf->iTRNSgreen = iGreen;
                  pBuf->iTRNSblue  = iBlue;
+#else
+                 pBuf->iTRNSred   = pData->iBASIred;
+                 pBuf->iTRNSgreen = pData->iBASIgreen;
+                 pBuf->iTRNSblue  = pData->iBASIblue;
+#endif
                }
 
                break;
@@ -3630,9 +3687,15 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  default : { pBuf->iPLTEcount =   1; break; }
                }
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                pBuf->aPLTEentries [0].iRed   = (mng_uint8)iRed;
                pBuf->aPLTEentries [0].iGreen = (mng_uint8)iGreen;
                pBuf->aPLTEentries [0].iBlue  = (mng_uint8)iBlue;
+#else
+               pBuf->aPLTEentries [0].iRed   = (mng_uint8)pData->iBASIred;
+               pBuf->aPLTEentries [0].iGreen = (mng_uint8)pData->iBASIgreen;
+               pBuf->aPLTEentries [0].iBlue  = (mng_uint8)pData->iBASIblue;
+#endif
 
                for (iX = 1; iX < pBuf->iPLTEcount; iX++)
                {
@@ -3641,11 +3704,19 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  pBuf->aPLTEentries [iX].iBlue  = 0;
                }
                                        /* force tRNS ? */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                if ((bHasalpha) && (iAlpha < 255))
+#else
+               if ((pData->bBASIhasalpha) && (pData->iBASIalpha < 255))
+#endif
                {
                  pBuf->bHasTRNS         = MNG_TRUE;
                  pBuf->iTRNScount       = 1;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                  pBuf->aTRNSentries [0] = (mng_uint8)iAlpha;
+#else
+                 pBuf->aTRNSentries [0] = (mng_uint8)pData->iBASIalpha;
+#endif
                }
 
                break;
@@ -3662,8 +3733,13 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    mng_put_uint16 (pWork,   iRed);
                    mng_put_uint16 (pWork+2, iAlpha);
+#else
+                   mng_put_uint16 (pWork,   pData->iBASIred);
+                   mng_put_uint16 (pWork+2, pData->iBASIalpha);
+#endif
                    pWork += 4;
                  }
                }
@@ -3677,8 +3753,13 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    *pWork     = (mng_uint8)iRed;
                    *(pWork+1) = (mng_uint8)iAlpha;
+#else
+                   *pWork     = (mng_uint8)pData->iBASIred;
+                   *(pWork+1) = (mng_uint8)pData->iBASIalpha;
+#endif
                    pWork += 2;
                  }
                }
@@ -3697,10 +3778,17 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    mng_put_uint16 (pWork,   iRed);
                    mng_put_uint16 (pWork+2, iGreen);
                    mng_put_uint16 (pWork+4, iBlue);
                    mng_put_uint16 (pWork+6, iAlpha);
+#else
+                   mng_put_uint16 (pWork,   pData->iBASIred);
+                   mng_put_uint16 (pWork+2, pData->iBASIgreen);
+                   mng_put_uint16 (pWork+4, pData->iBASIblue);
+                   mng_put_uint16 (pWork+6, pData->iBASIalpha);
+#endif
                    pWork += 8;
                  }
                }
@@ -3714,10 +3802,17 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
                  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    *pWork     = (mng_uint8)iRed;
                    *(pWork+1) = (mng_uint8)iGreen;
                    *(pWork+2) = (mng_uint8)iBlue;
                    *(pWork+3) = (mng_uint8)iAlpha;
+#else
+                   *pWork     = (mng_uint8)pData->iBASIred;
+                   *(pWork+1) = (mng_uint8)pData->iBASIgreen;
+                   *(pWork+2) = (mng_uint8)pData->iBASIblue;
+                   *(pWork+3) = (mng_uint8)pData->iBASIalpha;
+#endif
                    pWork += 4;
                  }
                }
@@ -3988,6 +4083,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLON
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_clon (mng_datap  pData,
                                       mng_uint16 iSourceid,
                                       mng_uint16 iCloneid,
@@ -3999,6 +4095,9 @@ mng_retcode mng_process_display_clon (mng_datap  pData,
                                       mng_uint8  iLocationtype,
                                       mng_int32  iLocationx,
                                       mng_int32  iLocationy)
+#else
+mng_retcode mng_process_display_clon (mng_datap  pData)
+#endif
 {
   mng_imagep  pSource, pClone;
   mng_bool    bVisible, bAbstract;
@@ -4007,10 +4106,17 @@ mng_retcode mng_process_display_clon (mng_datap  pData,
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START)
 #endif
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                                        /* locate the source object first */
   pSource = mng_find_imageobject (pData, iSourceid);
                                        /* check if the clone exists */
   pClone  = mng_find_imageobject (pData, iCloneid);
+#else
+                                       /* locate the source object first */
+  pSource = mng_find_imageobject (pData, pData->iCLONsourceid);
+                                       /* check if the clone exists */
+  pClone  = mng_find_imageobject (pData, pData->iCLONcloneid);
+#endif
 
   if (!pSource)                        /* source must exist ! */
     MNG_ERROR (pData, MNG_OBJECTUNKNOWN);
@@ -4018,13 +4124,25 @@ mng_retcode mng_process_display_clon (mng_datap  pData,
   if (pClone)                          /* clone must not exist ! */
     MNG_ERROR (pData, MNG_OBJECTEXISTS);
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if (bHasdonotshow)                   /* DoNotShow flag filled ? */
     bVisible = (mng_bool)(iDonotshow == 0);
   else
     bVisible = pSource->bVisible;
+#else
+  if (pData->bCLONhasdonotshow)        /* DoNotShow flag filled ? */
+    bVisible = (mng_bool)(pData->iCLONdonotshow == 0);
+  else
+    bVisible = pSource->bVisible;
+#endif
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   bAbstract  = (mng_bool)(iConcrete == 1);
+#else
+  bAbstract  = (mng_bool)(pData->iCLONconcrete == 1);
+#endif
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   switch (iClonetype)                  /* determine action to take */
   {
     case 0 : {                         /* full clone */
@@ -4052,6 +4170,38 @@ mng_retcode mng_process_display_clon (mng_datap  pData,
              }
 
   }
+#else
+  switch (pData->iCLONclonetype)       /* determine action to take */
+  {
+    case 0 : {                         /* full clone */
+               iRetcode = mng_clone_imageobject (pData, pData->iCLONcloneid, MNG_FALSE,
+                                                 bVisible, bAbstract,
+                                                 pData->bCLONhasloca, pData->iCLONlocationtype,
+                                                 pData->iCLONlocationx, pData->iCLONlocationy,
+                                                 pSource, &pClone);
+               break;
+             }
+
+    case 1 : {                         /* partial clone */
+               iRetcode = mng_clone_imageobject (pData, pData->iCLONcloneid, MNG_TRUE,
+                                                 bVisible, bAbstract,
+                                                 pData->bCLONhasloca, pData->iCLONlocationtype,
+                                                 pData->iCLONlocationx, pData->iCLONlocationy,
+                                                 pSource, &pClone);
+               break;
+             }
+
+    case 2 : {                         /* renumber object */
+               iRetcode = mng_renum_imageobject (pData, pSource, pData->iCLONcloneid,
+                                                 bVisible, bAbstract,
+                                                 pData->bCLONhasloca, pData->iCLONlocationtype,
+                                                 pData->iCLONlocationx, pData->iCLONlocationy);
+               pClone   = pSource;
+               break;
+             }
+
+  }
+#endif
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4096,9 +4246,13 @@ mng_retcode mng_process_display_clon2 (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_DISC
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_disc (mng_datap   pData,
                                       mng_uint32  iCount,
                                       mng_uint16p pIds)
+#else
+mng_retcode mng_process_display_disc (mng_datap   pData)
+#endif
 {
   mng_uint32 iX;
   mng_imagep pImage;
@@ -4107,22 +4261,38 @@ mng_retcode mng_process_display_disc (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_START)
 #endif
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if (iCount)                          /* specific list ? */
-  {
-    mng_uint16p pWork = pIds;
-
-#ifdef MNG_DECREMENT_LOOPS
-    for (iX = iCount; iX > 0;iX--)
 #else
-    for (iX = 0; iX < iCount; iX++)    /* iterate the list */
+  if (pData->iDISCcount)               /* specific list ? */
+#endif
+  {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
+    mng_uint16p pWork = pIds;
+#else
+    mng_uint16p pWork = pData->pDISCids;
+#endif
+
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
+#ifdef MNG_DECREMENT_LOOPS             /* iterate the list */
+    for (iX = iCount; iX > 0; iX--)
+#else
+    for (iX = 0; iX < iCount; iX++)
+#endif
+#else
+#ifdef MNG_DECREMENT_LOOPS             /* iterate the list */
+    for (iX = pData->iDISCcount; iX > 0; iX--)
+#else
+    for (iX = 0; iX < pData->iDISCcount; iX++)
+#endif
 #endif
     {
       pImage = mng_find_imageobject (pData, *pWork++);
-                   
+
       if (pImage)                      /* found the object ? */
       {                                /* then drop it */
         iRetcode = mng_free_imageobject (pData, pImage);
-                       
+
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
@@ -4158,6 +4328,7 @@ mng_retcode mng_process_display_disc (mng_datap   pData,
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_FRAM
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_fram (mng_datap  pData,
                                       mng_uint8  iFramemode,
                                       mng_uint8  iChangedelay,
@@ -4170,6 +4341,9 @@ mng_retcode mng_process_display_fram (mng_datap  pData,
                                       mng_int32  iClipr,
                                       mng_int32  iClipt,
                                       mng_int32  iClipb)
+#else
+mng_retcode mng_process_display_fram (mng_datap  pData)
+#endif
 {
   mng_retcode iRetcode;
 
@@ -4177,9 +4351,17 @@ mng_retcode mng_process_display_fram (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START)
 #endif
                                        /* advance a frame then */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   iRetcode = next_frame (pData, iFramemode, iChangedelay, iDelay,
                          iChangetimeout, iTimeout, iChangeclipping,
                          iCliptype, iClipl, iClipr, iClipt, iClipb);
+#else
+  iRetcode = next_frame (pData, pData->iTempFramemode, pData->iTempChangedelay,
+                         pData->iTempDelay, pData->iTempChangetimeout,
+                         pData->iTempTimeout, pData->iTempChangeclipping,
+                         pData->iTempCliptype, pData->iTempClipl, pData->iTempClipr,
+                         pData->iTempClipt, pData->iTempClipb);
+#endif
 
   if (pData->bTimerset)                /* timer break ? */
     pData->iBreakpoint = 1;
@@ -4215,12 +4397,16 @@ mng_retcode mng_process_display_fram2 (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MOVE
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_move (mng_datap  pData,
                                       mng_uint16 iFromid,
                                       mng_uint16 iToid,
                                       mng_uint8  iMovetype,
                                       mng_int32  iMovex,
                                       mng_int32  iMovey)
+#else
+mng_retcode mng_process_display_move (mng_datap  pData)
+#endif
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -4229,25 +4415,43 @@ mng_retcode mng_process_display_move (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_START)
 #endif
                                        /* iterate the list */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   for (iX = iFromid; iX <= iToid; iX++)
+#else
+  for (iX = pData->iMOVEfromid; iX <= pData->iMOVEtoid; iX++)
+#endif
   {
     if (!iX)                           /* object id=0 ? */
       pImage = (mng_imagep)pData->pObjzero;
     else
       pImage = mng_find_imageobject (pData, iX);
-                   
+
     if (pImage)                        /* object exists ? */
     {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       switch (iMovetype)
+#else
+      switch (pData->iMOVEmovetype)
+#endif
       {
         case 0 : {                     /* absolute */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pImage->iPosx = iMovex;
                    pImage->iPosy = iMovey;
+#else
+                   pImage->iPosx = pData->iMOVEmovex;
+                   pImage->iPosy = pData->iMOVEmovey;
+#endif
                    break;
                  }
         case 1 : {                     /* relative */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pImage->iPosx = pImage->iPosx + iMovex;
                    pImage->iPosy = pImage->iPosy + iMovey;
+#else
+                   pImage->iPosx = pImage->iPosx + pData->iMOVEmovex;
+                   pImage->iPosy = pImage->iPosy + pData->iMOVEmovey;
+#endif
                    break;
                  }
       }
@@ -4265,6 +4469,7 @@ mng_retcode mng_process_display_move (mng_datap  pData,
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLIP
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_clip (mng_datap  pData,
                                       mng_uint16 iFromid,
                                       mng_uint16 iToid,
@@ -4273,6 +4478,9 @@ mng_retcode mng_process_display_clip (mng_datap  pData,
                                       mng_int32  iClipr,
                                       mng_int32  iClipt,
                                       mng_int32  iClipb)
+#else
+mng_retcode mng_process_display_clip (mng_datap  pData)
+#endif
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -4281,31 +4489,53 @@ mng_retcode mng_process_display_clip (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_START)
 #endif
                                        /* iterate the list */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   for (iX = iFromid; iX <= iToid; iX++)
+#else
+  for (iX = pData->iCLIPfromid; iX <= pData->iCLIPtoid; iX++)
+#endif
   {
     if (!iX)                           /* object id=0 ? */
       pImage = (mng_imagep)pData->pObjzero;
     else
       pImage = mng_find_imageobject (pData, iX);
-                   
+
     if (pImage)                        /* object exists ? */
     {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       switch (iCliptype)
+#else
+      switch (pData->iCLIPcliptype)
+#endif
       {
         case 0 : {                     /* absolute */
                    pImage->bClipped = MNG_TRUE;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pImage->iClipl   = iClipl;
                    pImage->iClipr   = iClipr;
                    pImage->iClipt   = iClipt;
                    pImage->iClipb   = iClipb;
+#else
+                   pImage->iClipl   = pData->iCLIPclipl;
+                   pImage->iClipr   = pData->iCLIPclipr;
+                   pImage->iClipt   = pData->iCLIPclipt;
+                   pImage->iClipb   = pData->iCLIPclipb;
+#endif
                    break;
                  }
         case 1 : {                    /* relative */
                    pImage->bClipped = MNG_TRUE;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pImage->iClipl   = pImage->iClipl + iClipl;
                    pImage->iClipr   = pImage->iClipr + iClipr;
                    pImage->iClipt   = pImage->iClipt + iClipt;
                    pImage->iClipb   = pImage->iClipb + iClipb;
+#else
+                   pImage->iClipl   = pImage->iClipl + pData->iCLIPclipl;
+                   pImage->iClipr   = pImage->iClipr + pData->iCLIPclipr;
+                   pImage->iClipt   = pImage->iClipt + pData->iCLIPclipt;
+                   pImage->iClipb   = pImage->iClipb + pData->iCLIPclipb;
+#endif
                    break;
                  }
       }
@@ -4904,9 +5134,13 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_jdaa (mng_datap  pData,
                                       mng_uint32 iRawlen,
                                       mng_uint8p pRawdata)
+#else
+mng_retcode mng_process_display_jdaa (mng_datap  pData)
+#endif
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -4927,7 +5161,11 @@ mng_retcode mng_process_display_jdaa (mng_datap  pData,
   }
 
   if (!iRetcode)                       /* all ok? then decompress, my man */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     iRetcode = mngjpeg_decompressdata2 (pData, iRawlen, pRawdata);
+#else
+    iRetcode = mngjpeg_decompressdata2 (pData, pData->iRawlen, pData->pRawdata);
+#endif
 
   if (iRetcode)
     return iRetcode;
@@ -4943,9 +5181,13 @@ mng_retcode mng_process_display_jdaa (mng_datap  pData,
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_jdat (mng_datap  pData,
                                       mng_uint32 iRawlen,
                                       mng_uint8p pRawdata)
+#else
+mng_retcode mng_process_display_jdat (mng_datap  pData)
+#endif
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -4977,7 +5219,11 @@ mng_retcode mng_process_display_jdat (mng_datap  pData,
   }
 
   if (!iRetcode)                       /* all ok? then decompress, my man */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     iRetcode = mngjpeg_decompressdata (pData, iRawlen, pRawdata);
+#else
+    iRetcode = mngjpeg_decompressdata (pData, pData->iRawlen, pData->pRawdata);
+#endif
 
   if (iRetcode)
     return iRetcode;
@@ -4993,6 +5239,7 @@ mng_retcode mng_process_display_jdat (mng_datap  pData,
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_dhdr (mng_datap  pData,
                                       mng_uint16 iObjectid,
                                       mng_uint8  iImagetype,
@@ -5001,6 +5248,9 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
                                       mng_uint32 iBlockheight,
                                       mng_uint32 iBlockx,
                                       mng_uint32 iBlocky)
+#else
+mng_retcode mng_process_display_dhdr (mng_datap  pData)
+#endif
 {
   mng_imagep  pImage;
   mng_retcode iRetcode;
@@ -5021,8 +5271,12 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
   pData->fDeltareplacerow = MNG_NULL;
   pData->fDeltaputrow     = MNG_NULL;
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   pImage = mng_find_imageobject (pData, iObjectid);
-               
+#else
+  pImage = mng_find_imageobject (pData, pData->iDHDRobjectid);
+#endif
+
   if (pImage)                          /* object exists ? */
   {
     if (pImage->pImgbuf->bConcrete)    /* is it concrete ? */
@@ -5036,12 +5290,21 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
       }
                                        /* save delta fields */
       pData->pDeltaImage           = (mng_ptr)pImage;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       pData->iDeltaImagetype       = iImagetype;
       pData->iDeltatype            = iDeltatype;
       pData->iDeltaBlockwidth      = iBlockwidth;
       pData->iDeltaBlockheight     = iBlockheight;
       pData->iDeltaBlockx          = iBlockx;
       pData->iDeltaBlocky          = iBlocky;
+#else
+      pData->iDeltaImagetype       = pData->iDHDRimagetype;
+      pData->iDeltatype            = pData->iDHDRdeltatype;
+      pData->iDeltaBlockwidth      = pData->iDHDRblockwidth;
+      pData->iDeltaBlockheight     = pData->iDHDRblockheight;
+      pData->iDeltaBlockx          = pData->iDHDRblockx;
+      pData->iDeltaBlocky          = pData->iDHDRblocky;
+#endif
                                        /* restore target-object fields */
       pData->iDatawidth            = pImage->pImgbuf->iWidth;
       pData->iDataheight           = pImage->pImgbuf->iHeight;
@@ -5051,6 +5314,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
       pData->iFilter               = pImage->pImgbuf->iFilter;
       pData->iInterlace            = pImage->pImgbuf->iInterlace;
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       if ((iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD    ) ||
           (iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
         pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
@@ -5062,6 +5326,19 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
       if ((iDeltatype == MNG_DELTATYPE_BLOCKCOLORADD    ) ||
           (iDeltatype == MNG_DELTATYPE_BLOCKCOLORREPLACE)    )
         pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
+#else
+      if ((pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKPIXELADD    ) ||
+          (pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
+      else
+      if ((pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKALPHAADD    ) ||
+          (pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKALPHAREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iAlphasampledepth;
+      else
+      if ((pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKCOLORADD    ) ||
+          (pData->iDHDRdeltatype == MNG_DELTATYPE_BLOCKCOLORREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
+#endif
 
 #ifdef MNG_INCLUDE_JNG
       pData->iJHDRimgbitdepth      = pImage->pImgbuf->iBitdepth;
@@ -5073,6 +5350,8 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
       pData->iJHDRalphainterlace   = pImage->pImgbuf->iInterlace;
       pData->iJHDRalphabitdepth    = pImage->pImgbuf->iAlphabitdepth;
 #endif
+
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                                        /* block size specified ? */
       if (iDeltatype != MNG_DELTATYPE_NOCHANGE)
       {                                /* block entirely within target ? */
@@ -5086,8 +5365,27 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
         pData->iDatawidth          = iBlockwidth;
         pData->iDataheight         = iBlockheight;
       }
+#else
+                                       /* block size specified ? */
+      if (pData->iDHDRdeltatype != MNG_DELTATYPE_NOCHANGE)
+      {                                /* block entirely within target ? */
+        if (pData->iDHDRdeltatype != MNG_DELTATYPE_REPLACE)
+        {
+          if (((pData->iDHDRblockx + pData->iDHDRblockwidth ) > pData->iDatawidth ) ||
+              ((pData->iDHDRblocky + pData->iDHDRblockheight) > pData->iDataheight)    )
+            MNG_ERROR (pData, MNG_INVALIDBLOCK)
+        }
 
+        pData->iDatawidth          = pData->iDHDRblockwidth;
+        pData->iDataheight         = pData->iDHDRblockheight;
+      }
+#endif
+
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       switch (iDeltatype)              /* determine nr of delta-channels */
+#else
+      switch (pData->iDHDRdeltatype)   /* determine nr of delta-channels */
+#endif
       {
          case MNG_DELTATYPE_BLOCKALPHAADD : ;
          case MNG_DELTATYPE_BLOCKALPHAREPLACE :
@@ -5151,7 +5449,11 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
 
       }
                                        /* full image replace ? */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       if (iDeltatype == MNG_DELTATYPE_REPLACE)
+#else
+      if (pData->iDHDRdeltatype == MNG_DELTATYPE_REPLACE)
+#endif
       {
         iRetcode = mng_reset_object_details (pData, pImage,
                                              pData->iDatawidth, pData->iDataheight,
@@ -5412,10 +5714,14 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_prom (mng_datap  pData,
                                       mng_uint8  iBitdepth,
                                       mng_uint8  iColortype,
                                       mng_uint8  iFilltype)
+#else
+mng_retcode mng_process_display_prom (mng_datap  pData)
+#endif
 {
   mng_imagep     pImage;
   mng_imagedatap pBuf;
@@ -5431,6 +5737,7 @@ mng_retcode mng_process_display_prom (mng_datap  pData,
   pImage = (mng_imagep)pData->pDeltaImage;
   pBuf   = pImage->pImgbuf;
                                        /* can't demote bitdepth! */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if (iBitdepth < pBuf->iBitdepth)
     MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
@@ -5469,7 +5776,48 @@ mng_retcode mng_process_display_prom (mng_datap  pData,
     MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
 
   iRetcode = mng_promote_imageobject (pData, pImage, iBitdepth, iColortype, iFilltype);
-                 
+#else
+  if (pData->iPROMbitdepth < pBuf->iBitdepth)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+  if ( ((pBuf->iColortype      == MNG_COLORTYPE_GRAY      ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_GRAY      ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_GRAYA     ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGB       ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_GRAYA     ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_GRAYA     ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_RGB       ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGB       ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_RGBA      ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGBA      )    ) ||
+#ifdef MNG_INCLUDE_JNG
+       ((pBuf->iColortype      == MNG_COLORTYPE_JPEGGRAY  ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGGRAY  ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_JPEGCOLOR ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_JPEGGRAYA ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype      == MNG_COLORTYPE_JPEGCOLORA) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+#endif
+       ((pBuf->iColortype      == MNG_COLORTYPE_INDEXED   ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_INDEXED   ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGB       ) &&
+        (pData->iPROMcolortype != MNG_COLORTYPE_RGBA      )    )    )
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+
+  iRetcode = mng_promote_imageobject (pData, pImage, pData->iPROMbitdepth,
+                                      pData->iPROMcolortype, pData->iPROMfilltype);
+#endif
+
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
@@ -5524,12 +5872,16 @@ mng_retcode mng_process_display_ijng (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_pplt (mng_datap      pData,
                                       mng_uint8      iType,
                                       mng_uint32     iCount,
                                       mng_palette8ep paIndexentries,
                                       mng_uint8p     paAlphaentries,
                                       mng_uint8p     paUsedentries)
+#else
+mng_retcode mng_process_display_pplt (mng_datap      pData)
+#endif
 {
   mng_uint32     iX;
   mng_imagep     pImage = (mng_imagep)pData->pObjzero;
@@ -5540,25 +5892,46 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #endif
 
 #ifdef MNG_DECREMENT_LOOPS
-   iX = iCount;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
+  iX = iCount;
+#else
+  iX = pData->iPPLTcount;
+#endif
 #endif
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   switch (iType)
+#else
+  switch (pData->iPPLTtype)
+#endif
   {
     case MNG_DELTATYPE_REPLACERGB :
       {
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   = paIndexentries [iX].iRed;
             pBuf->aPLTEentries [iX].iGreen = paIndexentries [iX].iGreen;
             pBuf->aPLTEentries [iX].iBlue  = paIndexentries [iX].iBlue;
           }
+#else
+          if (pData->paPPLTusedentries [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   = pData->paPPLTindexentries [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = pData->paPPLTindexentries [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = pData->paPPLTindexentries [iX].iBlue;
+          }
+#endif
         }
 
         break;
@@ -5568,9 +5941,14 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   =
@@ -5583,6 +5961,20 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
                                (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
                                            paIndexentries [iX].iBlue );
           }
+#else
+          if (pData->paPPLTusedentries [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
+                                           pData->paPPLTindexentries [iX].iRed  );
+            pBuf->aPLTEentries [iX].iGreen =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
+                                           pData->paPPLTindexentries [iX].iGreen);
+            pBuf->aPLTEentries [iX].iBlue  =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
+                                           pData->paPPLTindexentries [iX].iBlue );
+          }
+#endif
         }
 
         break;
@@ -5592,12 +5984,22 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
             pBuf->aTRNSentries [iX] = paAlphaentries [iX];
         }
+#else
+          if (pData->paPPLTusedentries [iX])
+            pBuf->aTRNSentries [iX] = pData->paPPLTalphaentries [iX];
+        }
+#endif
 
         break;
       }
@@ -5606,13 +6008,24 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
             pBuf->aTRNSentries [iX] =
                                (mng_uint8)(pBuf->aTRNSentries [iX] +
                                            paAlphaentries [iX]);
+#else
+          if (pData->paPPLTusedentries [iX])
+            pBuf->aTRNSentries [iX] =
+                               (mng_uint8)(pBuf->aTRNSentries [iX] +
+                                           pData->paPPLTalphaentries [iX]);
+#endif
         }
 
         break;
@@ -5622,9 +6035,14 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   = paIndexentries [iX].iRed;
@@ -5632,6 +6050,15 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
             pBuf->aPLTEentries [iX].iBlue  = paIndexentries [iX].iBlue;
             pBuf->aTRNSentries [iX]        = paAlphaentries [iX];
           }
+#else
+          if (pData->paPPLTusedentries [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   = pData->paPPLTindexentries [iX].iRed;
+            pBuf->aPLTEentries [iX].iGreen = pData->paPPLTindexentries [iX].iGreen;
+            pBuf->aPLTEentries [iX].iBlue  = pData->paPPLTindexentries [iX].iBlue;
+            pBuf->aTRNSentries [iX]        = pData->paPPLTalphaentries [iX];
+          }
+#endif
         }
 
         break;
@@ -5641,9 +6068,14 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 #ifdef MNG_DECREMENT_LOOPS
         for (; iX > 0;iX--)
 #else
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         for (iX = 0; iX < iCount; iX++)
+#else
+        for (iX = 0; iX < pData->iPPLTcount; iX++)
+#endif
 #endif
         {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
           if (paUsedentries [iX])
           {
             pBuf->aPLTEentries [iX].iRed   =
@@ -5659,30 +6091,72 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
                                (mng_uint8)(pBuf->aTRNSentries [iX] +
                                            paAlphaentries [iX]);
           }
+#else
+          if (pData->paPPLTusedentries [iX])
+          {
+            pBuf->aPLTEentries [iX].iRed   =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iRed   +
+                                           pData->paPPLTindexentries [iX].iRed  );
+            pBuf->aPLTEentries [iX].iGreen =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iGreen +
+                                           pData->paPPLTindexentries [iX].iGreen);
+            pBuf->aPLTEentries [iX].iBlue  =
+                               (mng_uint8)(pBuf->aPLTEentries [iX].iBlue  +
+                                           pData->paPPLTindexentries [iX].iBlue );
+            pBuf->aTRNSentries [iX] =
+                               (mng_uint8)(pBuf->aTRNSentries [iX] +
+                                           pData->paPPLTalphaentries [iX]);
+          }
+#endif
         }
 
         break;
       }
   }
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if ((iType != MNG_DELTATYPE_REPLACERGB) && (iType != MNG_DELTATYPE_DELTARGB))
+#else
+  if ((pData->iPPLTtype != MNG_DELTATYPE_REPLACERGB) &&
+      (pData->iPPLTtype != MNG_DELTATYPE_DELTARGB  )    )
+#endif
   {
     if (pBuf->bHasTRNS)
     {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       if (iCount > pBuf->iTRNScount)
         pBuf->iTRNScount = iCount;
+#else
+      if (pData->iPPLTcount > pBuf->iTRNScount)
+        pBuf->iTRNScount = pData->iPPLTcount;
+#endif
     }
     else
     {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       pBuf->iTRNScount = iCount;
       pBuf->bHasTRNS   = MNG_TRUE;
+#else
+      pBuf->iTRNScount = pData->iPPLTcount;
+      pBuf->bHasTRNS   = MNG_TRUE;
+#endif
     }
   }
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if ((iType != MNG_DELTATYPE_REPLACEALPHA) && (iType != MNG_DELTATYPE_DELTAALPHA))
+#else
+  if ((pData->iPPLTtype != MNG_DELTATYPE_REPLACEALPHA) &&
+      (pData->iPPLTtype != MNG_DELTATYPE_DELTAALPHA  )    )
+#endif
   {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     if (iCount > pBuf->iPLTEcount)
       pBuf->iPLTEcount = iCount;
+#else
+    if (pData->iPPLTcount > pBuf->iPLTEcount)
+      pBuf->iPLTEcount = pData->iPPLTcount;
+#endif
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -5696,6 +6170,7 @@ mng_retcode mng_process_display_pplt (mng_datap      pData,
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MAGN
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_magn (mng_datap  pData,
                                       mng_uint16 iFirstid,
                                       mng_uint16 iLastid,
@@ -5707,6 +6182,9 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
                                       mng_uint16 iMT,
                                       mng_uint16 iMB,
                                       mng_uint8  iMethodY)
+#else
+mng_retcode mng_process_display_magn (mng_datap  pData)
+#endif
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -5715,12 +6193,17 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_START)
 #endif
                                        /* iterate the object-ids */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   for (iX = iFirstid; iX <= iLastid; iX++)
+#else
+  for (iX = pData->iMAGNfirstid; iX <= pData->iMAGNlastid; iX++)
+#endif
   {
     if (iX == 0)                       /* process object 0 ? */
     {
       pImage = (mng_imagep)pData->pObjzero;
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       pImage->iMAGN_MethodX = iMethodX;
       pImage->iMAGN_MethodY = iMethodY;
       pImage->iMAGN_MX      = iMX;
@@ -5729,6 +6212,16 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
       pImage->iMAGN_MR      = iMR;
       pImage->iMAGN_MT      = iMT;
       pImage->iMAGN_MB      = iMB;
+#else
+      pImage->iMAGN_MethodX = pData->iMAGNmethodX;
+      pImage->iMAGN_MethodY = pData->iMAGNmethodY;
+      pImage->iMAGN_MX      = pData->iMAGNmX;
+      pImage->iMAGN_MY      = pData->iMAGNmY;
+      pImage->iMAGN_ML      = pData->iMAGNmL;
+      pImage->iMAGN_MR      = pData->iMAGNmR;
+      pImage->iMAGN_MT      = pData->iMAGNmT;
+      pImage->iMAGN_MB      = pData->iMAGNmB;
+#endif
     }
     else
     {
@@ -5743,6 +6236,7 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
             return iRetcode;
         }
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
         pImage->iMAGN_MethodX = iMethodX;
         pImage->iMAGN_MethodY = iMethodY;
         pImage->iMAGN_MX      = iMX;
@@ -5751,15 +6245,35 @@ mng_retcode mng_process_display_magn (mng_datap  pData,
         pImage->iMAGN_MR      = iMR;
         pImage->iMAGN_MT      = iMT;
         pImage->iMAGN_MB      = iMB;
+#else
+        pImage->iMAGN_MethodX = pData->iMAGNmethodX;
+        pImage->iMAGN_MethodY = pData->iMAGNmethodY;
+        pImage->iMAGN_MX      = pData->iMAGNmX;
+        pImage->iMAGN_MY      = pData->iMAGNmY;
+        pImage->iMAGN_ML      = pData->iMAGNmL;
+        pImage->iMAGN_MR      = pData->iMAGNmR;
+        pImage->iMAGN_MT      = pData->iMAGNmT;
+        pImage->iMAGN_MB      = pData->iMAGNmB;
+#endif
       }
     }
   }
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   pData->iMAGNfromid = iFirstid;
   pData->iMAGNtoid   = iLastid;
   iX                 = iFirstid;
+#else
+  pData->iMAGNfromid = pData->iMAGNfirstid;
+  pData->iMAGNtoid   = pData->iMAGNlastid;
+  iX                 = pData->iMAGNfirstid;
+#endif
                                        /* iterate again for showing */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   while ((iX <= iLastid) && (!pData->bTimerset))
+#else
+  while ((iX <= pData->iMAGNlastid) && (!pData->bTimerset))
+#endif
   {
     pData->iMAGNcurrentid = iX;
 
@@ -5840,6 +6354,7 @@ mng_retcode mng_process_display_magn2 (mng_datap pData)
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_PAST
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_past (mng_datap  pData,
                                       mng_uint16 iTargetid,
                                       mng_uint8  iTargettype,
@@ -5847,20 +6362,35 @@ mng_retcode mng_process_display_past (mng_datap  pData,
                                       mng_int32  iTargety,
                                       mng_uint32 iCount,
                                       mng_ptr    pSources)
+#else
+mng_retcode mng_process_display_past (mng_datap  pData)
+#endif
 {
   mng_retcode      iRetcode = MNG_NOERROR;
   mng_imagep       pTargetimg;
   mng_imagep       pSourceimg;
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   mng_past_sourcep pSource = (mng_past_sourcep)pSources;
+#else
+  mng_past_sourcep pSource = (mng_past_sourcep)pData->pPASTsources;
+#endif
   mng_uint32       iX      = 0;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_START)
 #endif
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
   if (iTargetid)                       /* a real destination object ? */
+#else
+  if (pData->iPASTtargetid)            /* a real destination object ? */
+#endif
   {                                    /* let's find it then */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     pTargetimg = (mng_imagep)mng_find_imageobject (pData, iTargetid);
+#else
+    pTargetimg = (mng_imagep)mng_find_imageobject (pData, pData->iPASTtargetid);
+#endif
 
     if (!pTargetimg)                   /* if it doesn't exists; do a barf */
       MNG_ERROR (pData, MNG_OBJECTUNKNOWN)
@@ -5949,23 +6479,42 @@ mng_retcode mng_process_display_past (mng_datap  pData,
     {
       bTargetRGBA16 = (mng_bool)(pTargetimg->pImgbuf->iBitdepth > 8);
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
       switch (iTargettype)             /* determine target x/y */
+#else
+      switch (pData->iPASTtargettype)  /* determine target x/y */
+#endif
       {
         case 0 : {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pData->iPastx = iTargetx;
                    pData->iPasty = iTargety;
+#else
+                   pData->iPastx = pData->iPASTtargetx;
+                   pData->iPasty = pData->iPASTtargety;
+#endif
                    break;
                  }
 
         case 1 : {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pData->iPastx = pTargetimg->iPastx + iTargetx;
                    pData->iPasty = pTargetimg->iPasty + iTargety;
+#else
+                   pData->iPastx = pTargetimg->iPastx + pData->iPASTtargetx;
+                   pData->iPasty = pTargetimg->iPasty + pData->iPASTtargety;
+#endif
                    break;
                  }
 
         case 2 : {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
                    pData->iPastx += iTargetx;
                    pData->iPasty += iTargety;
+#else
+                   pData->iPastx += pData->iPASTtargetx;
+                   pData->iPasty += pData->iPASTtargety;
+#endif
                    break;
                  }
       }
@@ -5977,7 +6526,11 @@ mng_retcode mng_process_display_past (mng_datap  pData,
       pData->pStorebuf        = (mng_objectp)pTargetimg->pImgbuf;
     }
                                        /* process the sources one by one */
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     while ((!iRetcode) && (iX < iCount))
+#else
+    while ((!iRetcode) && (iX < pData->iPASTcount))
+#endif
     {                                  /* find the little bastards first */
       pSourceimg              = (mng_imagep)mng_find_imageobject (pData, pSource->iSourceid);
                                        /* exists and viewable? */
@@ -6355,7 +6908,11 @@ mng_retcode mng_process_display_past (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     if (!iTargetid)                    /* did we paste into object 0 ? */
+#else
+    if (!pData->iPASTtargetid)         /* did we paste into object 0 ? */
+#endif
     {                                  /* display it then ! */
       iRetcode = mng_display_image (pData, pTargetimg, MNG_FALSE);
       if (iRetcode)                    /* on error bail out */
@@ -6374,7 +6931,11 @@ mng_retcode mng_process_display_past (mng_datap  pData,
 
   if (pData->bTimerset)                /* broken ? */
   {
+#ifndef MNG_OPTIMIZE_DISPLAYCALLS
     pData->iPASTid     = iTargetid;
+#else
+    pData->iPASTid     = pData->iPASTtargetid;
+#endif
     pData->iBreakpoint = 11;
   }
 
