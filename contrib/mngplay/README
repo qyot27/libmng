@@ -1,4 +1,4 @@
-mngplay
+* mngplay *
 
 a simple SDL-based mng player
 
@@ -14,7 +14,7 @@ On a unix-like system, the build instructions are simple:
 
 (install and/or build the SDL libraries from libsdl.org)
 (install and/or build the mng library from libmng.com)
-./configure
+./configure    (or ./autogen.sh if you're using the cvs source)
 make
 make install
 
@@ -24,4 +24,4 @@ mngplay <filename>.mng
 
 ---
 Ralph Giles  <giles@ashlu.bc.ca>
-$Date: 2000/07/06 12:56:29 $
+$Date: 2000/07/10 00:17:46 $
