@@ -55,6 +55,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
+/* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -78,6 +80,62 @@
 #define MNG_SIG 0x8a4d4e47L
 #define POST_SIG 0x0d0a1a0aL
 #endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+
+typedef struct {                       /* chunk-field descriptor */
+           mng_fieldtype     eFieldtype;
+           mng_ptr           pSpecialfunc;
+           mng_ptr           aAllowedvalues;
+           mng_int32         iOffsetchunk;
+           mng_int32         iOffsetchunkind;
+           mng_int32         iOffsetobject;
+           mng_int32         iOffsetobjectind;
+           mng_int32         iOffsetglobal;
+           mng_int32         iOffsetglobalind;
+           mng_uint16        iLengthmin;
+           mng_uint16        iLengthmax;
+           mng_uint16        iMinvalue;
+           mng_uint16        iMaxvalue;
+           mng_uint8         iGroupid;
+           mng_uint8         iValidatesgroup;
+           mng_bool          bOptional;
+           mng_bool          bTerminatorzero;
+           mng_bool          bRepetitive;
+           mng_bool          bDeflated;
+        } mng_field_descriptor;
+typedef mng_field_descriptor * mng_field_descp;
+
+typedef struct {                       /* chunk descriptor */
+           mng_imgtype       eImgtype;
+           mng_createobjtype eCreateobject;
+           mng_size_t        iObjsize;
+           mng_ptr           pObjcleanup;
+           mng_ptr           pObjprocess;
+           mng_ptr           pSpecialfunc;
+           mng_field_descp   pFirstfielddesc;
+           mng_field_descp   pLastfielddesc;
+           mng_bool          bAllowglobal;
+           mng_bool          bAllowempty;
+           mng_bool          bAllowglobalempty;
+           mng_bool          bMusthaveImghdr;    /* IHDR/JHDR/BASI/DHDR */
+           mng_bool          bMusthaveIHDR;
+           mng_bool          bMusthaveJHDR;
+           mng_bool          bMusthaveDHDR;
+           mng_bool          bMusthaveLOOP;
+           mng_bool          bMustNOThaveIHDR;
+           mng_bool          bMustNOThaveJHDR;
+           mng_bool          bMustNOThaveBASI;
+           mng_bool          bMustNOThaveDHDR;
+           mng_bool          bMustNOThaveIDAT;
+           mng_bool          bMustNOThaveJDAT;
+           mng_bool          bMustNOThaveJDAA;
+        } mng_chunk_descriptor;
+typedef mng_chunk_descriptor * mng_chunk_descp;
+
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
 
 /* ************************************************************************** */
 
@@ -113,7 +171,7 @@ typedef struct {                       /* generic header */
            mng_chunkp        pNext;    /* for double-linked list */
            mng_chunkp        pPrev;
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
-           mng_uint16        iChunksize;
+           mng_size_t        iChunksize;
 #endif
         } mng_chunk_header;
 typedef mng_chunk_header * mng_chunk_headerp;

@@ -118,6 +118,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - inclusion of zlib/lcms/ijgsrc6b with <> instead of ""    * */
+/* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -394,6 +396,15 @@ typedef enum mng_imgtypes mng_imgtype;
 enum mng_speedtypes {mng_st_normal, mng_st_fast, mng_st_slow, mng_st_slowest};
 typedef enum mng_speedtypes mng_speedtype;
 
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+                                       /* enumeration object-creation indicators */
+enum mng_createobjtypes {mng_create_always, mng_create_ifglobal};
+typedef enum mng_createobjtypes mng_createobjtype;
+
+                                       /* enumeration field types */
+enum mng_fieldtypes {mng_field_int, mng_field_char};
+typedef enum mng_fieldtypes mng_fieldtype;
+#endif
 
 /* ************************************************************************** */
 

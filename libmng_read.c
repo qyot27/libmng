@@ -99,6 +99,7 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
+/* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -113,6 +114,9 @@
 #include "libmng_objects.h"
 #include "libmng_object_prc.h"
 #include "libmng_chunks.h"
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+#include "libmng_chunk_descr.h"
+#endif
 #include "libmng_chunk_prc.h"
 #include "libmng_chunk_io.h"
 #include "libmng_display.h"
@@ -437,6 +441,8 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
                                          mng_uint8p pBuf,
                                          mng_uint32 iBuflen)
 {
+
+#ifndef MNG_OPTIMIZE_CHUNKREADER*/
   /* the table-idea & binary search code was adapted from
      libpng 1.1.0 (pngread.c) */
   /* NOTE1: the table must remain sorted by chunkname, otherwise the binary
@@ -446,15 +452,16 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
      it's wasting a bit of space, but hey, the code is a lot easier) */
 
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
-  mng_chunk_header chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
-                                    mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, sizeof(mng_unknown_chunk)};
+  mng_chunk_header mng_chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
+                                        mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, sizeof(mng_unknown_chunk)};
 #else
-  mng_chunk_header chunk_unknown = {MNG_UINT_HUH, mng_init_unknown, mng_free_unknown,
-                                    mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0};
+  mng_chunk_header mng_chunk_unknown = {MNG_UINT_HUH, mng_init_unknown, mng_free_unknown,
+                                        mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0};
 #endif
 
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
-  mng_chunk_header chunk_table [] =
+
+  mng_chunk_header mng_chunk_table [] =
   {
 #ifndef MNG_SKIPCHUNK_BACK
     {MNG_UINT_BACK, mng_init_general, mng_free_general, mng_read_back, mng_write_back, mng_assign_general, 0, 0, sizeof(mng_back)},
@@ -602,8 +609,10 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_zTXt, mng_init_general, mng_free_ztxt,    mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt,    0, 0, sizeof(mng_ztxt)},
 #endif
   };
-#else /* MNG_OPTIMIZE_CHUNKINITFREE */
-  mng_chunk_header chunk_table [] =
+
+#else                        /* MNG_OPTIMIZE_CHUNKINITFREE */
+
+  mng_chunk_header mng_chunk_table [] =
   {
 #ifndef MNG_SKIPCHUNK_BACK
     {MNG_UINT_BACK, mng_init_back, mng_free_back, mng_read_back, mng_write_back, mng_assign_back, 0, 0},
@@ -751,10 +760,16 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_zTXt, mng_init_ztxt, mng_free_ztxt, mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt, 0, 0},
 #endif
   };
-#endif /* MNG_OPTIMIZE_CHUNKINITFREE */
+
+#endif                       /* MNG_OPTIMIZE_CHUNKINITFREE */
+
                                        /* binary search variables */
   mng_int32         iTop, iLower, iUpper, iMiddle;
   mng_chunk_headerp pEntry;            /* pointer to found entry */
+#else
+  mng_chunk_header  sEntry;            /* temp chunk-header */
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
+
   mng_chunkid       iChunkname;        /* the chunk's tag */
   mng_chunkp        pChunk;            /* chunk structure (if #define MNG_STORE_CHUNKS) */
   mng_retcode       iRetcode;          /* temporary error-code */
@@ -770,8 +785,11 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 
   pBuf += sizeof (mng_chunkid);        /* adjust the buffer */
   iBuflen -= sizeof (mng_chunkid);
+  pChunk = 0;
+
+#ifndef MNG_OPTIMIZE_CHUNKREADER
                                        /* determine max index of table */
-  iTop = (sizeof (chunk_table) / sizeof (chunk_table [0])) - 1;
+  iTop = (sizeof (mng_chunk_table) / sizeof (mng_chunk_table [0])) - 1;
 
   /* binary search; with 54 chunks, worst-case is 7 comparisons */
   iLower  = 0;
@@ -782,17 +800,16 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 #endif
   iUpper  = iTop;
   pEntry  = 0;                         /* no goods yet! */
-  pChunk  = 0;
 
   do                                   /* the binary search itself */
     {
-      if (chunk_table [iMiddle].iChunkname < iChunkname)
+      if (mng_chunk_table [iMiddle].iChunkname < iChunkname)
         iLower = iMiddle + 1;
-      else if (chunk_table [iMiddle].iChunkname > iChunkname)
+      else if (mng_chunk_table [iMiddle].iChunkname > iChunkname)
         iUpper = iMiddle - 1;
       else
       {
-        pEntry = &chunk_table [iMiddle];
+        pEntry = &mng_chunk_table [iMiddle];
         break;
       }
 
@@ -801,21 +818,40 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
   while (iLower <= iUpper);
 
   if (!pEntry)                         /* unknown chunk ? */
-    pEntry = &chunk_unknown;           /* make it so! */
+    pEntry = &mng_chunk_unknown;       /* make it so! */
+
+#else /* MNG_OPTIMIZE_CHUNKREADER */
+
+  mng_get_chunkheader (iChunkname, &sEntry);
+
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
 
   pData->iChunkname = iChunkname;      /* keep track of where we are */
   pData->iChunkseq++;
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
   if (pEntry->fRead)                   /* read-callback available ? */
   {
     iRetcode = pEntry->fRead (pData, pEntry, iBuflen, (mng_ptr)pBuf, &pChunk);
 
     if (!iRetcode)                     /* everything oke ? */
     {                                  /* remember unknown chunk's id */
-      if ((pChunk) && (pEntry == &chunk_unknown))
+      if ((pChunk) && (pEntry->iChunkname == MNG_UINT_HUH))
         ((mng_chunk_headerp)pChunk)->iChunkname = iChunkname;
     }
   }
+#else /* MNG_OPTIMIZE_CHUNKREADER */
+  if (sEntry.fRead)                    /* read-callback available ? */
+  {
+    iRetcode = sEntry.fRead (pData, &sEntry, iBuflen, (mng_ptr)pBuf, &pChunk);
+
+    if (!iRetcode)                     /* everything oke ? */
+    {                                  /* remember unknown chunk's id */
+      if ((pChunk) && (sEntry.iChunkname == MNG_UINT_HUH))
+        ((mng_chunk_headerp)pChunk)->iChunkname = iChunkname;
+    }
+  }
+#endif /* MNG_OPTIMIZE_CHUNKREADER */
   else
     iRetcode = MNG_NOERROR;
 

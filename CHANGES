@@ -29,6 +29,7 @@ core:
 - added conditional MNG_OPTIMIZE_CHUNKINITFREE
 - added conditional MNG_OPTIMIZE_OBJCLEANUP
 - added conditional MNG_OPTIMIZE_CHUNKASSIGN
+- added conditional MNG_OPTIMIZE_CHUNKREADER
 
 samples:
 
