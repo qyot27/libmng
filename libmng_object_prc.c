@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.c       copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -106,6 +106,9 @@
 /* *             - fixed magnification bug with object 0                    * */
 /* *             1.0.5 - 01/19/2003 - G.Juyn                                * */
 /* *             - B664911 - fixed buffer overflow during init              * */
+/* *                                                                        * */
+/* *             1.0.6 - 03/04/2003 - G.Juyn                                * */
+/* *             - fixed some compiler-warnings                             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -916,20 +919,11 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
       mng_uint8p pTemp = pBuf->pImgdata;
       mng_uint32 iX;
       
-/* SF-bug #664911 start */
-/*      for (iX = 0; iX < iImgdatasize; iX += 4)
+      for (iX = 0; iX < (iImgdatasize & (mng_uint32)(~3L)); iX += 4)
       {
         *((mng_uint32p)pTemp) = 0x00000000l;
         pTemp += 4;
-      } */
-      for (iX = 0; iX < (iImgdatasize & (mng_uint32)(~3L)); iX += 4)
-        *((mng_uint32p)pTemp)++ = 0x00000000l;
-      if (iImgdatasize & 2)
-        *((mng_uint16p)pTemp)++ = 0;
-      if (iImgdatasize & 1)
-        *((mng_uint8p)pTemp)++  = 0;
-/* SF-bug #664911 end */
-
+      }
       while (pTemp < (pBuf->pImgdata + iImgdatasize))
       {
         *pTemp = 0;

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_jpeg.c             copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : JPEG library interface (implementation)                    * */
 /* *                                                                        * */
@@ -45,6 +45,9 @@
 /* *                                                                        * */
 /* *             1.0.5 - 24/02/2003 - G.Juyn                                * */
 /* *             - B683152 - libjpeg suspension not always honored correctly* */
+/* *                                                                        * */
+/* *             1.0.6 - 03/04/2003 - G.Juyn                                * */
+/* *             - fixed some compiler-warnings                             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -588,7 +591,7 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
          (pData->pJPEGdinfo->output_scanline < pData->pJPEGdinfo->output_height) ||
          ((pData->bJPEGprogressive) && (pData->bJPEGscanending))))
     {
-      mng_int32 iLines;
+      mng_int32 iLines = 0;
 
       /* for (each output pass) */
       do
