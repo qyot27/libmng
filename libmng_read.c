@@ -845,11 +845,13 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
   {
     iRetcode = sEntry.fRead (pData, &sEntry, iBuflen, (mng_ptr)pBuf, &pChunk);
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
     if (!iRetcode)                     /* everything oke ? */
     {                                  /* remember unknown chunk's id */
       if ((pChunk) && (sEntry.iChunkname == MNG_UINT_HUH))
         ((mng_chunk_headerp)pChunk)->iChunkname = iChunkname;
     }
+#endif
   }
 #endif /* MNG_OPTIMIZE_CHUNKREADER */
   else

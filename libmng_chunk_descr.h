@@ -64,6 +64,11 @@ MNG_C_SPECIALFUNC (mng_special_phys) ;
 MNG_C_SPECIALFUNC (mng_special_sbit) ;
 MNG_C_SPECIALFUNC (mng_special_time) ;
 
+MNG_C_SPECIALFUNC (mng_special_jhdr) ;
+MNG_C_SPECIALFUNC (mng_special_jdaa) ;
+MNG_C_SPECIALFUNC (mng_special_jdat) ;
+MNG_C_SPECIALFUNC (mng_special_jsep) ;
+
 MNG_C_SPECIALFUNC (mng_special_mhdr) ;
 MNG_C_SPECIALFUNC (mng_special_mend) ;
 MNG_C_SPECIALFUNC (mng_special_loop) ;
@@ -77,6 +82,18 @@ MNG_C_SPECIALFUNC (mng_special_clip) ;
 MNG_C_SPECIALFUNC (mng_special_show) ;
 MNG_C_SPECIALFUNC (mng_special_term) ;
 MNG_C_SPECIALFUNC (mng_special_seek) ;
+MNG_C_SPECIALFUNC (mng_special_expi) ;
+MNG_C_SPECIALFUNC (mng_special_fpri) ;
+MNG_C_SPECIALFUNC (mng_special_need) ;
+MNG_C_SPECIALFUNC (mng_special_phyg) ;
+
+MNG_C_SPECIALFUNC (mng_special_dhdr) ;
+MNG_C_SPECIALFUNC (mng_special_prom) ;
+MNG_C_SPECIALFUNC (mng_special_ipng) ;
+MNG_C_SPECIALFUNC (mng_special_ijng) ;
+MNG_C_SPECIALFUNC (mng_special_dbyk) ;
+
+MNG_C_SPECIALFUNC (mng_special_unknown) ;
 
 /* ************************************************************************** */
 

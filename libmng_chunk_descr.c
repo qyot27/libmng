@@ -57,49 +57,49 @@ mng_field_descriptor mng_fields_ihdr [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 0x7FFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iHeight), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 0x7FFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iBitdepth), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 16, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 6, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iCompression), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iFilter), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ihdr, iInterlace), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 
@@ -107,27 +107,13 @@ mng_field_descriptor mng_fields_ihdr [] =
 
 mng_field_descriptor mng_fields_plte [] =
   {
-    {mng_field_int, MNG_NULL,
-     offsetof(mng_plte, aEntries), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
-     MNG_NULL, MNG_NULL,
-     0, 255, 1, 1,
-     MNG_FIELD_REPETITIVE, 256,
-     1, 0},
-    {mng_field_int, MNG_NULL,
-     offsetof(mng_plte, aEntries), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
-     MNG_NULL, MNG_NULL,
-     0, 255, 1, 1,
-     MNG_FIELD_REPETITIVE, 256,
-     1, 0},
-    {mng_field_int, MNG_NULL,
-     offsetof(mng_plte, aEntries), MNG_NULL,
+    {mng_field_char, MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
-     0, 255, 1, 1,
-     MNG_FIELD_REPETITIVE, 256,
-     1, 0}
+     MNG_NULL, MNG_NULL,
+     0, 0, 0, 768,
+     MNG_FIELD_OPTIONAL,
+     0, 0}
   };
 
 /* ************************************************************************** */
@@ -139,7 +125,7 @@ mng_field_descriptor mng_fields_idat [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_idat, iDatasize), MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 
@@ -153,7 +139,7 @@ mng_field_descriptor mng_fields_gama [] =
      MNG_NULL, MNG_NULL, 
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -168,56 +154,56 @@ mng_field_descriptor mng_fields_chrm [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iWhitepointy), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iRedx), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iRedy), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iGreeny), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iGreeny), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iBluex), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_chrm, iBluey), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -232,7 +218,7 @@ mng_field_descriptor mng_fields_srgb [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 4, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -247,21 +233,21 @@ mng_field_descriptor mng_fields_iccp [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_iccp, iNamesize), MNG_NULL,
      0, 0, 1, 79,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_iccp, iCompression), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_char, MNG_NULL,
      offsetof(mng_iccp, pProfile), MNG_NULL,
      MNG_NULL, MNG_NULL,
      offsetof(mng_iccp, iProfilesize), MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_DEFLATED, 0,
+     MNG_FIELD_DEFLATED,
      0, 0}
   };
 #endif
@@ -276,14 +262,14 @@ mng_field_descriptor mng_fields_text [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_text, iKeywordsize), MNG_NULL,
      0, 0, 1, 79,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_char, MNG_NULL,
      offsetof(mng_text, zText), MNG_NULL,
      MNG_NULL, MNG_NULL,
      offsetof(mng_text, iTextsize), MNG_NULL,
      0, 0, 0, 0,
-     0, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -298,21 +284,21 @@ mng_field_descriptor mng_fields_ztxt [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_ztxt, iKeywordsize), MNG_NULL,
      0, 0, 1, 79,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_ztxt, iCompression), MNG_NULL,
      MNG_NULL, MNG_NULL, 
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_char, MNG_NULL,
      offsetof(mng_ztxt, zText), MNG_NULL,
      MNG_NULL, MNG_NULL,
      offsetof(mng_ztxt, iTextsize), MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_DEFLATED, 0,
+     MNG_FIELD_DEFLATED,
      0, 0}
   };
 #endif
@@ -327,42 +313,42 @@ mng_field_descriptor mng_fields_itxt [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_itxt, iKeywordsize), MNG_NULL,
      0, 0, 1, 79,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_itxt, iCompressionflag), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_itxt, iCompressionmethod), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_char, MNG_NULL,
      offsetof(mng_itxt, zLanguage), MNG_NULL,
      MNG_NULL, MNG_NULL,
      offsetof(mng_itxt, iLanguagesize), MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_char, MNG_NULL,
      offsetof(mng_itxt, zTranslation), MNG_NULL,
      MNG_NULL, MNG_NULL,
      offsetof(mng_itxt, iTranslationsize), MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_TERMINATOR, 0,
+     MNG_FIELD_TERMINATOR,
      0, 0},
     {mng_field_char, mng_deflate_itxt,
-     MNG_NULL, MNG_NULL, 
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -374,45 +360,45 @@ mng_field_descriptor mng_fields_bkgd [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iType), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_PUTIMGTYPE, 0,
+     MNG_FIELD_PUTIMGTYPE,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iIndex), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_IFIMGTYPE3, 0,
+     MNG_FIELD_IFIMGTYPE3,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iGray), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_IFIMGTYPE0 | MNG_FIELD_IFIMGTYPE4, 0,
+     MNG_FIELD_IFIMGTYPE0 | MNG_FIELD_IFIMGTYPE4,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iRed), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iGreen), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_bkgd, iBlue), MNG_NULL,
      MNG_NULL, MNG_NULL, 
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0}
   };
 #endif
@@ -424,24 +410,24 @@ mng_field_descriptor mng_fields_phys [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_phys, iSizex), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_phys, iSizey), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_phys, iUnit), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -453,38 +439,38 @@ mng_field_descriptor mng_fields_sbit [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_sbit, iType), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 0, 0,
-     MNG_FIELD_PUTIMGTYPE, 0,
+     MNG_FIELD_PUTIMGTYPE,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_sbit, aBits[0]), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_IFIMGTYPES, 0,
+     MNG_FIELD_IFIMGTYPES,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_sbit, aBits[1]), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE4 | MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE4 | MNG_FIELD_IFIMGTYPE6,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_sbit, aBits[2]), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE6,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_sbit, aBits[3]), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_IFIMGTYPE6, 0,
+     MNG_FIELD_IFIMGTYPE6,
      0, 0}
   };
 #endif
@@ -499,42 +485,42 @@ mng_field_descriptor mng_fields_time [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_time, iMonth), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 12, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_time, iDay), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 31, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_time, iHour), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 24, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_time, iMinute), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 60, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_time, iSecond), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 60, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -542,6 +528,112 @@ mng_field_descriptor mng_fields_time [] =
 /* ************************************************************************** */
 /* ************************************************************************** */
 /* JNG chunks */
+
+#ifdef MNG_INCLUDE_JNG
+mng_field_descriptor mng_fields_jhdr [] =
+  {
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iWidth), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     1, 0x7FFFFFFF, 4, 4,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iHeight), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     1, 0x7FFFFFF, 4, 4,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iColortype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     8, 16, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iImagesampledepth), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     8, 20, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iImagecompression), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     8, 8, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iImageinterlace), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 8, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iAlphasampledepth), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 16, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iAlphacompression), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 8, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iAlphafilter), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_jhdr, iAlphainterlace), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 1, 1, 1,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+mng_field_descriptor mng_fields_jdaa [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_jdaa, pData), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_jdaa, iDatasize), MNG_NULL,
+     0, 0, 0, 0,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+mng_field_descriptor mng_fields_jdat [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_jdat, pData), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_jdat, iDatasize), MNG_NULL,
+     0, 0, 0, 0,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -551,52 +643,52 @@ mng_field_descriptor mng_fields_mhdr [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iHeight), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iTicks), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iLayercount), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iFramecount), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iPlaytime), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_mhdr, iSimplicity), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 
@@ -607,10 +699,10 @@ mng_field_descriptor mng_fields_endl [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_endl, iLevel), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -625,63 +717,63 @@ mng_field_descriptor mng_fields_defi [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iDonotshow), MNG_NULL,
      offsetof(mng_defi, bHasdonotshow), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iConcrete), MNG_NULL,
      offsetof(mng_defi, bHasconcrete), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFF, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iXlocation), MNG_NULL,
      offsetof(mng_defi, bHasloca), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iYlocation), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
-     offsetof(mng_defi, iLeftcb), MNG_NULL, 
+     offsetof(mng_defi, iLeftcb), MNG_NULL,
      offsetof(mng_defi, bHasclip), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      2, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iRightcb), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      2, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iTopcb), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      2, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_defi, iBottomcb), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      2, 0}
   };
 #endif
@@ -693,87 +785,87 @@ mng_field_descriptor mng_fields_basi [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iHeight), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iBitdepth), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 16, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 6, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iCompression), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iFilter), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iInterlace), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iRed), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iGreen), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iBlue), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iAlpha), MNG_NULL,
      offsetof(mng_basi, bHasalpha), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_basi, iViewable), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0}
   };
 #endif
@@ -785,59 +877,59 @@ mng_field_descriptor mng_fields_clon [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iSourceid), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iCloneid), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iClonetype), MNG_NULL,
      MNG_NULL, MNG_NULL, 
      MNG_NULL, MNG_NULL,
      0, 2, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iDonotshow), MNG_NULL,
      offsetof(mng_clon, bHasdonotshow), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iConcrete), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iLocationtype), MNG_NULL,
      offsetof(mng_clon, bHasloca), MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 2, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iLocationx), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clon, iLocationy), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0}
   };
 #endif
@@ -849,45 +941,45 @@ mng_field_descriptor mng_fields_back [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_back, iRed), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_back, iGreen), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_back, iBlue), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_back, iMandatory), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 3, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_back, iImageid), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
-     offsetof(mng_back, iTile), MNG_NULL, 
+     offsetof(mng_back, iTile), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0}
   };
 #endif
@@ -900,37 +992,37 @@ mng_field_descriptor mng_fields_move [] =
     {mng_field_int, MNG_NULL,
      offsetof(mng_move, iFirstid), MNG_NULL,
      MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_move, iLastid), MNG_NULL,
      MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_move, iMovetype), MNG_NULL,
      MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_move, iMovex), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_move, iMovey), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -942,52 +1034,52 @@ mng_field_descriptor mng_fields_clip [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iFirstid), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iLastid), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iCliptype), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 1, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iClipl), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iClipr), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iClipt), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_clip, iClipb), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
@@ -1002,21 +1094,21 @@ mng_field_descriptor mng_fields_show [] =
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 0xFFFF, 2, 2,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_show, iLastid), MNG_NULL,
      offsetof(mng_show, bHaslastid), MNG_NULL,
      MNG_NULL, MNG_NULL,
      1, 0xFFFF, 2, 2,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_show, iMode), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 7, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      0, 0},
   };
 #endif
@@ -1028,31 +1120,31 @@ mng_field_descriptor mng_fields_term [] =
   {
     {mng_field_int, MNG_NULL,
      offsetof(mng_term, iTermaction), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 3, 1, 1,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_term, iIteraction), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 2, 1, 1,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_term, iDelay), MNG_NULL,
-     MNG_NULL, MNG_NULL, 
+     MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
      0, 0xFFFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     MNG_FIELD_OPTIONAL,
      1, 0},
     {mng_field_int, MNG_NULL,
      offsetof(mng_term, iItermax), MNG_NULL,
      MNG_NULL, MNG_NULL,
      MNG_NULL, MNG_NULL,
-     0, 0x7FFFFFFF, 4, 4,
-     MNG_FIELD_OPTIONAL, 0,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_FIELD_OPTIONAL,
      1, 0}
   };
 #endif
@@ -1067,10 +1159,205 @@ mng_field_descriptor mng_fields_seek [] =
      MNG_NULL, MNG_NULL,
      offsetof(mng_seek, iNamesize), MNG_NULL,
      0, 0, 1, 79,
-     MNG_NULL, 0,
+     MNG_NULL,
      0, 0}
   };
 #endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_eXPI
+mng_field_descriptor mng_fields_expi [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_expi, iSnapshotid), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFF, 2, 2,
+     MNG_NULL,
+     0, 0},
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_expi, zName), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_expi, iNamesize), MNG_NULL,
+     0, 0, 1, 79,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_fPRI
+mng_field_descriptor mng_fields_fpri [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_fpri, iDeltatype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 1, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_fpri, iPriority), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFF, 1, 1,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_nEED
+mng_field_descriptor mng_fields_need [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_need, zKeywords), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_need, iKeywordssize), MNG_NULL,
+     0, 0, 1, 0,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_pHYg
+#define mng_fields_phyg mng_fields_phys
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+mng_field_descriptor mng_fields_dhdr [] =
+  {
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iObjectid), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFF, 2, 2,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iImagetype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 2, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iDeltatype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 7, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iBlockwidth), offsetof(mng_dhdr, bHasblocksize),
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_FIELD_OPTIONAL,
+     1, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iBlockheight), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_FIELD_OPTIONAL,
+     1, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iBlockx), offsetof(mng_dhdr, bHasblockloc),
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_FIELD_OPTIONAL,
+     2, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dhdr, iBlocky), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_FIELD_OPTIONAL,
+     2, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+mng_field_descriptor mng_fields_prom [] =
+  {
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_prom, iColortype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 14, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_prom, iSampledepth), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 16, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_prom, iFilltype), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 1, 1, 1,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
+mng_field_descriptor mng_fields_dbyk [] =
+  {
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dbyk, iChunkname), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 0xFFFFFFFF, 4, 4,
+     MNG_NULL,
+     0, 0},
+    {mng_field_int, MNG_NULL,
+     offsetof(mng_dbyk, iPolarity), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     0, 1, 1, 1,
+     MNG_NULL,
+     0, 0},
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_dbyk, zKeywords), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_dbyk, iKeywordssize), MNG_NULL,
+     0, 0, 1, 0,
+     MNG_NULL,
+     0, 0}
+  };
+#endif
+#endif
+
+/* ************************************************************************** */
+
+mng_field_descriptor mng_fields_unknown [] =
+  {
+    {mng_field_char, MNG_NULL,
+     offsetof(mng_unknown_chunk, pData), MNG_NULL,
+     MNG_NULL, MNG_NULL,
+     offsetof(mng_unknown_chunk, iDatasize), MNG_NULL,
+     0, 0, 1, 0,
+     MNG_NULL,
+     0, 0}
+  };
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -1229,6 +1516,45 @@ mng_chunk_descriptor mng_chunk_descr_time =
 /* ************************************************************************** */
 /* JNG chunks */
 
+#ifdef MNG_INCLUDE_JNG
+mng_chunk_descriptor mng_chunk_descr_jhdr =
+    {mng_it_jng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_jhdr,
+     mng_fields_jhdr, (sizeof(mng_fields_jhdr) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_NULL,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifdef MNG_INCLUDE_JNG
+mng_chunk_descriptor mng_chunk_descr_jdaa =
+    {mng_it_jng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_jdaa,
+     mng_fields_jdaa, (sizeof(mng_fields_jdaa) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_JngHDR,
+     MNG_DESCR_NOJSEP};
+#endif
+
+#ifdef MNG_INCLUDE_JNG
+mng_chunk_descriptor mng_chunk_descr_jdat =
+    {mng_it_jng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_jdat,
+     mng_fields_jdat, (sizeof(mng_fields_jdat) / sizeof(mng_field_descriptor)),
+     MNG_DESCR_EMPTYEMBED,
+     MNG_DESCR_JngHDR,
+     MNG_NULL};
+#endif
+
+#ifdef MNG_INCLUDE_JNG
+mng_chunk_descriptor mng_chunk_descr_jsep =
+    {mng_it_jng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_jsep,
+     MNG_NULL, 0,
+     MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
+     MNG_DESCR_JngHDR,
+     MNG_DESCR_NOJSEP};
+#endif
 
 /* ************************************************************************** */
 /* MNG chunks */
@@ -1349,11 +1675,118 @@ mng_chunk_descriptor mng_chunk_descr_seek =
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
+#ifndef MNG_SKIPCHUNK_eXPI
+mng_chunk_descriptor mng_chunk_descr_expi =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_expi,
+     mng_fields_expi, (sizeof(mng_fields_expi) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifndef MNG_SKIPCHUNK_fPRI
+mng_chunk_descriptor mng_chunk_descr_fpri =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_fpri,
+     mng_fields_fpri, (sizeof(mng_fields_fpri) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifndef MNG_SKIPCHUNK_nEED
+mng_chunk_descriptor mng_chunk_descr_need =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_need,
+     mng_fields_need, (sizeof(mng_fields_need) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifndef MNG_SKIPCHUNK_pHYg
+mng_chunk_descriptor mng_chunk_descr_phyg =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_phyg,
+     mng_fields_phyg, (sizeof(mng_fields_phyg) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifndef MNG_NO_DELTA_PNG
+mng_chunk_descriptor mng_chunk_descr_dhdr =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_dhdr,
+     mng_fields_dhdr, (sizeof(mng_fields_dhdr) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
+#endif
+
+#ifndef MNG_NO_DELTA_PNG
+mng_chunk_descriptor mng_chunk_descr_prom =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_prom,
+     mng_fields_prom, (sizeof(mng_fields_prom) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_MHDR | MNG_DESCR_DHDR,
+     MNG_NULL};
+#endif
+
+#ifndef MNG_NO_DELTA_PNG
+mng_chunk_descriptor mng_chunk_descr_ipng =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_ipng,
+     MNG_NULL, 0,
+     MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
+     MNG_DESCR_MHDR | MNG_DESCR_DHDR,
+     MNG_NULL};
+#endif
+
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
+mng_chunk_descriptor mng_chunk_descr_ijng =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_ijng,
+     MNG_NULL, 0,
+     MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
+     MNG_DESCR_MHDR | MNG_DESCR_DHDR,
+     MNG_NULL};
+#endif
+#endif
+
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
+mng_chunk_descriptor mng_chunk_descr_dbyk =
+    {mng_it_mng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_dbyk,
+     mng_fields_dbyk, (sizeof(mng_fields_dbyk) / sizeof(mng_field_descriptor)),
+     MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
+     MNG_DESCR_MHDR | MNG_DESCR_DHDR,
+     MNG_NULL};
+#endif
+#endif
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* the good ol' unknown babe */
+
+mng_chunk_descriptor mng_chunk_descr_unknown =
+    {mng_it_png, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_unknown,
+     mng_fields_unknown, (sizeof(mng_fields_unknown) / sizeof(mng_field_descriptor)),
+     MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
+     MNG_NULL,
+     MNG_NULL};
+
 /* ************************************************************************** */
 /* ************************************************************************** */
 
 mng_chunk_header mng_chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
-                                      mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, sizeof(mng_unknown_chunk)};
+                                      mng_read_general, mng_write_unknown, mng_assign_unknown,
+                                      0, 0, sizeof(mng_unknown_chunk), &mng_chunk_descr_unknown};
 
 /* ************************************************************************** */
 
@@ -1381,14 +1814,14 @@ mng_chunk_header mng_chunk_table [] =
 #endif
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
-    {MNG_UINT_DBYK, mng_init_general, mng_free_dbyk,    mng_read_dbyk,    mng_write_dbyk, mng_assign_dbyk,    0, 0, sizeof(mng_dbyk), MNG_NULL},
+    {MNG_UINT_DBYK, mng_init_general, mng_free_dbyk,    mng_read_general, mng_write_dbyk, mng_assign_dbyk,    0, 0, sizeof(mng_dbyk), &mng_chunk_descr_dbyk},
 #endif
 #endif
 #ifndef MNG_SKIPCHUNK_DEFI
     {MNG_UINT_DEFI, mng_init_general, mng_free_general, mng_read_general, mng_write_defi, mng_assign_general, 0, 0, sizeof(mng_defi), &mng_chunk_descr_defi},
 #endif
 #ifndef MNG_NO_DELTA_PNG
-    {MNG_UINT_DHDR, mng_init_general, mng_free_general, mng_read_dhdr,    mng_write_dhdr, mng_assign_general, 0, 0, sizeof(mng_dhdr), MNG_NULL},
+    {MNG_UINT_DHDR, mng_init_general, mng_free_general, mng_read_general, mng_write_dhdr, mng_assign_general, 0, 0, sizeof(mng_dhdr), &mng_chunk_descr_dhdr},
 #endif
 #ifndef MNG_SKIPCHUNK_DISC
     {MNG_UINT_DISC, mng_init_general, mng_free_disc,    mng_read_disc,    mng_write_disc, mng_assign_disc,    0, 0, sizeof(mng_disc), MNG_NULL},
@@ -1409,16 +1842,16 @@ mng_chunk_header mng_chunk_table [] =
     {MNG_UINT_IHDR, mng_init_general, mng_free_general, mng_read_general, mng_write_ihdr, mng_assign_general, 0, 0, sizeof(mng_ihdr), &mng_chunk_descr_ihdr},
 #ifndef MNG_NO_DELTA_PNG
 #ifdef MNG_INCLUDE_JNG
-    {MNG_UINT_IJNG, mng_init_general, mng_free_general, mng_read_ijng,    mng_write_ijng, mng_assign_general, 0, 0, sizeof(mng_ijng), MNG_NULL},
+    {MNG_UINT_IJNG, mng_init_general, mng_free_general, mng_read_general, mng_write_ijng, mng_assign_general, 0, 0, sizeof(mng_ijng), &mng_chunk_descr_ijng},
 #endif
-    {MNG_UINT_IPNG, mng_init_general, mng_free_general, mng_read_ipng,    mng_write_ipng, mng_assign_general, 0, 0, sizeof(mng_ipng), MNG_NULL},
+    {MNG_UINT_IPNG, mng_init_general, mng_free_general, mng_read_general, mng_write_ipng, mng_assign_general, 0, 0, sizeof(mng_ipng), &mng_chunk_descr_ipng},
 #endif
 #ifdef MNG_INCLUDE_JNG
-    {MNG_UINT_JDAA, mng_init_general, mng_free_jdaa,    mng_read_jdaa,    mng_write_jdaa, mng_assign_jdaa,    0, 0, sizeof(mng_jdaa), MNG_NULL},
-    {MNG_UINT_JDAT, mng_init_general, mng_free_jdat,    mng_read_jdat,    mng_write_jdat, mng_assign_jdat,    0, 0, sizeof(mng_jdat), MNG_NULL},
-    {MNG_UINT_JHDR, mng_init_general, mng_free_general, mng_read_jhdr,    mng_write_jhdr, mng_assign_general, 0, 0, sizeof(mng_jhdr), MNG_NULL},
-    {MNG_UINT_JSEP, mng_init_general, mng_free_general, mng_read_jsep,    mng_write_jsep, mng_assign_general, 0, 0, sizeof(mng_jsep), MNG_NULL},
-    {MNG_UINT_JdAA, mng_init_general, mng_free_jdaa,    mng_read_jdaa,    mng_write_jdaa, mng_assign_jdaa,    0, 0, sizeof(mng_jdaa), MNG_NULL},
+    {MNG_UINT_JDAA, mng_init_general, mng_free_jdaa,    mng_read_general, mng_write_jdaa, mng_assign_jdaa,    0, 0, sizeof(mng_jdaa), &mng_chunk_descr_jdaa},
+    {MNG_UINT_JDAT, mng_init_general, mng_free_jdat,    mng_read_general, mng_write_jdat, mng_assign_jdat,    0, 0, sizeof(mng_jdat), &mng_chunk_descr_jdat},
+    {MNG_UINT_JHDR, mng_init_general, mng_free_general, mng_read_general, mng_write_jhdr, mng_assign_general, 0, 0, sizeof(mng_jhdr), &mng_chunk_descr_jhdr},
+    {MNG_UINT_JSEP, mng_init_general, mng_free_general, mng_read_general, mng_write_jsep, mng_assign_general, 0, 0, sizeof(mng_jsep), &mng_chunk_descr_jsep},
+    {MNG_UINT_JdAA, mng_init_general, mng_free_jdaa,    mng_read_general, mng_write_jdaa, mng_assign_jdaa,    0, 0, sizeof(mng_jdaa), &mng_chunk_descr_jdaa},
 #endif
 #ifndef MNG_SKIPCHUNK_LOOP
     {MNG_UINT_LOOP, mng_init_general, mng_free_loop,    mng_read_loop,    mng_write_loop, mng_assign_loop,    0, 0, sizeof(mng_loop), MNG_NULL},
@@ -1442,7 +1875,7 @@ mng_chunk_header mng_chunk_table [] =
     {MNG_UINT_PLTE, mng_init_general, mng_free_general, mng_read_plte,    mng_write_plte, mng_assign_general, 0, 0, sizeof(mng_plte), &mng_chunk_descr_plte},
 #ifndef MNG_NO_DELTA_PNG
     {MNG_UINT_PPLT, mng_init_general, mng_free_general, mng_read_pplt,    mng_write_pplt, mng_assign_general, 0, 0, sizeof(mng_pplt), MNG_NULL},
-    {MNG_UINT_PROM, mng_init_general, mng_free_general, mng_read_prom,    mng_write_prom, mng_assign_general, 0, 0, sizeof(mng_prom), MNG_NULL},
+    {MNG_UINT_PROM, mng_init_general, mng_free_general, mng_read_general, mng_write_prom, mng_assign_general, 0, 0, sizeof(mng_prom), &mng_chunk_descr_prom},
 #endif
 #ifndef MNG_SKIPCHUNK_SAVE
     {MNG_UINT_SAVE, mng_init_general, mng_free_save,    mng_read_save,    mng_write_save, mng_assign_save,    0, 0, sizeof(mng_save), MNG_NULL},
@@ -1463,13 +1896,13 @@ mng_chunk_header mng_chunk_table [] =
     {MNG_UINT_cHRM, mng_init_general, mng_free_general, mng_read_general, mng_write_chrm, mng_assign_general, 0, 0, sizeof(mng_chrm), &mng_chunk_descr_chrm},
 #endif
 #ifndef MNG_SKIPCHUNK_eXPI
-    {MNG_UINT_eXPI, mng_init_general, mng_free_expi,    mng_read_expi,    mng_write_expi, mng_assign_expi,    0, 0, sizeof(mng_expi), MNG_NULL},
+    {MNG_UINT_eXPI, mng_init_general, mng_free_expi,    mng_read_general, mng_write_expi, mng_assign_expi,    0, 0, sizeof(mng_expi), &mng_chunk_descr_expi},
 #endif
 #ifndef MNG_SKIPCHUNK_evNT
     {MNG_UINT_evNT, mng_init_general, mng_free_evnt,    mng_read_evnt,    mng_write_evnt, mng_assign_evnt,    0, 0, sizeof(mng_evnt), MNG_NULL},
 #endif
 #ifndef MNG_SKIPCHUNK_fPRI
-    {MNG_UINT_fPRI, mng_init_general, mng_free_general, mng_read_fpri,    mng_write_fpri, mng_assign_general, 0, 0, sizeof(mng_fpri), MNG_NULL},
+    {MNG_UINT_fPRI, mng_init_general, mng_free_general, mng_read_general, mng_write_fpri, mng_assign_general, 0, 0, sizeof(mng_fpri), &mng_chunk_descr_fpri},
 #endif
 #ifndef MNG_SKIPCHUNK_gAMA
     {MNG_UINT_gAMA, mng_init_general, mng_free_general, mng_read_general, mng_write_gama, mng_assign_general, 0, 0, sizeof(mng_gama), &mng_chunk_descr_gama},
@@ -1484,12 +1917,12 @@ mng_chunk_header mng_chunk_table [] =
     {MNG_UINT_iTXt, mng_init_general, mng_free_itxt,    mng_read_general, mng_write_itxt, mng_assign_itxt,    0, 0, sizeof(mng_itxt), &mng_chunk_descr_itxt},
 #endif
 #ifndef MNG_SKIPCHUNK_nEED
-    {MNG_UINT_nEED, mng_init_general, mng_free_need,    mng_read_need,    mng_write_need, mng_assign_need,    0, 0, sizeof(mng_need), MNG_NULL},
+    {MNG_UINT_nEED, mng_init_general, mng_free_need,    mng_read_general, mng_write_need, mng_assign_need,    0, 0, sizeof(mng_need), &mng_chunk_descr_need},
 #endif
 /* TODO:     {MNG_UINT_oFFs, 0, 0, 0, 0, 0, 0},  */
 /* TODO:     {MNG_UINT_pCAL, 0, 0, 0, 0, 0, 0},  */
 #ifndef MNG_SKIPCHUNK_pHYg
-    {MNG_UINT_pHYg, mng_init_general, mng_free_general, mng_read_phyg,    mng_write_phyg, mng_assign_general, 0, 0, sizeof(mng_phyg), MNG_NULL},
+    {MNG_UINT_pHYg, mng_init_general, mng_free_general, mng_read_general, mng_write_phyg, mng_assign_general, 0, 0, sizeof(mng_phyg), &mng_chunk_descr_phyg},
 #endif
 #ifndef MNG_SKIPCHUNK_pHYs
     {MNG_UINT_pHYs, mng_init_general, mng_free_general, mng_read_general, mng_write_phys, mng_assign_general, 0, 0, sizeof(mng_phys), &mng_chunk_descr_phys},
@@ -2569,13 +3002,10 @@ MNG_C_SPECIALFUNC (mng_special_basi)
                                                 ((mng_basip)pChunk)->iViewable);
 
     if (!iRetcode)                     /* display-processing... */
-      iRetcode = mng_process_display_basi (pData,
-                                           ((mng_basip)pChunk)->iRed,
-                                           ((mng_basip)pChunk)->iGreen,
-                                           ((mng_basip)pChunk)->iBlue,
-                                           ((mng_basip)pChunk)->bHasalpha,
-                                           ((mng_basip)pChunk)->iAlpha,
-                                           ((mng_basip)pChunk)->iViewable);
+    {
+      mng_object_headerp pObj = pData->pLastaniobj;
+      iRetcode = pObj->fProcess (pData, pObj);
+    }
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -2610,17 +3040,10 @@ MNG_C_SPECIALFUNC (mng_special_clon)
                                               ((mng_clonp)pChunk)->iLocationy);
 
   if (!iRetcode)                       /* do display processing */
-    iRetcode = mng_process_display_clon (pData,
-                                         ((mng_clonp)pChunk)->iSourceid,
-                                         ((mng_clonp)pChunk)->iCloneid,
-                                         ((mng_clonp)pChunk)->iClonetype,
-                                         ((mng_clonp)pChunk)->bHasdonotshow,
-                                         ((mng_clonp)pChunk)->iDonotshow,
-                                         ((mng_clonp)pChunk)->iConcrete,
-                                         ((mng_clonp)pChunk)->bHasloca,
-                                         ((mng_clonp)pChunk)->iLocationtype,
-                                         ((mng_clonp)pChunk)->iLocationx,
-                                         ((mng_clonp)pChunk)->iLocationy);
+  {
+    mng_object_headerp pObj = pData->pLastaniobj;
+    iRetcode = pObj->fProcess (pData, pObj);
+  }
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2671,13 +3094,11 @@ MNG_C_SPECIALFUNC (mng_special_move)
                                               ((mng_movep)pChunk)->iMovex,
                                               ((mng_movep)pChunk)->iMovey);
 
-  if (!iRetcode)                       /* process the move */
-    iRetcode = mng_process_display_move (pData,
-                                         ((mng_movep)pChunk)->iFirstid,
-                                         ((mng_movep)pChunk)->iLastid,
-                                         ((mng_movep)pChunk)->iMovetype,
-                                         ((mng_movep)pChunk)->iMovex,
-                                         ((mng_movep)pChunk)->iMovey);
+  if (!iRetcode)
+  {                                    /* process the move */
+    mng_object_headerp pObj = pData->pLastaniobj;
+    iRetcode = pObj->fProcess (pData, pObj);
+  }
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2703,15 +3124,11 @@ MNG_C_SPECIALFUNC (mng_special_clip)
                                               ((mng_clipp)pChunk)->iClipt,
                                               ((mng_clipp)pChunk)->iClipb);
 
-  if (!iRetcode)                       /* process the clipping */
-    iRetcode = mng_process_display_clip (pData,
-                                         ((mng_clipp)pChunk)->iFirstid,
-                                         ((mng_clipp)pChunk)->iLastid,
-                                         ((mng_clipp)pChunk)->iCliptype,
-                                         ((mng_clipp)pChunk)->iClipl,
-                                         ((mng_clipp)pChunk)->iClipr,
-                                         ((mng_clipp)pChunk)->iClipt,
-                                         ((mng_clipp)pChunk)->iClipb);
+  if (!iRetcode)
+  {                                    /* process the clipping */
+    mng_object_headerp pObj = pData->pLastaniobj;
+    iRetcode = pObj->fProcess (pData, pObj);
+  }
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2834,6 +3251,614 @@ MNG_C_SPECIALFUNC (mng_special_seek)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_eXPI
+MNG_C_SPECIALFUNC (mng_special_expi)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+
+
+    /* TODO: something !!! */
+
+
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_fPRI
+MNG_C_SPECIALFUNC (mng_special_fpri)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+
+
+    /* TODO: something !!! */
+
+
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_nEED
+MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
+                                 mng_uint8p pKeyword)
+{
+  mng_chunkid handled_chunks [] =
+  {
+    MNG_UINT_BACK,                     /* keep it sorted !!!! */
+    MNG_UINT_BASI,
+    MNG_UINT_CLIP,
+    MNG_UINT_CLON,
+#ifndef MNG_NO_DELTA_PNG
+/* TODO:    MNG_UINT_DBYK,  */
+#endif
+    MNG_UINT_DEFI,
+#ifndef MNG_NO_DELTA_PNG
+    MNG_UINT_DHDR,
+#endif
+    MNG_UINT_DISC,
+#ifndef MNG_NO_DELTA_PNG
+/* TODO:    MNG_UINT_DROP,  */
+#endif
+    MNG_UINT_ENDL,
+    MNG_UINT_FRAM,
+    MNG_UINT_IDAT,
+    MNG_UINT_IEND,
+    MNG_UINT_IHDR,
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
+    MNG_UINT_IJNG,
+#endif    
+    MNG_UINT_IPNG,
+#endif
+#ifdef MNG_INCLUDE_JNG
+    MNG_UINT_JDAA,
+    MNG_UINT_JDAT,
+    MNG_UINT_JHDR,
+/* TODO:    MNG_UINT_JSEP,  */
+    MNG_UINT_JdAA,
+#endif
+    MNG_UINT_LOOP,
+    MNG_UINT_MAGN,
+    MNG_UINT_MEND,
+    MNG_UINT_MHDR,
+    MNG_UINT_MOVE,
+/* TODO:    MNG_UINT_ORDR,  */
+    MNG_UINT_PAST,
+    MNG_UINT_PLTE,
+#ifndef MNG_NO_DELTA_PNG
+    MNG_UINT_PPLT,
+    MNG_UINT_PROM,
+#endif
+    MNG_UINT_SAVE,
+    MNG_UINT_SEEK,
+    MNG_UINT_SHOW,
+    MNG_UINT_TERM,
+    MNG_UINT_bKGD,
+    MNG_UINT_cHRM,
+/* TODO:    MNG_UINT_eXPI,  */
+    MNG_UINT_evNT,
+/* TODO:    MNG_UINT_fPRI,  */
+    MNG_UINT_gAMA,
+/* TODO:    MNG_UINT_hIST,  */
+    MNG_UINT_iCCP,
+    MNG_UINT_iTXt,
+    MNG_UINT_nEED,
+/* TODO:    MNG_UINT_oFFs,  */
+/* TODO:    MNG_UINT_pCAL,  */
+/* TODO:    MNG_UINT_pHYg,  */
+/* TODO:    MNG_UINT_pHYs,  */
+/* TODO:    MNG_UINT_sBIT,  */
+/* TODO:    MNG_UINT_sCAL,  */
+/* TODO:    MNG_UINT_sPLT,  */
+    MNG_UINT_sRGB,
+    MNG_UINT_tEXt,
+    MNG_UINT_tIME,
+    MNG_UINT_tRNS,
+    MNG_UINT_zTXt,
+  };
+
+  mng_bool bOke = MNG_FALSE;
+
+  if (pData->fProcessneed)             /* does the app handle it ? */
+    bOke = pData->fProcessneed ((mng_handle)pData, (mng_pchar)pKeyword);
+
+  if (!bOke)
+  {                                    /* find the keyword length */
+    mng_uint8p pNull = pKeyword;
+    while (*pNull)
+      pNull++;
+
+    if ((pNull - pKeyword) == 4)       /* test a chunk ? */
+    {                                  /* get the chunk-id */
+      mng_chunkid iChunkid = (*pKeyword     << 24) + (*(pKeyword+1) << 16) +
+                             (*(pKeyword+2) <<  8) + (*(pKeyword+3)      );
+                                       /* binary search variables */
+      mng_int32   iTop, iLower, iUpper, iMiddle;
+                                       /* determine max index of table */
+      iTop = (sizeof (handled_chunks) / sizeof (handled_chunks [0])) - 1;
+
+      /* binary search; with 52 chunks, worst-case is 7 comparisons */
+      iLower  = 0;
+      iMiddle = iTop >> 1;
+      iUpper  = iTop;
+
+      do                                   /* the binary search itself */
+        {
+          if (handled_chunks [iMiddle] < iChunkid)
+            iLower = iMiddle + 1;
+          else if (handled_chunks [iMiddle] > iChunkid)
+            iUpper = iMiddle - 1;
+          else
+          {
+            bOke = MNG_TRUE;
+            break;
+          }
+
+          iMiddle = (iLower + iUpper) >> 1;
+        }
+      while (iLower <= iUpper);
+    }
+                                       /* test draft ? */
+    if ((!bOke) && ((pNull - pKeyword) == 8) &&
+        (*pKeyword     == 'd') && (*(pKeyword+1) == 'r') &&
+        (*(pKeyword+2) == 'a') && (*(pKeyword+3) == 'f') &&
+        (*(pKeyword+4) == 't') && (*(pKeyword+5) == ' '))
+    {
+      mng_uint32 iDraft;
+
+      iDraft = (*(pKeyword+6) - '0') * 10 + (*(pKeyword+7) - '0');
+      bOke   = (mng_bool)(iDraft <= MNG_MNG_DRAFT);
+    }
+                                       /* test MNG 1.0/1.1 ? */
+    if ((!bOke) && ((pNull - pKeyword) == 7) &&
+        (*pKeyword     == 'M') && (*(pKeyword+1) == 'N') &&
+        (*(pKeyword+2) == 'G') && (*(pKeyword+3) == '-') &&
+        (*(pKeyword+4) == '1') && (*(pKeyword+5) == '.') &&
+        ((*(pKeyword+6) == '0') || (*(pKeyword+6) == '1')))
+      bOke   = MNG_TRUE;
+                                       /* test CACHEOFF ? */
+    if ((!bOke) && ((pNull - pKeyword) == 8) &&
+        (*pKeyword     == 'C') && (*(pKeyword+1) == 'A') &&
+        (*(pKeyword+2) == 'C') && (*(pKeyword+3) == 'H') &&
+        (*(pKeyword+4) == 'E') && (*(pKeyword+5) == 'O') &&
+        (*(pKeyword+6) == 'F') && (*(pKeyword+7) == 'F'))
+    {
+      if (!pData->pFirstaniobj)        /* only if caching hasn't started yet ! */
+      {
+        bOke                  = MNG_TRUE;
+        pData->bCacheplayback = MNG_FALSE;
+        pData->bStorechunks   = MNG_FALSE;
+      }
+    }
+  }
+
+  return bOke;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_nEED
+MNG_C_SPECIALFUNC (mng_special_need)
+{
+                                       /* let's check it */
+  mng_bool   bOke = MNG_TRUE;
+  mng_uint8p pNull, pTemp;
+
+  pTemp = (mng_uint8p)((mng_needp)pChunk)->zKeywords;
+  pNull = pTemp;
+  while (*pNull)
+    pNull++;
+
+  while ((bOke) && (pNull < (mng_uint8p)(((mng_needp)pChunk)->zKeywords + ((mng_needp)pChunk)->iKeywordssize)))
+  {
+    bOke  = CheckKeyword (pData, pTemp);
+    pTemp = pNull + 1;
+    pNull = pTemp;
+    while (*pNull)
+      pNull++;
+  }
+
+  if (bOke)
+    bOke = CheckKeyword (pData, pTemp);
+
+  if (!bOke)
+    MNG_ERROR (pData, MNG_UNSUPPORTEDNEED)
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_SKIPCHUNK_pHYg
+MNG_C_SPECIALFUNC (mng_special_phyg)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+
+
+    /* TODO: something !!! */
+
+
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jhdr)
+{
+  if ((pData->eSigtype == mng_it_jng) && (pData->iChunkseq > 1))
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* inside a JHDR-IEND block now */
+  pData->bHasJHDR              = MNG_TRUE;
+                                       /* and store interesting fields */
+  pData->iDatawidth            = ((mng_jhdrp)pChunk)->iWidth;
+  pData->iDataheight           = ((mng_jhdrp)pChunk)->iHeight;
+  pData->iJHDRcolortype        = ((mng_jhdrp)pChunk)->iColortype;
+  pData->iJHDRimgbitdepth      = ((mng_jhdrp)pChunk)->iImagesampledepth;
+  pData->iJHDRimgcompression   = ((mng_jhdrp)pChunk)->iImagecompression;
+  pData->iJHDRimginterlace     = ((mng_jhdrp)pChunk)->iImageinterlace;
+  pData->iJHDRalphabitdepth    = ((mng_jhdrp)pChunk)->iAlphasampledepth;
+  pData->iJHDRalphacompression = ((mng_jhdrp)pChunk)->iAlphacompression;
+  pData->iJHDRalphafilter      = ((mng_jhdrp)pChunk)->iAlphafilter;
+  pData->iJHDRalphainterlace   = ((mng_jhdrp)pChunk)->iAlphainterlace;
+
+#if defined(MNG_NO_1_2_4BIT_SUPPORT) || defined(MNG_NO_16BIT_SUPPORT)
+  pData->iPNGmult = 1;
+  pData->iPNGdepth = pData->iJHDRalphabitdepth;
+#endif
+
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+  if (pData->iJHDRalphabitdepth < 8)
+    pData->iJHDRalphabitdepth = 8;
+#endif
+
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (pData->iJHDRalphabitdepth > 8)
+  {
+    pData->iPNGmult = 2;
+    pData->iJHDRalphabitdepth = 8;
+  }
+#endif
+                                       /* parameter validity checks */
+  if ((pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAY  ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
+      (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLORA)    )
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+
+  if ((pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8     ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG12    ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8AND12)    )
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+  if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+      (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+  {
+    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 )
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 )
+#endif
+#ifndef MNG_NO_16BIT_SUPPORT
+        && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
+#endif
+        )
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+    if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
+        (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)    )
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+
+    if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
+        (pData->iJHDRalphabitdepth    !=  MNG_BITDEPTH_8             )    )
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+#if defined(FILTER192) || defined(FILTER193)
+    if ((pData->iJHDRalphafilter != MNG_FILTER_ADAPTIVE ) &&
+#if defined(FILTER192) && defined(FILTER193)
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING) &&
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#else
+#ifdef FILTER192
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING)    )
+#else
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#endif
+#endif
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+#else
+    if (pData->iJHDRalphafilter)
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+#endif
+
+  }
+  else
+  {
+    if (pData->iJHDRalphabitdepth)
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    if (pData->iJHDRalphacompression)
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+    if (pData->iJHDRalphafilter)
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+    if (pData->iJHDRalphainterlace)
+      MNG_ERROR (pData, MNG_INVALIDINTERLACE)
+  }
+
+  if (!pData->bHasheader)              /* first chunk ? */
+  {
+    pData->bHasheader = MNG_TRUE;      /* we've got a header */
+    pData->eImagetype = mng_it_jng;    /* then this must be a JNG */
+    pData->iWidth     = ((mng_jhdrp)pChunk)->iWidth;
+    pData->iHeight    = ((mng_jhdrp)pChunk)->iHeight;
+                                       /* predict alpha-depth ! */
+    if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
+        (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
+      pData->iAlphadepth = pData->iJHDRalphabitdepth;
+    else
+      pData->iAlphadepth = 0;
+                                       /* fits on maximum canvas ? */
+    if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
+      MNG_WARNING (pData, MNG_IMAGETOOLARGE)
+
+    if (pData->fProcessheader)         /* inform the app ? */
+      if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
+        MNG_ERROR (pData, MNG_APPMISCERROR)
+
+  }
+
+  pData->iColortype = 0;               /* fake grayscale for other routines */
+  pData->iImagelevel++;                /* one level deeper */
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+    mng_retcode iRetcode = mng_process_display_jhdr (pData);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (((mng_jhdrp)pChunk)->iAlphasampledepth > 8)
+    ((mng_jhdrp)pChunk)->iAlphasampledepth = 8;
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jdaa)
+{
+  if (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
+  return MNG_NOERROR;                  /* done */
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jdat)
+{
+  pData->bHasJDAT = MNG_TRUE;          /* got some JDAT now, don't we */
+  return MNG_NOERROR;                  /* done */
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_jsep)
+{
+  pData->bHasJSEP = MNG_TRUE;          /* indicate we've had the 8-/12-bit separator */
+  return MNG_NOERROR;                  /* done */
+}
+#endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+MNG_C_SPECIALFUNC (mng_special_dhdr)
+{
+  if ((((mng_dhdrp)pChunk)->iDeltatype == MNG_DELTATYPE_REPLACE) && (((mng_dhdrp)pChunk)->bHasblockloc))
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+  if ((((mng_dhdrp)pChunk)->iDeltatype == MNG_DELTATYPE_NOCHANGE) && (((mng_dhdrp)pChunk)->bHasblocksize))
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+  pData->bHasDHDR   = MNG_TRUE;        /* inside a DHDR-IEND block now */
+  pData->iDeltatype = ((mng_dhdrp)pChunk)->iDeltatype;
+
+  pData->iImagelevel++;                /* one level deeper */
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+    mng_retcode iRetcode = mng_create_ani_dhdr (pData,
+                                                ((mng_dhdrp)pChunk)->iObjectid,
+                                                ((mng_dhdrp)pChunk)->iImagetype,
+                                                ((mng_dhdrp)pChunk)->iDeltatype,
+                                                ((mng_dhdrp)pChunk)->iBlockwidth,
+                                                ((mng_dhdrp)pChunk)->iBlockheight,
+                                                ((mng_dhdrp)pChunk)->iBlockx,
+                                                ((mng_dhdrp)pChunk)->iBlocky);
+
+    if (!iRetcode)                     /* display processing ? */
+    {
+      mng_object_headerp pObj = pData->pLastaniobj;
+      iRetcode = pObj->fProcess (pData, pObj);
+    }
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+MNG_C_SPECIALFUNC (mng_special_prom)
+{
+  if ((((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_GRAY   ) &&
+      (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_RGB    ) &&
+      (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_INDEXED) &&
+      (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_GRAYA  ) &&
+      (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_RGBA   )    )
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+
+#ifdef MNG_NO_16BIT_SUPPORT
+  if (((mng_promp)pChunk)->iSampledepth == MNG_BITDEPTH_16 )
+      ((mng_promp)pChunk)->iSampledepth = MNG_BITDEPTH_8;
+#endif
+
+  if ((((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_1 ) &&
+      (((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_2 ) &&
+      (((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_4 ) &&
+      (((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_8 )
+#ifndef MNG_NO_16BIT_SUPPORT
+      && (((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_16)
+#endif
+    )
+    MNG_ERROR (pData, MNG_INVSAMPLEDEPTH)
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+    mng_retcode iRetcode = mng_create_ani_prom (pData,
+                                                ((mng_promp)pChunk)->iSampledepth,
+                                                ((mng_promp)pChunk)->iColortype,
+                                                ((mng_promp)pChunk)->iFilltype);
+
+    if (!iRetcode)                     /* display processing ? */
+      iRetcode = mng_process_display_prom (pData,
+                                           ((mng_promp)pChunk)->iSampledepth,
+                                           ((mng_promp)pChunk)->iColortype,
+                                           ((mng_promp)pChunk)->iFilltype);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+MNG_C_SPECIALFUNC (mng_special_ipng)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  mng_retcode iRetcode = mng_create_ani_ipng (pData);
+  if (!iRetcode)                       /* process it */
+    iRetcode = mng_process_display_ipng (pData);
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+#ifdef MNG_INCLUDE_JNG
+MNG_C_SPECIALFUNC (mng_special_ijng)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  mng_retcode iRetcode = mng_create_ani_ijng (pData);
+  if (!iRetcode)                       /* process it */
+    iRetcode = mng_process_display_ijng (pData);
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_NO_DELTA_PNG
+#ifndef MNG_SKIPCHUNK_DBYK
+MNG_C_SPECIALFUNC (mng_special_dbyk)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+
+
+    /* TODO: something !!! */
+
+
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+#endif
+
+/* ************************************************************************** */
+
+MNG_C_SPECIALFUNC (mng_special_unknown)
+{
+                                       /* critical chunk ? */
+  if ((((mng_uint32)pData->iChunkname & 0x20000000) == 0)
+#ifdef MNG_SKIPCHUNK_SAVE
+    && (pData->iChunkname != MNG_UINT_SAVE)
+#endif
+#ifdef MNG_SKIPCHUNK_SEEK
+    && (pData->iChunkname != MNG_UINT_SEEK)
+#endif
+#ifdef MNG_SKIPCHUNK_DBYK
+    && (pData->iChunkname != MNG_UINT_DBYK)
+#endif
+#ifdef MNG_SKIPCHUNK_ORDR
+    && (pData->iChunkname != MNG_UINT_ORDR)
+#endif
+      )
+    MNG_ERROR (pData, MNG_UNKNOWNCRITICAL)
+
+  if (pData->fProcessunknown)          /* let the app handle it ? */
+  {
+    mng_bool bOke = pData->fProcessunknown ((mng_handle)pData, pData->iChunkname,
+                                            ((mng_unknown_chunkp)pChunk)->iDatasize,
+                                            ((mng_unknown_chunkp)pChunk)->pData);
+    if (!bOke)
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+  }
+
+  return MNG_NOERROR;                  /* done */
+}
 
 /* ************************************************************************** */
 

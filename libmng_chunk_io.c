@@ -676,7 +676,13 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  if ((((mng_chunk_headerp)pHeader)->iChunkname != MNG_UINT_IDAT) || (!bWorkcopy))
+  if (((mng_chunk_headerp)(*ppChunk))->iChunkname == MNG_UINT_HUH)
+    ((mng_chunk_headerp)(*ppChunk))->iChunkname = pData->iChunkname;
+
+  if ((!bWorkcopy) ||
+      ((((mng_chunk_headerp)pHeader)->iChunkname != MNG_UINT_IDAT) &&
+       (((mng_chunk_headerp)pHeader)->iChunkname != MNG_UINT_JDAT) &&
+       (((mng_chunk_headerp)pHeader)->iChunkname != MNG_UINT_JDAA)   ))
   {
     pChunkdata = (mng_uint8p)(*ppChunk);
 
@@ -883,6 +889,12 @@ READ_CHUNK (mng_read_general)
         (!pData->bHasIHDR) && (!pData->bHasBASI) && (!pData->bHasDHDR))
 #endif
       MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+#ifdef MNG_INCLUDE_JNG
+    if ((pDescr->iMusthaves & MNG_DESCR_JngHDR) &&
+        (!pData->bHasDHDR) && (!pData->bHasJHDR))
+      MNG_ERROR (pData, MNG_SEQUENCEERROR)
+#endif
   }
                                        /* specific chunk pre-requisite ? */
   if (((pDescr->iMusthaves & MNG_DESCR_IHDR) && (!pData->bHasIHDR)) ||
@@ -942,7 +954,9 @@ READ_CHUNK (mng_read_general)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
+    if ((((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT) ||
+        (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT) ||
+        (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)    )
     {
       iRetcode = ((mng_chunk_headerp)*ppChunk)->fCleanup (pData, *ppChunk);
       if (iRetcode)                    /* on error bail out */
@@ -962,11 +976,26 @@ READ_CHUNK (mng_read_general)
   }
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if ((((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT) && (iRawlen))
-  {                                    /* display processing */
-    iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
+  if (iRawlen)
+  {
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_IDAT)
+    {                                  /* display processing */
+      iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAT)
+    {                                  /* display processing */
+      iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+    if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_JDAA)
+    {                                  /* display processing */
+      iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -5565,6 +5594,7 @@ READ_CHUNK (mng_read_seek)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_eXPI
 READ_CHUNK (mng_read_expi)
 {
@@ -5623,9 +5653,11 @@ READ_CHUNK (mng_read_expi)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_fPRI
 READ_CHUNK (mng_read_fpri)
 {
@@ -5676,9 +5708,11 @@ READ_CHUNK (mng_read_fpri)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_nEED
 MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
                                  mng_uint8p pKeyword)
@@ -5834,9 +5868,11 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
   return bOke;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_nEED
 READ_CHUNK (mng_read_need)
 {
@@ -5911,9 +5947,11 @@ READ_CHUNK (mng_read_need)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_pHYg
 READ_CHUNK (mng_read_phyg)
 {
@@ -5970,9 +6008,11 @@ READ_CHUNK (mng_read_phyg)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jhdr)
 {
@@ -6172,9 +6212,11 @@ READ_CHUNK (mng_read_jhdr)
 #else
 #define read_jhdr 0
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jdaa)
 {
@@ -6237,9 +6279,11 @@ READ_CHUNK (mng_read_jdaa)
 #else
 #define read_jdaa 0
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jdat)
 {
@@ -6296,9 +6340,11 @@ READ_CHUNK (mng_read_jdat)
 #else
 #define read_jdat 0
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_jsep)
 {
@@ -6334,9 +6380,11 @@ READ_CHUNK (mng_read_jsep)
 #else
 #define read_jsep 0
 #endif /* MNG_INCLUDE_JNG */
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 READ_CHUNK (mng_read_dhdr)
 {
@@ -6374,7 +6422,7 @@ READ_CHUNK (mng_read_dhdr)
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
   pData->bHasDHDR   = MNG_TRUE;        /* inside a DHDR-IEND block now */
-  pData->iDeltatype = iDeltatype;      
+  pData->iDeltatype = iDeltatype;
 
   pData->iImagelevel++;                /* one level deeper */
 
@@ -6445,9 +6493,11 @@ READ_CHUNK (mng_read_dhdr)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 READ_CHUNK (mng_read_prom)
 {
@@ -6529,9 +6579,11 @@ READ_CHUNK (mng_read_prom)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 READ_CHUNK (mng_read_ipng)
 {
@@ -6574,6 +6626,7 @@ READ_CHUNK (mng_read_ipng)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -6762,6 +6815,7 @@ READ_CHUNK (mng_read_pplt)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 #ifdef MNG_INCLUDE_JNG
 READ_CHUNK (mng_read_ijng)
@@ -6805,6 +6859,7 @@ READ_CHUNK (mng_read_ijng)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 #endif
 
@@ -6874,6 +6929,7 @@ READ_CHUNK (mng_read_drop)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
 READ_CHUNK (mng_read_dbyk)
@@ -6914,7 +6970,7 @@ READ_CHUNK (mng_read_dbyk)
     {
       MNG_ALLOC (pData, ((mng_dbykp)*ppChunk)->zKeywords, iRawlen-4)
       MNG_COPY (((mng_dbykp)*ppChunk)->zKeywords, pRawdata+5, iRawlen-5)
-    }  
+    }
   }
 #endif /* MNG_STORE_CHUNKS */
 
@@ -6924,6 +6980,7 @@ READ_CHUNK (mng_read_dbyk)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 #endif
 
@@ -7551,6 +7608,7 @@ READ_CHUNK (mng_read_evnt)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 READ_CHUNK (mng_read_unknown)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -7618,6 +7676,7 @@ READ_CHUNK (mng_read_unknown)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 
 /* ************************************************************************** */
 

@@ -119,7 +119,6 @@ typedef struct {                       /* chunk-field descriptor */
            mng_uint16        iLengthmin;
            mng_uint16        iLengthmax;
            mng_uint16        iFlags;
-           mng_uint16        iMaxrepeat;
            mng_uint8         iGroupid;
            mng_uint8         iValidatesgroup;
         } mng_field_descriptor;
@@ -131,13 +130,14 @@ typedef mng_field_descriptor * mng_field_descp;
 #define MNG_DESCR_EMPTYGLOBAL 0x0008
 
 #define MNG_DESCR_GenHDR      0x0001   /* IHDR/JHDR/BASI/DHDR */
-#define MNG_DESCR_MHDR        0x0002
-#define MNG_DESCR_IHDR        0x0004
-#define MNG_DESCR_JHDR        0x0008
-#define MNG_DESCR_DHDR        0x0010
-#define MNG_DESCR_LOOP        0x0020
-#define MNG_DESCR_PLTE        0x0040
-#define MNG_DESCR_SAVE        0x0080
+#define MNG_DESCR_JngHDR      0x0002   /* JHDR/DHDR */
+#define MNG_DESCR_MHDR        0x0004
+#define MNG_DESCR_IHDR        0x0008
+#define MNG_DESCR_JHDR        0x0010
+#define MNG_DESCR_DHDR        0x0020
+#define MNG_DESCR_LOOP        0x0040
+#define MNG_DESCR_PLTE        0x0080
+#define MNG_DESCR_SAVE        0x0100
 
 #define MNG_DESCR_NOIHDR      0x0001
 #define MNG_DESCR_NOJHDR      0x0002
@@ -808,6 +808,10 @@ typedef struct {                       /* DHDR */
            mng_uint32        iBlockheight;
            mng_uint32        iBlockx;
            mng_uint32        iBlocky;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_bool          bHasblocksize;
+           mng_bool          bHasblockloc;
+#endif
         } mng_dhdr;
 typedef mng_dhdr * mng_dhdrp;
 

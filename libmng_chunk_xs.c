@@ -2369,7 +2369,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
   pData  = (mng_datap)hHandle;         /* and make it addressable */
   pChunk = (mng_unknown_chunkp)hChunk; /* address the chunk */
 
-  if (pChunk->sHeader.fRead != mng_read_unknown)
+  if (pChunk->sHeader.fCleanup != mng_free_unknown)
     MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
                                        /* fill the fields */
   *iChunkname = pChunk->sHeader.iChunkname;
