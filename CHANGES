@@ -41,6 +41,8 @@ core:
 - removed trace-options from default SO/DLL builds (!!!)
 - fixed MAGN rounding errors (thanks Matthias!)
 - fixed small timing problem when FRAM delay = 0
+- fixed simplicity-check in compliance with draft 81/0.98a
+- fixed alpha-blending for RGBA canvas                  
 
 samples:
 - added BCB mngview contribution by Andy Protano

@@ -73,6 +73,8 @@
 /* *             - added support for new filter_types                       * */
 /* *             0.9.3 - 09/30/2000 - G.Juyn                                * */
 /* *             - fixed MAGN rounding errors (thanks Matthias!)            * */
+/* *             0.9.3 - 10/10/2000 - G.Juyn                                * */
+/* *             - fixed alpha-blending for RGBA canvas                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -133,6 +135,61 @@ mng_uint32 const interlace_divider  [7] = { 3, 3, 2, 2, 1, 1, 0 };
                         + (mng_uint32)(BG)*(mng_uint32)(65535L -           \
                           (mng_uint32)(ALPHA)) + (mng_uint32)32768L);      \
        (RET) = (mng_uint16)((iH + (iH >> 16)) >> 16); }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Alpha blending macros                                                  * */
+/* * this code is based on Adam Costello's "Note on Compositing" from the   * */
+/* * mng-list which gives the following formula:                            * */
+/* *                                                                        * */
+/* * top pixel       = (Rt, Gt, Bt, At)                                     * */
+/* * bottom pixel    = (Rb, Gb, Bb, Ab)                                     * */
+/* * composite pixel = (Rc, Gc, Bc, Ac)                                     * */
+/* *                                                                        * */
+/* * all values in the range 0..1                                           * */
+/* *                                                                        * */
+/* * Ac = 1 - (1 - At)(1 - Ab)                                              * */
+/* * s = At / Ac                                                            * */
+/* * t = (1 - At) Ab / Ac                                                   * */
+/* * Rc = s Rt + t Rb                                                       * */
+/* * Gc = s Gt + t Gb                                                       * */
+/* * Bc = s Bt + t Bb                                                       * */
+/* *                                                                        * */
+/* * (I just hope I coded it correctly in integer arithmetic...)            * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#define MNG_BLEND8(RT, GT, BT, AT, RB, GB, BB, AB, RC, GC, BC, AC) {         \
+       mng_uint32 S, T;                                                      \
+       (AC) = (mng_uint8)((mng_uint32)255 -                                  \
+                          ((((mng_uint32)255 - (mng_uint32)(AT)) *           \
+                            ((mng_uint32)255 - (mng_uint32)(AB))   ) >> 8)); \
+       S    = (mng_uint32)(((mng_uint32)(AT) << 8) /                         \
+                           (mng_uint32)(AC));                                \
+       T    = (mng_uint32)(((mng_uint32)255 - (mng_uint32)(AT)) *            \
+                            (mng_uint32)(AB) / (mng_uint32)(AC));            \
+       (RC) = (mng_uint8)((S * (mng_uint32)(RT) +                            \
+                           T * (mng_uint32)(RB) + (mng_uint32)127) >> 8);    \
+       (GC) = (mng_uint8)((S * (mng_uint32)(GT) +                            \
+                           T * (mng_uint32)(GB) + (mng_uint32)127) >> 8);    \
+       (BC) = (mng_uint8)((S * (mng_uint32)(BT) +                            \
+                           T * (mng_uint32)(BB) + (mng_uint32)127) >> 8); }
+
+#define MNG_BLEND16(RT, GT, BT, AT, RB, GB, BB, AB, RC, GC, BC, AC) {            \
+       mng_uint32 S, T;                                                          \
+       (AC) = (mng_uint16)((mng_uint32)65525 -                                   \
+                           ((((mng_uint32)65535 - (mng_uint32)(AT)) *            \
+                             ((mng_uint32)65535 - (mng_uint32)(AB))   ) >> 16)); \
+       S    = (mng_uint32)(((mng_uint32)(AT) << 16) /                            \
+                            (mng_uint32)(AC));                                   \
+       T    = (mng_uint32)(((mng_uint32)65535 - (mng_uint32)(AT)) *              \
+                            (mng_uint32)(AB) / (mng_uint32)(AC));                \
+       (RC) = (mng_uint16)((S * (mng_uint32)(RT) +                               \
+                            T * (mng_uint32)(RB) + (mng_uint32)32767) >> 16);    \
+       (GC) = (mng_uint16)((S * (mng_uint32)(GT) +                               \
+                            T * (mng_uint32)(GB) + (mng_uint32)32767) >> 16);    \
+       (BC) = (mng_uint16)((S * (mng_uint32)(BT) +                               \
+                            T * (mng_uint32)(BB) + (mng_uint32)32767) >> 16); }
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -340,8 +397,6 @@ mng_retcode display_rgba8 (mng_datap pData)
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
-  mng_uint16 iS16, iT16;
-  mng_uint8  iS8, iT8;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_START)
@@ -434,26 +489,15 @@ mng_retcode display_rgba8 (mng_datap pData)
                                        /* alpha remains fully opaque !!! */
               }
               else
-              {                        /* get the proper values */
-                iFGr16 = mng_get_uint16 (pDataline  );
-                iFGg16 = mng_get_uint16 (pDataline+2);
-                iFGb16 = mng_get_uint16 (pDataline+4);
+              {                        /* let's blend */
+                MNG_BLEND16 (mng_get_uint16 (pDataline  ),
+                             mng_get_uint16 (pDataline  ),
+                             mng_get_uint16 (pDataline  ), iFGa16,
                                        /* scale background up */
-                iBGr16 = (mng_uint16)(*pScanline    );
-                iBGg16 = (mng_uint16)(*(pScanline+1));
-                iBGb16 = (mng_uint16)(*(pScanline+2));
-                iBGr16 = (mng_uint16)(iBGr16 << 8) | iBGr16;
-                iBGg16 = (mng_uint16)(iBGg16 << 8) | iBGg16;
-                iBGb16 = (mng_uint16)(iBGb16 << 8) | iBGb16;
-                                       /* now compose */
-                iCa16 = (mng_uint16)(0xFFFF - ((0xFFFF - (mng_uint32)iFGa16) *
-                                               (0xFFFF - (mng_uint32)iBGa16) / 0xFFFF));
-                iS16  = (mng_uint16)(iFGa16 / iCa16);
-                iT16  = (mng_uint16)((0xFFFF - (mng_uint32)iFGa16) *
-                                     (mng_uint32)iBGa16 / (0xFFFF * (mng_uint32)iCa16));
-                iCr16 = (mng_uint16)(iS16 * iFGr16 + iT16 * iBGr16);
-                iCg16 = (mng_uint16)(iS16 * iFGg16 + iT16 * iBGg16);
-                iCb16 = (mng_uint16)(iS16 * iFGb16 + iT16 * iBGb16);
+                             (mng_uint16)(*pScanline    ),
+                             (mng_uint16)(*(pScanline+1)),
+                             (mng_uint16)(*(pScanline+2)), iBGa16,
+                             iCr16, iCg16, iCb16, iCa16)
                                        /* and return the composed values */
                 *pScanline     = (mng_uint8)(iCr16 >> 8);
                 *(pScanline+1) = (mng_uint8)(iCg16 >> 8);
@@ -493,15 +537,10 @@ mng_retcode display_rgba8 (mng_datap pData)
                                        /* alpha remains fully opaque !!! */
               }
               else
-              {                        /* now compose */
-                iCa8 = (mng_uint8)(0xFF - ((0xFF - (mng_uint32)iFGa8) *
-                                           (0xFF - (mng_uint32)iBGa8) / 0xFF));
-                iS8  = (mng_uint8)(iFGa8 / iCa8);
-                iT8  = (mng_uint8)((0xFF - (mng_uint32)iFGa8) *
-                                   (mng_uint32)iBGa8 / (0xFF * (mng_uint32)iCa8));
-                iCr8 = (mng_uint8)(iS8 * (*pDataline    ) + iT8 * (*pScanline    ));
-                iCg8 = (mng_uint8)(iS8 * (*(pDataline+1)) + iT8 * (*(pScanline+1)));
-                iCb8 = (mng_uint8)(iS8 * (*(pDataline+2)) + iT8 * (*(pScanline+2)));
+              {                        /* now blend */
+                MNG_BLEND8 (*pDataline, *(pDataline+1), *(pDataline+2), iFGa8,
+                            *pScanline, *(pScanline+1), *(pScanline+2), iBGa8,
+                            iCr8, iCg8, iCb8, iCa8)
                                        /* and return the composed values */
                 *pScanline     = iCr8;
                 *(pScanline+1) = iCg8;

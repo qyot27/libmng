@@ -117,6 +117,8 @@
 /* *             - added support for new filter_types                       * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 10/02/2000 - G.Juyn                                * */
+/* *             - fixed simplicity-check in compliance with draft 81/0.98a * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2900,9 +2902,9 @@ READ_CHUNK (read_mhdr)
   }
 
 #ifdef MNG_INCLUDE_JNG                 /* can we handle the complexity ? */
-  if (pData->iSimplicity & 0x0000FFC0)
+  if (pData->iSimplicity & 0x0000FC00)
 #else
-  if (pData->iSimplicity & 0x0000FFD0)
+  if (pData->iSimplicity & 0x0000FC10)
 #endif
     MNG_ERROR (pData, MNG_MNGTOOCOMPLEX)
                                        /* fits on maximum canvas ? */
