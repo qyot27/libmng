@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_prop_xs.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -45,6 +45,9 @@
 /* *             - added get/set routines for suspensionmode variable       * */
 /* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
 /* *             - added get/set routines for sectionbreak variable         * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - added status_xxxx functions                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1664,6 +1667,164 @@ mng_uint32 MNG_DECL mng_get_currentplaytime (mng_handle hHandle)
   return ((mng_datap)hHandle)->iFrametime;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+mng_bool MNG_DECL mng_status_error (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_ERROR, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_ERROR, MNG_LC_END)
+#endif
+
+  return (mng_bool)((mng_datap)hHandle)->iErrorcode;
+}
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_bool MNG_DECL mng_status_reading (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_READING, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_READING, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bReading;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_bool MNG_DECL mng_status_suspendbreak (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_SUSPENDBREAK, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_SUSPENDBREAK, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bSuspended;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_WRITE
+mng_bool MNG_DECL mng_status_creating (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_CREATING, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_CREATING, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bCreating;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_WRITE
+mng_bool MNG_DECL mng_status_writing (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_WRITING, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_WRITING, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bWriting;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_bool MNG_DECL mng_status_displaying (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_DISPLAYING, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_DISPLAYING, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bDisplaying;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_bool MNG_DECL mng_status_running (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_RUNNING, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_RUNNING, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bRunning;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_bool MNG_DECL mng_status_timerbreak (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_TIMERBREAK, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return MNG_FALSE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_STATUS_TIMERBREAK, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bTimerset;
+}
+#endif
 
 /* ************************************************************************** */
 /* * end of file                                                            * */

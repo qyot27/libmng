@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -55,6 +55,9 @@
 /* *             - added tracestring for special error routine              * */
 /* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
 /* *             - added tracestring for updatemngheader                    * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - added tracestrings for status_xxxxx functions            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -215,6 +218,15 @@
     {MNG_FN_GET_CURRENTLAYER,          "get_currentlayer"},
     {MNG_FN_GET_CURRENTPLAYTIME,       "get_currentplaytime"},
     {MNG_FN_GET_SECTIONBREAKS,         "get_sectionbreaks"},
+
+    {MNG_FN_STATUS_ERROR,              "status_error"},
+    {MNG_FN_STATUS_READING,            "status_reading"},
+    {MNG_FN_STATUS_SUSPENDBREAK,       "status_suspendbreak"},
+    {MNG_FN_STATUS_CREATING,           "status_creating"},
+    {MNG_FN_STATUS_WRITING,            "status_writing"},
+    {MNG_FN_STATUS_DISPLAYING,         "status_displaying"},
+    {MNG_FN_STATUS_RUNNING,            "status_running"},
+    {MNG_FN_STATUS_TIMERBREAK,         "status_timerbreak"},
 
     {MNG_FN_ITERATE_CHUNKS,            "iterate_chunks"},
 

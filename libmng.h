@@ -175,6 +175,7 @@
 /* *                                                                        * */
 /* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
 /* *             - fixed problem with trace-functions improperly wrapped    * */
+/* *             - added status_xxxx functions                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -379,10 +380,10 @@ MNG_EXT mng_retcode MNG_DECL mng_create          (mng_handle    hHandle);
    to read & display a graphic simultaneously */
 /* mng_display_resume should be called after a timer-interval
    expires that was set through the settimer-callback, after a
-   read suspension-break or to resume an animation after a call to
-   mng_display_freeze/mng_display_reset */
+   read suspension-break, or, to resume an animation after a call
+   to mng_display_freeze/mng_display_reset */
 /* mng_display_freeze thru mng_display_gotime can be used to influence
-   the animation display of a MNG */
+   the display of an image, BUT ONLY if it has been completely read! */
 #ifdef MNG_SUPPORT_DISPLAY
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_readdisplay     (mng_handle    hHandle);
@@ -867,6 +868,34 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_runtime         (mng_handle        hHandle)
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentframe    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentlayer    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentplaytime (mng_handle        hHandle);
+#endif
+
+/* Status variables */
+/* these indicate the internal state of the library */
+/* most indicate exactly what you would expect:
+   status_error returns MNG_TRUE if the last function call returned an errorcode
+   status_reading returns MNG_TRUE if the library is (still) reading an image
+   status_suspendbreak returns MNG_TRUE if the library has suspended for "I/O"
+   status_creating returns MNG_TRUE if the library is in the middle of creating an image
+   status_writing returns MNG_TRUE if the library is in the middle of writing an image
+   status_displaying returns MNG_TRUE if the library is displaying an image
+   status_running returns MNG_TRUE if display processing is active (eg. not frozen or reset)
+   status_timerbreak returns MNG_TRUE if the library has suspended for a "timer-break" */
+/* eg. mng_readdisplay() will turn the reading, displaying and running status on;
+   when EOF is reached the reading status will be turned off */   
+MNG_EXT mng_bool    MNG_DECL mng_status_error        (mng_handle        hHandle);
+#ifdef MNG_SUPPORT_READ
+MNG_EXT mng_bool    MNG_DECL mng_status_reading      (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_status_suspendbreak (mng_handle        hHandle);
+#endif
+#ifdef MNG_SUPPORT_WRITE
+MNG_EXT mng_bool    MNG_DECL mng_status_creating     (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_status_writing      (mng_handle        hHandle);
+#endif
+#ifdef MNG_SUPPORT_DISPLAY
+MNG_EXT mng_bool    MNG_DECL mng_status_displaying   (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_status_running      (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_status_timerbreak   (mng_handle        hHandle);
 #endif
 
 /* ************************************************************************** */

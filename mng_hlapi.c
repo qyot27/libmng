@@ -85,6 +85,8 @@
 /* *                                                                        * */
 /* *             0.9.2 - 07/29/2000 - G.Juyn                                * */
 /* *             - fixed small bugs in display processing                   * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - fixed wrapping of suspension parameters                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -624,6 +626,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iReadbufsize          = 0;
   pData->pReadbuf              = MNG_NULL;
 
+  pData->iSuspendtime          = 0;
+  pData->bSuspended            = MNG_FALSE;
+  pData->iSuspendpoint         = 0;
+
   pData->pSuspendbufnext       = pData->pSuspendbuf;
   pData->iSuspendbufleft       = 0;
 #endif /* MNG_SUPPORT_READ */
@@ -649,14 +655,11 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
   pData->iRuntime              = 0;
   pData->iSynctime             = 0;
-  pData->iSuspendtime          = 0;
   pData->iStarttime            = 0;
   pData->iEndtime              = 0;
   pData->bRunning              = MNG_FALSE;
   pData->bTimerset             = MNG_FALSE;
   pData->iBreakpoint           = 0;
-  pData->bSuspended            = MNG_FALSE;
-  pData->iSuspendpoint         = 0;
   pData->bSectionwait          = MNG_FALSE;
   pData->bFreezing             = MNG_FALSE;
   pData->bResetting            = MNG_FALSE;
@@ -1242,7 +1245,9 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   pData->bSearching    = MNG_FALSE;
   pData->iRuntime      = 0;
   pData->iSynctime     = pData->fGettickcount (hHandle);
+#ifdef MNG_SUPPORT_READ
   pData->iSuspendtime  = 0;
+#endif  
   pData->iStarttime    = pData->iSynctime;
   pData->iEndtime      = 0;
 

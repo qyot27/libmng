@@ -68,6 +68,8 @@
 /* *                                                                        * */
 /* *             0.9.2 - 07/29/2000 - G.Juyn                                * */
 /* *             - removed Nextbackxxx fields (no longer used)              * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - fixed wrapping of suspension parameters                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -336,6 +338,13 @@ typedef struct mng_data_struct {
            mng_uint32        iReadbufsize;
            mng_uint8p        pReadbuf;
 
+           mng_uint32        iSuspendtime;       /* tickcount at last suspension */
+           mng_bool          bSuspended;         /* input-reading has been suspended;
+                                                    we're expecting a call to
+                                                    mng_read_resume! */
+           mng_uint8         iSuspendpoint;      /* indicates at which point the flow
+                                                    was broken to suspend input-reading */
+                                                    
            mng_bool          bSuspensionmode;    /* I/O-suspension variables */
            mng_uint32        iSuspendbufsize;
            mng_uint8p        pSuspendbuf;
@@ -366,7 +375,6 @@ typedef struct mng_data_struct {
 
            mng_uint32        iRuntime;           /* millisecs since start */
            mng_uint32        iSynctime;          /* tickcount at last framesync */
-           mng_uint32        iSuspendtime;       /* tickcount at last suspension */
            mng_uint32        iStarttime;         /* tickcount at start */
            mng_uint32        iEndtime;           /* tickcount at end */
            mng_bool          bRunning;           /* animation is active */
@@ -375,11 +383,6 @@ typedef struct mng_data_struct {
                                                     mng_display_resume! */
            mng_uint8         iBreakpoint;        /* indicates at which point the
                                                     flow was broken to run the timer */
-           mng_bool          bSuspended;         /* input-reading has been suspended;
-                                                    we're expecting a call to
-                                                    mng_read_resume! */
-           mng_uint8         iSuspendpoint;      /* indicates at which point the flow
-                                                    was broken to suspend input-reading */
            mng_bool          bSectionwait;       /* indicates a section break */
            mng_bool          bFreezing;          /* indicates app requested a freeze */   
            mng_bool          bResetting;         /* indicates app requested a reset */   

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.1                                                      * */
+/* * version   : 0.9.2                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -64,6 +64,9 @@
 /* *             - added tracecode for special error routine                * */
 /* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
 /* *             - added tracecode for updatemngheader                      * */
+/* *                                                                        * */
+/* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
+/* *             - added tracecodes for status_xxxxx functions              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -251,6 +254,15 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_CURRENTLAYER       439
 #define MNG_FN_GET_CURRENTPLAYTIME    440
 #define MNG_FN_GET_SECTIONBREAKS      441
+
+#define MNG_FN_STATUS_ERROR           481
+#define MNG_FN_STATUS_READING         482
+#define MNG_FN_STATUS_SUSPENDBREAK    483
+#define MNG_FN_STATUS_CREATING        484
+#define MNG_FN_STATUS_WRITING         485
+#define MNG_FN_STATUS_DISPLAYING      486
+#define MNG_FN_STATUS_RUNNING         487
+#define MNG_FN_STATUS_TIMERBREAK      488
 
 /* ************************************************************************** */
 
