@@ -17,6 +17,11 @@ core:
 - added CRC existence & checking flags
 - added data-push mechanisms for specialized decoders
 - some speed optimizations (thanks to John Stiles)
+- defend against using undefined closestream function
+- defend against using undefined openstream function
+- added check for extreme chunk-lengths
+- change worst-case iAlphadepth to 1 for standalone PNGs
+- added support for 3+byte pixelsize for JPEG's
 
 samples:
 

@@ -112,6 +112,8 @@
 /* *             - added conditionals around openstream/closestream         * */
 /* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *             1.0.8 - 08/01/2004 - G.Juyn                                * */
+/* *             - added support for 3+byte pixelsize for JPEG's            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -180,6 +182,7 @@
 #ifdef FAR
 #undef FAR                             /* possibly defined by zlib or lcms */
 #endif
+#define JPEG_INTERNAL_OPTIONS          /* for RGB_PIXELSIZE */
 #include "jpeglib.h"                   /* all that for JPEG support  :-) */
 #endif /* MNG_INCLUDE_IJG6B */
 

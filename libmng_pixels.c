@@ -169,6 +169,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 06/20/2004 - G.Juyn                                * */
 /* *             - some speed optimizations (thanks to John Stiles)         * */
+/* *             1.0.8 - 08/01/2004 - G.Juyn                                * */
+/* *             - added support for 3+byte pixelsize for JPEG's            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5221,6 +5223,9 @@ mng_retcode mng_store_jpeg_rgb8 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
   mng_uint8p     pWorkrow;
   mng_uint8p     pOutrow;
+#if RGB_PIXELSIZE != 3
+  mng_int32      iX;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_START)
@@ -5228,8 +5233,25 @@ mng_retcode mng_store_jpeg_rgb8 (mng_datap pData)
 
   pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
   pOutrow  = pBuf->pImgdata + (pData->iJPEGrow * pBuf->iRowsize);
+
+#if RGB_PIXELSIZE == 3
                                        /* easy as pie ... */
   MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples * 3)
+#else
+#ifdef MNG_DECREMENT_LOOPS
+  for (iX = pData->iRowsamples; iX > 0; iX--)
+#else
+  for (iX = 0; iX < pData->iRowsamples; iX++)
+#endif
+  {
+    *pOutrow     = *pWorkrow;          /* copy pixel into object buffer */
+    *(pOutrow+1) = *(pWorkrow+1);
+    *(pOutrow+2) = *(pWorkrow+2);
+
+    pOutrow  += 3;                     /* next pixel */
+    pWorkrow += RGB_PIXELSIZE;
+  }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_END)
@@ -5300,7 +5322,7 @@ mng_retcode mng_store_jpeg_rgba8 (mng_datap pData)
     *(pOutrow+2) = *(pWorkrow+2);
 
     pOutrow  += 4;                     /* next pixel */
-    pWorkrow += 3;
+    pWorkrow += RGB_PIXELSIZE;
   }
 
 #ifdef MNG_SUPPORT_TRACE

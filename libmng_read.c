@@ -90,6 +90,8 @@
 /* *             - added data-push mechanisms for specialized decoders      * */
 /* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
 /* *             - defend against using undefined closestream function      * */
+/* *             1.0.8 - 07/28/2004 - G.R-P                                 * */
+/* *             - added check for extreme chunk-lengths                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
