@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.h           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
 /* *                                                                        * */
@@ -30,6 +30,11 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN support                                       * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -38,9 +43,6 @@
 
 #ifndef _libmng_pixels_h_
 #define _libmng_pixels_h_
-
-#include "libmng.h"
-#include "libmng_data.h"
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -266,6 +268,10 @@ mng_retcode init_jpeg_a8_ni        (mng_datap  pData);
 mng_retcode init_jpeg_a16_ni       (mng_datap  pData);
 
 /* ************************************************************************** */
+/* *                                                                        * */
+/* * General row processing routines                                        * */
+/* *                                                                        * */
+/* ************************************************************************** */
 
 mng_retcode init_rowproc           (mng_datap  pData);
 mng_retcode next_row               (mng_datap  pData);
@@ -273,6 +279,10 @@ mng_retcode next_jpeg_alpharow     (mng_datap  pData);
 mng_retcode next_jpeg_row          (mng_datap  pData);
 mng_retcode cleanup_rowproc        (mng_datap  pData);
 
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Magnification row routines - apply magnification transforms            * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 mng_retcode magnify_g8_x1          (mng_datap  pData,

@@ -69,6 +69,8 @@
 /* *             - fixed app-supplied background restore                    * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -82,6 +84,7 @@
 #include "libmng_objects.h"
 #include "libmng_memory.h"
 #include "libmng_cms.h"
+#include "libmng_filter.h"
 #include "libmng_pixels.h"
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -150,7 +153,7 @@ mng_retcode display_progressive_check (mng_datap pData)
   {
     mng_int32 iC = pData->iRow + pData->iDestt - pData->iSourcet;
 
-    if (iC % 50 == 0)                  /* every 20th line */
+    if (iC % 20 == 0)                  /* every 20th line */
       pData->bNeedrefresh = MNG_TRUE;
 
   }
@@ -2116,8 +2119,8 @@ mng_retcode store_g1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2163,8 +2166,8 @@ mng_retcode store_g2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2217,8 +2220,8 @@ mng_retcode store_g4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2264,8 +2267,8 @@ mng_retcode store_g8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2296,8 +2299,8 @@ mng_retcode store_g16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2328,8 +2331,8 @@ mng_retcode store_rgb8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_RGB8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2363,7 +2366,7 @@ mng_retcode store_rgb16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = pData->pWorkrow + 1;
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2396,8 +2399,8 @@ mng_retcode store_idx1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_IDX1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2443,8 +2446,8 @@ mng_retcode store_idx2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_IDX2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2490,8 +2493,8 @@ mng_retcode store_idx4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_IDX4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
   iM       = 0;                        /* start at pixel 0 */
@@ -2534,8 +2537,8 @@ mng_retcode store_idx8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_IDX8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2566,8 +2569,8 @@ mng_retcode store_ga8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_GA8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2600,7 +2603,7 @@ mng_retcode store_ga16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = pData->pWorkrow + 1;
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2631,8 +2634,8 @@ mng_retcode store_rgba8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_RGBA8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2667,7 +2670,7 @@ mng_retcode store_rgba16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = pData->pWorkrow + 1;
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize);
 
@@ -2821,8 +2824,8 @@ mng_retcode store_jpeg_g8_a1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 1;
   iM       = 0;                        /* start at pixel 0 */
@@ -2868,8 +2871,8 @@ mng_retcode store_jpeg_g8_a2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 1;
   iM       = 0;                        /* start at pixel 0 */
@@ -2922,8 +2925,8 @@ mng_retcode store_jpeg_g8_a4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 1;
   iM       = 0;                        /* start at pixel 0 */
@@ -2969,8 +2972,8 @@ mng_retcode store_jpeg_g8_a8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 1;
 
@@ -3001,8 +3004,8 @@ mng_retcode store_jpeg_g8_a16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 1;
 
@@ -3035,8 +3038,8 @@ mng_retcode store_jpeg_rgb8_a1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 3;
   iM       = 0;                        /* start at pixel 0 */
@@ -3082,8 +3085,8 @@ mng_retcode store_jpeg_rgb8_a2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 3;
   iM       = 0;                        /* start at pixel 0 */
@@ -3136,8 +3139,8 @@ mng_retcode store_jpeg_rgb8_a4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 3;
   iM       = 0;                        /* start at pixel 0 */
@@ -3183,8 +3186,8 @@ mng_retcode store_jpeg_rgb8_a8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 3;
 
@@ -3215,8 +3218,8 @@ mng_retcode store_jpeg_rgb8_a16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 3;
 
@@ -3249,8 +3252,8 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 2;
   iM       = 0;                        /* start at pixel 0 */
@@ -3296,8 +3299,8 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 2;
   iM       = 0;                        /* start at pixel 0 */
@@ -3350,8 +3353,8 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 2;
   iM       = 0;                        /* start at pixel 0 */
@@ -3399,8 +3402,8 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 2;
 
@@ -3434,8 +3437,8 @@ mng_retcode store_jpeg_g12_a16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
                               (pData->iCol * pBuf->iSamplesize) + 2;
 
@@ -3477,8 +3480,8 @@ mng_retcode delta_g1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3547,8 +3550,8 @@ mng_retcode delta_g2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3631,8 +3634,8 @@ mng_retcode delta_g4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3707,8 +3710,8 @@ mng_retcode delta_g8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3754,8 +3757,8 @@ mng_retcode delta_g16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_G16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3803,8 +3806,8 @@ mng_retcode delta_rgb8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_RGB8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3854,8 +3857,8 @@ mng_retcode delta_rgb16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_RGB16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3913,8 +3916,8 @@ mng_retcode delta_idx1 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_IDX1, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -3983,8 +3986,8 @@ mng_retcode delta_idx2 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_IDX2, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4054,8 +4057,8 @@ mng_retcode delta_idx4 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_IDX4, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4122,8 +4125,8 @@ mng_retcode delta_idx8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_IDX8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4169,8 +4172,8 @@ mng_retcode delta_ga8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_GA8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4218,8 +4221,8 @@ mng_retcode delta_ga16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_GA16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4271,8 +4274,8 @@ mng_retcode delta_rgba8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_RGBA8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4324,8 +4327,8 @@ mng_retcode delta_rgba16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DELTA_RGBA16, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pOutrow  = pBuf->pImgdata + (pData->iRow         * pBuf->iRowsize   ) +
                               (pData->iDeltaBlocky * pBuf->iRowsize   ) +
                               (pData->iCol         * pBuf->iSamplesize) +
@@ -4389,8 +4392,8 @@ mng_retcode process_g1 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -4492,8 +4495,8 @@ mng_retcode process_g2 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -4587,8 +4590,8 @@ mng_retcode process_g4 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -4683,8 +4686,8 @@ mng_retcode process_g8 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
@@ -4755,8 +4758,8 @@ mng_retcode process_g16 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
@@ -4827,8 +4830,8 @@ mng_retcode process_rgb8 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary workpointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
@@ -4900,8 +4903,8 @@ mng_retcode process_rgb16 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
@@ -4976,8 +4979,8 @@ mng_retcode process_idx1 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -5076,8 +5079,8 @@ mng_retcode process_idx2 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -5176,8 +5179,8 @@ mng_retcode process_idx4 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
   iM       = 0;                        /* start at pixel 0 */
   iB       = 0;
@@ -5273,8 +5276,8 @@ mng_retcode process_idx8 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
@@ -5344,8 +5347,8 @@ mng_retcode process_ga8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_GA8, MNG_LC_START)
 #endif
-
-  pWorkrow = pData->pWorkrow + 1;      /* temporary workpointers */
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
@@ -5380,8 +5383,8 @@ mng_retcode process_ga16 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_START)
 #endif
-                                       /* temporary workpointers */
-  pWorkrow = pData->pWorkrow + 1;
+                                       /* temporary work pointers */
+  pWorkrow = pData->pWorkrow + pData->iPixelofs;
   pRGBArow = pData->pRGBArow;
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
@@ -5414,7 +5417,7 @@ mng_retcode process_rgba8 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_RGBA8, MNG_LC_START)
 #endif
                                        /* this is the easiest transform */
-  MNG_COPY (pData->pRGBArow, pData->pWorkrow + 1, pData->iRowsize)
+  MNG_COPY (pData->pRGBArow, pData->pWorkrow + pData->iPixelofs, pData->iRowsize)
 
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
@@ -5433,7 +5436,7 @@ mng_retcode process_rgba16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_RGBA16, MNG_LC_START)
 #endif
                                        /* this is the easiest transform */
-  MNG_COPY (pData->pRGBArow, pData->pWorkrow + 1, pData->iRowsize)
+  MNG_COPY (pData->pRGBArow, pData->pWorkrow + pData->iPixelofs, pData->iRowsize)
 
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
@@ -5468,6 +5471,9 @@ mng_retcode init_g1_ni     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g1;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g1;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5478,7 +5484,7 @@ mng_retcode init_g1_ni     (mng_datap pData)
   pData->iSampleofs  = 7;
   pData->iSamplediv  = 3;
   pData->iRowsize    = (pData->iRowsamples + 7) >> 3;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5508,6 +5514,9 @@ mng_retcode init_g1_i      (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g1;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g1;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5518,7 +5527,7 @@ mng_retcode init_g1_i      (mng_datap pData)
   pData->iSampleofs  = 7;
   pData->iSamplediv  = 3;
   pData->iRowsize    = ((pData->iRowsamples + 7) >> 3);
-  pData->iRowmax     = ((pData->iDatawidth + 7) >> 3) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 7) >> 3) + pData->iPixelofs;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
@@ -5547,6 +5556,9 @@ mng_retcode init_g2_ni     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g2;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g2;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5557,7 +5569,7 @@ mng_retcode init_g2_ni     (mng_datap pData)
   pData->iSampleofs  = 3;
   pData->iSamplediv  = 2;
   pData->iRowsize    = (pData->iRowsamples + 3) >> 2;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5587,6 +5599,9 @@ mng_retcode init_g2_i      (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g2;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g2;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5597,7 +5612,7 @@ mng_retcode init_g2_i      (mng_datap pData)
   pData->iSampleofs  = 3;
   pData->iSamplediv  = 2;
   pData->iRowsize    = ((pData->iRowsamples + 3) >> 2);
-  pData->iRowmax     = ((pData->iDatawidth + 3) >> 2) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 3) >> 2) + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5627,6 +5642,9 @@ mng_retcode init_g4_ni     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g4;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g4;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5637,7 +5655,7 @@ mng_retcode init_g4_ni     (mng_datap pData)
   pData->iSampleofs  = 1;
   pData->iSamplediv  = 1;
   pData->iRowsize    = (pData->iRowsamples + 1) >> 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5667,6 +5685,9 @@ mng_retcode init_g4_i      (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g4;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g4;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5677,7 +5698,7 @@ mng_retcode init_g4_i      (mng_datap pData)
   pData->iSampleofs  = 1;
   pData->iSamplediv  = 1;
   pData->iRowsize    = ((pData->iRowsamples + 1) >> 1);
-  pData->iRowmax     = ((pData->iDatawidth + 1) >> 1) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 1) >> 1) + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5707,6 +5728,9 @@ mng_retcode init_g8_ni     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5717,7 +5741,7 @@ mng_retcode init_g8_ni     (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5747,6 +5771,9 @@ mng_retcode init_g8_i      (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g8;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5757,7 +5784,7 @@ mng_retcode init_g8_i      (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples;
-  pData->iRowmax     = pData->iDatawidth + 1;
+  pData->iRowmax     = pData->iDatawidth + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5787,6 +5814,9 @@ mng_retcode init_g16_ni    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g16;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5797,7 +5827,7 @@ mng_retcode init_g16_ni    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 2;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -5827,6 +5857,9 @@ mng_retcode init_g16_i     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_g16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g16;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5837,7 +5870,7 @@ mng_retcode init_g16_i     (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 1;
-  pData->iRowmax     = (pData->iDatawidth << 1) + 1;
+  pData->iRowmax     = (pData->iDatawidth << 1) + pData->iPixelofs;
   pData->iFilterbpp  = 2;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -5867,6 +5900,9 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgb8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgb8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5877,7 +5913,7 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples * 3;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 3;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5907,6 +5943,9 @@ mng_retcode init_rgb8_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgb8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgb8;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5917,7 +5956,7 @@ mng_retcode init_rgb8_i    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples * 3;
-  pData->iRowmax     = (pData->iDatawidth * 3) + 1;
+  pData->iRowmax     = (pData->iDatawidth * 3) + pData->iPixelofs;
   pData->iFilterbpp  = 3;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -5947,6 +5986,9 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgb16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgb16;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -5957,7 +5999,7 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples * 6;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 6;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -5987,6 +6029,9 @@ mng_retcode init_rgb16_i   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgb16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgb16;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -5997,7 +6042,7 @@ mng_retcode init_rgb16_i   (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples * 6;
-  pData->iRowmax     = (pData->iDatawidth * 6) + 1;
+  pData->iRowmax     = (pData->iDatawidth * 6) + pData->iPixelofs;
   pData->iFilterbpp  = 6;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -6027,6 +6072,9 @@ mng_retcode init_idx1_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx1;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx1;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6037,7 +6085,7 @@ mng_retcode init_idx1_ni   (mng_datap pData)
   pData->iSampleofs  = 7;
   pData->iSamplediv  = 3;
   pData->iRowsize    = (pData->iRowsamples + 7) >> 3;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6067,6 +6115,9 @@ mng_retcode init_idx1_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx1;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx1;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6077,7 +6128,7 @@ mng_retcode init_idx1_i    (mng_datap pData)
   pData->iSampleofs  = 7;
   pData->iSamplediv  = 3;
   pData->iRowsize    = (pData->iRowsamples + 7) >> 3;
-  pData->iRowmax     = ((pData->iDatawidth + 7) >> 3) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 7) >> 3) + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6107,6 +6158,9 @@ mng_retcode init_idx2_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx2;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx2;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6117,7 +6171,7 @@ mng_retcode init_idx2_ni   (mng_datap pData)
   pData->iSampleofs  = 3;
   pData->iSamplediv  = 2;
   pData->iRowsize    = (pData->iRowsamples + 3) >> 2;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6147,6 +6201,9 @@ mng_retcode init_idx2_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx2;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx2;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6157,7 +6214,7 @@ mng_retcode init_idx2_i    (mng_datap pData)
   pData->iSampleofs  = 3;
   pData->iSamplediv  = 2;
   pData->iRowsize    = (pData->iRowsamples + 3) >> 2;
-  pData->iRowmax     = ((pData->iDatawidth + 3) >> 2) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 3) >> 2) + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6187,6 +6244,9 @@ mng_retcode init_idx4_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx4;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx4;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6197,7 +6257,7 @@ mng_retcode init_idx4_ni   (mng_datap pData)
   pData->iSampleofs  = 1;
   pData->iSamplediv  = 1;
   pData->iRowsize    = (pData->iRowsamples + 1) >> 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6227,6 +6287,9 @@ mng_retcode init_idx4_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx4;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx4;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6237,7 +6300,7 @@ mng_retcode init_idx4_i    (mng_datap pData)
   pData->iSampleofs  = 1;
   pData->iSamplediv  = 1;
   pData->iRowsize    = (pData->iRowsamples + 1) >> 1;
-  pData->iRowmax     = ((pData->iDatawidth + 1) >> 1) + 1;
+  pData->iRowmax     = ((pData->iDatawidth + 1) >> 1) + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6267,6 +6330,9 @@ mng_retcode init_idx8_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6277,7 +6343,7 @@ mng_retcode init_idx8_ni   (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6307,6 +6373,9 @@ mng_retcode init_idx8_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_idx8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_idx8;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6317,7 +6386,7 @@ mng_retcode init_idx8_i    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples;
-  pData->iRowmax     = pData->iDatawidth + 1;
+  pData->iRowmax     = pData->iDatawidth + pData->iPixelofs;
   pData->iFilterbpp  = 1;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6347,6 +6416,9 @@ mng_retcode init_ga8_ni    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_ga8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_ga8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6357,7 +6429,7 @@ mng_retcode init_ga8_ni    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 2;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6387,6 +6459,9 @@ mng_retcode init_ga8_i     (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_ga8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_ga8;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6397,7 +6472,7 @@ mng_retcode init_ga8_i     (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 1;
-  pData->iRowmax     = (pData->iDatawidth << 1) + 1;
+  pData->iRowmax     = (pData->iDatawidth << 1) + pData->iPixelofs;
   pData->iFilterbpp  = 2;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6427,6 +6502,9 @@ mng_retcode init_ga16_ni   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_ga16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_ga16;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6437,7 +6515,7 @@ mng_retcode init_ga16_ni   (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 2;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 4;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -6467,6 +6545,9 @@ mng_retcode init_ga16_i    (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_ga16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_ga16;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6477,7 +6558,7 @@ mng_retcode init_ga16_i    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 2;
-  pData->iRowmax     = (pData->iDatawidth << 2) + 1;
+  pData->iRowmax     = (pData->iDatawidth << 2) + pData->iPixelofs;
   pData->iFilterbpp  = 4;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -6507,6 +6588,9 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgba8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgba8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6517,7 +6601,7 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 2;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 4;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6547,6 +6631,9 @@ mng_retcode init_rgba8_i   (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgba8;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgba8;
+
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6557,7 +6644,7 @@ mng_retcode init_rgba8_i   (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 2;
-  pData->iRowmax     = (pData->iDatawidth << 2) + 1;
+  pData->iRowmax     = (pData->iDatawidth << 2) + pData->iPixelofs;
   pData->iFilterbpp  = 4;
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
@@ -6587,6 +6674,9 @@ mng_retcode init_rgba16_ni (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgba16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgba16;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6597,7 +6687,7 @@ mng_retcode init_rgba16_ni (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 3;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 8;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -6627,6 +6717,9 @@ mng_retcode init_rgba16_i  (mng_datap pData)
       pData->fStorerow = (mng_ptr)store_rgba16;
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_rgba16;
+
   pData->iPass       = 0;              /* from 0..6; (1..7 in specification) */
   pData->iRow        = interlace_row     [0];
   pData->iRowinc     = interlace_rowskip [0];
@@ -6637,7 +6730,7 @@ mng_retcode init_rgba16_i  (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 3;
-  pData->iRowmax     = (pData->iDatawidth << 3) + 1;
+  pData->iRowmax     = (pData->iDatawidth << 3) + pData->iPixelofs;
   pData->iFilterbpp  = 8;
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
@@ -6677,8 +6770,11 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
     }
 
     /* TODO: bitdepth 12 & 20 */
-    
+
   }
+
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -6690,7 +6786,7 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
   pData->iSampleofs  = 7;
   pData->iSamplediv  = 3;
   pData->iRowsize    = (pData->iRowsamples + 7) >> 3;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -6723,6 +6819,9 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
 
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g2;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6733,7 +6832,7 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
   pData->iSampleofs  = 3;
   pData->iSamplediv  = 2;
   pData->iRowsize    = (pData->iRowsamples + 3) >> 2;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -6766,6 +6865,9 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
 
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g4;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6776,7 +6878,7 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
   pData->iSampleofs  = 1;
   pData->iSamplediv  = 1;
   pData->iRowsize    = (pData->iRowsamples + 1) >> 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -6809,6 +6911,9 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
 
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g8;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6819,7 +6924,7 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -6852,6 +6957,9 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
 
   }
 
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+    pData->fDifferrow  = (mng_ptr)differ_g16;
+
   pData->iPass       = -1;
   pData->iRow        = 0;
   pData->iRowinc     = 1;
@@ -6862,7 +6970,7 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
   pData->iSampleofs  = 0;
   pData->iSamplediv  = 0;
   pData->iRowsize    = pData->iRowsamples << 1;
-  pData->iRowmax     = pData->iRowsize + 1;
+  pData->iRowmax     = pData->iRowsize + pData->iPixelofs;
   pData->iFilterbpp  = 2;
 
 #ifdef MNG_SUPPORT_TRACE

@@ -60,6 +60,8 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2331,7 +2333,9 @@ mng_retcode create_ani_defi (mng_datap pData)
   add_ani_object (pData, (mng_object_headerp)pDEFI);
 
   pDEFI->iId              = pData->iDEFIobjectid;
+  pDEFI->bHasdonotshow    = pData->bDEFIhasdonotshow;
   pDEFI->iDonotshow       = pData->iDEFIdonotshow;
+  pDEFI->bHasconcrete     = pData->bDEFIhasconcrete;
   pDEFI->iConcrete        = pData->iDEFIconcrete;
   pDEFI->bHasloca         = pData->bDEFIhasloca;
   pDEFI->iLocax           = pData->iDEFIlocax;
@@ -2379,17 +2383,19 @@ mng_retcode process_ani_defi (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_DEFI, MNG_LC_START)
 #endif
 
-  pData->iDEFIobjectid  = pDEFI->iId;
-  pData->iDEFIdonotshow = pDEFI->iDonotshow;
-  pData->iDEFIconcrete  = pDEFI->iConcrete;
-  pData->bDEFIhasloca   = pDEFI->bHasloca;
-  pData->iDEFIlocax     = pDEFI->iLocax;
-  pData->iDEFIlocay     = pDEFI->iLocay;
-  pData->bDEFIhasclip   = pDEFI->bHasclip;
-  pData->iDEFIclipl     = pDEFI->iClipl;
-  pData->iDEFIclipr     = pDEFI->iClipr;
-  pData->iDEFIclipt     = pDEFI->iClipt;
-  pData->iDEFIclipb     = pDEFI->iClipb;
+  pData->iDEFIobjectid     = pDEFI->iId;
+  pData->bDEFIhasdonotshow = pDEFI->bHasdonotshow;
+  pData->iDEFIdonotshow    = pDEFI->iDonotshow;
+  pData->bDEFIhasconcrete  = pDEFI->bHasconcrete;
+  pData->iDEFIconcrete     = pDEFI->iConcrete;
+  pData->bDEFIhasloca      = pDEFI->bHasloca;
+  pData->iDEFIlocax        = pDEFI->iLocax;
+  pData->iDEFIlocay        = pDEFI->iLocay;
+  pData->bDEFIhasclip      = pDEFI->bHasclip;
+  pData->iDEFIclipl        = pDEFI->iClipl;
+  pData->iDEFIclipr        = pDEFI->iClipr;
+  pData->iDEFIclipt        = pDEFI->iClipt;
+  pData->iDEFIclipb        = pDEFI->iClipb;
 
   iRetcode = process_display_defi (pData);
 

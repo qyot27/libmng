@@ -73,6 +73,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -534,6 +536,23 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FILTER_UP             1503
 #define MNG_FN_FILTER_AVERAGE        1504
 #define MNG_FN_FILTER_PAETH          1505
+
+#define MNG_FN_INIT_ROWDIFFERING     1551
+#define MNG_FN_DIFFER_G1             1552
+#define MNG_FN_DIFFER_G2             1553
+#define MNG_FN_DIFFER_G4             1554
+#define MNG_FN_DIFFER_G8             1555
+#define MNG_FN_DIFFER_G16            1556
+#define MNG_FN_DIFFER_RGB8           1557
+#define MNG_FN_DIFFER_RGB16          1558
+#define MNG_FN_DIFFER_IDX1           1559
+#define MNG_FN_DIFFER_IDX2           1560
+#define MNG_FN_DIFFER_IDX4           1561
+#define MNG_FN_DIFFER_IDX8           1562
+#define MNG_FN_DIFFER_GA8            1563
+#define MNG_FN_DIFFER_GA16           1564
+#define MNG_FN_DIFFER_RGBA8          1565
+#define MNG_FN_DIFFER_RGBA16         1566
 
 /* ************************************************************************** */
 

@@ -185,6 +185,8 @@
 /* *             - added workaround for faulty PhotoShop iCCP chunk         * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2081,6 +2083,10 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
                                                     BASI, JHDR */
 
 #define MNG_FILTER_ADAPTIVE              0       /* IHDR, BASI, JHDR */
+#define MNG_FILTER_NO_ADAPTIVE           1
+#define MNG_FILTER_NO_DIFFERING          0
+#define MNG_FILTER_DIFFERING             0x40
+#define MNG_FILTER_MASK                  (MNG_FILTER_NO_ADAPTIVE | MNG_FILTER_DIFFERING)
 
 #define MNG_INTERLACE_NONE               0       /* IHDR, BASI, JHDR */
 #define MNG_INTERLACE_ADAM7              1

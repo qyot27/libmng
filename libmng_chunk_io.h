@@ -37,10 +37,6 @@
 #ifndef _libmng_chunk_io_h_
 #define _libmng_chunk_io_h_
 
-#include "libmng.h"
-#include "libmng_data.h"
-#include "libmng_chunks.h"
-
 /* ************************************************************************** */
 
 mng_uint32 crc (mng_datap  pData,

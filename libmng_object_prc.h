@@ -46,9 +46,6 @@
 #ifndef _libmng_object_prc_h_
 #define _libmng_object_prc_h_
 
-#include "libmng.h"
-#include "libmng_data.h"
-
 /* ************************************************************************** */
 
 mng_retcode create_imagedataobject (mng_datap      pData,

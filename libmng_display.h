@@ -43,9 +43,6 @@
 #ifndef _libmng_display_h_
 #define _libmng_display_h_
 
-#include "libmng.h"
-#include "libmng_data.h"
-
 /* ************************************************************************** */
 
 mng_retcode display_progressive_refresh (mng_datap  pData,

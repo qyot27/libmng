@@ -73,6 +73,11 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
 /* *             - added workaround for faulty PhotoShop iCCP chunk         * */
+/* *             0.9.3 - 09/11/2000 - G.Juyn                                * */
+/* *             - added export of zlib functions from windows dll          * */
+/* *             0.9.3 - 09/11/2000 - G.Juyn                                * */
+/* *             - fixed inclusion parameters once again to make those      * */
+/* *               external libs work together                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -105,7 +110,9 @@
 #endif
 
 #ifdef MNG_INCLUDE_LCMS                /* little cms by Marti Maria */
-#undef FAR                             /* possibly defined by zlib */
+#ifndef ZLIB_DLL
+#undef FAR
+#endif
 #include "lcms.h"
 #endif /* MNG_INCLUDE_LCMS */
 
@@ -118,7 +125,12 @@
 #define USE_WINDOWS_MESSAGEBOX         /* display a messagebox under Windoze */
 #endif
 #endif /* MNG_USE_SETJMP */
+#ifdef FAR
 #undef FAR                             /* possibly defined by zlib or lcms */
+#endif
+#ifdef ZLIB_DLL
+#define HAVE_BOOLEAN
+#endif
 #include "jpeglib.h"                   /* all that for JPEG support  :-) */
 #endif /* MNG_INCLUDE_IJG6B */
 

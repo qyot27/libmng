@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_hlapi.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -91,6 +91,11 @@
 /* *             - B111096 - fixed large-buffer read-suspension             * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -569,8 +574,8 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
                                        /* the unknown chunk */
   pData->iChunkname            = MNG_UINT_HUH;
   pData->iChunkseq             = 0;
-  pData->pFirstchunk           = 0;
-  pData->pLastchunk            = 0;
+  pData->pFirstchunk           = MNG_NULL;
+  pData->pLastchunk            = MNG_NULL;
                                        /* nothing processed yet */
   pData->bHasheader            = MNG_FALSE;
   pData->bHasMHDR              = MNG_FALSE;
@@ -648,7 +653,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bWriting              = MNG_FALSE;
   pData->iFirstchunkadded      = 0;
   pData->iWritebufsize         = 0;
-  pData->pWritebuf             = 0;
+  pData->pWritebuf             = MNG_NULL;
 #endif /* MNG_SUPPORT_WRITE */
 
 #ifdef MNG_SUPPORT_DISPLAY             /* done nuttin' yet */
@@ -673,16 +678,16 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bFreezing             = MNG_FALSE;
   pData->bResetting            = MNG_FALSE;
   pData->bNeedrefresh          = MNG_FALSE;
-
-  pData->pCurrentobj           = 0;    /* these don't exist yet */
-  pData->pCurraniobj           = 0;
-  pData->pTermaniobj           = 0;
-  pData->pLastclone            = 0;
-  pData->pStoreobj             = 0;
-  pData->pStorebuf             = 0;
-  pData->pRetrieveobj          = 0;
-
-  pData->pSavedata             = 0;    /* no saved data ! */
+                                       /* these don't exist yet */
+  pData->pCurrentobj           = MNG_NULL;
+  pData->pCurraniobj           = MNG_NULL;
+  pData->pTermaniobj           = MNG_NULL;
+  pData->pLastclone            = MNG_NULL;
+  pData->pStoreobj             = MNG_NULL;
+  pData->pStorebuf             = MNG_NULL;
+  pData->pRetrieveobj          = MNG_NULL;
+                                       /* no saved data ! */
+  pData->pSavedata             = MNG_NULL;
                                        /* TODO: remove in 1.0.0 !!! */
   pData->bEMNGMAhack           = MNG_FALSE;
 
@@ -702,8 +707,14 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iSamplediv            = 0;
   pData->iRowsize              = 0;
   pData->iRowmax               = 0;
-  pData->pWorkrow              = 0;
-  pData->pPrevrow              = 0;
+  pData->iFilterofs            = 0;
+  pData->iPixelofs             = 1;
+  pData->iLevel0               = 0;
+  pData->iLevel1               = 0;
+  pData->iLevel2               = 0;
+  pData->iLevel3               = 0;
+  pData->pWorkrow              = MNG_NULL;
+  pData->pPrevrow              = MNG_NULL;
   pData->pRGBArow              = 0;
   pData->bIsRGBA16             = MNG_TRUE;
   pData->bIsOpaque             = MNG_TRUE;
@@ -717,24 +728,27 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iDestr                = 0;
   pData->iDestt                = 0;
   pData->iDestb                = 0;
-
-  pData->pFirstimgobj          = 0;    /* lists are empty */
-  pData->pLastimgobj           = 0;
-  pData->pFirstaniobj          = 0;
-  pData->pLastaniobj           = 0;
-
-  pData->fDisplayrow           = 0;    /* no processing callbacks */
-  pData->fRestbkgdrow          = 0;
-  pData->fCorrectrow           = 0;
-  pData->fRetrieverow          = 0;
-  pData->fStorerow             = 0;
-  pData->fProcessrow           = 0;
-  pData->fInitrowproc          = 0;
+                                       /* lists are empty */
+  pData->pFirstimgobj          = MNG_NULL;
+  pData->pLastimgobj           = MNG_NULL;
+  pData->pFirstaniobj          = MNG_NULL;
+  pData->pLastaniobj           = MNG_NULL;
+                                       /* no processing callbacks */
+  pData->fDisplayrow           = MNG_NULL;
+  pData->fRestbkgdrow          = MNG_NULL;
+  pData->fCorrectrow           = MNG_NULL;
+  pData->fRetrieverow          = MNG_NULL;
+  pData->fStorerow             = MNG_NULL;
+  pData->fProcessrow           = MNG_NULL;
+  pData->fDifferrow            = MNG_NULL;
+  pData->fInitrowproc          = MNG_NULL;
 
   pData->iPLTEcount            = 0;    /* no PLTE data */
 
   pData->iDEFIobjectid         = 0;    /* no DEFI data */
+  pData->bDEFIhasdonotshow     = MNG_FALSE;
   pData->iDEFIdonotshow        = 0;
+  pData->bDEFIhasconcrete      = MNG_FALSE;
   pData->iDEFIconcrete         = 0;
   pData->bDEFIhasloca          = MNG_FALSE;
   pData->iDEFIlocax            = 0;

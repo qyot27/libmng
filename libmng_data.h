@@ -77,6 +77,10 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -122,18 +126,6 @@ typedef struct mng_savedata_struct {
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
 
 #ifdef MNG_SUPPORT_DISPLAY
-           mng_uint16        iDEFIobjectid;      /* DEFI fields */
-           mng_uint8         iDEFIdonotshow;
-           mng_uint8         iDEFIconcrete;
-           mng_bool          bDEFIhasloca;
-           mng_int32         iDEFIlocax;
-           mng_int32         iDEFIlocay;
-           mng_bool          bDEFIhasclip;
-           mng_int32         iDEFIclipl;
-           mng_int32         iDEFIclipr;
-           mng_int32         iDEFIclipt;
-           mng_int32         iDEFIclipb;
-
            mng_uint16        iBACKred;           /* BACK fields */
            mng_uint16        iBACKgreen;
            mng_uint16        iBACKblue;
@@ -425,6 +417,12 @@ typedef struct mng_data_struct {
            mng_int32         iSamplediv;
            mng_int32         iRowsize;           /* size of actual data in work row */
            mng_int32         iRowmax;            /* maximum size of data in work row */
+           mng_int32         iFilterofs;         /* offset to filter-byte in work row */
+           mng_int32         iPixelofs;          /* offset to pixel-bytes in work row */
+           mng_uint32        iLevel0;            /* leveling variables */
+           mng_uint32        iLevel1;
+           mng_uint32        iLevel2;
+           mng_uint32        iLevel3;
            mng_uint8p        pWorkrow;           /* working row of pixel-data */
            mng_uint8p        pPrevrow;           /* previous row of pixel-data */
            mng_uint8p        pRGBArow;           /* intermediate row of RGBA8 or RGBA16 data */
@@ -464,11 +462,16 @@ typedef struct mng_data_struct {
                                                     uncompressed/unfiltered row of data */
            mng_ptr           fProcessrow;        /* internal callback to process an
                                                     uncompressed row of data */
+           mng_ptr           fDifferrow;         /* internal callback to perform
+                                                    added filter leveling and
+                                                    differing on an unfiltered row */
            mng_ptr           fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
 
            mng_uint16        iDEFIobjectid;      /* DEFI fields */
+           mng_bool          bDEFIhasdonotshow;
            mng_uint8         iDEFIdonotshow;
+           mng_bool          bDEFIhasconcrete;
            mng_uint8         iDEFIconcrete;
            mng_bool          bDEFIhasloca;
            mng_int32         iDEFIlocax;
@@ -636,6 +639,7 @@ typedef mng_retcode(*mng_retrieverow) (mng_datap  pData);
 typedef mng_retcode(*mng_storerow)    (mng_datap  pData);
 typedef mng_retcode(*mng_processrow)  (mng_datap  pData);
 typedef mng_retcode(*mng_initrowproc) (mng_datap  pData);
+typedef mng_retcode(*mng_differrow)   (mng_datap  pData);
 
 typedef mng_retcode(*mng_magnify_x)   (mng_datap  pData,
                                        mng_uint16 iMX,

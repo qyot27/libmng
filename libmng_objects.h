@@ -41,6 +41,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -277,8 +279,10 @@ typedef mng_ani_endl * mng_ani_endlp;
 typedef struct {                                 /* DEFI object */
            mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
            mng_uint16        iId;                
-           mng_uint8         iDonotshow;         
-           mng_uint8         iConcrete;          
+           mng_bool          bHasdonotshow;
+           mng_uint8         iDonotshow;
+           mng_bool          bHasconcrete;
+           mng_uint8         iConcrete;
            mng_bool          bHasloca;           
            mng_int32         iLocax;
            mng_int32         iLocay;

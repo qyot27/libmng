@@ -10,6 +10,7 @@ Intermediate for the moment.
 - fixed bug 111300
 - added workaround for faulty PhotoShop iCCP chunk
 - added MAGN chunk
+- added support for new filter_types                      
 - fixed other assorted stuff
 - added BCB mngview contribution by Andy Protano
 
@@ -29,6 +30,11 @@ core:
 - added MAGN chunk
 - fixed sRGB precedence for gamma_only corection
 - fixed internal alpha-blending
+- added support for new filter_types                     
+- fixed problem with no refresh after TERM                
+- fixed DEFI behavior                                     
+- fixed inclusion parameters to make the external libs work together
+- added export of zlib functions from windows dll         
 
 samples:
 - added BCB mngview contribution by Andy Protano

@@ -64,6 +64,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -482,6 +484,23 @@
     {MNG_FN_FILTER_UP,                 "filter_up"},
     {MNG_FN_FILTER_AVERAGE,            "filter_average"},
     {MNG_FN_FILTER_PAETH,              "filter_paeth"},
+
+    {MNG_FN_INIT_ROWDIFFERING,         "init_rowdiffering"},
+    {MNG_FN_DIFFER_G1,                 "differ_g1"},
+    {MNG_FN_DIFFER_G2,                 "differ_g2"},
+    {MNG_FN_DIFFER_G4,                 "differ_g4"},
+    {MNG_FN_DIFFER_G8,                 "differ_g8"},
+    {MNG_FN_DIFFER_G16,                "differ_g16"},
+    {MNG_FN_DIFFER_RGB8,               "differ_rgb8"},
+    {MNG_FN_DIFFER_RGB16,              "differ_rgb16"},
+    {MNG_FN_DIFFER_IDX1,               "differ_idx1"},
+    {MNG_FN_DIFFER_IDX2,               "differ_idx2"},
+    {MNG_FN_DIFFER_IDX4,               "differ_idx4"},
+    {MNG_FN_DIFFER_IDX8,               "differ_idx8"},
+    {MNG_FN_DIFFER_GA8,                "differ_ga8"},
+    {MNG_FN_DIFFER_GA16,               "differ_ga16"},
+    {MNG_FN_DIFFER_RGBA8,              "differ_rgba8"},
+    {MNG_FN_DIFFER_RGBA16,             "differ_rgba16"},
 
     {MNG_FN_CREATE_IMGDATAOBJECT,      "create_imgdataobject"},
     {MNG_FN_FREE_IMGDATAOBJECT,        "free_imgdataobject"},

@@ -94,6 +94,10 @@
 /* *             - fixed TERM processing delay of 0 msecs                   * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed problem with no refresh after TERM                 * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1083,18 +1087,6 @@ mng_retcode save_state (mng_datap pData)
   pSave->bHasglobalBKGD       = pData->bHasglobalBKGD;
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
 
-  pSave->iDEFIobjectid        = pData->iDEFIobjectid;
-  pSave->iDEFIdonotshow       = pData->iDEFIdonotshow;
-  pSave->iDEFIconcrete        = pData->iDEFIconcrete;
-  pSave->bDEFIhasloca         = pData->bDEFIhasloca;
-  pSave->iDEFIlocax           = pData->iDEFIlocax;
-  pSave->iDEFIlocay           = pData->iDEFIlocay;
-  pSave->bDEFIhasclip         = pData->bDEFIhasclip;
-  pSave->iDEFIclipl           = pData->iDEFIclipl;
-  pSave->iDEFIclipr           = pData->iDEFIclipr;
-  pSave->iDEFIclipt           = pData->iDEFIclipt;
-  pSave->iDEFIclipb           = pData->iDEFIclipb;
-
   pSave->iBACKred             = pData->iBACKred;
   pSave->iBACKgreen           = pData->iBACKgreen;
   pSave->iBACKblue            = pData->iBACKblue;
@@ -1186,18 +1178,6 @@ mng_retcode restore_state (mng_datap pData)
     pData->bHasglobalBKGD       = pSave->bHasglobalBKGD;
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
 
-    pData->iDEFIobjectid        = pSave->iDEFIobjectid;
-    pData->iDEFIdonotshow       = pSave->iDEFIdonotshow;
-    pData->iDEFIconcrete        = pSave->iDEFIconcrete;
-    pData->bDEFIhasloca         = pSave->bDEFIhasloca;
-    pData->iDEFIlocax           = pSave->iDEFIlocax;
-    pData->iDEFIlocay           = pSave->iDEFIlocay;
-    pData->bDEFIhasclip         = pSave->bDEFIhasclip;
-    pData->iDEFIclipl           = pSave->iDEFIclipl;
-    pData->iDEFIclipr           = pSave->iDEFIclipr;
-    pData->iDEFIclipt           = pSave->iDEFIclipt;
-    pData->iDEFIclipb           = pSave->iDEFIclipb;
-
     pData->iBACKred             = pSave->iBACKred;
     pData->iBACKgreen           = pSave->iBACKgreen;
     pData->iBACKblue            = pSave->iBACKblue;
@@ -1267,18 +1247,6 @@ mng_retcode restore_state (mng_datap pData)
     pData->bHasglobalICCP       = MNG_FALSE;
     pData->bHasglobalBKGD       = MNG_FALSE;
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
-
-    pData->iDEFIobjectid        = 0;
-    pData->iDEFIdonotshow       = 0;
-    pData->iDEFIconcrete        = 0;
-    pData->bDEFIhasloca         = MNG_FALSE;
-    pData->iDEFIlocax           = 0;
-    pData->iDEFIlocay           = 0;
-    pData->bDEFIhasclip         = MNG_FALSE;
-    pData->iDEFIclipl           = 0;
-    pData->iDEFIclipr           = 0;
-    pData->iDEFIclipt           = 0;
-    pData->iDEFIclipb           = 0;
 
     if (!pData->bEMNGMAhack)             /* TODO: remove line in 1.0.0 !!! */
     {                                    /* TODO: remove line in 1.0.0 !!! */
@@ -1530,12 +1498,13 @@ mng_retcode process_display_ihdr (mng_datap pData)
 
   if (!pData->bHasDHDR)
   {
-    pData->fInitrowproc = 0;           /* do nothing by default */
-    pData->fDisplayrow  = 0;
-    pData->fCorrectrow  = 0;
-    pData->fStorerow    = 0;
-    pData->fProcessrow  = 0;
-    pData->pStoreobj    = 0;
+    pData->fInitrowproc = MNG_NULL;    /* do nothing by default */
+    pData->fDisplayrow  = MNG_NULL;
+    pData->fCorrectrow  = MNG_NULL;
+    pData->fStorerow    = MNG_NULL;
+    pData->fProcessrow  = MNG_NULL;
+    pData->fDifferrow   = MNG_NULL;
+    pData->pStoreobj    = MNG_NULL;
   }
 
   if (!pData->iBreakpoint)             /* not previously broken ? */
@@ -1762,7 +1731,58 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  break;
                }
     }
-  }  
+
+    pData->iFilterofs = 0;             /* determine filter characteristics */
+
+    if (pData->iFilter & 0x40)         /* leveling & differing ? */
+    {
+      switch (pData->iColortype)
+      {
+        case 0 : {
+                   if (pData->iBitdepth <= 8)
+                     pData->iFilterofs = 1;
+                   else
+                     pData->iFilterofs = 2;
+
+                   break;
+                 }
+        case 2 : {
+                   if (pData->iBitdepth <= 8)
+                     pData->iFilterofs = 3;
+                   else
+                     pData->iFilterofs = 6;
+
+                   break;
+                 }
+        case 3 : {
+                   pData->iFilterofs = 1;
+                   break;
+                 }
+        case 4 : {
+                   if (pData->iBitdepth <= 8)
+                     pData->iFilterofs = 2;
+                   else
+                     pData->iFilterofs = 4;
+
+                   break;
+                 }
+        case 6 : {
+                   if (pData->iBitdepth <= 8)
+                     pData->iPixelofs  = 5;
+                   else
+                     pData->iFilterofs = 8;
+
+                   break;
+                 }
+      }
+    }
+
+    if (pData->iFilter & 0x01)         /* no adaptive filtering ? */
+      pData->iPixelofs = pData->iFilterofs;
+    else
+      pData->iPixelofs = pData->iFilterofs + 1;
+
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_END)
@@ -1991,7 +2011,7 @@ mng_retcode process_display_mend (mng_datap pData)
                    pData->pCurraniobj = pTERM;
 
                    if (pTERM->iDelay)  /* set the delay (?) */
-                     iRetcode = set_delay (pData, pTERM->iDelay);
+                     iRetcode = display_progressive_refresh (pData, pTERM->iDelay);
 
                    if (iRetcode)       /* on error bail out */
                      return iRetcode;
@@ -2055,9 +2075,15 @@ mng_retcode process_display_defi (mng_datap pData)
   if (!pData->iDEFIobjectid)           /* object id=0 ? */
   {
     pImage             = (mng_imagep)pData->pObjzero;
-    pImage->bVisible   = (mng_bool)(pData->iDEFIdonotshow == 0);
-    pImage->iPosx      = pData->iDEFIlocax;
-    pImage->iPosy      = pData->iDEFIlocay;
+
+    if (pData->bDEFIhasdonotshow)
+      pImage->bVisible = (mng_bool)(pData->iDEFIdonotshow == 0);
+
+    if (pData->bDEFIhasloca)
+    {
+      pImage->iPosx    = pData->iDEFIlocax;
+      pImage->iPosy    = pData->iDEFIlocay;
+    }
 
     if (pData->bDEFIhasclip)
     {
@@ -2091,17 +2117,28 @@ mng_retcode process_display_defi (mng_datap pData)
     }
     else
     {                                  /* exists; then set new info */
-      pImage->bVisible  = (mng_bool)(pData->iDEFIdonotshow == 0);
-      pImage->bViewable = MNG_FALSE;
-      pImage->iPosx     = pData->iDEFIlocax;
-      pImage->iPosy     = pData->iDEFIlocay;
-      pImage->bClipped  = pData->bDEFIhasclip;
-      pImage->iClipl    = pData->iDEFIclipl;
-      pImage->iClipr    = pData->iDEFIclipr;
-      pImage->iClipt    = pData->iDEFIclipt;
-      pImage->iClipb    = pData->iDEFIclipb;
+      if (pData->bDEFIhasdonotshow)
+        pImage->bVisible = (mng_bool)(pData->iDEFIdonotshow == 0);
 
-      pImage->pImgbuf->bConcrete = (mng_bool)(pData->iDEFIconcrete == 1);
+      pImage->bViewable  = MNG_FALSE;
+
+      if (pData->bDEFIhasloca)
+      {
+        pImage->iPosx    = pData->iDEFIlocax;
+        pImage->iPosy    = pData->iDEFIlocay;
+      }
+
+      if (pData->bDEFIhasclip)
+      {
+        pImage->bClipped = pData->bDEFIhasclip;
+        pImage->iClipl   = pData->iDEFIclipl;
+        pImage->iClipr   = pData->iDEFIclipr;
+        pImage->iClipt   = pData->iDEFIclipt;
+        pImage->iClipb   = pData->iDEFIclipb;
+      }
+
+      if (pData->bDEFIhasconcrete)
+        pImage->pImgbuf->bConcrete = (mng_bool)(pData->iDEFIconcrete == 1);
     }
 
     pData->pCurrentobj = pImage;       /* others may want to know this */
@@ -2462,6 +2499,56 @@ mng_retcode process_display_basi (mng_datap  pData,
                break;
              }
   }
+
+  pData->iFilterofs = 0;               /* determine filter characteristics */
+
+  if (pData->iFilter & 0x40)           /* leveling & differing ? */
+  {
+    switch (pData->iColortype)
+    {
+      case 0 : {
+                 if (pData->iBitdepth <= 8)
+                   pData->iFilterofs = 1;
+                 else
+                   pData->iFilterofs = 2;
+
+                 break;
+               }
+      case 2 : {
+                 if (pData->iBitdepth <= 8)
+                   pData->iFilterofs = 3;
+                 else
+                   pData->iFilterofs = 6;
+
+                 break;
+               }
+      case 3 : {
+                 pData->iFilterofs = 1;
+                 break;
+               }
+      case 4 : {
+                 if (pData->iBitdepth <= 8)
+                   pData->iFilterofs = 2;
+                 else
+                   pData->iFilterofs = 4;
+
+                 break;
+               }
+      case 6 : {
+                 if (pData->iBitdepth <= 8)
+                   pData->iPixelofs  = 5;
+                 else
+                   pData->iFilterofs = 8;
+
+                 break;
+               }
+    }
+  }
+
+  if (pData->iFilter & 0x01)           /* no adaptive filtering ? */
+    pData->iPixelofs = pData->iFilterofs;
+  else
+    pData->iPixelofs = pData->iFilterofs + 1;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_END)
@@ -3054,12 +3141,13 @@ mng_retcode process_display_jhdr (mng_datap pData)
 
   if (!pData->bHasDHDR)
   {
-    pData->fInitrowproc  = 0;          /* do nothing by default */
-    pData->fDisplayrow   = 0;
-    pData->fCorrectrow   = 0;
-    pData->fStorerow     = 0;
-    pData->fProcessrow   = 0;
-    pData->fStorerow2    = 0;
+    pData->fInitrowproc  = MNG_NULL;   /* do nothing by default */
+    pData->fDisplayrow   = MNG_NULL;
+    pData->fCorrectrow   = MNG_NULL;
+    pData->fStorerow     = MNG_NULL;
+    pData->fProcessrow   = MNG_NULL;
+    pData->fDifferrow    = MNG_NULL;
+    pData->fStorerow2    = MNG_NULL;
 
     pData->pStoreobj     = MNG_NULL;   /* initialize important work-parms */
 
@@ -3222,6 +3310,23 @@ mng_retcode process_display_jhdr (mng_datap pData)
         case 16 : { pData->fInitrowproc = (mng_ptr)init_g16_ni; break; }
       }
     }
+
+    pData->iFilterofs = 0;             /* determine filter characteristics */
+                                       /* leveling & differing ? */
+    if (pData->iJHDRalphafilter & 0x40)
+    {
+       if (pData->iJHDRalphabitdepth <= 8)
+         pData->iFilterofs = 1;
+       else
+         pData->iFilterofs = 2;
+
+    }
+                                       /* no adaptive filtering ? */
+    if (pData->iJHDRalphafilter & 0x01)
+      pData->iPixelofs = pData->iFilterofs;
+    else
+      pData->iPixelofs = pData->iFilterofs + 1;
+
   }
 
 #ifdef MNG_SUPPORT_TRACE

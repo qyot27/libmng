@@ -113,6 +113,10 @@
 /* *             - fixed read-code for iTXt                                 * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 09/07/2000 - G.Juyn                                * */
+/* *             - added support for new filter_types                       * */
+/* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
+/* *             - fixed DEFI behavior                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -575,7 +579,7 @@ READ_CHUNK (read_ihdr)
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  if (pData->iFilter != MNG_FILTER_ADAPTIVE)
+  if (pData->iFilter & (~MNG_FILTER_MASK))
     MNG_ERROR (pData, MNG_INVALIDFILTER)
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
@@ -3226,37 +3230,59 @@ READ_CHUNK (read_defi)
   {
     mng_retcode iRetcode;
 
-    pData->iDEFIobjectid    = mng_get_uint16 (pRawdata);
+    pData->iDEFIobjectid       = mng_get_uint16 (pRawdata);
 
     if (iRawlen > 2)
-      pData->iDEFIdonotshow = *(pRawdata+2);
+    {
+      pData->bDEFIhasdonotshow = MNG_TRUE;
+      pData->iDEFIdonotshow    = *(pRawdata+2);
+    }
     else
-      pData->iDEFIdonotshow = 0;
+    {
+      pData->bDEFIhasdonotshow = MNG_FALSE;
+      pData->iDEFIdonotshow    = 0;
+    }
 
     if (iRawlen > 3)
-      pData->iDEFIconcrete  = *(pRawdata+3);
+    {
+      pData->bDEFIhasconcrete  = MNG_TRUE;
+      pData->iDEFIconcrete     = *(pRawdata+3);
+    }
     else
-      pData->iDEFIconcrete  = 0;
+    {
+      pData->bDEFIhasconcrete  = MNG_FALSE;
+      pData->iDEFIconcrete     = 0;
+    }
 
     if (iRawlen > 4)
     {
-      pData->bDEFIhasloca   = MNG_TRUE;
-      pData->iDEFIlocax     = mng_get_int32 (pRawdata+4);
-      pData->iDEFIlocay     = mng_get_int32 (pRawdata+8);
+      pData->bDEFIhasloca      = MNG_TRUE;
+      pData->iDEFIlocax        = mng_get_int32 (pRawdata+4);
+      pData->iDEFIlocay        = mng_get_int32 (pRawdata+8);
     }
     else
-      pData->bDEFIhasloca   = MNG_FALSE;
+    {
+      pData->bDEFIhasloca      = MNG_FALSE;
+      pData->iDEFIlocax        = 0;
+      pData->iDEFIlocay        = 0;
+    }
 
     if (iRawlen > 12)
     {
-      pData->bDEFIhasclip   = MNG_TRUE;
-      pData->iDEFIclipl     = mng_get_int32 (pRawdata+12);
-      pData->iDEFIclipr     = mng_get_int32 (pRawdata+16);
-      pData->iDEFIclipt     = mng_get_int32 (pRawdata+20);
-      pData->iDEFIclipb     = mng_get_int32 (pRawdata+24);
+      pData->bDEFIhasclip      = MNG_TRUE;
+      pData->iDEFIclipl        = mng_get_int32 (pRawdata+12);
+      pData->iDEFIclipr        = mng_get_int32 (pRawdata+16);
+      pData->iDEFIclipt        = mng_get_int32 (pRawdata+20);
+      pData->iDEFIclipb        = mng_get_int32 (pRawdata+24);
     }
     else
-      pData->bDEFIhasclip   = MNG_FALSE;
+    {
+      pData->bDEFIhasclip      = MNG_FALSE;
+      pData->iDEFIclipl        = 0;
+      pData->iDEFIclipr        = 0;
+      pData->iDEFIclipt        = 0;
+      pData->iDEFIclipb        = 0;
+    }
                                        /* create an animation object */
     iRetcode = create_ani_defi (pData);
 
@@ -3281,33 +3307,43 @@ READ_CHUNK (read_defi)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* store the fields */
-    ((mng_defip)*ppChunk)->iObjectid    = mng_get_uint16 (pRawdata);
+    ((mng_defip)*ppChunk)->iObjectid       = mng_get_uint16 (pRawdata);
 
     if (iRawlen > 2)
-      ((mng_defip)*ppChunk)->iDonotshow = *(pRawdata+2);
+    {
+      ((mng_defip)*ppChunk)->bHasdonotshow = MNG_TRUE;
+      ((mng_defip)*ppChunk)->iDonotshow    = *(pRawdata+2);
+    }
+    else
+      ((mng_defip)*ppChunk)->bHasdonotshow = MNG_FALSE;
 
     if (iRawlen > 3)
-      ((mng_defip)*ppChunk)->iConcrete  = *(pRawdata+3);
+    {
+      ((mng_defip)*ppChunk)->bHasconcrete  = MNG_TRUE;
+      ((mng_defip)*ppChunk)->iConcrete     = *(pRawdata+3);
+    }
+    else
+      ((mng_defip)*ppChunk)->bHasconcrete  = MNG_FALSE;
 
     if (iRawlen > 4)
     {
-      ((mng_defip)*ppChunk)->bHasloca   = MNG_TRUE;
-      ((mng_defip)*ppChunk)->iXlocation = mng_get_int32 (pRawdata+4);
-      ((mng_defip)*ppChunk)->iYlocation = mng_get_int32 (pRawdata+8);
+      ((mng_defip)*ppChunk)->bHasloca      = MNG_TRUE;
+      ((mng_defip)*ppChunk)->iXlocation    = mng_get_int32 (pRawdata+4);
+      ((mng_defip)*ppChunk)->iYlocation    = mng_get_int32 (pRawdata+8);
     }
     else
-      ((mng_defip)*ppChunk)->bHasloca   = MNG_FALSE;
+      ((mng_defip)*ppChunk)->bHasloca      = MNG_FALSE;
 
     if (iRawlen > 12)
     {
-      ((mng_defip)*ppChunk)->bHasclip   = MNG_TRUE;
-      ((mng_defip)*ppChunk)->iLeftcb    = mng_get_int32 (pRawdata+12);
-      ((mng_defip)*ppChunk)->iRightcb   = mng_get_int32 (pRawdata+16);
-      ((mng_defip)*ppChunk)->iTopcb     = mng_get_int32 (pRawdata+20);
-      ((mng_defip)*ppChunk)->iBottomcb  = mng_get_int32 (pRawdata+24);
+      ((mng_defip)*ppChunk)->bHasclip      = MNG_TRUE;
+      ((mng_defip)*ppChunk)->iLeftcb       = mng_get_int32 (pRawdata+12);
+      ((mng_defip)*ppChunk)->iRightcb      = mng_get_int32 (pRawdata+16);
+      ((mng_defip)*ppChunk)->iTopcb        = mng_get_int32 (pRawdata+20);
+      ((mng_defip)*ppChunk)->iBottomcb     = mng_get_int32 (pRawdata+24);
     }
     else
-      ((mng_defip)*ppChunk)->bHasclip   = MNG_FALSE;
+      ((mng_defip)*ppChunk)->bHasclip      = MNG_FALSE;
 
   }
 #endif /* MNG_STORE_CHUNKS */

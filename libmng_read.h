@@ -27,9 +27,6 @@
 #ifndef _libmng_read_h_
 #define _libmng_read_h_
 
-#include "libmng.h"
-#include "libmng_data.h"
-
 /* ************************************************************************** */
 
 mng_retcode read_graphic (mng_datap pData);

@@ -33,10 +33,6 @@
 #ifndef _libmng_chunk_prc_h_
 #define _libmng_chunk_prc_h_
 
-#include "libmng.h"
-#include "libmng_data.h"
-#include "libmng_chunks.h"
-
 /* ************************************************************************** */
 
 void add_chunk (mng_datap  pData,
