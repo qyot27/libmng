@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_prop_xs.c          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -101,6 +101,9 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *                                                                        * */
+/* *             1.0.9 - 09/18/2004 - G.R-P.                                * */
+/* *             - added some MNG_SUPPORT_WRITE conditionals                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -845,6 +848,7 @@ mng_retcode MNG_DECL mng_set_maxcanvassize (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_level (mng_handle hHandle,
                                          mng_int32  iZlevel)
 {
@@ -861,6 +865,7 @@ mng_retcode MNG_DECL mng_set_zlib_level (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -868,6 +873,7 @@ mng_retcode MNG_DECL mng_set_zlib_level (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_method (mng_handle hHandle,
                                           mng_int32  iZmethod)
 {
@@ -884,6 +890,7 @@ mng_retcode MNG_DECL mng_set_zlib_method (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -891,6 +898,7 @@ mng_retcode MNG_DECL mng_set_zlib_method (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_windowbits (mng_handle hHandle,
                                               mng_int32  iZwindowbits)
 {
@@ -907,6 +915,7 @@ mng_retcode MNG_DECL mng_set_zlib_windowbits (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -914,6 +923,7 @@ mng_retcode MNG_DECL mng_set_zlib_windowbits (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_memlevel (mng_handle hHandle,
                                             mng_int32  iZmemlevel)
 {
@@ -930,6 +940,7 @@ mng_retcode MNG_DECL mng_set_zlib_memlevel (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -937,6 +948,7 @@ mng_retcode MNG_DECL mng_set_zlib_memlevel (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_strategy (mng_handle hHandle,
                                             mng_int32  iZstrategy)
 {
@@ -953,6 +965,7 @@ mng_retcode MNG_DECL mng_set_zlib_strategy (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -960,6 +973,7 @@ mng_retcode MNG_DECL mng_set_zlib_strategy (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_ZLIB
 #ifdef MNG_ACCESS_ZLIB
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_zlib_maxidat (mng_handle hHandle,
                                            mng_uint32 iMaxIDAT)
 {
@@ -976,6 +990,7 @@ mng_retcode MNG_DECL mng_set_zlib_maxidat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_ZLIB */
 #endif /* MNG_INCLUDE_ZLIB */
 
@@ -983,6 +998,7 @@ mng_retcode MNG_DECL mng_set_zlib_maxidat (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_dctmethod (mng_handle        hHandle,
                                              mngjpeg_dctmethod eJPEGdctmethod)
 {
@@ -999,6 +1015,7 @@ mng_retcode MNG_DECL mng_set_jpeg_dctmethod (mng_handle        hHandle,
 
   return MNG_NOERROR;
 }
+#endif MNG_SUPPORT_WRITE
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1006,6 +1023,7 @@ mng_retcode MNG_DECL mng_set_jpeg_dctmethod (mng_handle        hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_quality (mng_handle hHandle,
                                            mng_int32  iJPEGquality)
 {
@@ -1022,6 +1040,7 @@ mng_retcode MNG_DECL mng_set_jpeg_quality (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1029,6 +1048,7 @@ mng_retcode MNG_DECL mng_set_jpeg_quality (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_smoothing (mng_handle hHandle,
                                              mng_int32  iJPEGsmoothing)
 {
@@ -1045,6 +1065,7 @@ mng_retcode MNG_DECL mng_set_jpeg_smoothing (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1052,6 +1073,7 @@ mng_retcode MNG_DECL mng_set_jpeg_smoothing (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_progressive (mng_handle hHandle,
                                                mng_bool   bJPEGprogressive)
 {
@@ -1068,6 +1090,7 @@ mng_retcode MNG_DECL mng_set_jpeg_progressive (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1075,6 +1098,7 @@ mng_retcode MNG_DECL mng_set_jpeg_progressive (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_optimized (mng_handle hHandle,
                                              mng_bool   bJPEGoptimized)
 {
@@ -1091,6 +1115,7 @@ mng_retcode MNG_DECL mng_set_jpeg_optimized (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1098,6 +1123,7 @@ mng_retcode MNG_DECL mng_set_jpeg_optimized (mng_handle hHandle,
 
 #ifdef MNG_INCLUDE_JNG
 #ifdef MNG_ACCESS_JPEG
+#ifdef MNG_SUPPORT_WRITE
 mng_retcode MNG_DECL mng_set_jpeg_maxjdat (mng_handle hHandle,
                                            mng_uint32 iMaxJDAT)
 {
@@ -1114,6 +1140,7 @@ mng_retcode MNG_DECL mng_set_jpeg_maxjdat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SUPPORT_WRITE */
 #endif /* MNG_ACCESS_JPEG */
 #endif /* MNG_INCLUDE_JNG */
 
@@ -1542,7 +1569,6 @@ mng_uint8 MNG_DECL mng_get_refreshpass (mng_handle hHandle)
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
-
 mng_uint8 MNG_DECL mng_get_alphacompression (mng_handle hHandle)
 {
   mng_uint8 iRslt;

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_xs.c         copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * file      : libmng_chunk_xs.c         copyright (c) 2000-2004 G.Juyn   * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : chunk access functions (implementation)                    * */
 /* *                                                                        * */
@@ -76,6 +76,9 @@
 /* *             - added missing get-/put-chunk-jdaa                        * */
 /* *             1.0.8 - 08/02/2004 - G.Juyn                                * */
 /* *             - added conditional to allow easier writing of large MNG's * */
+/* *                                                                        * */
+/* *             1.0.9 - 09/17/2004 - G.R-P                                 * */
+/* *             - added two more conditionals                              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2376,6 +2379,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_TERM
 MNG_LOCAL mng_bool check_term (mng_datap   pData,
                                mng_chunkid iChunkname)
 {
@@ -2395,6 +2399,7 @@ MNG_LOCAL mng_bool check_term (mng_datap   pData,
 
   return MNG_FALSE;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5746,6 +5751,7 @@ mng_retcode MNG_DECL mng_putimgdata_ihdr (mng_handle        hHandle,
 
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_JNG
 mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
                                           mng_uint32        iWidth,
                                           mng_uint32        iHeight,
@@ -5772,6 +5778,7 @@ mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
 
   return MNG_FNNOTIMPLEMENTED;
 }
+#endif
 
 /* ************************************************************************** */
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_callback_xs.c      copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -51,6 +51,9 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/10/2004 - G.Juyn                                * */
 /* *             - added data-push mechanisms for specialized decoders      * */
+/* *                                                                        * */
+/* *             1.0.9 - 09/18/2004 - G.R-P.                                * */
+/* *             - added two SKIPCHUNK_TERM conditionals                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -419,6 +422,7 @@ mng_retcode MNG_DECL mng_setcb_processunknown (mng_handle         hHandle,
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_TERM
 mng_retcode MNG_DECL mng_setcb_processterm (mng_handle      hHandle,
                                             mng_processterm fProc)
 {
@@ -435,6 +439,7 @@ mng_retcode MNG_DECL mng_setcb_processterm (mng_handle      hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
@@ -993,6 +998,7 @@ mng_processunknown MNG_DECL mng_getcb_processunknown (mng_handle hHandle)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_READ
+#ifndef MNG_SKIPCHUNK_TERM
 mng_processterm MNG_DECL mng_getcb_processterm (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1007,6 +1013,7 @@ mng_processterm MNG_DECL mng_getcb_processterm (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->fProcessterm;
 }
+#endif
 #endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -211,6 +211,9 @@
 /* *             1.0.8 - 05/04/2004 - G.R-P.                                * */
 /* *             - fixed misplaced 16-bit conditionals                      * */
 /* *                                                                        * */
+/* *             1.0.9 - 09/18/2004 - G.R-P.                                * */
+/* *             - revised some SKIPCHUNK conditionals                      * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -359,6 +362,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 #endif
 
   {
+#ifndef MNG_SKIPCHUNK_FRAM
     if (pData->iFramedelay > 0)        /* real delay ? */
     {                                  /* let the app refresh first ? */
       if ((pData->bRunning) && (!pData->bSkipping) &&
@@ -375,6 +379,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
       pData->bNeedrefresh  = MNG_FALSE;
 
+#ifndef MNG_SKIPCHUNK_TERM
       if (pData->bOnlyfirstframe)      /* only processing first frame after TERM ? */
       {
         pData->iFramesafterTERM++;
@@ -387,6 +392,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
           return MNG_NOERROR;
         }
       }
+#endif
 
       if (pData->fGettickcount)
       {                                /* get current tickcount */
@@ -428,6 +434,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       pData->iFrametime = pData->iFrametime + iWaitfor;
                                        /* setup for next delay */
     pData->iFramedelay = pData->iNextdelay;
+#endif
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -565,6 +572,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
     pData->iDestr   = pData->iWidth;
     pData->iDestb   = pData->iHeight;
 
+#ifndef MNG_SKIPCHUNK_FRAM
     if (pData->bFrameclipping)         /* frame clipping specified ? */
     {
       pData->iDestl = MAX_COORD (pData->iDestl,  pData->iFrameclipl);
@@ -572,6 +580,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
       pData->iDestr = MIN_COORD (pData->iDestr,  pData->iFrameclipr);
       pData->iDestb = MIN_COORD (pData->iDestb,  pData->iFrameclipb);
     }
+#endif
                                        /* anything to clear ? */
     if ((pData->iDestr >= pData->iDestl) && (pData->iDestb >= pData->iDestt))
     {
@@ -642,6 +651,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
         }
       }
 
+#ifndef MNG_SKIPCHUNK_BACK
       if (pData->bHasBACK)
       {                                /* background image ? */
         if ((pData->iBACKmandatory & 0x02) && (pData->iBACKimageid))
@@ -656,6 +666,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
           bColorcorr          = MNG_TRUE;
         }
       }
+#endif
 
       pData->fCorrectrow = MNG_NULL;   /* default no color-correction */
 
@@ -1027,7 +1038,6 @@ MNG_LOCAL mng_retcode clear_canvas (mng_datap pData)
 }
 
 /* ************************************************************************** */
-
 MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
                                   mng_uint8  iFramemode,
                                   mng_uint8  iChangedelay,
@@ -1049,9 +1059,9 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
   {
+#ifndef MNG_SKIPCHUNK_FRAM
     mng_uint8 iOldmode = pData->iFramemode;
                                        /* interframe delay required ? */
-#ifndef MNG_SKIPCHUNK_FRAM
     if ((iOldmode == 2) || (iOldmode == 4))
     {
       if ((pData->iFrameseq) && (iFramemode != 1) && (iFramemode != 3))
@@ -1156,7 +1166,10 @@ MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
 
   if (!pData->bTimerset)               /* timer still off ? */
   {
-    if ((pData->iFramemode == 4) ||    /* insert background layer after a new frame */
+    if (
+#ifndef MNG_SKIPCHUNK_FRAM
+       (pData->iFramemode == 4) ||    /* insert background layer after a new frame */
+#endif
         (!pData->iLayerseq))           /* and certainly before the very first layer */
       iRetcode = load_bkgdlayer (pData);
 
@@ -1185,6 +1198,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_START)
 #endif
 
+#ifndef MNG_SKIPCHUNK_FRAM
   if (!pData->iBreakpoint)             /* no previous break here ? */
   {                                    /* interframe delay required ? */
     if ((pData->eImagetype == mng_it_mng) && (pData->iLayerseq) &&
@@ -1196,6 +1210,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
+#endif
 
   if (!pData->bTimerset)               /* timer still off ? */
   {
@@ -1209,16 +1224,20 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
         pData->iLayerseq++;            /* and it counts as a layer then ! */
       }
     }
+#ifndef MNG_SKIPCHUNK_FRAM
     else
     if (pData->iFramemode == 3)        /* restore background for each layer ? */
       iRetcode = load_bkgdlayer (pData);
+#endif
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
+#ifndef MNG_NO_DELTA_PNG
     if (pData->bHasDHDR)               /* processing a delta-image ? */
       pImage = (mng_imagep)pData->pDeltaImage;
     else
+#endif
       pImage = (mng_imagep)pData->pCurrentobj;
 
     if (!pImage)                       /* not an active object ? */
@@ -1242,6 +1261,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
                                  (mng_int32)pData->iDataheight);
     }
 
+#ifndef MNG_SKIPCHUNK_FRAM
     if (pData->bFrameclipping)         /* frame clipping specified ? */
     {
       pData->iDestl = MAX_COORD (pData->iDestl,  pData->iFrameclipl);
@@ -1249,6 +1269,7 @@ MNG_LOCAL mng_retcode next_layer (mng_datap pData)
       pData->iDestr = MIN_COORD (pData->iDestr,  pData->iFrameclipr);
       pData->iDestb = MIN_COORD (pData->iDestb,  pData->iFrameclipb);
     }
+#endif
 
     if (pImage->bClipped)              /* is the image clipped itself ? */
     {
@@ -1296,6 +1317,7 @@ mng_retcode mng_display_image (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START)
 #endif
                                        /* actively running ? */
+#ifndef MNG_SKIPCHUNK_MAGN
   if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
     if ( (!pData->iBreakpoint) &&      /* needs magnification ? */
@@ -1307,6 +1329,7 @@ mng_retcode mng_display_image (mng_datap  pData,
         return iRetcode;
     }
   }
+#endif
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
 
@@ -2271,6 +2294,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->bHasglobalBKGD       = MNG_FALSE;
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
 
+#ifndef MNG_SKIPCHUNK_TERM
     if (!pData->bMisplacedTERM)        /* backward compatible ugliness !!! */
     {
       pData->iBACKred           = 0;
@@ -2280,7 +2304,9 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
       pData->iBACKimageid       = 0;
       pData->iBACKtile          = 0;
     }
+#endif
 
+#ifndef MNG_SKIPCHUNK_FRAM
     pData->iFRAMmode            = 1;
 /*    pData->iFRAMdelay           = 1; */
     pData->iFRAMtimeout         = 0x7fffffffl;
@@ -2301,6 +2327,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 
 /*    pData->iNextdelay           = 1; */
     pData->iNextdelay           = pData->iFramedelay;
+#endif
 
     pData->iGlobalPLTEcount     = 0;
 
@@ -2335,6 +2362,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 #endif
   }
 
+#ifndef MNG_SKIPCHUNK_TERM
   if (!pData->bMisplacedTERM)          /* backward compatible ugliness !!! */
   {
     pImage = (mng_imagep)pData->pFirstimgobj;
@@ -2380,6 +2408,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
       pImage = pNext;                  /* neeeext */
     }
   }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_END)
@@ -2655,15 +2684,20 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       return iRetcode;
   }
 
+#ifndef MNG_NO_DELTA_PNG
   if (!pData->bHasDHDR)
+#endif
   {
     if (pImage)                        /* real object ? */
       pData->pStoreobj = pImage;       /* tell the row routines */
     else                               /* otherwise use object 0 */
       pData->pStoreobj = pData->pObjzero;
                                        /* display "on-the-fly" ? */
-    if ( (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
+    if (
+#ifndef MNG_SKIPCHUNK_MAGN
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
          (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY == 0) &&
+#endif
          ( (pData->eImagetype == mng_it_png         ) ||
            (((mng_imagep)pData->pStoreobj)->bVisible)    )       )
     {
@@ -2988,10 +3022,12 @@ mng_retcode mng_process_display_iend (mng_datap pData)
     bDodisplay = MNG_TRUE;
 #endif
 
+#ifndef MNG_SKIPCHUNK_MAGN
   if ( (pData->pStoreobj) &&           /* on-the-fly magnification ? */
        ( (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX) ||
          (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY)    ) )
     bMagnify = MNG_TRUE;
+#endif
 
   if ((pData->bHasBASI) ||             /* was it a BASI stream */
       (bDodisplay)      ||             /* or should we display the JNG */
@@ -3015,13 +3051,13 @@ mng_retcode mng_process_display_iend (mng_datap pData)
         pData->iBreakpoint = 6;
     }
   }
+#ifndef MNG_NO_DELTA_PNG
   else
   if ((pData->bHasDHDR) ||             /* was it a DHDR stream */
       (pData->iBreakpoint == 8))       /* or did we get broken here last time ? */
   {
     mng_imagep pImage = (mng_imagep)pData->pDeltaImage;
 
-#ifndef MNG_NO_DELTA_PNG
     if (!pData->iBreakpoint)
     {                                  /* perform the delta operations needed */
       iRetcode = mng_execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
@@ -3029,7 +3065,6 @@ mng_retcode mng_process_display_iend (mng_datap pData)
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
     }
-#endif
                                        /* display it now then ? */
     if ((pImage->bVisible) && (pImage->bViewable))
     {                                  /* ok, so do it */
@@ -3042,6 +3077,7 @@ mng_retcode mng_process_display_iend (mng_datap pData)
         pData->iBreakpoint = 8;
     }
   }
+#endif
 
   if (!pData->bTimerset)               /* can we continue ? */
   {
@@ -3143,6 +3179,8 @@ mng_retcode mng_process_display_mend (mng_datap pData)
     pData->bNeedrefresh   = MNG_TRUE;  /* make sure the last bit is displayed ! */
   }
 #endif
+
+#ifdef MNG_SKIPCHUNK_TERM
                                        /* TERM processed ? */
   if ((pData->bDisplaying) && (pData->bRunning) &&
       (pData->bHasTERM) && (pData->pTermaniobj))
@@ -3162,10 +3200,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 
       case 1 : {                       /* cease displaying anything */
                                        /* max(1, TERM delay, interframe_delay) */
+#ifndef MNG_SKIPCHUNK_FRAM
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
                  if (!pData->iFramedelay)
                    pData->iFramedelay = 1;
+#endif
 
                  iRetcode = interframe_delay (pData);
                                        /* no interframe_delay? then fake it */
@@ -3195,10 +3235,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                  pData->iFramesafterTERM = 0;
 
                                        /* max(1, TERM delay, interframe_delay) */
+#ifndef MNG_SKIPCHUNK_FRAM
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
                  if (!pData->iFramedelay)
                    pData->iFramedelay = 1;
+#endif
 
                  break;
                }
@@ -3225,10 +3267,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                    if (pTERM->iDelay)  /* set the delay (?) */
                    {
                                        /* max(1, TERM delay, interframe_delay) */
+#ifndef MNG_SKIPCHUNK_FRAM
                      if (pTERM->iDelay > pData->iFramedelay)
                        pData->iFramedelay = pTERM->iDelay;
                      if (!pData->iFramedelay)
                        pData->iFramedelay = 1;
+#endif
 
                      pData->bNeedrefresh = MNG_TRUE;
                    }
@@ -3243,10 +3287,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 
                      case 1 : {        /* cease displaying anything */
                                        /* max(1, TERM delay, interframe_delay) */
+#ifndef MNG_SKIPCHUNK_FRAM
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
                                 if (!pData->iFramedelay)
                                   pData->iFramedelay = 1;
+#endif
 
                                 iRetcode = interframe_delay (pData);
                                        /* no interframe_delay? then fake it */
@@ -3276,10 +3322,12 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                 pData->bOnlyfirstframe  = MNG_TRUE;
                                 pData->iFramesafterTERM = 0;
                                        /* max(1, TERM delay, interframe_delay) */
+#ifndef MNG_SKIPCHUNK_FRAM
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
                                 if (!pData->iFramedelay)
                                   pData->iFramedelay = 1;
+#endif
 
                                 break;
                               }
@@ -3290,6 +3338,7 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                }
     }
   }
+#endif /* MNG_SKIPCHUNK_TERM */
                                        /* just reading ? */
   if ((!pData->bDisplaying) && (pData->bReading))
     if (pData->fProcessmend)           /* inform the app ? */
@@ -3314,7 +3363,9 @@ mng_retcode mng_process_display_mend2 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START)
 #endif
 
+#ifndef MNG_SKIPCHUNK_FRAM
   pData->bFrameclipping = MNG_FALSE;   /* nothing to do but restore the app background */
+#endif
   load_bkgdlayer (pData);
 
 #ifdef MNG_SUPPORT_TRACE

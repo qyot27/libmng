@@ -179,6 +179,9 @@
 /* *             1.0.8 - 08/02/2004 - G.Juyn                                * */
 /* *             - added conditional to allow easier writing of large MNG's * */
 /* *                                                                        * */
+/* *             1.0.9 - 08/17/2004 - G.R-P                                 * */
+/* *             - added more SKIPCHUNK conditionals                        * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -404,6 +407,7 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iUpdatebottom         = 0;
   pData->iPLTEcount            = 0;    /* reset PLTE data */
 
+#ifndef MNG_SKIPCHUNK_DEFI
   pData->iDEFIobjectid         = 0;    /* reset DEFI data */
   pData->bDEFIhasdonotshow     = MNG_FALSE;
   pData->iDEFIdonotshow        = 0;
@@ -417,14 +421,18 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iDEFIclipr            = 0;
   pData->iDEFIclipt            = 0;
   pData->iDEFIclipb            = 0;
+#endif
 
+#ifndef MNG_SKIPCHUNK_BACK
   pData->iBACKred              = 0;    /* reset BACK data */
   pData->iBACKgreen            = 0;
   pData->iBACKblue             = 0;
   pData->iBACKmandatory        = 0;
   pData->iBACKimageid          = 0;
   pData->iBACKtile             = 0;
+#endif
 
+#ifndef MNG_SKIPCHUNK_FRAM
   pData->iFRAMmode             = 1;     /* default global FRAM variables */
   pData->iFRAMdelay            = 1;
   pData->iFRAMtimeout          = 0x7fffffffl;
@@ -444,12 +452,15 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iFrameclipb           = 0;
 
   pData->iNextdelay            = 1;
+#endif
 
+#ifndef MNG_SKIPCHUNK_SHOW
   pData->iSHOWmode             = 0;    /* reset SHOW data */
   pData->iSHOWfromid           = 0;
   pData->iSHOWtoid             = 0;
   pData->iSHOWnextid           = 0;
   pData->iSHOWskip             = 0;
+#endif
 
   pData->iGlobalPLTEcount      = 0;    /* reset global PLTE data */
 
@@ -482,6 +493,7 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iGlobalBKGDgreen      = 0;
   pData->iGlobalBKGDblue       = 0;
 #endif
+#ifndef MNG_NO_DELTA_PNG
                                        /* reset delta-image */
   pData->pDeltaImage           = MNG_NULL;
   pData->iDeltaImagetype       = 0;
@@ -506,6 +518,7 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iPromWidth            = 0;
   pData->pPromSrc              = MNG_NULL;
   pData->pPromDst              = MNG_NULL;
+#endif
 
 #ifndef MNG_SKIPCHUNK_MAGN
   pData->iMAGNfromid           = 0;
@@ -1658,6 +1671,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
   pData->iPLTEcount            = 0;    /* no PLTE data */
 
+#ifndef MNG_SKIPCHUNK_DEFI
   pData->iDEFIobjectid         = 0;    /* no DEFI data */
   pData->bDEFIhasdonotshow     = MNG_FALSE;
   pData->iDEFIdonotshow        = 0;
@@ -1671,14 +1685,18 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iDEFIclipr            = 0;
   pData->iDEFIclipt            = 0;
   pData->iDEFIclipb            = 0;
+#endif
 
+#ifndef MNG_SKIPCHUNK_BACK
   pData->iBACKred              = 0;    /* no BACK data */
   pData->iBACKgreen            = 0;
   pData->iBACKblue             = 0;
   pData->iBACKmandatory        = 0;
   pData->iBACKimageid          = 0;
   pData->iBACKtile             = 0;
+#endif
 
+#ifndef MNG_SKIPCHUNK_FRAM
   pData->iFRAMmode             = 1;     /* default global FRAM variables */
   pData->iFRAMdelay            = 1;
   pData->iFRAMtimeout          = 0x7fffffffl;
@@ -1698,12 +1716,15 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iFrameclipb           = 0;
 
   pData->iNextdelay            = 1;
+#endif
 
+#ifndef MNG_SKIPCHUNK_SHOW
   pData->iSHOWmode             = 0;    /* no SHOW data */
   pData->iSHOWfromid           = 0;
   pData->iSHOWtoid             = 0;
   pData->iSHOWnextid           = 0;
   pData->iSHOWskip             = 0;
+#endif
 
   pData->iGlobalPLTEcount      = 0;    /* no global PLTE data */
 
@@ -1761,8 +1782,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->pPromDst              = MNG_NULL;
 #endif
 
+#ifndef MNG_SKIPCHUNK_MAGN
   pData->iMAGNfromid           = 0;
   pData->iMAGNtoid             = 0;
+#endif
 
 #ifndef MNG_SKIPCHUNK_PAST
   pData->iPastx                = 0;
