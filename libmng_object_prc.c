@@ -62,6 +62,13 @@
 /* *             - added MAGN chunk                                         * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added valid-flag to stored objects for read() / display()* */
+/* *             - added routine to discard "invalid" objects               * */
+/* *             0.9.3 - 10/18/2000 - G.Juyn                                * */
+/* *             - fixed delta-processing behavior                          * */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - added storage for pixel-/alpha-sampledepth for delta's   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -85,6 +92,44 @@
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_DISPLAY_PROCS
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Generic object routines                                                * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode drop_invalid_objects (mng_datap pData)
+{
+  mng_objectp       pObject;
+  mng_objectp       pNext;
+  mng_cleanupobject fCleanup;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DROP_INVALID_OBJECTS, MNG_LC_START)
+#endif
+
+  pObject = pData->pFirstimgobj;       /* get first stored image-object (if any) */
+
+  while (pObject)                      /* more objects to check ? */
+  {
+    pNext = ((mng_object_headerp)pObject)->pNext;
+                                       /* invalid ? */
+    if (!((mng_imagep)pObject)->bValid)
+    {                                  /* call appropriate cleanup */
+      fCleanup = ((mng_object_headerp)pObject)->fCleanup;
+      fCleanup (pData, pObject);
+    }
+
+    pObject = pNext;                   /* neeeext */
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DROP_INVALID_OBJECTS, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -129,6 +174,10 @@ mng_retcode create_imagedataobject (mng_datap      pData,
   pImagedata->iFilter            = iFilter;
   pImagedata->iInterlace         = iInterlace;
   pImagedata->iAlphabitdepth     = 0;
+  pImagedata->iJHDRcompression   = 0;
+  pImagedata->iJHDRinterlace     = 0;
+  pImagedata->iPixelsampledepth  = iBitdepth;
+  pImagedata->iAlphasampledepth  = iBitdepth;
                                        /* determine samplesize from color_type/bit_depth */
   switch (iColortype)                  /* for < 8-bit samples we just reserve 8 bits */
   {
@@ -390,6 +439,9 @@ mng_retcode create_imageobject (mng_datap  pData,
   pImage->bFrozen          = MNG_FALSE;
   pImage->bVisible         = bVisible;
   pImage->bViewable        = bViewable;
+  pImage->bValid           = (mng_bool)((pData->bDisplaying) &&
+                                        (pData->bRunning   ) &&
+                                        (!pData->bFreezing )    ); 
   pImage->iPosx            = iPosx;
   pImage->iPosy            = iPosy;
   pImage->bClipped         = bClipped;
@@ -1397,7 +1449,7 @@ mng_retcode create_ani_image (mng_datap pData)
     pCurrent = (mng_imagep)pData->pObjzero;
                                        /* now just clone the object !!! */
   iRetcode  = clone_imageobject (pData, 0, MNG_FALSE, pCurrent->bVisible,
-                                 MNG_TRUE, MNG_FALSE, 0, 0, 0, pCurrent, &pImage);
+                                 MNG_FALSE, MNG_FALSE, 0, 0, 0, pCurrent, &pImage);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1450,6 +1502,18 @@ mng_retcode process_ani_image (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_START)
 #endif
 
+  if (pData->bRestorebkgd)             /* need to restore the background ? */
+  {
+    pData->bRestorebkgd = MNG_FALSE;
+    iRetcode            = load_bkgdlayer (pData);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
+    if ((pData->bDisplaying) && (pData->bRunning))
+      pData->iLayerseq++;              /* and it counts as a layer then ! */
+  }
+  
   if (pData->bHasDHDR)                 /* processing delta-image ? */
   {
     mng_imagep pDelta = (mng_imagep)pData->pDeltaImage;
@@ -1458,7 +1522,7 @@ mng_retcode process_ani_image (mng_datap   pData,
     {                                  /* make sure to process pixels as well */
       pData->bDeltaimmediate = MNG_FALSE;
                                        /* execute the delta process */
-      iRetcode = execute_delta_image (pData, pDelta, (mng_imagep)pData->pObjzero);
+      iRetcode = execute_delta_image (pData, pDelta, (mng_imagep)pObject);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2264,47 +2328,50 @@ mng_retcode process_ani_endl (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_START)
 #endif
 
-  pLOOP = pENDL->pLOOP;                /* determine matching LOOP */
-
-  if (!pLOOP)                          /* haven't got it yet ? */
-  {                                    /* go and look back in the list */
-    pLOOP = (mng_ani_loopp)pENDL->sHeader.pPrev;
-
-    while ((pLOOP) &&
-           ((pLOOP->sHeader.fCleanup != free_ani_loop) ||
-            (pLOOP->iLevel           != pENDL->iLevel)    ))
-      pLOOP = pLOOP->sHeader.pPrev;
-  }
-                                       /* got it now ? */
-  if ((pLOOP) && (pLOOP->iLevel == pENDL->iLevel))
+  if ((pData->bDisplaying) && (pData->bRunning))
   {
-    pENDL->pLOOP = pLOOP;              /* save for next time ! */
+    pLOOP = pENDL->pLOOP;              /* determine matching LOOP */
+
+    if (!pLOOP)                        /* haven't got it yet ? */
+    {                                  /* go and look back in the list */
+      pLOOP = (mng_ani_loopp)pENDL->sHeader.pPrev;
+
+      while ((pLOOP) &&
+             ((pLOOP->sHeader.fCleanup != free_ani_loop) ||
+              (pLOOP->iLevel           != pENDL->iLevel)    ))
+        pLOOP = pLOOP->sHeader.pPrev;
+    }
+                                       /* got it now ? */
+    if ((pLOOP) && (pLOOP->iLevel == pENDL->iLevel))
+    {
+      pENDL->pLOOP = pLOOP;            /* save for next time ! */
                                        /* decrease running counter ? */
-    if ((pLOOP->iRunningcount) && (pLOOP->iRunningcount < 0x7fffffffL))
-      pLOOP->iRunningcount--;
+      if ((pLOOP->iRunningcount) && (pLOOP->iRunningcount < 0x7fffffffL))
+        pLOOP->iRunningcount--;
 
-    /* TODO: we're cheating out on the termination_condition,
-       iteration_min, iteration_max and possible signals;
-       it's just not ready for that can of worms.... */  
+      /* TODO: we're cheating out on the termination_condition,
+         iteration_min, iteration_max and possible signals;
+         the code is just not ready for that can of worms.... */
 
-    if (!pLOOP->iRunningcount)         /* reached zero ? */
-    {                                  /* was this the outer LOOP ? */
-      if (pLOOP == pData->pFirstaniobj)
-        pData->bHasLOOP = MNG_FALSE;
+      if (!pLOOP->iRunningcount)       /* reached zero ? */
+      {                                /* was this the outer LOOP ? */
+        if (pLOOP == pData->pFirstaniobj)
+          pData->bHasLOOP = MNG_FALSE;
+      }
+      else
+      {
+        if (pData->pCurraniobj)        /* was we processing objects ? */
+          pData->pCurraniobj = pLOOP;  /* then restart with LOOP */
+        else                           /* else restart behind LOOP !!! */
+          pData->pCurraniobj = pLOOP->sHeader.pNext;
+      }
     }
     else
     {
-      if (pData->pCurraniobj)          /* was we processing objects ? */
-        pData->pCurraniobj = pLOOP;    /* then restart with LOOP */
-      else                             /* else restart behind LOOP !!! */
-        pData->pCurraniobj = pLOOP->sHeader.pNext;
-    }
-  }
-  else
-  {
-    MNG_ERROR (pData, 1234);
-    /* TODO: error abort ??? */
+      MNG_ERROR (pData, 1234);
+      /* TODO: error abort ??? */
 
+    }
   }
 
 #ifdef MNG_SUPPORT_TRACE

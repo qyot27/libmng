@@ -80,6 +80,10 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added optional support for bKGD for PNG images           * */
 /* *             - added support for JDAA                                   * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - fixed support for bKGD                                   * */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - implemented delayed delta-processing                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1533,89 +1537,84 @@ mng_retcode restore_bkgd_bkgd (mng_datap pData)
 {
   mng_int32      iX;
   mng_uint8p     pWork = pData->pRGBArow;
-  mng_imagedatap pBuf  = ((mng_imagep)pData->pObjzero)->pImgbuf;
+  mng_imagep     pImage;
+  mng_imagedatap pBuf;
+  mng_uint8      iRed, iGreen, iBlue;
+
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_BKGD, MNG_LC_START)
 #endif
+                                       /* determine the correct image buffer */
+  pImage = (mng_imagep)pData->pCurrentobj;
+
+  if (!pImage)
+    pImage = (mng_imagep)pData->pObjzero;
+
+  pBuf = pImage->pImgbuf;
 
   switch (pBuf->iColortype)
   {
     case 0 : ;                         /* gray types */
     case 4 : {
-               if (pBuf->iBitdepth > 8)
-               {
-                 for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-                 {
-                   *pWork     = (mng_uint8)(pBuf->iBKGDgray >> 8);
-                   *(pWork+1) = (mng_uint8)(pBuf->iBKGDgray >> 8);
-                   *(pWork+2) = (mng_uint8)(pBuf->iBKGDgray >> 8);
-                   *(pWork+3) = 0x00;  /* transparant for alpha-canvasses */
+               mng_uint8 iGray;
 
-                   pWork += 4;
-                 }
-               }
+               if (pBuf->iBitdepth > 8)
+                 iGray = (mng_uint8)(pBuf->iBKGDgray >> 8);
                else
                {
-                 for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+                 iGray = (mng_uint8)pBuf->iBKGDgray;
+                                       /* please note how tricky the next code is !! */
+                 switch (pBuf->iBitdepth)
                  {
-                   *pWork     = (mng_uint8)pBuf->iBKGDgray;
-                   *(pWork+1) = (mng_uint8)pBuf->iBKGDgray;
-                   *(pWork+2) = (mng_uint8)pBuf->iBKGDgray;
-                   *(pWork+3) = 0x00;  /* transparant for alpha-canvasses */
-
-                   pWork += 4;
+                   case 1 : iGray = (mng_uint8)((iGray << 1) + iGray);
+                   case 2 : iGray = (mng_uint8)((iGray << 2) + iGray);
+                   case 4 : iGray = (mng_uint8)((iGray << 4) + iGray);
                  }
                }
 
+               iRed   = iGray;
+               iGreen = iGray;
+               iBlue  = iGray;
+
                break;
              }
+             
     case 3 : {                         /* indexed type */
-               mng_uint8 iRed   = pBuf->aPLTEentries [pBuf->iBKGDindex].iRed;
-               mng_uint8 iGreen = pBuf->aPLTEentries [pBuf->iBKGDindex].iGreen;
-               mng_uint8 iBlue  = pBuf->aPLTEentries [pBuf->iBKGDindex].iBlue;
-
-               for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-               {
-                 *pWork     = iRed;
-                 *(pWork+1) = iGreen;
-                 *(pWork+2) = iBlue;
-                 *(pWork+3) = 0x00;    /* transparant for alpha-canvasses */
-
-                 pWork += 4;
-               }
+               iRed   = pBuf->aPLTEentries [pBuf->iBKGDindex].iRed;
+               iGreen = pBuf->aPLTEentries [pBuf->iBKGDindex].iGreen;
+               iBlue  = pBuf->aPLTEentries [pBuf->iBKGDindex].iBlue;
 
                break;
              }
+
     case 2 : ;                         /* rgb types */
     case 6 : {
                if (pBuf->iBitdepth > 8)
                {
-                 for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-                 {
-                   *pWork     = (mng_uint8)(pBuf->iBKGDred   >> 8);
-                   *(pWork+1) = (mng_uint8)(pBuf->iBKGDgreen >> 8);
-                   *(pWork+2) = (mng_uint8)(pBuf->iBKGDblue  >> 8);
-                   *(pWork+3) = 0x00;  /* transparant for alpha-canvasses */
-
-                   pWork += 4;
-                 }
+                 iRed   = (mng_uint8)(pBuf->iBKGDred   >> 8);
+                 iGreen = (mng_uint8)(pBuf->iBKGDgreen >> 8);
+                 iBlue  = (mng_uint8)(pBuf->iBKGDblue  >> 8);
                }
                else
                {
-                 for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
-                 {
-                   *pWork     = (mng_uint8)pBuf->iBKGDred;
-                   *(pWork+1) = (mng_uint8)pBuf->iBKGDgreen;
-                   *(pWork+2) = (mng_uint8)pBuf->iBKGDblue;
-                   *(pWork+3) = 0x00;  /* transparant for alpha-canvasses */
-
-                   pWork += 4;
-                 }
+                 iRed   = (mng_uint8)(pBuf->iBKGDred  );
+                 iGreen = (mng_uint8)(pBuf->iBKGDgreen);
+                 iBlue  = (mng_uint8)(pBuf->iBKGDblue );
                }
 
                break;
              }
+  }
+
+  for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
+  {
+    *pWork     = iRed;
+    *(pWork+1) = iGreen;
+    *(pWork+2) = iBlue;
+    *(pWork+3) = 0x00;                 /* transparant for alpha-canvasses */
+
+    pWork += 4;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -4522,6 +4521,888 @@ mng_retcode delta_rgba16 (mng_datap pData)
 
   return store_rgba16 (pData);
 }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - apply the source row onto the target        * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode delta_g1_g1 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G1_G1, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0x01);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G1_G1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g2_g2 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G2_G2, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0x03);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G2_G2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g4_g4 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G4_G4, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0x0F);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G4_G4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g8_g8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G8_G8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G8_G8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g16_g16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G16_G16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, (pData->iRowsamples << 1))
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow, (mng_uint16)((mng_get_uint16 (pOutrow) +
+                                             mng_get_uint16 (pWorkrow)) & 0xFFFF));
+
+      pOutrow  += 2;
+      pWorkrow += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G16_G16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgb8_rgb8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB8_RGB8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples * 3)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < (pData->iRowsamples * 3); iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB8_RGB8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgb16_rgb16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB16_RGB16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, (pData->iRowsamples * 6))
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow,   (mng_uint16)((mng_get_uint16 (pOutrow  ) +
+                                               mng_get_uint16 (pWorkrow  )) & 0xFFFF));
+      mng_put_uint16 (pOutrow+2, (mng_uint16)((mng_get_uint16 (pOutrow+2) +
+                                               mng_get_uint16 (pWorkrow+2)) & 0xFFFF));
+      mng_put_uint16 (pOutrow+4, (mng_uint16)((mng_get_uint16 (pOutrow+4) +
+                                               mng_get_uint16 (pWorkrow+4)) & 0xFFFF));
+
+      pOutrow  += 6;
+      pWorkrow += 6;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB16_RGB16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga8_ga8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_GA8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples << 1)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < (pData->iRowsamples << 1); iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_GA8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga8_g8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_G8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = *pWorkrow;
+
+      pOutrow += 2;
+      pWorkrow++;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow += 2;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_G8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga8_a8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_A8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 1;
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = *pWorkrow;
+
+      pOutrow += 2;
+      pWorkrow++;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow += 2;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8_A8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga16_ga16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_GA16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, (pData->iRowsamples << 2))
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow,   (mng_uint16)((mng_get_uint16 (pOutrow  ) +
+                                               mng_get_uint16 (pWorkrow  )) & 0xFFFF));
+      mng_put_uint16 (pOutrow+2, (mng_uint16)((mng_get_uint16 (pOutrow+2) +
+                                               mng_get_uint16 (pWorkrow+2)) & 0xFFFF));
+
+      pOutrow  += 4;
+      pWorkrow += 4;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_GA16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga16_g16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_A16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow, mng_get_uint16 (pWorkrow));
+
+      pOutrow  += 4;
+      pWorkrow += 2;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow, (mng_uint16)((mng_get_uint16 (pOutrow) +
+                                             mng_get_uint16 (pWorkrow)) & 0xFFFF));
+
+      pOutrow  += 4;
+      pWorkrow += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_A16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga16_a16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_G16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow+2, mng_get_uint16 (pWorkrow));
+
+      pOutrow  += 4;
+      pWorkrow += 2;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow+2, (mng_uint16)((mng_get_uint16 (pOutrow+2) +
+                                               mng_get_uint16 (pWorkrow)) & 0xFFFF));
+
+      pOutrow  += 4;
+      pWorkrow += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16_G16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba8_rgba8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_RGBA8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples << 2)
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < (pData->iRowsamples << 2); iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow++;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_RGBA8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba8_rgb8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_RGB8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow     = *pWorkrow;
+      *(pOutrow+1) = *(pWorkrow+1);
+      *(pOutrow+2) = *(pWorkrow+2);
+
+      pOutrow  += 4;
+      pWorkrow += 3;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow     = (mng_uint8)(((mng_uint16)*pOutrow     +
+                                  (mng_uint16)*pWorkrow    ) & 0xFF);
+      *(pOutrow+1) = (mng_uint8)(((mng_uint16)*(pOutrow+1) +
+                                  (mng_uint16)*(pWorkrow+1)) & 0xFF);
+      *(pOutrow+2) = (mng_uint8)(((mng_uint16)*(pOutrow+2) +
+                                  (mng_uint16)*(pWorkrow+2)) & 0xFF);
+
+      pOutrow  += 4;
+      pWorkrow += 3;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_RGB8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba8_a8 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_A8, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 3;
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = *pWorkrow;
+
+      pOutrow += 4;
+      pWorkrow++;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      *pOutrow = (mng_uint8)(((mng_uint16)*pOutrow +
+                              (mng_uint16)*pWorkrow) & 0xFF);
+
+      pOutrow += 4;
+      pWorkrow++;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8_A8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba16_rgba16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_RGBA16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    MNG_COPY (pOutrow, pWorkrow, (pData->iRowsamples << 3))
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow,   (mng_uint16)((mng_get_uint16 (pOutrow  ) +
+                                               mng_get_uint16 (pWorkrow  )) & 0xFFFF));
+      mng_put_uint16 (pOutrow+2, (mng_uint16)((mng_get_uint16 (pOutrow+2) +
+                                               mng_get_uint16 (pWorkrow+2)) & 0xFFFF));
+      mng_put_uint16 (pOutrow+4, (mng_uint16)((mng_get_uint16 (pOutrow+4) +
+                                               mng_get_uint16 (pWorkrow+4)) & 0xFFFF));
+      mng_put_uint16 (pOutrow+6, (mng_uint16)((mng_get_uint16 (pOutrow+6) +
+                                               mng_get_uint16 (pWorkrow+6)) & 0xFFFF));
+
+      pOutrow  += 8;
+      pWorkrow += 8;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_RGBA16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba16_rgb16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_RGB16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow,   mng_get_uint16 (pWorkrow  ));
+      mng_put_uint16 (pOutrow+2, mng_get_uint16 (pWorkrow+2));
+      mng_put_uint16 (pOutrow+4, mng_get_uint16 (pWorkrow+4));
+
+      pOutrow  += 8;
+      pWorkrow += 6;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow,   (mng_uint16)((mng_get_uint16 (pOutrow  ) +
+                                               mng_get_uint16 (pWorkrow  )) & 0xFFFF));
+      mng_put_uint16 (pOutrow+2, (mng_uint16)((mng_get_uint16 (pOutrow+2) +
+                                               mng_get_uint16 (pWorkrow+2)) & 0xFFFF));
+      mng_put_uint16 (pOutrow+4, (mng_uint16)((mng_get_uint16 (pOutrow+4) +
+                                               mng_get_uint16 (pWorkrow+4)) & 0xFFFF));
+
+      pOutrow  += 8;
+      pWorkrow += 6;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_RGB16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba16_a16 (mng_datap pData)
+{
+  mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
+  mng_int32      iX;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_A16, MNG_LC_START)
+#endif
+
+  pWorkrow = pData->pRGBArow;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
+
+  if ((pData->iDeltatype == MNG_DELTATYPE_REPLACE          ) ||
+      (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow+6, mng_get_uint16 (pWorkrow));
+
+      pOutrow  += 8;
+      pWorkrow += 2;
+    }
+  }
+  else
+  if (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD)
+  {
+    for (iX = 0; iX < pData->iRowsamples; iX++)
+    {
+      mng_put_uint16 (pOutrow+6, (mng_uint16)((mng_get_uint16 (pOutrow+6) +
+                                               mng_get_uint16 (pWorkrow)) & 0xFFFF));
+
+      pOutrow  += 8;
+      pWorkrow += 2;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16_A16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - scale the source to bitdepth of target      * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+
 
 /* ************************************************************************** */
 /* *                                                                        * */

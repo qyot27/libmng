@@ -83,6 +83,15 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added functions to retrieve PNG/JNG specific header-info * */
 /* *             - added optional support for bKGD for PNG images           * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added callback to process non-critical unknown chunks    * */
+/* *             - added routine to discard "invalid" objects               * */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - implemented delayed delta-processing                     * */
+/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
+/* *             - added get/set for bKGD preference setting                * */
+/* *             0.9.3 - 10/21/2000 - G.Juyn                                * */
+/* *             - added get function for interlace/progressive display     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -175,6 +184,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_PROCESSSAVE      122
 #define MNG_FN_SETCB_PROCESSSEEK      123
 #define MNG_FN_SETCB_PROCESSNEED      124
+#define MNG_FN_SETCB_PROCESSUNKNOWN   125
 
 #define MNG_FN_GETCB_MEMALLOC         201
 #define MNG_FN_GETCB_MEMFREE          202
@@ -200,6 +210,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_PROCESSSAVE      222
 #define MNG_FN_GETCB_PROCESSSEEK      223
 #define MNG_FN_GETCB_PROCESSNEED      224
+#define MNG_FN_GETCB_PROCESSUNKNOWN   225
 
 #define MNG_FN_SET_USERDATA           301
 #define MNG_FN_SET_CANVASSTYLE        302
@@ -230,6 +241,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SET_SPEED              327
 #define MNG_FN_SET_SUSPENSIONMODE     328
 #define MNG_FN_SET_SECTIONBREAKS      329
+#define MNG_FN_SET_USEBKGD            330
 
 #define MNG_FN_GET_USERDATA           401
 #define MNG_FN_GET_SIGTYPE            402
@@ -282,6 +294,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_ALPHACOMPRESSION   449
 #define MNG_FN_GET_ALPHAFILTER        450
 #define MNG_FN_GET_ALPHAINTERLACE     451
+#define MNG_FN_GET_USEBKGD            452
+#define MNG_FN_GET_REFRESHPASS        453
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482
@@ -456,6 +470,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CLEAR_CANVAS          1024
 #define MNG_FN_READ_DATABUFFER       1025
 #define MNG_FN_STORE_ERROR           1026
+#define MNG_FN_DROP_INVALID_OBJECTS  1027
 
 /* ************************************************************************** */
 
@@ -1108,6 +1123,28 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_MAGNIFY_RGBA8_Y2      3760
 #define MNG_FN_MAGNIFY_RGBA8_Y3      3761
 #define MNG_FN_MAGNIFY_RGBA8_Y4      3762
+
+/* ************************************************************************** */
+
+#define MNG_FN_DELTA_G1_G1           3801
+#define MNG_FN_DELTA_G2_G2           3802
+#define MNG_FN_DELTA_G4_G4           3803
+#define MNG_FN_DELTA_G8_G8           3804
+#define MNG_FN_DELTA_G16_G16         3805
+#define MNG_FN_DELTA_RGB8_RGB8       3806
+#define MNG_FN_DELTA_RGB16_RGB16     3807
+#define MNG_FN_DELTA_GA8_GA8         3808
+#define MNG_FN_DELTA_GA8_G8          3809
+#define MNG_FN_DELTA_GA8_A8          3810
+#define MNG_FN_DELTA_GA16_GA16       3811
+#define MNG_FN_DELTA_GA16_G16        3812
+#define MNG_FN_DELTA_GA16_A16        3813
+#define MNG_FN_DELTA_RGBA8_RGBA8     3814
+#define MNG_FN_DELTA_RGBA8_RGB8      3815
+#define MNG_FN_DELTA_RGBA8_A8        3816
+#define MNG_FN_DELTA_RGBA16_RGBA16   3817
+#define MNG_FN_DELTA_RGBA16_RGB16    3818
+#define MNG_FN_DELTA_RGBA16_A16      3819
 
 /* ************************************************************************** */
 /* *                                                                        * */

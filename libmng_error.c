@@ -44,6 +44,8 @@
 /* *             0.9.3 - 10/11/2000 - G.Juyn                                * */
 /* *             - fixed processing of unknown critical chunks              * */
 /* *             - added support for nEED                                   * */
+/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
+/* *             - added errocode for delayed delta-processing              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -127,6 +129,7 @@
     {MNG_MNGTOOCOMPLEX,    "MHDR simplicity indicates unsupported feature(s)"},
     {MNG_UNKNOWNCRITICAL,  "Unknown critical chunk encountered"},
     {MNG_UNSUPPORTEDNEED,  "Requested nEED resources are not supported"},
+    {MNG_INVALIDDELTA,     "The delta operation is invalid (mismatched color_types?)"},
 
     {MNG_INVALIDCNVSTYLE,  "Canvas_style is invalid"},
     {MNG_WRONGCHUNK,       "Attempt to access the wrong chunk"},

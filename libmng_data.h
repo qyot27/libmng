@@ -90,6 +90,9 @@
 /* *             - added support for JDAA                                   * */
 /* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
 /* *             - added callback to process non-critical unknown chunks    * */
+/* *             - fixed support for bKGD                                   * */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - implemented delayed delta-processing                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -389,6 +392,8 @@ typedef struct mng_data_struct {
            mng_uint32        iRequesttime;
            mng_bool          bSearching;
 
+           mng_bool          bRestorebkgd;       /* flags restore required before IDAT/JDAT */
+
            mng_uint32        iRuntime;           /* millisecs since start */
            mng_uint32        iSynctime;          /* tickcount at last framesync */
            mng_uint32        iStarttime;         /* tickcount at start */
@@ -479,6 +484,10 @@ typedef struct mng_data_struct {
            mng_ptr           fDifferrow;         /* internal callback to perform
                                                     added filter leveling and
                                                     differing on an unfiltered row */
+           mng_ptr           fScalerow;          /* internal callback to scale a
+                                                    delta-row to the bitdepth of its target */
+           mng_ptr           fDeltarow;          /* internal callback to execute a
+                                                    delta-row onto a target */
            mng_ptr           fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
 
@@ -678,6 +687,8 @@ typedef mng_retcode(*mng_storerow)    (mng_datap  pData);
 typedef mng_retcode(*mng_processrow)  (mng_datap  pData);
 typedef mng_retcode(*mng_initrowproc) (mng_datap  pData);
 typedef mng_retcode(*mng_differrow)   (mng_datap  pData);
+typedef mng_retcode(*mng_scalerow)    (mng_datap  pData);
+typedef mng_retcode(*mng_deltarow)    (mng_datap  pData);
 
 typedef mng_retcode(*mng_magnify_x)   (mng_datap  pData,
                                        mng_uint16 iMX,

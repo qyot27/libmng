@@ -55,6 +55,10 @@
 /* *             - added support for alpha-depth prediction                 * */
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added functions to retrieve PNG/JNG specific header-info * */
+/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
+/* *             - added get/set for bKGD preference setting                * */
+/* *             0.9.3 - 10/21/2000 - G.Juyn                                * */
+/* *             - added get function for interlace/progressive display     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -196,6 +200,25 @@ mng_retcode MNG_DECL mng_set_bgcolor (mng_handle hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_BGCOLOR, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_set_usebkgd (mng_handle hHandle,
+                                      mng_bool   bUseBKGD)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_USEBKGD, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->bUseBKGD = bUseBKGD;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SET_USEBKGD, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1202,6 +1225,49 @@ mng_uint8 MNG_DECL mng_get_alphabitdepth (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+mng_uint8 MNG_DECL mng_get_refreshpass (mng_handle hHandle)
+{
+  mng_uint8 iRslt;
+  mng_datap pData;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_REFRESHPASS, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+  pData = (mng_datap)hHandle;
+                                       /* for PNG we know the exact pass */
+  if ((pData->eImagetype == mng_it_png) && (pData->iPass >= 0))
+    iRslt = pData->iPass;
+#ifdef MNG_INCLUDE_JNG
+  else                                 /* for JNG we'll fake it... */
+  if ((pData->eImagetype == mng_it_jng) &&
+      (pData->bJPEGhasheader) && (pData->bJPEGdecostarted) &&
+      (pData->bJPEGprogressive))
+  {
+    if (pData->pJPEGdinfo->input_scan_number <= 1)
+      iRslt = 0;                       /* first pass (I think...) */
+    else
+    if (jpeg_input_complete (pData->pJPEGdinfo))
+      iRslt = 7;                       /* input complete; aka final pass */
+    else
+      iRslt = 3;                       /* anything between 0 and 7 will do */
+
+  }
+#endif  
+  else
+    iRslt = 0;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_REFRESHPASS, MNG_LC_END)
+#endif
+
+  return iRslt;
+}
+
+/* ************************************************************************** */
+
 mng_uint8 MNG_DECL mng_get_alphacompression (mng_handle hHandle)
 {
   mng_uint8 iRslt;
@@ -1344,6 +1410,23 @@ mng_retcode MNG_DECL mng_get_bgcolor (mng_handle  hHandle,
 #endif
 
   return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_bool MNG_DECL mng_get_usebkgd (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_USEBKGD, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEB (((mng_datap)hHandle), MNG_FN_GET_USEBKGD, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->bUseBKGD;
 }
 
 /* ************************************************************************** */

@@ -45,6 +45,10 @@
 /* *             - fixed DEFI behavior                                      * */
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added support for delta-JNG                              * */
+/* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
+/* *             - added valid-flag to stored objects for read() / display()* */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - added storage for pixel-/alpha-sampledepth for delta's   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -95,9 +99,13 @@ typedef struct {                                 /* MNG specification "object-bu
            mng_uint8         iCompression;
            mng_uint8         iFilter;
            mng_uint8         iInterlace;
+           
            mng_uint8         iAlphabitdepth;     /* used only for JNG images */
            mng_uint8         iJHDRcompression;
            mng_uint8         iJHDRinterlace;
+
+           mng_uint8         iPixelsampledepth;  /* used with delta-images */
+           mng_uint8         iAlphasampledepth;
 
            mng_bool          bHasPLTE;           /* PLTE chunk present */
            mng_bool          bHasTRNS;           /* tRNS chunk present */
@@ -155,6 +163,7 @@ typedef struct {                                 /* MNG specification "object" *
            mng_bool          bFrozen;            /* frozen flag */
            mng_bool          bVisible;           /* potential visibility flag */
            mng_bool          bViewable;          /* viewable flag */
+           mng_bool          bValid;             /* marks invalid when only reading */
            mng_int32         iPosx;              /* location fields */
            mng_int32         iPosy;
            mng_bool          bClipped;           /* clipping fields */

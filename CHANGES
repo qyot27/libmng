@@ -11,7 +11,7 @@ no need to withhold some new functionality as it was pretty clear there was
 going to be another beta-round. If things go well, I'm going to try to release
 libmng 1.0.0 very shortly after this one.
 
-- fixed bug 111300
+- fixed bug 111300/117103
 - added workaround for faulty PhotoShop iCCP chunk
 - added MAGN/JDAA chunks
 - added support for new filter_types
@@ -30,6 +30,7 @@ libmng 1.0.0 very shortly after this one.
 
 bugfixes:
 - B111300 - fixup for improved portability
+- B117103 - fixed compilation errors on *nix with lcms
 
 core:
 - fixed compiler-warnings from Mozilla
@@ -64,6 +65,18 @@ core:
 - added support for delta-JNG                             
 - added callback to process non-critical unknown chunks   
 - fixed support for delta-images during read() / display()
+- added closestream() processing for mng_cleanup()        
+- fixed delta-processing behavior                         
+- added storage for pixel-/alpha-sampledepth for delta's
+- implemented delayed delta-processing                    
+- fixed putchunk_plte() to set bEmpty parameter (thanks Ben!)            
+- fixed to define MNG_FULL_CMS in case of MNG_INCLUDE_LCMS
+- added errorcode for delayed delta-processing            
+- added get/set for bKGD preference setting                
+- added get function for interlace/progressive display
+- fixed bug in empty PLTE handling
+- fixed seperate read() & display() processing          
+- fixed inclusion of lcms.h for *nix platforms             
 
 samples:
 - added BCB mngview contribution by Andy Protano
@@ -75,6 +88,7 @@ doc:
 - updated RPM spec-file by MATSUURA Takanori
 
 makefiles:
+- fixed some stuff in automake/autoconf/libtool
 
 -----------------------------------------------------------
 

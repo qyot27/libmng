@@ -37,6 +37,8 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added optional support for bKGD for PNG images           * */
 /* *             - added support for JDAA                                   * */
+/* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
+/* *             - implemented delayed delta-processing                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -198,6 +200,40 @@ mng_retcode delta_ga8              (mng_datap  pData);
 mng_retcode delta_ga16             (mng_datap  pData);
 mng_retcode delta_rgba8            (mng_datap  pData);
 mng_retcode delta_rgba16           (mng_datap  pData);
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - apply the source row onto the target        * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode delta_g1_g1            (mng_datap  pData);
+mng_retcode delta_g2_g2            (mng_datap  pData);
+mng_retcode delta_g4_g4            (mng_datap  pData);
+mng_retcode delta_g8_g8            (mng_datap  pData);
+mng_retcode delta_g16_g16          (mng_datap  pData);
+mng_retcode delta_rgb8_rgb8        (mng_datap  pData);
+mng_retcode delta_rgb16_rgb16      (mng_datap  pData);
+mng_retcode delta_ga8_ga8          (mng_datap  pData);
+mng_retcode delta_ga8_g8           (mng_datap  pData);
+mng_retcode delta_ga8_a8           (mng_datap  pData);
+mng_retcode delta_ga16_ga16        (mng_datap  pData);
+mng_retcode delta_ga16_g16         (mng_datap  pData);
+mng_retcode delta_ga16_a16         (mng_datap  pData);
+mng_retcode delta_rgba8_rgba8      (mng_datap  pData);
+mng_retcode delta_rgba8_rgb8       (mng_datap  pData);
+mng_retcode delta_rgba8_a8         (mng_datap  pData);
+mng_retcode delta_rgba16_rgba16    (mng_datap  pData);
+mng_retcode delta_rgba16_rgb16     (mng_datap  pData);
+mng_retcode delta_rgba16_a16       (mng_datap  pData);
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - scale the source to bitdepth of target      * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+
 
 /* ************************************************************************** */
 /* *                                                                        * */

@@ -199,6 +199,11 @@
 /* *             - added JDAA chunk                                         * */
 /* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
 /* *             - added callback to process non-critical unknown chunks    * */
+/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
+/* *             - added errocode for delayed delta-processing              * */
+/* *             - added get/set for bKGD preference setting                * */
+/* *             0.9.3 - 10/21/2000 - G.Juyn                                * */
+/* *             - added get function for interlace/progressive display     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -681,6 +686,10 @@ MNG_EXT mng_retcode MNG_DECL mng_set_bgcolor         (mng_handle        hHandle,
                                                       mng_uint16        iGreen,
                                                       mng_uint16        iBlue);
 
+/* Indicates preferred use of the bKGD chunk for PNG images */
+MNG_EXT mng_retcode MNG_DECL mng_set_usebkgd         (mng_handle        hHandle,
+                                                      mng_bool          bUseBKGD);
+
 /* Indicates storage of read chunks */
 /* only useful if you #define mng_store_chunks */
 /* can be used to dynamically change storage management */
@@ -861,6 +870,14 @@ MNG_EXT mng_uint8   MNG_DECL mng_get_alphainterlace  (mng_handle        hHandle)
                                     canvasstyle supplied by the application) */
 MNG_EXT mng_uint8   MNG_DECL mng_get_alphadepth      (mng_handle        hHandle);
 
+/* defines whether a refresh() callback is called for an interlace pass (PNG)
+   or progressive scan (JNG) */
+/* returns the interlace pass number for PNG or a fabricated pass number for JNG;
+   returns 0 in all other cases */
+/* only useful if the image_type = mng_it_png or mng_it_jng and if the image
+   is actually interlaced (PNG) or progressive (JNG) */
+MNG_EXT mng_uint8   MNG_DECL mng_get_refreshpass     (mng_handle        hHandle);
+
 /* see _set_ */
 MNG_EXT mng_uint32  MNG_DECL mng_get_canvasstyle     (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_bkgdstyle       (mng_handle        hHandle);
@@ -870,6 +887,9 @@ MNG_EXT mng_retcode MNG_DECL mng_get_bgcolor         (mng_handle        hHandle,
                                                       mng_uint16*       iRed,
                                                       mng_uint16*       iGreen,
                                                       mng_uint16*       iBlue);
+
+/* see _set_ */
+MNG_EXT mng_bool    MNG_DECL mng_get_usebkgd         (mng_handle        hHandle);
 
 /* see _set_ */
 MNG_EXT mng_bool    MNG_DECL mng_get_storechunks     (mng_handle        hHandle);
@@ -2005,6 +2025,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_MNGTOOCOMPLEX    (mng_retcode)1060 /* can't handle complexity     */
 #define MNG_UNKNOWNCRITICAL  (mng_retcode)1061 /* unknown critical chunk found*/
 #define MNG_UNSUPPORTEDNEED  (mng_retcode)1062 /* nEED requirement unsupported*/
+#define MNG_INVALIDDELTA     (mng_retcode)1063 /* Delta operation illegal     */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */

@@ -105,6 +105,10 @@
 /* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
 /* *             - added callback to process non-critical unknown chunks    * */
 /* *             - fixed support for delta-images during read() / display() * */
+/* *             0.9.3 - 10/18/2000 - G.Juyn                                * */
+/* *             - added closestream() processing for mng_cleanup()         * */
+/* *             0.9.3 - 10/27/2000 - G.Juyn                                * */
+/* *             - fixed seperate read() & display() processing             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -266,6 +270,40 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_END)
 #endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_retcode mng_reset_objzero (mng_datap pData)
+{
+  mng_imagep  pImage   = (mng_imagep)pData->pObjzero;
+  mng_retcode iRetcode = reset_object_details (pData, pImage, 0, 0, 0,
+                                               0, 0, 0, 0, MNG_TRUE);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+  pImage->bVisible             = MNG_TRUE;
+  pImage->bViewable            = MNG_TRUE;
+  pImage->iPosx                = 0;
+  pImage->iPosy                = 0;
+  pImage->bClipped             = MNG_FALSE;
+  pImage->iClipl               = 0;
+  pImage->iClipr               = 0;
+  pImage->iClipt               = 0;
+  pImage->iClipb               = 0;
+  pImage->iMAGN_MethodX        = 0;
+  pImage->iMAGN_MethodY        = 0;
+  pImage->iMAGN_MX             = 0;
+  pImage->iMAGN_MY             = 0;
+  pImage->iMAGN_ML             = 0;
+  pImage->iMAGN_MR             = 0;
+  pImage->iMAGN_MT             = 0;
+  pImage->iMAGN_MB             = 0;
 
   return MNG_NOERROR;
 }
@@ -502,11 +540,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 
 mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 {
-  mng_datap   pData;
-#ifdef MNG_SUPPORT_DISPLAY
-  mng_retcode iRetcode;
-  mng_imagep  pImage;
-#endif
+  mng_datap pData;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_RESET, MNG_LC_START)
@@ -537,7 +571,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   }
 #endif /* MNG_INCLUDE_ZLIB */
 
-#ifdef MNG_SUPPORT_READ                /* cleanup default read buffers */
+#ifdef MNG_SUPPORT_READ
+  if ((pData->bReading) && (!pData->bEOF))
+    process_eof (pData);               /* cleanup app streaming */
+                                       /* cleanup default read buffers */
   MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
   MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
   MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
@@ -683,6 +720,8 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iRequesttime          = 0;
   pData->bSearching            = MNG_FALSE;
 
+  pData->bRestorebkgd          = MNG_FALSE;
+
   pData->iRuntime              = 0;
   pData->iSynctime             = 0;
   pData->iStarttime            = 0;
@@ -712,11 +751,11 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iUpdatetop            = 0;
   pData->iUpdatebottom         = 0;
 
-  pData->iPass                 = 0;    /* interlacing stuff and temp buffers */
+  pData->iPass                 = -1;   /* interlacing stuff and temp buffers */
   pData->iRow                  = 0;
-  pData->iRowinc               = 0;
+  pData->iRowinc               = 1;
   pData->iCol                  = 0;
-  pData->iColinc               = 0;
+  pData->iColinc               = 1;
   pData->iRowsamples           = 0;
   pData->iSamplemul            = 0;
   pData->iSampleofs            = 0;
@@ -848,29 +887,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY             /* reset object 0 */
-  pImage   = (mng_imagep)pData->pObjzero;
-  iRetcode = reset_object_details (pData, pImage, 0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
-
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
-
-  pImage->bVisible             = MNG_TRUE;
-  pImage->bViewable            = MNG_TRUE;
-  pImage->iPosx                = 0;
-  pImage->iPosy                = 0;
-  pImage->bClipped             = MNG_FALSE;
-  pImage->iClipl               = 0;
-  pImage->iClipr               = 0;
-  pImage->iClipt               = 0;
-  pImage->iClipb               = 0;
-  pImage->iMAGN_MethodX        = 0;
-  pImage->iMAGN_MethodY        = 0;
-  pImage->iMAGN_MX             = 0;
-  pImage->iMAGN_MY             = 0;
-  pImage->iMAGN_ML             = 0;
-  pImage->iMAGN_MR             = 0;
-  pImage->iMAGN_MT             = 0;
-  pImage->iMAGN_MB             = 0;
+  mng_reset_objzero (pData);
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
@@ -897,12 +914,15 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
   pData = ((mng_datap)(*hHandle));     /* and address main structure */
 
 #ifdef MNG_SUPPORT_READ
+  if ((pData->bReading) && (!pData->bEOF))
+    process_eof (pData);               /* cleanup app streaming */
+                                       /* cleanup default read buffers */
   MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
   MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
   MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
 #endif
 
-#ifdef MNG_SUPPORT_WRITE
+#ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffers */
   MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize)
 #endif
 
@@ -1016,8 +1036,12 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   if (pData->bEOF)                     /* already at EOF ? */
   {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
-                                       /* drop stored objects */
-    mng_drop_objects (pData, MNG_FALSE);
+    
+#ifdef MNG_SUPPORT_DISPLAY
+    drop_invalid_objects (pData);      /* drop invalidly stored objects */
+    mng_drop_savedata    (pData);      /* drop invalidly stored savedata */
+    mng_reset_objzero    (pData);      /* reset object 0 */
+#endif
   }
 
   if (iRetcode)                        /* on error bail out */
@@ -1070,8 +1094,12 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
   if (pData->bEOF)                     /* at EOF ? */
   {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
-                                       /* drop stored objects */
-    mng_drop_objects (pData, MNG_FALSE);
+    
+#ifdef MNG_SUPPORT_DISPLAY
+    drop_invalid_objects (pData);      /* drop invalidly stored objects */
+    mng_drop_savedata    (pData);      /* drop invalidly stored savedata */
+    mng_reset_objzero    (pData);      /* reset object 0 */
+#endif
   }
 
   if (iRetcode)                        /* on error bail out */
@@ -1241,8 +1269,11 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
     iRetcode = read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */
+  {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
-
+    drop_invalid_objects (pData);      /* drop invalidly stored objects */
+  }
+  
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
@@ -1384,7 +1415,11 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
         iRetcode = read_graphic (pData);
 
         if (pData->bEOF)               /* already at EOF ? */
+        {
           pData->bReading = MNG_FALSE; /* then we're no longer reading */
+                                       /* drop invalidly stored objects */
+          drop_invalid_objects (pData);
+        }
       }
       else
 #endif /* MNG_SUPPORT_READ */

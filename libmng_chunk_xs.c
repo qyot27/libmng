@@ -46,6 +46,8 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
 /* *             - added MAGN chunk                                         * */
+/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
+/* *             - fixed putchunk_plte() to set bEmpty parameter            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2155,7 +2157,8 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
     return iRetcode;
                                        /* fill the chunk */
   ((mng_pltep)pChunk)->iEntrycount = iCount;
-  
+  ((mng_pltep)pChunk)->bEmpty      = (mng_bool)(iCount == 0);
+
   MNG_COPY (((mng_pltep)pChunk)->aEntries, aPalette, sizeof (mng_palette8))
 
   add_chunk (pData, pChunk);           /* add it to the list */
