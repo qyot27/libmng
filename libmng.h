@@ -177,6 +177,7 @@
 /* *             - added status_xxxx functions                              * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             - added function to set simplicity field                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1797,14 +1798,17 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 
 /* ************************************************************************** */
 
-/* use the following function to set the frame-/layer-count & playtime os an
-   animation you are creating; this may be useful if these variables are
-   calculated during the creation-process */
-   
+/* use the following functions to set the framecount/layercount/playtime or
+   simplicity of an animation you are creating; this may be useful if these
+   variables are calculated during the creation-process */
+
 MNG_EXT mng_retcode MNG_DECL mng_updatemngheader     (mng_handle        hHandle,
                                                       mng_uint32        iFramecount,
                                                       mng_uint32        iLayercount,
                                                       mng_uint32        iPlaytime);
+
+MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
+                                                      mng_uint32        iSimplicity);
 
 /* ************************************************************************** */
 

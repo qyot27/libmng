@@ -60,6 +60,7 @@
 /* *             - added tracestrings for status_xxxxx functions            * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             - added tracestring for updatemngsimplicity                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -356,6 +357,7 @@
     {MNG_FN_PUTIMGDATA_DHDR,           "putimgdata_dhdr"},
 
     {MNG_FN_UPDATEMNGHEADER,           "updatemngheader"},
+    {MNG_FN_UPDATEMNGSIMPLICITY,       "updatemngsimplicity"},
 
     {MNG_FN_PROCESS_RAW_CHUNK,         "process_raw_chunk"},
     {MNG_FN_READ_GRAPHIC,              "read_graphic"},

@@ -39,6 +39,7 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             - added function to set simplicity field                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4949,6 +4950,38 @@ mng_retcode MNG_DECL mng_updatemngheader (mng_handle hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_UPDATEMNGHEADER, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle hHandle,
+                                              mng_uint32 iSimplicity)
+{
+  mng_datap  pData;
+  mng_chunkp pChunk;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_UPDATEMNGSIMPLICITY, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = (mng_datap)hHandle;          /* and make it addressable */
+
+  if (!pData->bCreating)               /* aren't we creating a new file ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* must be a MNG animation! */
+  if ((pData->eImagetype != mng_it_mng) || (pData->iFirstchunkadded != MNG_UINT_MHDR))
+    MNG_ERROR (pData, MNG_NOMHDR)
+
+  pChunk = pData->pFirstchunk;         /* get the first chunk */
+                                       /* and update the variable */
+  ((mng_mhdrp)pChunk)->iSimplicity = iSimplicity;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_UPDATEMNGSIMPLICITY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

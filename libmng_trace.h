@@ -69,6 +69,7 @@
 /* *             - added tracecodes for status_xxxxx functions              * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *             - added tracecode for updatemngsimplicity                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -396,6 +397,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PUTIMGDATA_DHDR        954
 
 #define MNG_FN_UPDATEMNGHEADER        981
+#define MNG_FN_UPDATEMNGSIMPLICITY    982
 
 /* ************************************************************************** */
 
