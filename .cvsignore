@@ -1,11 +1,15 @@
 libmng.so
 libmng.so.*
+Makefile
 Makefile.in
 aclocal.m4
 configure
+config.cache
 config.sub
 config.guess
+config.log
 install-sh
+libtool
 ltconfig
 ltmain.sh
 missing
