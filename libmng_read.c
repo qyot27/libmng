@@ -447,7 +447,7 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 
 #ifdef MNG_OPTIMIZE_CHUNKINITFREE
   mng_chunk_header chunk_unknown = {MNG_UINT_HUH, mng_init_general, mng_free_unknown,
-                                    mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, 0};
+                                    mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0, sizeof(mng_unknown_chunk)};
 #else
   mng_chunk_header chunk_unknown = {MNG_UINT_HUH, mng_init_unknown, mng_free_unknown,
                                     mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0};

@@ -270,7 +270,7 @@ mng_bool mng_store_error (mng_datap   pData,
       {
         case 0x0800 : { pData->iSeverity = 5; break; }
         case 0x1000 : { pData->iSeverity = 2; break; }
-        case 0x2000 : { pData->iSeverity = 1; break; }
+        case 0x2000 : { pData->iSeverity = 1; break; }      
         default     : { pData->iSeverity = 9; }
       }
     }
