@@ -12,6 +12,8 @@ intermediate cvs
 bugfixes:
 - fixed chunk pushing mechanism
 - fixed bug in writing sBIT for indexed color
+- fixed PPLT getchunk/putchunk routines
+- fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG
 
 core:
 - added more SKIPCHUNK conditionals
@@ -22,9 +24,8 @@ core:
 - added MNG_NO_1_2_4BIT_SUPPORT
 - added bgr565_a8 canvas-style (thanks to J. Elvander)
 - standard windows dll upgraded to zlib 1.2.2
-- fixed PPLT getchunk/putchunk routines
 - added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)
-- fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG
+- inclusion of zlib/lcms/ijgsrc6b with <> instead of ""
 
 samples:
 
