@@ -131,6 +131,8 @@
 /* *                                                                        * */
 /* *             0.9.5 -  1/20/2001 - G.Juyn                                * */
 /* *             - fixed compiler-warnings Mozilla (thanks Tim)             * */
+/* *             0.9.5 -  1/23/2001 - G.Juyn                                * */
+/* *             - fixed timing-problem with switching framing_modes        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -621,6 +623,11 @@ mng_retcode next_frame (mng_datap  pData,
       else
         pData->iFramedelay = pData->iNextdelay;
     }
+    else
+    {
+      if (iFramemode == 4)             /* delay before inserting background layer? */
+        iRetcode = interframe_delay (pData);
+    }
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -647,8 +654,8 @@ mng_retcode next_frame (mng_datap  pData,
     {                                  /* reload default */
       pData->iNextdelay = pData->iFRAMdelay;
 
-      if ((iOldmode == 2) || (iOldmode == 4))
-        pData->iFramedelay = pData->iNextdelay;
+/*      if ((iOldmode == 2) || (iOldmode == 4))
+        pData->iFramedelay = pData->iNextdelay; */
     }
 
     if (iChangetimeout)                /* timeout changed ? */
@@ -2436,7 +2443,6 @@ mng_retcode process_display_mend (mng_datap pData)
                                        /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
 
-/* always refresh, or a zero delay will terminate the animation !!!! */
                    if (pTERM->iDelay)  /* set the delay (?) */
                    {
                      mng_uint32 iWaitfor = 1000;
@@ -2468,12 +2474,10 @@ mng_retcode process_display_mend (mng_datap pData)
                      }
 
                      iRetcode = display_progressive_refresh (pData, iWaitfor);
-                   }
-                   else
-                     iRetcode = display_progressive_refresh (pData, 1);
 
-                   if (iRetcode)       /* on error bail out */
-                     return iRetcode;
+                     if (iRetcode)     /* on error bail out */
+                       return iRetcode;
+                   }
                  }
                  else
                  {

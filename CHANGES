@@ -14,6 +14,7 @@ B129681 - fixed compiler warnings SGI/Irix (Thanks Dimitri)
 
 core:
 - fixed compiler-warnings Mozilla (thanks Tim)
+- fixed timing-problem with switching framing_modes       
 
 samples:
 
