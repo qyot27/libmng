@@ -202,6 +202,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 07/07/2004 - G.R-P                                 * */
+/* *             - change worst-case iAlphadepth to 1 for standalone PNGs   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -763,7 +765,7 @@ READ_CHUNK (mng_read_ihdr)
     if (pData->iColortype == MNG_COLORTYPE_INDEXED)
       pData->iAlphadepth = 8;          /* worst case scenario */
     else
-      pData->iAlphadepth = 0;
+      pData->iAlphadepth = 1;  /* Possible tRNS cheap binary transparency */
                                        /* fits on maximum canvas ? */
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
       MNG_WARNING (pData, MNG_IMAGETOOLARGE)
