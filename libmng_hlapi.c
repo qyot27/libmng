@@ -185,6 +185,8 @@
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
 /* *             1.0.9 - 10/03/2004 - G.Juyn                                * */
 /* *             - added function to retrieve current FRAM delay            * */
+/* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
+/* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -226,7 +228,7 @@ MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
   mng_cleanupobject fCleanup;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_OBJECTS, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_DROP_OBJECTS, MNG_LC_START);
 #endif
 
   pObject = pData->pFirstimgobj;       /* get first stored image-object (if any) */
@@ -280,7 +282,7 @@ MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_OBJECTS, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_DROP_OBJECTS, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -294,7 +296,7 @@ MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
 MNG_LOCAL mng_retcode mng_drop_savedata (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_START);
 #endif
 
   if (pData->pSavedata)                /* sanity check */
@@ -302,13 +304,13 @@ MNG_LOCAL mng_retcode mng_drop_savedata (mng_datap pData)
     mng_savedatap pSave = pData->pSavedata;
 
     if (pSave->iGlobalProfilesize)     /* cleanup the profile ? */
-      MNG_FREEX (pData, pSave->pGlobalProfile, pSave->iGlobalProfilesize)
+      MNG_FREEX (pData, pSave->pGlobalProfile, pSave->iGlobalProfilesize);
                                        /* cleanup the save structure */
-    MNG_FREE (pData, pData->pSavedata, sizeof (mng_savedata))
+    MNG_FREE (pData, pData->pSavedata, sizeof (mng_savedata));
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_DROP_SAVEDATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -449,7 +451,7 @@ MNG_LOCAL mng_retcode mng_reset_rundata (mng_datap pData)
 
 #ifndef MNG_SKIPCHUNK_iCCP
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
-    MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+    MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize);
 
   pData->iGlobalProfilesize    = 0;    
 #endif
@@ -526,7 +528,7 @@ MNG_LOCAL mng_retcode make_pushbuffer (mng_datap       pData,
 {
   mng_pushdatap pTemp;
 
-  MNG_ALLOC (pData, pTemp, sizeof(mng_pushdata))
+  MNG_ALLOC (pData, pTemp, sizeof(mng_pushdata));
 
   pTemp->pNext      = MNG_NULL;
 
@@ -536,14 +538,14 @@ MNG_LOCAL mng_retcode make_pushbuffer (mng_datap       pData,
   }
   else
   {                                    /* otherwise create new buffer */
-    MNG_ALLOCX (pData, pTemp->pData, iLength)
+    MNG_ALLOCX (pData, pTemp->pData, iLength);
     if (!pTemp->pData)                 /* succeeded? */
     {
-      MNG_FREEX (pData, pTemp, sizeof(mng_pushdata))
-      MNG_ERROR (pData, MNG_OUTOFMEMORY)
+      MNG_FREEX (pData, pTemp, sizeof(mng_pushdata));
+      MNG_ERROR (pData, MNG_OUTOFMEMORY);
     }
                                        /* and copy the bytes across */
-    MNG_COPY (pTemp->pData, pPushdata, iLength)
+    MNG_COPY (pTemp->pData, pPushdata, iLength);
   }
 
   pTemp->iLength    = iLength;
@@ -1185,7 +1187,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 #ifdef MNG_SUPPORT_TRACE
   if (mng_trace (pData, MNG_FN_INITIALIZE, MNG_LC_INITIALIZE))
   {
-    MNG_FREEX (pData, pData, sizeof (mng_data))
+    MNG_FREEX (pData, pData, sizeof (mng_data));
     return MNG_NULL;
   }
 #endif
@@ -1275,7 +1277,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 
   if (iRetcode)                        /* on error drop out */
   {
-    MNG_FREEX (pData, pData, sizeof (mng_data))
+    MNG_FREEX (pData, pData, sizeof (mng_data));
     return MNG_NULL;
   }
 
@@ -1327,9 +1329,9 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   mng_reset ((mng_handle)pData);
 
 #ifdef MNG_SUPPORT_TRACE
-  if (mng_trace (pData, MNG_FN_INITIALIZE, MNG_LC_END))
+  if (mng_trace (pData, MNG_FN_INITIALIZE, MNG_LC_END);)
   {
-    MNG_FREEX (pData, pData, sizeof (mng_data))
+    MNG_FREEX (pData, pData, sizeof (mng_data));
     return MNG_NULL;
   }
 #endif
@@ -1344,7 +1346,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   mng_datap pData;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_RESET, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_RESET, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1378,9 +1380,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   if ((pData->bReading) && (!pData->bEOF))
     mng_process_eof (pData);           /* cleanup app streaming */
                                        /* cleanup default read buffers */
-  MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
-  MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
-  MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
+  MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize);
+  MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize);
+  MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize);
 
   while (pData->pFirstpushdata)        /* release any pushed data & chunks */
     mng_release_pushdata (pData);
@@ -1389,7 +1391,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffer */
-  MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize)
+  MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize);
 #endif
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
@@ -1401,7 +1403,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
 #ifndef MNG_SKIPCHUNK_iCCP
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
-    MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+    MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize);
 #endif
 #endif
 
@@ -1772,7 +1774,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_RESET, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_RESET, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1788,7 +1790,7 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)*hHandle), MNG_FN_CLEANUP, MNG_LC_START)
+  MNG_TRACE (((mng_datap)*hHandle), MNG_FN_CLEANUP, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (*hHandle)           /* check validity handle */
@@ -1839,7 +1841,7 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle and callbacks */
@@ -1861,15 +1863,15 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
 #else
   if (pData->bReading)
 #endif
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
 #ifdef MNG_SUPPORT_WRITE
   if ((pData->bWriting) || (pData->bCreating))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -1902,7 +1904,7 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -1922,7 +1924,7 @@ mng_retcode MNG_DECL mng_read_pushdata (mng_handle hHandle,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1940,7 +1942,7 @@ mng_retcode MNG_DECL mng_read_pushdata (mng_handle hHandle,
   pMyData->pLastpushdata = pPush;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1956,20 +1958,20 @@ mng_retcode MNG_DECL mng_read_pushsig (mng_handle  hHandle,
   mng_datap pData;                     /* local vars */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
 
   if (pData->bHavesig)                 /* can we expect this call ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   pData->eSigtype = eSigtype;
   pData->bHavesig = MNG_TRUE;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1989,7 +1991,7 @@ mng_retcode MNG_DECL mng_read_pushchunk (mng_handle hHandle,
   mng_retcode   iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2007,7 +2009,7 @@ mng_retcode MNG_DECL mng_read_pushchunk (mng_handle hHandle,
   pMyData->pLastpushchunk = pPush;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2023,14 +2025,14 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
                                        /* can we expect this call ? */
   if ((!pData->bReading) || (!pData->bSuspended))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2063,7 +2065,7 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -2079,7 +2081,7 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_WRITE, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_WRITE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle and callbacks */
@@ -2098,7 +2100,7 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
 
 #ifdef MNG_SUPPORT_READ
   if (pData->bReading)                 /* valid at this point ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
   cleanup_errors (pData);              /* cleanup previous errors */
@@ -2109,7 +2111,7 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
     return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_WRITE, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_WRITE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2125,7 +2127,7 @@ mng_retcode MNG_DECL mng_create (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_CREATE, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_CREATE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle and callbacks */
@@ -2138,11 +2140,11 @@ mng_retcode MNG_DECL mng_create (mng_handle hHandle)
 
 #ifdef MNG_SUPPORT_READ
   if (pData->bReading)                 /* valid at this point ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
   if ((pData->bWriting) || (pData->bCreating))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2154,7 +2156,7 @@ mng_retcode MNG_DECL mng_create (mng_handle hHandle)
   pData->bCreating = MNG_TRUE;         /* indicate we're creating a new file */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_CREATE, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_CREATE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2170,7 +2172,7 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle and callbacks */
@@ -2188,11 +2190,11 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   MNG_VALIDCB (hHandle, fSettimer)
                                        /* valid at this point ? */
   if ((pData->bReading) || (pData->bDisplaying))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
 #ifdef MNG_SUPPORT_WRITE
   if ((pData->bWriting) || (pData->bCreating))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
   cleanup_errors (pData);              /* cleanup previous errors */
@@ -2250,7 +2252,7 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -2266,7 +2268,7 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle and callbacks */
@@ -2283,16 +2285,16 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   MNG_VALIDCB (hHandle, fSettimer)
 
   if (pData->bDisplaying)              /* valid at this point ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
     
 #ifdef MNG_SUPPORT_READ
   if (pData->bReading)
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
 #ifdef MNG_SUPPORT_WRITE
   if ((pData->bWriting) || (pData->bCreating))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 #endif
 
   cleanup_errors (pData);              /* cleanup previous errors */
@@ -2331,7 +2333,7 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -2347,14 +2349,14 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
 
   if (!pData->bDisplaying)             /* can we expect this call ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
                                        /* was it running ? */
@@ -2395,7 +2397,7 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     }
     else
     {
-      MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+      MNG_ERROR (pData, MNG_FUNCTIONINVALID);
     }
   }
   else
@@ -2439,7 +2441,7 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
   }
   
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -2454,14 +2456,14 @@ mng_retcode MNG_DECL mng_display_freeze (mng_handle hHandle)
   mng_datap pData;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_FREEZE, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_FREEZE, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
                                        /* can we expect this call ? */
   if ((!pData->bDisplaying) || (pData->bReading))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2478,7 +2480,7 @@ mng_retcode MNG_DECL mng_display_freeze (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_FREEZE, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_FREEZE, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2494,17 +2496,17 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESET, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESET, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
                                        /* can we expect this call ? */
   if ((!pData->bDisplaying) || (pData->bReading))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2529,7 +2531,7 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESET, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESET, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2547,7 +2549,7 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2557,10 +2559,10 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
     MNG_ERROR (pData, MNG_NOTANANIMATION);
                                        /* can we expect this call ? */
   if ((!pData->bDisplaying) || (pData->bRunning))
-    MNG_ERROR ((mng_datap)hHandle, MNG_FUNCTIONINVALID)
+    MNG_ERROR ((mng_datap)hHandle, MNG_FUNCTIONINVALID);
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (iFramenr > pData->iTotalframes)  /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_FRAMENRTOOHIGH);
@@ -2589,7 +2591,7 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2608,26 +2610,26 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
 
   if (pData->eImagetype != mng_it_mng) /* is it an animation ? */
-    MNG_ERROR (pData, MNG_NOTANANIMATION)
+    MNG_ERROR (pData, MNG_NOTANANIMATION);
                                        /* can we expect this call ? */
   if ((!pData->bDisplaying) || (pData->bRunning))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (iLayernr > pData->iTotallayers)  /* is the parameter within bounds ? */
-    MNG_ERROR (pData, MNG_LAYERNRTOOHIGH)
+    MNG_ERROR (pData, MNG_LAYERNRTOOHIGH);
                                        /* within MHDR bounds ? */
   if ((pData->iLayercount) && (iLayernr > pData->iLayercount))
-    MNG_WARNING (pData, MNG_LAYERNRTOOHIGH)
+    MNG_WARNING (pData, MNG_LAYERNRTOOHIGH);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2650,7 +2652,7 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2669,26 +2671,26 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
 
   if (pData->eImagetype != mng_it_mng) /* is it an animation ? */
-    MNG_ERROR (pData, MNG_NOTANANIMATION)
+    MNG_ERROR (pData, MNG_NOTANANIMATION);
                                        /* can we expect this call ? */
   if ((!pData->bDisplaying) || (pData->bRunning))
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
                                        /* is the parameter within bounds ? */
   if (iPlaytime > pData->iTotalplaytime)
-    MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH)
+    MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH);
                                        /* within MHDR bounds ? */
   if ((pData->iPlaytime) && (iPlaytime > pData->iPlaytime))
-    MNG_WARNING (pData, MNG_PLAYTIMETOOHIGH)
+    MNG_WARNING (pData, MNG_PLAYTIMETOOHIGH);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
@@ -2711,7 +2713,7 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2735,20 +2737,20 @@ mng_retcode MNG_DECL mng_trapevent (mng_handle hHandle,
   mng_uint8p  pPixel;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = ((mng_datap)hHandle);        /* and make it addressable */
 
   if (pData->eImagetype != mng_it_mng) /* is it an animation ? */
-    MNG_ERROR (pData, MNG_NOTANANIMATION)
+    MNG_ERROR (pData, MNG_NOTANANIMATION);
 
   if (!pData->bDisplaying)             /* can we expect this call ? */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID);
                                        /* let's find a matching event object */
   pEvent = (mng_eventp)pData->pFirstevent;
 
@@ -2887,7 +2889,7 @@ mng_retcode MNG_DECL mng_trapevent (mng_handle hHandle,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -2907,7 +2909,7 @@ mng_retcode MNG_DECL mng_getlasterror (mng_handle   hHandle,
   mng_datap pData;                     /* local vars */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETLASTERROR, MNG_LC_START)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETLASTERROR, MNG_LC_START);
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2928,7 +2930,7 @@ mng_retcode MNG_DECL mng_getlasterror (mng_handle   hHandle,
   *zErrortext = pData->zErrortext;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETLASTERROR, MNG_LC_END)
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETLASTERROR, MNG_LC_END);
 #endif
 
   return pData->iErrorcode;            /* and the errorcode */

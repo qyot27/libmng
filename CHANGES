@@ -16,6 +16,7 @@ bugfixes:
 - fixed bug in writing sBIT for indexed color
 - fixed PPLT getchunk/putchunk routines
 - fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG
+- cleaned up macro-invocations (thanks to D. Airlie)
 
 core:
 - added more SKIPCHUNK conditionals

@@ -100,6 +100,8 @@
 /* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
+/* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
+/* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -141,7 +143,7 @@ mng_retcode mng_process_eof (mng_datap pData)
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
     if (pData->fClosestream && !pData->fClosestream ((mng_handle)pData))
     {
-      MNG_ERROR (pData, MNG_APPIOERROR)
+      MNG_ERROR (pData, MNG_APPIOERROR);
     }
 #endif
   }
@@ -157,7 +159,7 @@ mng_retcode mng_release_pushdata (mng_datap pData)
   mng_pushdatap pNext   = pFirst->pNext;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_START);
 #endif
 
   pData->pFirstpushdata = pNext;       /* next becomes the first */
@@ -168,12 +170,12 @@ mng_retcode mng_release_pushdata (mng_datap pData)
   if ((pFirst->bOwned) && (pData->fReleasedata))
     pData->fReleasedata ((mng_handle)pData, pFirst->pData, pFirst->iLength);
   else                                 /* otherwise use internal free mechanism */
-    MNG_FREEX (pData, pFirst->pData, pFirst->iLength)
+    MNG_FREEX (pData, pFirst->pData, pFirst->iLength);
                                        /* and free it */
-  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata))
+  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata));
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -187,7 +189,7 @@ mng_retcode mng_release_pushchunk (mng_datap pData)
   mng_pushdatap pNext   = pFirst->pNext;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_START);
 #endif
 
   pData->pFirstpushchunk = pNext;      /* next becomes the first */
@@ -198,12 +200,12 @@ mng_retcode mng_release_pushchunk (mng_datap pData)
   if ((pFirst->bOwned) && (pData->fReleasedata))
     pData->fReleasedata ((mng_handle)pData, pFirst->pData, pFirst->iLength);
   else                                 /* otherwise use internal free mechanism */
-    MNG_FREEX (pData, pFirst->pData, pFirst->iLength)
+    MNG_FREEX (pData, pFirst->pData, pFirst->iLength);
                                        /* and free it */
-  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata))
+  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata));
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -224,7 +226,7 @@ MNG_LOCAL mng_retcode read_data (mng_datap    pData,
   *iRead                  = 0;         /* nothing yet */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_START);
 #endif
 
   while (pPush)                        /* calculate size of pushed data */
@@ -241,7 +243,7 @@ MNG_LOCAL mng_retcode read_data (mng_datap    pData,
                                        /* enough data remaining in this buffer? */
       if (pPush->iRemaining <= iTempsize)
       {                                /* no: then copy what we've got */
-        MNG_COPY (pTempbuf, pPush->pDatanext, pPush->iRemaining)
+        MNG_COPY (pTempbuf, pPush->pDatanext, pPush->iRemaining);
                                        /* move pointers & lengths */
         pTempbuf  += pPush->iRemaining;
         *iRead    += pPush->iRemaining;
@@ -253,7 +255,7 @@ MNG_LOCAL mng_retcode read_data (mng_datap    pData,
       }
       else
       {                                /* copy the needed bytes */
-        MNG_COPY (pTempbuf, pPush->pDatanext, iTempsize)
+        MNG_COPY (pTempbuf, pPush->pDatanext, iTempsize);
                                        /* move pointers & lengths */
         pPush->iRemaining -= iTempsize;
         pPush->pDatanext  += iTempsize;
@@ -274,7 +276,7 @@ MNG_LOCAL mng_retcode read_data (mng_datap    pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -291,7 +293,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
   mng_retcode iRetcode;
   
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_START);
 #endif
 
   if (pData->bSuspensionmode)
@@ -305,7 +307,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
     {
       pData->iSuspendbufsize = MNG_SUSPENDBUFFERSIZE;
                                        /* so, create it */
-      MNG_ALLOC (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
+      MNG_ALLOC (pData, pData->pSuspendbuf, pData->iSuspendbufsize);
 
       pData->iSuspendbufleft = 0;      /* make sure to fill it first time */
       pData->pSuspendbufnext = pData->pSuspendbuf;
@@ -319,7 +321,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
       {
         if (pData->iSuspendbufleft)    /* do we have some data left ? */
         {                              /* then copy it */
-          MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
+          MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft);
                                        /* fixup variables */
           *pBufnext              = pBuf + pData->iSuspendbufleft;
           pData->pSuspendbufnext = pData->pSuspendbuf;
@@ -367,13 +369,13 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
                                                           MNG_SUSPENDREQUESTSIZE)
         {
           if (pData->iSuspendbufleft)  /* then lets shift (if there's anything left) */
-            MNG_COPY (pData->pSuspendbuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
+            MNG_COPY (pData->pSuspendbuf, pData->pSuspendbufnext, pData->iSuspendbufleft);
                                        /* adjust running pointer */
           pData->pSuspendbufnext = pData->pSuspendbuf;
         }
                                        /* still not enough room ? */
         if (pData->iSuspendbufsize - pData->iSuspendbufleft < MNG_SUSPENDREQUESTSIZE)
-          MNG_ERROR (pData, MNG_INTERNALERROR)
+          MNG_ERROR (pData, MNG_INTERNALERROR);
                                        /* now read some more data */
         pTemp = pData->pSuspendbufnext + pData->iSuspendbufleft;
 
@@ -390,7 +392,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
             return iRetcode;
 
           if (pData->iSuspendbufleft)  /* return the leftover scraps */
-            MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft)
+            MNG_COPY (pBuf, pData->pSuspendbufnext, pData->iSuspendbufleft);
                                        /* and indicate so */
           *iRead = pData->iSuspendbufleft;
           pData->pSuspendbufnext = pData->pSuspendbuf;
@@ -408,7 +410,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
 
       if ((!pData->bSuspended) && (!pData->bEOF))
       {                                /* return the data ! */
-        MNG_COPY (pBuf, pData->pSuspendbufnext, iSize)
+        MNG_COPY (pBuf, pData->pSuspendbufnext, iSize);
 
         *iRead = iSize;                /* returned it all */
                                        /* adjust suspension-buffer variables */
@@ -429,7 +431,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
   pData->iSuspendpoint = 0;            /* safely reset it here ! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -775,7 +777,7 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
   mng_retcode       iRetcode;          /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START);
 #endif
                                        /* reset timer indicator on read-cycle */
   if ((pData->bReading) && (!pData->bDisplaying))
@@ -871,7 +873,7 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
     return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -888,7 +890,7 @@ MNG_LOCAL mng_retcode check_chunk_crc (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_START);
 #endif
 
   if (pData->iCrcmode & MNG_CRC_INPUT) /* crc included ? */
@@ -925,9 +927,9 @@ MNG_LOCAL mng_retcode check_chunk_crc (mng_datap  pData,
         }
 
         if (bWarning)
-          MNG_WARNING (pData, MNG_INVALIDCRC)
+          MNG_WARNING (pData, MNG_INVALIDCRC);
         if (bError)
-          MNG_ERROR (pData, MNG_INVALIDCRC)
+          MNG_ERROR (pData, MNG_INVALIDCRC);
       }
     }
 
@@ -940,7 +942,7 @@ MNG_LOCAL mng_retcode check_chunk_crc (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_END);
 #endif
 
   return iRetcode;
@@ -957,7 +959,7 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
   mng_retcode iRetcode  = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START);
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY
@@ -1095,21 +1097,20 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
             else
             {
               if (iRead != iBuflen)    /* did we get all the data ? */
-                MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
-              else
-                iRetcode = check_chunk_crc (pData, pBuf, iBuflen);
+                MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
+              iRetcode = check_chunk_crc (pData, pBuf, iBuflen);
             }
           }
           else
           {
             if (iBuflen > 16777216)    /* is the length incredible? */
-              MNG_ERROR (pData, MNG_IMPROBABLELENGTH)
+              MNG_ERROR (pData, MNG_IMPROBABLELENGTH);
 
             if (!pData->iSuspendpoint) /* create additional large buffer ? */
             {                          /* again reserve space for the last zero-byte */
               pData->iLargebufsize = iBuflen + 1;
               pData->pLargebufnext = MNG_NULL;
-              MNG_ALLOC (pData, pData->pLargebuf, pData->iLargebufsize)
+              MNG_ALLOC (pData, pData->pLargebuf, pData->iLargebufsize);
             }
 
             iRetcode = read_databuffer (pData, pData->pLargebuf, &pData->pLargebufnext, iBuflen, &iRead);
@@ -1121,11 +1122,10 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
             else
             {
               if (iRead != iBuflen)    /* did we get all the data ? */
-                MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
-              else
-                iRetcode = check_chunk_crc (pData, pData->pLargebuf, iBuflen);
+                MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
+              iRetcode = check_chunk_crc (pData, pData->pLargebuf, iBuflen);
                                        /* cleanup additional large buffer */
-              MNG_FREE (pData, pData->pLargebuf, pData->iLargebufsize)
+              MNG_FREE (pData, pData->pLargebuf, pData->iLargebufsize);
             }
           }
         }
@@ -1147,7 +1147,7 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 #else
             (pData->bHasIHDR || pData->bHasMHDR))
 #endif
-          MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
+          MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
       } 
     }
   }
@@ -1163,7 +1163,7 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -1275,13 +1275,13 @@ mng_retcode mng_read_graphic (mng_datap pData)
   mng_retcode iRetcode;                /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START);
 #endif
 
   if (!pData->pReadbuf)                /* buffer allocated ? */
   {
     pData->iReadbufsize = 4200;        /* allocate a default read buffer */
-    MNG_ALLOC (pData, pData->pReadbuf, pData->iReadbufsize)
+    MNG_ALLOC (pData, pData->pReadbuf, pData->iReadbufsize);
   }
                                        /* haven't processed the signature ? */
   if ((!pData->bHavesig) || (pData->iSuspendpoint == 1))
@@ -1345,7 +1345,7 @@ mng_retcode mng_read_graphic (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

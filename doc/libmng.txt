@@ -1030,13 +1030,13 @@ to do
 References :
 
 libmng :
-  http://www.libmng.com
+  http://www.libmng.com/
 
-zlib : 
+zlib :
   http://www.info-zip.org/pub/infozip/zlib/
 
 IJG JPEG library :
-  http://www.ijg.org
+  http://www.ijg.org/
 
 lcms (little CMS) by Marti Maria Saguer :
   http://www.littlecms.com/

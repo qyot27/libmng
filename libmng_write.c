@@ -38,6 +38,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
+/* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
+/* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -67,7 +69,7 @@ mng_retcode mng_drop_chunks (mng_datap pData)
   mng_cleanupchunk fCleanup;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_START);
 #endif
 
   pChunk = pData->pFirstchunk;         /* and get first stored chunk (if any) */
@@ -86,7 +88,7 @@ mng_retcode mng_drop_chunks (mng_datap pData)
   pData->pLastchunk  = MNG_NULL;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;
@@ -106,7 +108,7 @@ mng_retcode mng_write_graphic (mng_datap pData)
   mng_uint32  iWritten;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_WRITE_GRAPHIC, MNG_LC_START)
+  MNG_TRACE (pData, MNG_FN_WRITE_GRAPHIC, MNG_LC_START);
 #endif
 
   pChunk = pData->pFirstchunk;         /* we'll start with the first, thank you */
@@ -117,14 +119,13 @@ mng_retcode mng_write_graphic (mng_datap pData)
     {
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
       if (pData->fOpenstream && !pData->fOpenstream ((mng_handle)pData))
-        MNG_ERROR (pData, MNG_APPIOERROR)
-      else
+        MNG_ERROR (pData, MNG_APPIOERROR);
 #endif
       {
         pData->bWriting      = MNG_TRUE; /* indicate writing */
         pData->iWritebufsize = 32768;    /* get a temporary write buffer */
                                        /* reserve 12 bytes for length, chunkname & crc */
-        MNG_ALLOC (pData, pData->pWritebuf, pData->iWritebufsize+12)
+        MNG_ALLOC (pData, pData->pWritebuf, pData->iWritebufsize+12);
 
                                        /* write the signature */
         if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
@@ -139,14 +140,14 @@ mng_retcode mng_write_graphic (mng_datap pData)
 
         if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, 8, &iWritten))
         {
-          MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12)
-          MNG_ERROR (pData, MNG_APPIOERROR)
+          MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12);
+          MNG_ERROR (pData, MNG_APPIOERROR);
         }
 
         if (iWritten != 8)             /* disk full ? */
         {
-          MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12)
-          MNG_ERROR (pData, MNG_OUTPUTERROR)
+          MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12);
+          MNG_ERROR (pData, MNG_OUTPUTERROR);
         }
       }
     }
@@ -162,13 +163,13 @@ mng_retcode mng_write_graphic (mng_datap pData)
 
     if (!pData->bCreating)
     {                                  /* free the temporary buffer */
-      MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12)
+      MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12);
 
       pData->bWriting = MNG_FALSE;     /* done writing */
                                        /* close the stream now */
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
       if (pData->fClosestream && !pData->fClosestream ((mng_handle)pData))
-        MNG_ERROR (pData, MNG_APPIOERROR)
+        MNG_ERROR (pData, MNG_APPIOERROR);
 #endif
 
     } else {
@@ -180,7 +181,7 @@ mng_retcode mng_write_graphic (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_WRITE_GRAPHIC, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_WRITE_GRAPHIC, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

@@ -18,6 +18,8 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
 /* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
 /* *             - made all constants 'static'                              * */
+/* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
+/* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1828,7 +1830,7 @@ void mng_get_chunkheader (mng_chunkid       iChunkname,
   if (!pEntry)                         /* unknown chunk ? */
     pEntry = &mng_chunk_unknown;       /* make it so! */
 
-  MNG_COPY (pResult, pEntry, sizeof(mng_chunk_header))
+  MNG_COPY (pResult, pEntry, sizeof(mng_chunk_header));
 
   return;
 }
@@ -1881,26 +1883,26 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
       && (pData->iBitdepth != 16)   
 #endif
       )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if ((pData->iColortype != MNG_COLORTYPE_GRAY   ) &&
       (pData->iColortype != MNG_COLORTYPE_RGB    ) &&
       (pData->iColortype != MNG_COLORTYPE_INDEXED) &&
       (pData->iColortype != MNG_COLORTYPE_GRAYA  ) &&
       (pData->iColortype != MNG_COLORTYPE_RGBA   )    )
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
 
   if ((pData->iColortype == MNG_COLORTYPE_INDEXED) && (pData->iBitdepth > 8))
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if (((pData->iColortype == MNG_COLORTYPE_RGB    ) ||
        (pData->iColortype == MNG_COLORTYPE_GRAYA  ) ||
        (pData->iColortype == MNG_COLORTYPE_RGBA   )    ) &&
       (pData->iBitdepth < 8                            )    )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
-    MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+    MNG_ERROR (pData, MNG_INVALIDCOMPRESS);
 
 #if defined(FILTER192) || defined(FILTER193)
   if ((pData->iFilter != MNG_FILTER_ADAPTIVE ) &&
@@ -1914,15 +1916,15 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
       (pData->iFilter != MNG_FILTER_NOFILTER )    )
 #endif
 #endif
-    MNG_ERROR (pData, MNG_INVALIDFILTER)
+    MNG_ERROR (pData, MNG_INVALIDFILTER);
 #else
   if (pData->iFilter)
-    MNG_ERROR (pData, MNG_INVALIDFILTER)
+    MNG_ERROR (pData, MNG_INVALIDFILTER);
 #endif
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
       (pData->iInterlace != MNG_INTERLACE_ADAM7)    )
-    MNG_ERROR (pData, MNG_INVALIDINTERLACE)
+    MNG_ERROR (pData, MNG_INVALIDINTERLACE);
 
 #ifdef MNG_SUPPORT_DISPLAY 
 #ifndef MNG_NO_DELTA_PNG
@@ -1936,7 +1938,7 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
              (pBuf->iColortype  == MNG_COLORTYPE_GRAY   )    ) &&
            ( (pData->iColortype != MNG_COLORTYPE_GRAY   ) ||
              (pBuf->iColortype  == MNG_COLORTYPE_INDEXED)    )    )
-        MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+        MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
     }
   }
 #endif
@@ -1959,11 +1961,11 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
       pData->iAlphadepth = 1;  /* Possible tRNS cheap binary transparency */
                                        /* fits on maximum canvas ? */
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
-      MNG_WARNING (pData, MNG_IMAGETOOLARGE)
+      MNG_WARNING (pData, MNG_IMAGETOOLARGE);
 
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
+        MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
   if (!pData->bHasDHDR)
@@ -1985,11 +1987,11 @@ MNG_F_SPECIALFUNC (mng_debunk_plte)
   mng_uint8p pRawdata = *ppRawdata;
                                        /* length must be multiple of 3 */
   if (((iRawlen % 3) != 0) || (iRawlen > 768))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
                                        /* this is the exact length */
   pPLTE->iEntrycount = iRawlen / 3;
 
-  MNG_COPY (pPLTE->aEntries, pRawdata, iRawlen)
+  MNG_COPY (pPLTE->aEntries, pRawdata, iRawlen);
 
   *piRawlen = 0;
 
@@ -2001,7 +2003,7 @@ MNG_F_SPECIALFUNC (mng_debunk_plte)
 MNG_C_SPECIALFUNC (mng_special_plte)
 {                                      /* multiple PLTE only inside BASI */
   if ((pData->bHasPLTE) && (!pData->bHasBASI))
-    MNG_ERROR (pData, MNG_MULTIPLEERROR)
+    MNG_ERROR (pData, MNG_MULTIPLEERROR);
 
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
   {                                    /* only allowed for indexed-color or
@@ -2009,15 +2011,15 @@ MNG_C_SPECIALFUNC (mng_special_plte)
     if ((pData->iColortype != MNG_COLORTYPE_RGB    ) &&
         (pData->iColortype != MNG_COLORTYPE_INDEXED) &&
         (pData->iColortype != MNG_COLORTYPE_RGBA   )   )
-      MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
+      MNG_ERROR (pData, MNG_CHUNKNOTALLOWED);
                                        /* empty only allowed if global present */
     if ((((mng_pltep)pChunk)->bEmpty) && (!pData->bHasglobalPLTE))
-      MNG_ERROR (pData, MNG_CANNOTBEEMPTY)
+      MNG_ERROR (pData, MNG_CANNOTBEEMPTY);
   }
   else
   {
     if (((mng_pltep)pChunk)->bEmpty)   /* cannot be empty as global! */
-      MNG_ERROR (pData, MNG_CANNOTBEEMPTY)
+      MNG_ERROR (pData, MNG_CANNOTBEEMPTY);
   }
 
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
@@ -2041,7 +2043,7 @@ MNG_C_SPECIALFUNC (mng_special_plte)
       pBuf->bHasPLTE   = MNG_TRUE;     /* it's definitely got a PLTE now */
       pBuf->iPLTEcount = ((mng_pltep)pChunk)->iEntrycount;
       MNG_COPY (pBuf->aPLTEentries, ((mng_pltep)pChunk)->aEntries,
-                sizeof (pBuf->aPLTEentries))
+                sizeof (pBuf->aPLTEentries));
     }
     else
 #endif
@@ -2058,7 +2060,7 @@ MNG_C_SPECIALFUNC (mng_special_plte)
       {
         pBuf->iPLTEcount = pData->iGlobalPLTEcount;
         MNG_COPY (pBuf->aPLTEentries, pData->aGlobalPLTEentries,
-                  sizeof (pBuf->aPLTEentries))
+                  sizeof (pBuf->aPLTEentries));
 
         if (pData->bHasglobalTRNS)     /* also copy global tRNS ? */
         {
@@ -2068,17 +2070,17 @@ MNG_C_SPECIALFUNC (mng_special_plte)
           pBuf->bHasTRNS = MNG_TRUE;
                                        /* global length oke ? */
           if ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount))
-            MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+            MNG_ERROR (pData, MNG_GLOBALLENGTHERR);
                                        /* copy it */
           pBuf->iTRNScount = iRawlen2;
-          MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2)
+          MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2);
         }
       }
       else
       {                                /* store fields for future reference */
         pBuf->iPLTEcount = ((mng_pltep)pChunk)->iEntrycount;
         MNG_COPY (pBuf->aPLTEentries, ((mng_pltep)pChunk)->aEntries,
-                  sizeof (pBuf->aPLTEentries))
+                  sizeof (pBuf->aPLTEentries));
       }
     }
   }
@@ -2086,7 +2088,7 @@ MNG_C_SPECIALFUNC (mng_special_plte)
   {
     pData->iGlobalPLTEcount = ((mng_pltep)pChunk)->iEntrycount;
     MNG_COPY (pData->aGlobalPLTEentries, ((mng_pltep)pChunk)->aEntries,
-              sizeof (pData->aGlobalPLTEentries))
+              sizeof (pData->aGlobalPLTEentries));
                                        /* create an animation object */
     return mng_create_ani_plte (pData);
   }
@@ -2102,19 +2104,19 @@ MNG_C_SPECIALFUNC (mng_special_idat)
 #ifdef MNG_INCLUDE_JNG
   if ((pData->bHasJHDR) &&
       (pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR);
 #endif
                                        /* not allowed for deltatype NO_CHANGE */
 #ifndef MNG_NO_DELTA_PNG
   if ((pData->bHasDHDR) && ((pData->iDeltatype == MNG_DELTATYPE_NOCHANGE)))
-    MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
+    MNG_ERROR (pData, MNG_CHUNKNOTALLOWED);
 #endif
                                        /* can only be empty in BASI-block! */
   if ((((mng_idatp)pChunk)->bEmpty) && (!pData->bHasBASI))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
                                        /* indexed-color requires PLTE */
   if ((pData->bHasIHDR) && (pData->iColortype == 3) && (!pData->bHasPLTE))
-    MNG_ERROR (pData, MNG_PLTEMISSING)
+    MNG_ERROR (pData, MNG_PLTEMISSING);
 
   pData->bHasIDAT = MNG_TRUE;          /* got some IDAT now, don't we */
 
@@ -2127,7 +2129,7 @@ MNG_C_SPECIALFUNC (mng_special_iend)
 {
                                        /* IHDR-block requires IDAT */
   if ((pData->bHasIHDR) && (!pData->bHasIDAT))
-    MNG_ERROR (pData, MNG_IDATMISSING)
+    MNG_ERROR (pData, MNG_IDATMISSING);
 
   pData->iImagelevel--;                /* one level up */
 
@@ -2191,13 +2193,13 @@ MNG_F_SPECIALFUNC (mng_debunk_trns)
       {
         case 0: {                    /* gray */
                   if (iRawlen != 2)
-                    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                    MNG_ERROR (pData, MNG_INVALIDLENGTH);
                   pTRNS->iGray  = mng_get_uint16 (pRawdata);
                   break;
                 }
         case 2: {                    /* rgb */
                   if (iRawlen != 6)
-                    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                    MNG_ERROR (pData, MNG_INVALIDLENGTH);
                   pTRNS->iRed   = mng_get_uint16 (pRawdata);
                   pTRNS->iGreen = mng_get_uint16 (pRawdata+2);
                   pTRNS->iBlue  = mng_get_uint16 (pRawdata+4);
@@ -2205,9 +2207,9 @@ MNG_F_SPECIALFUNC (mng_debunk_trns)
                 }
         case 3: {                    /* indexed */
                   if (iRawlen > 256)
-                    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                    MNG_ERROR (pData, MNG_INVALIDLENGTH);
                   pTRNS->iCount = iRawlen;
-                  MNG_COPY (pTRNS->aEntries, pRawdata, iRawlen)
+                  MNG_COPY (pTRNS->aEntries, pRawdata, iRawlen);
                   break;
                 }
       }
@@ -2216,11 +2218,11 @@ MNG_F_SPECIALFUNC (mng_debunk_trns)
   else                               /* it's global! */
   {
     if (iRawlen == 0)
-      MNG_ERROR (pData, MNG_INVALIDLENGTH)
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
     pTRNS->bGlobal = MNG_TRUE;
     pTRNS->iType   = 0;
     pTRNS->iRawlen = iRawlen;
-    MNG_COPY (pTRNS->aRawdata, pRawdata, iRawlen)
+    MNG_COPY (pTRNS->aRawdata, pRawdata, iRawlen);
   }
 
   *piRawlen = 0;
@@ -2233,12 +2235,12 @@ MNG_F_SPECIALFUNC (mng_debunk_trns)
 MNG_C_SPECIALFUNC (mng_special_trns)
 {                                      /* multiple tRNS only inside BASI */
   if ((pData->bHasTRNS) && (!pData->bHasBASI))
-    MNG_ERROR (pData, MNG_MULTIPLEERROR)
+    MNG_ERROR (pData, MNG_MULTIPLEERROR);
 
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
   {                                    /* not allowed with full alpha-channel */
     if ((pData->iColortype == 4) || (pData->iColortype == 6))
-      MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
+      MNG_ERROR (pData, MNG_CHUNKNOTALLOWED);
 
     if (!((mng_trnsp)pChunk)->bEmpty)  /* filled ? */
     {                                
@@ -2254,14 +2256,14 @@ MNG_C_SPECIALFUNC (mng_special_trns)
         pBuf = pImage->pImgbuf;        /* address object buffer */
 
         if (((mng_trnsp)pChunk)->iCount > pBuf->iPLTEcount)
-          MNG_ERROR (pData, MNG_INVALIDLENGTH)
+          MNG_ERROR (pData, MNG_INVALIDLENGTH);
       }
 #endif
     }
     else                               /* if empty there must be global stuff! */
     {
       if (!pData->bHasglobalTRNS)
-        MNG_ERROR (pData, MNG_CANNOTBEEMPTY)
+        MNG_ERROR (pData, MNG_CANNOTBEEMPTY);
     }
   }
 
@@ -2329,7 +2331,7 @@ MNG_C_SPECIALFUNC (mng_special_trns)
                   pBuf->iTRNScount = ((mng_trnsp)pChunk)->iCount;
                   MNG_COPY (pBuf->aTRNSentries,
                             ((mng_trnsp)pChunk)->aEntries,
-                            ((mng_trnsp)pChunk)->iCount)
+                            ((mng_trnsp)pChunk)->iCount);
                   break;
                 }
       }
@@ -2356,13 +2358,13 @@ MNG_C_SPECIALFUNC (mng_special_trns)
         pRawdata2 = (mng_ptr)(pData->aGlobalTRNSrawdata);
                                        /* global length oke ? */
         if ((pData->iColortype == 0) && (iRawlen2 != 2))
-          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR);
 
         if ((pData->iColortype == 2) && (iRawlen2 != 6))
-          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR);
 
         if ((pData->iColortype == 3) && ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount)))
-          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR);
 
         switch (pData->iColortype)     /* store fields for future reference */
         {
@@ -2390,7 +2392,7 @@ MNG_C_SPECIALFUNC (mng_special_trns)
                   }
           case 3: {                    /* indexed */
                     pBuf->iTRNScount = iRawlen2;
-                    MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2)
+                    MNG_COPY (pBuf->aTRNSentries, pRawdata2, iRawlen2);
                     break;
                   }
         }
@@ -2425,7 +2427,7 @@ MNG_C_SPECIALFUNC (mng_special_trns)
                     pBuf->iTRNScount = ((mng_trnsp)pChunk)->iCount;
                     MNG_COPY (pBuf->aTRNSentries,
                               ((mng_trnsp)pChunk)->aEntries,
-                              ((mng_trnsp)pChunk)->iCount)
+                              ((mng_trnsp)pChunk)->iCount);
                     break;
                   }
         }
@@ -2659,10 +2661,10 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
         pImage = (mng_imagep)pData->pObjzero;
 
         if (pImage->pImgbuf->pProfile) /* profile existed ? */
-          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
+          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize);
                                        /* allocate a buffer & copy it */
-        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize)
-        MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize)
+        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
+        MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
                                        /* store it's length as well */
         pImage->pImgbuf->iProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
@@ -2676,10 +2678,10 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
           pImage = (mng_imagep)pData->pObjzero;
 
         if (pImage->pImgbuf->pProfile) /* profile existed ? */
-          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
+          MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize);
                                        /* allocate a buffer & copy it */
-        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize)
-        MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize)
+        MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
+        MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
                                        /* store it's length as well */
         pImage->pImgbuf->iProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
@@ -2688,7 +2690,7 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
     else
     {                                  /* store as global */
       if (pData->pGlobalProfile)     /* did we have a global profile ? */
-        MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+        MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize);
 
       if (((mng_iccpp)pChunk)->bEmpty) /* empty chunk ? */
       {
@@ -2697,8 +2699,8 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
       }
       else
       {                                /* allocate a global buffer & copy it */
-        MNG_ALLOC (pData, pData->pGlobalProfile, ((mng_iccpp)pChunk)->iProfilesize)
-        MNG_COPY  (pData->pGlobalProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize)
+        MNG_ALLOC (pData, pData->pGlobalProfile, ((mng_iccpp)pChunk)->iProfilesize);
+        MNG_COPY  (pData->pGlobalProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
                                        /* store it's length as well */
         pData->iGlobalProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
       }
@@ -2726,7 +2728,7 @@ MNG_C_SPECIALFUNC (mng_special_text)
                                          ((mng_textp)pChunk)->zKeyword,
                                          ((mng_textp)pChunk)->zText, 0, 0);
     if (!bOke)
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
   return MNG_NOERROR;                  /* done */
@@ -2744,7 +2746,7 @@ MNG_C_SPECIALFUNC (mng_special_ztxt)
                                          ((mng_ztxtp)pChunk)->zKeyword,
                                          ((mng_ztxtp)pChunk)->zText, 0, 0);
     if (!bOke)
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
   return MNG_NOERROR;                  /* done */
@@ -2768,21 +2770,21 @@ MNG_F_SPECIALFUNC (mng_deflate_itxt)
 
     if (iRetcode)                      /* on error bail out */
     {                                  /* don't forget to drop the temp buffer */
-      MNG_FREEX (pData, pBuf, iBufsize)
+      MNG_FREEX (pData, pBuf, iBufsize);
       return iRetcode;
     }
 
-    MNG_ALLOC (pData, pITXT->zText, iTextlen+1)
-    MNG_COPY (pITXT->zText, pBuf, iTextlen)
+    MNG_ALLOC (pData, pITXT->zText, iTextlen+1);
+    MNG_COPY (pITXT->zText, pBuf, iTextlen);
 
     pITXT->iTextsize = iTextlen;
 
-    MNG_FREEX (pData, pBuf, iBufsize)
+    MNG_FREEX (pData, pBuf, iBufsize);
 
   } else {
 
-    MNG_ALLOC (pData, pITXT->zText, (*piRawlen)+1)
-    MNG_COPY (pITXT->zText, *ppRawdata, *piRawlen)
+    MNG_ALLOC (pData, pITXT->zText, (*piRawlen)+1);
+    MNG_COPY (pITXT->zText, *ppRawdata, *piRawlen);
 
     pITXT->iTextsize = *piRawlen;
   }
@@ -2806,7 +2808,7 @@ MNG_C_SPECIALFUNC (mng_special_itxt)
                                          ((mng_itxtp)pChunk)->zLanguage,
                                          ((mng_itxtp)pChunk)->zTranslation);
     if (!bOke)
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
   return MNG_NOERROR;                  /* done */
@@ -2950,11 +2952,11 @@ MNG_F_SPECIALFUNC (mng_splt_entries)
 
   if ((pSPLT->iSampledepth != MNG_BITDEPTH_8 ) &&
       (pSPLT->iSampledepth != MNG_BITDEPTH_16)   )
-    MNG_ERROR (pData, MNG_INVSAMPLEDEPTH)
+    MNG_ERROR (pData, MNG_INVSAMPLEDEPTH);
                                        /* check remaining length */
   if ( ((pSPLT->iSampledepth == MNG_BITDEPTH_8 ) && (iRawlen %  6 != 0)) ||
        ((pSPLT->iSampledepth == MNG_BITDEPTH_16) && (iRawlen % 10 != 0))    )
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   if (pSPLT->iSampledepth == MNG_BITDEPTH_8)
     pSPLT->iEntrycount = iRawlen / 6;
@@ -2963,8 +2965,8 @@ MNG_F_SPECIALFUNC (mng_splt_entries)
 
   if (iRawlen)
   {
-    MNG_ALLOC (pData, pSPLT->pEntries, iRawlen)
-    MNG_COPY (pSPLT->pEntries, pRawdata, iRawlen)
+    MNG_ALLOC (pData, pSPLT->pEntries, iRawlen);
+    MNG_COPY (pSPLT->pEntries, pRawdata, iRawlen);
   }
 
   *piRawlen = 0;
@@ -3003,7 +3005,7 @@ MNG_F_SPECIALFUNC (mng_hist_entries)
   mng_uint32 iX;
 
   if ( ((iRawlen & 0x01) != 0) || ((iRawlen >> 1) != pData->iPLTEcount) )
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   pHIST->iEntrycount = iRawlen >> 1;
 
@@ -3061,7 +3063,7 @@ MNG_C_SPECIALFUNC (mng_special_time)
 MNG_C_SPECIALFUNC (mng_special_jhdr)
 {
   if ((pData->eSigtype == mng_it_jng) && (pData->iChunkseq > 1))
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR);
                                        /* inside a JHDR-IEND block now */
   pData->bHasJHDR              = MNG_TRUE;
                                        /* and store interesting fields */
@@ -3098,12 +3100,12 @@ MNG_C_SPECIALFUNC (mng_special_jhdr)
       (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLOR ) &&
       (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGGRAYA ) &&
       (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLORA)    )
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
 
   if ((pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8     ) &&
       (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG12    ) &&
       (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8AND12)    )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
@@ -3118,15 +3120,15 @@ MNG_C_SPECIALFUNC (mng_special_jhdr)
         && (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)
 #endif
         )
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
     if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
         (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)    )
-      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS);
 
     if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
         (pData->iJHDRalphabitdepth    !=  MNG_BITDEPTH_8             )    )
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
 #if defined(FILTER192) || defined(FILTER193)
     if ((pData->iJHDRalphafilter != MNG_FILTER_ADAPTIVE ) &&
@@ -3140,23 +3142,23 @@ MNG_C_SPECIALFUNC (mng_special_jhdr)
         (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
 #endif
 #endif
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
+      MNG_ERROR (pData, MNG_INVALIDFILTER);
 #else
     if (pData->iJHDRalphafilter)
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
+      MNG_ERROR (pData, MNG_INVALIDFILTER);
 #endif
 
   }
   else
   {
     if (pData->iJHDRalphabitdepth)
-      MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+      MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
     if (pData->iJHDRalphacompression)
-      MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
+      MNG_ERROR (pData, MNG_INVALIDCOMPRESS);
     if (pData->iJHDRalphafilter)
-      MNG_ERROR (pData, MNG_INVALIDFILTER)
+      MNG_ERROR (pData, MNG_INVALIDFILTER);
     if (pData->iJHDRalphainterlace)
-      MNG_ERROR (pData, MNG_INVALIDINTERLACE)
+      MNG_ERROR (pData, MNG_INVALIDINTERLACE);
   }
 
   if (!pData->bHasheader)              /* first chunk ? */
@@ -3173,11 +3175,11 @@ MNG_C_SPECIALFUNC (mng_special_jhdr)
       pData->iAlphadepth = 0;
                                        /* fits on maximum canvas ? */
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
-      MNG_WARNING (pData, MNG_IMAGETOOLARGE)
+      MNG_WARNING (pData, MNG_IMAGETOOLARGE);
 
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
+        MNG_ERROR (pData, MNG_APPMISCERROR);
 
   }
 
@@ -3207,7 +3209,7 @@ MNG_C_SPECIALFUNC (mng_special_jhdr)
 MNG_C_SPECIALFUNC (mng_special_jdaa)
 {
   if (pData->iJHDRalphacompression != MNG_COMPRESSION_BASELINEJPEG)
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR);
 
   pData->bHasJDAA = MNG_TRUE;          /* got some JDAA now, don't we */
   return MNG_NOERROR;
@@ -3241,7 +3243,7 @@ MNG_C_SPECIALFUNC (mng_special_jsep)
 MNG_C_SPECIALFUNC (mng_special_mhdr)
 {
   if (pData->bHasheader)               /* can only be the first chunk! */
-    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR);
 
   pData->bHasMHDR     = MNG_TRUE;      /* oh boy, a real MNG */
   pData->bHasheader   = MNG_TRUE;      /* we've got a header */
@@ -3281,14 +3283,14 @@ MNG_C_SPECIALFUNC (mng_special_mhdr)
 #else
   if (pData->iSimplicity & 0x0000FC10)
 #endif
-    MNG_ERROR (pData, MNG_MNGTOOCOMPLEX)
+    MNG_ERROR (pData, MNG_MNGTOOCOMPLEX);
                                        /* fits on maximum canvas ? */
   if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
-    MNG_WARNING (pData, MNG_IMAGETOOLARGE)
+    MNG_WARNING (pData, MNG_IMAGETOOLARGE);
 
   if (pData->fProcessheader)           /* inform the app ? */
     if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
 
   pData->iImagelevel++;                /* one level deeper */
 
@@ -3334,11 +3336,11 @@ MNG_F_SPECIALFUNC (mng_debunk_loop)
     if (iRawlen >= 6)
     {
       if ((iRawlen - 6) % 4 != 0)
-        MNG_ERROR (pData, MNG_INVALIDLENGTH)
+        MNG_ERROR (pData, MNG_INVALIDLENGTH);
     }
   }
   else
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   if (iRawlen >= 5)                  /* store the fields */
   {
@@ -3375,7 +3377,7 @@ MNG_F_SPECIALFUNC (mng_debunk_loop)
 
           if (pLOOP->iCount)
           {
-            MNG_ALLOC (pData, pLOOP->pSignals, pLOOP->iCount << 2)
+            MNG_ALLOC (pData, pLOOP->pSignals, pLOOP->iCount << 2);
 
 #ifndef MNG_BIGENDIAN_SUPPORTED
             {
@@ -3390,7 +3392,7 @@ MNG_F_SPECIALFUNC (mng_debunk_loop)
               }
             }
 #else
-            MNG_COPY (pLOOP->pSignals, pRawdata + 14, pLOOP->iCount << 2)
+            MNG_COPY (pLOOP->pSignals, pRawdata + 14, pLOOP->iCount << 2);
 #endif /* !MNG_BIGENDIAN_SUPPORTED */
           }
         }
@@ -3411,7 +3413,7 @@ MNG_F_SPECIALFUNC (mng_debunk_loop)
 MNG_C_SPECIALFUNC (mng_special_loop)
 {
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
-    MNG_ERROR (pData, MNG_LOOPWITHCACHEOFF)
+    MNG_ERROR (pData, MNG_LOOPWITHCACHEOFF);
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
@@ -3445,7 +3447,7 @@ MNG_C_SPECIALFUNC (mng_special_endl)
     return mng_create_ani_endl (pData, iLevel);
   }
   else
-    MNG_ERROR (pData, MNG_NOMATCHINGLOOP)
+    MNG_ERROR (pData, MNG_NOMATCHINGLOOP);
 #endif /* MNG_SUPPORT_DISPLAY */
 
   return MNG_NOERROR;                  /* done */
@@ -3526,23 +3528,23 @@ MNG_C_SPECIALFUNC (mng_special_basi)
       && (pData->iBitdepth != 16)
 #endif
       )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if ((pData->iColortype != MNG_COLORTYPE_GRAY   ) &&
       (pData->iColortype != MNG_COLORTYPE_RGB    ) &&
       (pData->iColortype != MNG_COLORTYPE_INDEXED) &&
       (pData->iColortype != MNG_COLORTYPE_GRAYA  ) &&
       (pData->iColortype != MNG_COLORTYPE_RGBA   )    )
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
 
   if ((pData->iColortype == MNG_COLORTYPE_INDEXED) && (pData->iBitdepth > 8))
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
   if (((pData->iColortype == MNG_COLORTYPE_RGB    ) ||
        (pData->iColortype == MNG_COLORTYPE_GRAYA  ) ||
        (pData->iColortype == MNG_COLORTYPE_RGBA   )    ) &&
       (pData->iBitdepth < 8                            )    )
-    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH);
 
 #if defined(FILTER192) || defined(FILTER193)
   if ((pData->iFilter != MNG_FILTER_ADAPTIVE ) &&
@@ -3556,10 +3558,10 @@ MNG_C_SPECIALFUNC (mng_special_basi)
       (pData->iFilter != MNG_FILTER_NOFILTER )    )
 #endif
 #endif
-    MNG_ERROR (pData, MNG_INVALIDFILTER)
+    MNG_ERROR (pData, MNG_INVALIDFILTER);
 #else
   if (pData->iFilter)
-    MNG_ERROR (pData, MNG_INVALIDFILTER)
+    MNG_ERROR (pData, MNG_INVALIDFILTER);
 #endif
 
   pData->iImagelevel++;                /* one level deeper */
@@ -3607,7 +3609,7 @@ MNG_F_SPECIALFUNC (mng_debunk_past)
   mng_past_sourcep pSource;
                                        /* check the length */
   if ((iRawlen < 41) || (((iRawlen - 11) % 30) != 0))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   pPAST->iDestid     = mng_get_uint16 (pRawdata);
   pPAST->iTargettype = *(pRawdata+2);
@@ -3618,7 +3620,7 @@ MNG_F_SPECIALFUNC (mng_debunk_past)
 
   pRawdata += 11;
                                        /* get a buffer for all the source blocks */
-  MNG_ALLOC (pData, pPAST->pSources, iSize)
+  MNG_ALLOC (pData, pPAST->pSources, iSize);
 
   pSource = (mng_past_sourcep)(pPAST->pSources);
 
@@ -3669,13 +3671,13 @@ MNG_F_SPECIALFUNC (mng_disc_entries)
   mng_uint8p  pRawdata = *ppRawdata;
 
   if ((iRawlen % 2) != 0)              /* check the length */
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   pDISC->iCount = (iRawlen / sizeof (mng_uint16));
 
   if (pDISC->iCount)
   {
-    MNG_ALLOC (pData, pDISC->pObjectids, iRawlen)
+    MNG_ALLOC (pData, pDISC->pObjectids, iRawlen);
 
 #ifndef MNG_BIGENDIAN_SUPPORTED
     {
@@ -3690,7 +3692,7 @@ MNG_F_SPECIALFUNC (mng_disc_entries)
       }
     }
 #else
-    MNG_COPY (pDISC->pObjectids, pRawdata, iRawlen)
+    MNG_COPY (pDISC->pObjectids, pRawdata, iRawlen);
 #endif /* !MNG_BIGENDIAN_SUPPORTED */
   }
 
@@ -3746,7 +3748,7 @@ MNG_F_SPECIALFUNC (mng_fram_remainder)
   mng_uint32 iRequired = 0;
 
   if (iRawlen < 4)                     /* must have at least 4 bytes */
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   iRequired = 4;                       /* calculate and check required remaining length */
 
@@ -3762,12 +3764,12 @@ MNG_F_SPECIALFUNC (mng_fram_remainder)
   if (pFRAM->iChangesyncid)
   {
     if ((iRawlen - iRequired) % 4 != 0)
-      MNG_ERROR (pData, MNG_INVALIDLENGTH)
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
   }
   else
   {
     if (iRawlen != iRequired)
-      MNG_ERROR (pData, MNG_INVALIDLENGTH)
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
   }
 
   pRawdata += 4;
@@ -3814,7 +3816,7 @@ MNG_F_SPECIALFUNC (mng_fram_remainder)
         }
       }
 #else
-      MNG_COPY (pFRAM->pSyncids, pRawdata, pFRAM->iCount * 4)
+      MNG_COPY (pFRAM->pSyncids, pRawdata, pFRAM->iCount * 4);
 #endif /* !MNG_BIGENDIAN_SUPPORTED */
     }
   }
@@ -3924,7 +3926,7 @@ MNG_C_SPECIALFUNC (mng_special_term)
   {
     pData->bMisplacedTERM = MNG_TRUE;  /* indicate we found a misplaced TERM */
                                        /* and send a warning signal!!! */
-    MNG_WARNING (pData, MNG_SEQUENCEERROR)
+    MNG_WARNING (pData, MNG_SEQUENCEERROR);
   }
 
   pData->bHasTERM = MNG_TRUE;
@@ -3935,7 +3937,7 @@ MNG_C_SPECIALFUNC (mng_special_term)
                               ((mng_termp)pChunk)->iIteraction,
                               ((mng_termp)pChunk)->iDelay,
                               ((mng_termp)pChunk)->iItermax))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create the TERM ani-object */
@@ -3985,7 +3987,7 @@ MNG_F_SPECIALFUNC (mng_save_entries)
 
     if (iX)                        /* second run ? */
     {
-      MNG_ALLOC (pData, pEntry, (iCount * sizeof (mng_save_entry)))
+      MNG_ALLOC (pData, pEntry, (iCount * sizeof (mng_save_entry)));
 
       pSAVE->iCount   = iCount;
       pSAVE->pEntries = pEntry;
@@ -4071,7 +4073,7 @@ MNG_F_SPECIALFUNC (mng_save_entries)
         iLen     -= iNamesize;
 
         if (!iLen)                 /* must not end with a null ! */
-          MNG_ERROR (pData, MNG_ENDWITHNULL)
+          MNG_ERROR (pData, MNG_ENDWITHNULL);
       }
 
       if (!pEntry)
@@ -4091,8 +4093,8 @@ MNG_F_SPECIALFUNC (mng_save_entries)
 
         if (iNamesize)
         {
-          MNG_ALLOC (pData, pEntry->zName, iNamesize+1)
-          MNG_COPY (pEntry->zName, pTemp, iNamesize)
+          MNG_ALLOC (pData, pEntry->zName, iNamesize+1);
+          MNG_COPY (pEntry->zName, pTemp, iNamesize);
         }
 
         pEntry++;
@@ -4119,7 +4121,7 @@ MNG_C_SPECIALFUNC (mng_special_save)
   {
     mng_bool bOke = pData->fProcesssave ((mng_handle)pData);
     if (!bOke)
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
 #ifdef MNG_SUPPORT_DISPLAY
@@ -4158,7 +4160,7 @@ MNG_C_SPECIALFUNC (mng_special_seek)
 
   if (pData->fProcessseek)             /* inform the app ? */
     if (!pData->fProcessseek ((mng_handle)pData, ((mng_seekp)pChunk)->zName))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
 
 #ifdef MNG_SUPPORT_DISPLAY
   return mng_process_display_seek (pData);
@@ -4394,7 +4396,7 @@ MNG_C_SPECIALFUNC (mng_special_need)
     bOke = CheckKeyword (pData, pTemp);
 
   if (!bOke)
-    MNG_ERROR (pData, MNG_UNSUPPORTEDNEED)
+    MNG_ERROR (pData, MNG_UNSUPPORTEDNEED);
 
   return MNG_NOERROR;                  /* done */
 }
@@ -4425,9 +4427,9 @@ MNG_C_SPECIALFUNC (mng_special_phyg)
 MNG_C_SPECIALFUNC (mng_special_dhdr)
 {
   if ((((mng_dhdrp)pChunk)->iDeltatype == MNG_DELTATYPE_REPLACE) && (((mng_dhdrp)pChunk)->bHasblockloc))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
   if ((((mng_dhdrp)pChunk)->iDeltatype == MNG_DELTATYPE_NOCHANGE) && (((mng_dhdrp)pChunk)->bHasblocksize))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   pData->bHasDHDR   = MNG_TRUE;        /* inside a DHDR-IEND block now */
   pData->iDeltatype = ((mng_dhdrp)pChunk)->iDeltatype;
@@ -4452,7 +4454,7 @@ MNG_C_SPECIALFUNC (mng_special_prom)
       (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_INDEXED) &&
       (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_GRAYA  ) &&
       (((mng_promp)pChunk)->iColortype != MNG_COLORTYPE_RGBA   )    )
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
 
 #ifdef MNG_NO_16BIT_SUPPORT
   if (((mng_promp)pChunk)->iSampledepth == MNG_BITDEPTH_16 )
@@ -4467,7 +4469,7 @@ MNG_C_SPECIALFUNC (mng_special_prom)
       && (((mng_promp)pChunk)->iSampledepth != MNG_BITDEPTH_16)
 #endif
     )
-    MNG_ERROR (pData, MNG_INVSAMPLEDEPTH)
+    MNG_ERROR (pData, MNG_INVSAMPLEDEPTH);
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
@@ -4514,7 +4516,7 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
   mng_uint8arr  aUsedentries;
                                        /* must be indexed color ! */
   if (pData->iColortype != MNG_COLORTYPE_INDEXED)
-    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE);
 
   for (iY = 255; iY >= 0; iY--)        /* reset arrays */
   {
@@ -4530,13 +4532,13 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
     mng_uint32 iDiff;
 
     if (iRawlen < 2)
-      MNG_ERROR (pData, MNG_INVALIDLENGTH)
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
     iX = (mng_int32)(*pRawdata);      /* get start and end index */
     iM = (mng_int32)(*(pRawdata+1));
 
     if (iM < iX)
-      MNG_ERROR (pData, MNG_INVALIDINDEX)
+      MNG_ERROR (pData, MNG_INVALIDINDEX);
 
     if (iM >= iMax)                    /* determine highest used index */
       iMax = iM + 1;
@@ -4553,7 +4555,7 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
       iDiff = iDiff * 4;
 
     if (iRawlen < iDiff)
-      MNG_ERROR (pData, MNG_INVALIDLENGTH)
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
     if ((iDeltatype == MNG_DELTATYPE_REPLACERGB  ) ||
         (iDeltatype == MNG_DELTATYPE_DELTARGB    )    )
@@ -4602,17 +4604,17 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
   {
     case MNG_BITDEPTH_1 : {
                             if (iMax > 2)
-                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX);
                             break;
                           }
     case MNG_BITDEPTH_2 : {
                             if (iMax > 4)
-                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX);
                             break;
                           }
     case MNG_BITDEPTH_4 : {
                             if (iMax > 16)
-                              MNG_ERROR (pData, MNG_INVALIDINDEX)
+                              MNG_ERROR (pData, MNG_INVALIDINDEX);
                             break;
                           }
   }
@@ -4681,9 +4683,9 @@ MNG_F_SPECIALFUNC (mng_drop_entries)
   mng_uint32p pEntry;
                                        /* check length */
   if ((iRawlen < 4) || ((iRawlen % 4) != 0))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
-  MNG_ALLOC (pData, pEntry, iRawlen)
+  MNG_ALLOC (pData, pEntry, iRawlen);
   pDROP->iCount      = iRawlen / 4;
   pDROP->pChunknames = (mng_ptr)pEntry;
 
@@ -4752,9 +4754,9 @@ MNG_F_SPECIALFUNC (mng_ordr_entries)
   mng_ordr_entryp pEntry;
                                        /* check length */
   if ((iRawlen < 5) || ((iRawlen % 5) != 0))
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
-  MNG_ALLOC (pData, pEntry, iRawlen)
+  MNG_ALLOC (pData, pEntry, iRawlen);
   pORDR->iCount   = iRawlen / 5;
   pORDR->pEntries = (mng_ptr)pEntry;
 
@@ -4805,7 +4807,7 @@ MNG_F_SPECIALFUNC (mng_debunk_magn)
   mng_bool   bFaulty;
                                        /* check length */
   if (iRawlen > 20)
-    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
   /* following is an ugly hack to allow faulty layout caused by previous
      versions of libmng and MNGeye, which wrote MAGN with a 16-bit
@@ -4932,7 +4934,7 @@ MNG_F_SPECIALFUNC (mng_debunk_magn)
   }
                                        /* check field validity */
   if ((pMAGN->iMethodX > 5) || (pMAGN->iMethodY > 5))
-    MNG_ERROR (pData, MNG_INVALIDMETHOD)
+    MNG_ERROR (pData, MNG_INVALIDMETHOD);
 
   *piRawlen = 0;
 
@@ -4985,7 +4987,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
 
     if (iX)                            /* second run ? */
     {
-      MNG_ALLOC (pData, pEntry, (iCount * sizeof (mng_evnt_entry)))
+      MNG_ALLOC (pData, pEntry, (iCount * sizeof (mng_evnt_entry)));
       pEVNT->iCount   = iCount;
       pEVNT->pEntries = pEntry;
     }
@@ -4993,7 +4995,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
     while (iRawlen)                    /* anything left ? */
     {
       if (iRawlen < 2)                 /* must have at least 2 bytes ! */
-        MNG_ERROR (pData, MNG_INVALIDLENGTH)
+        MNG_ERROR (pData, MNG_INVALIDLENGTH);
 
       iEventtype = *pRawdata;          /* eventtype */
       if (iEventtype > 5)
@@ -5029,7 +5031,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
               iRawlen -= 16;
             }
             else
-              MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              MNG_ERROR (pData, MNG_INVALIDLENGTH);
             break;
           }
         case 2 :
@@ -5041,7 +5043,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
               iRawlen -= 2;
             }
             else
-              MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              MNG_ERROR (pData, MNG_INVALIDLENGTH);
             break;
           }
         case 3 :
@@ -5054,7 +5056,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
               iRawlen -= 3;
             }
             else
-              MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              MNG_ERROR (pData, MNG_INVALIDLENGTH);
             break;
           }
         case 4 :
@@ -5070,7 +5072,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
               iRawlen -= 18;
             }
             else
-              MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              MNG_ERROR (pData, MNG_INVALIDLENGTH);
             break;
           }
         case 5 :
@@ -5087,7 +5089,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
               iRawlen -= 19;
             }
             else
-              MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              MNG_ERROR (pData, MNG_INVALIDLENGTH);
             break;
           }
       }
@@ -5107,7 +5109,7 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
         iRawlen   = iRawlen - iNamesize - 1;
 
         if (!iRawlen)                  /* must not end with a null ! */
-          MNG_ERROR (pData, MNG_ENDWITHNULL)
+          MNG_ERROR (pData, MNG_ENDWITHNULL);
       }
 
       if (!iX)
@@ -5128,8 +5130,8 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
 
         if (iNamesize)
         {
-          MNG_ALLOC (pData, pEntry->zSegmentname, iNamesize+1)
-          MNG_COPY (pEntry->zSegmentname, pRawdata, iNamesize)
+          MNG_ALLOC (pData, pEntry->zSegmentname, iNamesize+1);
+          MNG_COPY (pEntry->zSegmentname, pRawdata, iNamesize);
         }
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_SUPPORT_DYNAMICMNG)
@@ -5179,7 +5181,7 @@ MNG_C_SPECIALFUNC (mng_special_unknown)
     && (pData->iChunkname != MNG_UINT_ORDR)
 #endif
       )
-    MNG_ERROR (pData, MNG_UNKNOWNCRITICAL)
+    MNG_ERROR (pData, MNG_UNKNOWNCRITICAL);
 
   if (pData->fProcessunknown)          /* let the app handle it ? */
   {
@@ -5187,7 +5189,7 @@ MNG_C_SPECIALFUNC (mng_special_unknown)
                                             ((mng_unknown_chunkp)pChunk)->iDatasize,
                                             ((mng_unknown_chunkp)pChunk)->pData);
     if (!bOke)
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+      MNG_ERROR (pData, MNG_APPMISCERROR);
   }
 
   return MNG_NOERROR;                  /* done */
