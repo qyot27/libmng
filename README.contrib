@@ -87,3 +87,9 @@ Winfried contributed this MNG player for X-based systems.
 
 ----------------------------------------------------------------------
 
+makemng - A delta-MNG creation utility for MSVC - by Alex Volkov
+
+Alex sent me this nice utility that will allow you to create highly
+optmized MNGs using the delta-PNG capabilities of MNG.
+
+----------------------------------------------------------------------
