@@ -13,6 +13,7 @@ bugfixes:
 - fixed problem with PAST usage where source > dest
 
 core:
+- added missing get-/put-chunk-jdaa
 
 samples:
 
