@@ -1,5 +1,41 @@
 -----------------------------------------------------------
 
+1.0.6-beta1 (... ... 2003)
+--------------------------
+
+in short:
+
+(CVS)
+
+-------------------
+
+bugfixes:
+
+core:
+- added support for reducing the footprint of libmng by macros that optionally
+  skip unused chunks, remove 16-bit sample support, remove Delta support, and
+  remove JNG support, to accomodate Mozilla/Firebird.
+- further optional removal of unused functions
+- added MNG_NO_SUPPORT_FUNCQUERY conditional
+- added iPNGdepth member to pData structure
+- added conditionals around MAGN chunk support
+- added conditionals around non-VLC chunk support
+- added conditionals around "mng_display_go*" and other unused functions
+- added more conditionals around "promote" functions
+- removed email references as appropriate
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.6-alpha1 (aug 2nd 2003)
 ---------------------------
 
@@ -47,7 +83,7 @@ samples:
 
 contrib:
 - updated xmngview
-= added MSVC project for creating delta-MNGs: makemng (thanks Alex!)
+- added MSVC project for creating delta-MNGs: makemng (thanks Alex!)
 - added MSVC lib-file for use with the standard libmng.dll (again thanks Alex)
 
 doc:

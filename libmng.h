@@ -9,7 +9,8 @@
 /* * For the purposes of this copyright and license, "Contributing Authors" * */
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
-/* *    Gerard Juyn (gerard@libmng.com)                                     * */
+/* *    Gerard Juyn - gerard (@) libmng.com                                 * */
+/* *    Glenn Randers-Pherson -                                             * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
@@ -105,8 +106,6 @@
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : The main application interface. An application should not  * */
 /* *             need access to any of the other modules!                   * */
@@ -399,7 +398,7 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.6-alpha"
+#define MNG_VERSION_TEXT    "1.0.6-beta1"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1

@@ -10,8 +10,6 @@
 /* * purpose   : Error functions (definition)                               * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : Definition of the generic error-codes and functions        * */
 /* *                                                                        * */

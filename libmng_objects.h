@@ -10,8 +10,6 @@
 /* * purpose   : Internal object structures (definition)                    * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : Definition of the internal object structures               * */
 /* *                                                                        * */

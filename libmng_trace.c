@@ -10,8 +10,6 @@
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : implementation of the trace functions                      * */
 /* *                                                                        * */

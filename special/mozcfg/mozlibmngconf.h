@@ -1,3 +1,21 @@
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * project   : libmng                                                     * */
+/* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003         * */
+/* * version   : 1.0.6                                                      * */
+/* *                                                                        * */
+/* * purpose   : special config file for Mozilla                            * */
+/* *                                                                        * */
+/* * author    : G.R-P                                                      * */
+/* *                                                                        * */
+/* * comment   : This is the configurationfile designed to minize footprint * */
+/* *             for the integration with Mozilla.                          * */
+/* *                                                                        * */
+/* * changes   :                                                            * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+
 #ifndef _mozlibmng_conf_h_
 #define _mozlibmng_conf_h_
 
@@ -102,3 +120,8 @@
 #endif
 
 #endif /* _mozlibmng_conf_h */
+
+/* ************************************************************************** */
+/* * end of file                                                            * */
+/* ************************************************************************** */
+

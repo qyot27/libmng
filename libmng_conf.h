@@ -7,8 +7,6 @@
 /* * purpose   : main configuration file                                    * */
 /* *                                                                        * */
 /* * author    : G.Juyn                                                     * */
-/* * web       : http://www.3-t.com                                         * */
-/* * email     : mailto:info@3-t.com                                        * */
 /* *                                                                        * */
 /* * comment   : The configuration file. Change this to include/exclude     * */
 /* *             the options you want or do not want in libmng.             * */
