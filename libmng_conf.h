@@ -223,10 +223,10 @@
 /* according to reliable sources this only works for PowerPC (bigendian mode)
    and 680x0 */
 /* enable LITTLE if you're on an architecture that supports little-endian */
-/* when in doubt leave both off ! (it's a bit slower but it works always) */
+/* when in doubt leave both off !!! */
 
 /* #define MNG_BIGENDIAN_SUPPORTED */
-#define MNG_LITTLEENDIAN_SUPPORTED
+/* #define MNG_LITTLEENDIAN_SUPPORTED */
 
 /* ************************************************************************** */
 /* enable 'version' functions */

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_object_prc.h       copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (definition)                    * */
 /* *                                                                        * */
@@ -58,6 +58,9 @@
 /* *                                                                        * */
 /* *             1.0.7 - 03/24/2004 - G.R-P                                 * */
 /* *             - added more SKIPCHUNK conditionals                        * */
+/* *                                                                        * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_OBJCLEANUP                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -364,6 +367,8 @@ mng_retcode mng_create_ani_disc   (mng_datap      pData,
 mng_retcode mng_free_ani_image    (mng_datap    pData,
                                    mng_objectp  pObject);
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
+
 mng_retcode mng_free_ani_plte     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_trns     (mng_datap    pData,
@@ -378,17 +383,11 @@ mng_retcode mng_free_ani_chrm     (mng_datap    pData,
 mng_retcode mng_free_ani_srgb     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
-#ifndef MNG_SKIPCHUNK_iCCP
-mng_retcode mng_free_ani_iccp     (mng_datap    pData,
-                                   mng_objectp  pObject);
-#endif
 #ifndef MNG_SKIPCHUNK_bKGD
 mng_retcode mng_free_ani_bkgd     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_retcode mng_free_ani_loop     (mng_datap    pData,
-                                   mng_objectp  pObject);
 mng_retcode mng_free_ani_endl     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
@@ -414,10 +413,6 @@ mng_retcode mng_free_ani_term     (mng_datap    pData,
 mng_retcode mng_free_ani_save     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
-#ifndef MNG_SKIPCHUNK_SAVE
-mng_retcode mng_free_ani_seek     (mng_datap    pData,
-                                   mng_objectp  pObject);
-#endif
 #ifndef MNG_NO_DELTA_PNG
 mng_retcode mng_free_ani_dhdr     (mng_datap    pData,
                                    mng_objectp  pObject);
@@ -432,6 +427,22 @@ mng_retcode mng_free_ani_pplt     (mng_datap    pData,
 #endif
 #ifndef MNG_SKIPCHUNK_MAGN
 mng_retcode mng_free_ani_magn     (mng_datap    pData,
+                                   mng_objectp  pObject);
+#endif
+
+#endif /* MNG_OPTIMIZE_OBJCLEANUP */
+
+
+#ifndef MNG_SKIPCHUNK_iCCP
+mng_retcode mng_free_ani_iccp     (mng_datap    pData,
+                                   mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_LOOP
+mng_retcode mng_free_ani_loop     (mng_datap    pData,
+                                   mng_objectp  pObject);
+#endif
+#ifndef MNG_SKIPCHUNK_SAVE
+mng_retcode mng_free_ani_seek     (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
 #ifndef MNG_SKIPCHUNK_PAST

@@ -3891,14 +3891,13 @@ mng_retcode mng_restore_bkgd_backcolor (mng_datap pData)
   // generic way, works on all platforms
   // put the data in memory in the correct order
   {
-    mng_uint8 writeBytes[4] = {
-      (mng_uint8)(pData->iBACKred   >> 8),
-      (mng_uint8)(pData->iBACKgreen >> 8),
-      (mng_uint8)(pData->iBACKblue  >> 8),
-      0xFF
-    };
+    mng_uint8 aBytes[4];
+    aBytes[0] = (mng_uint8)(pData->iBACKred   >> 8);
+    aBytes[1] = (mng_uint8)(pData->iBACKgreen >> 8);
+    aBytes[2] = (mng_uint8)(pData->iBACKblue  >> 8);
+    aBytes[3] = 0xFF;
     // load that data into a register
-    iWrite = *(mng_uint32*) writeBytes;
+    iWrite = *(mng_uint32*) aBytes;
   }
 #endif
                                        /* ok; drop the background-color in there */
@@ -4002,14 +4001,13 @@ mng_retcode mng_restore_bkgd_bkgd (mng_datap pData)
   // generic way, works on all platforms
   // put the data in memory in the correct order
   {
-    mng_uint8 writeBytes[4] = {
-      (mng_uint8)(iRed  ),
-      (mng_uint8)(iGreen),
-      (mng_uint8)(iBlue ),
-      0x00
-    };
+    mng_uint8 aBytes[4];
+    aBytes[0] = (mng_uint8)(iRed);
+    aBytes[1] = (mng_uint8)(iGreen);
+    aBytes[2] = (mng_uint8)(iBlue);
+    aBytes[3] = 0x00;
     // load that data into a register
-    iWrite = *(mng_uint32*) writeBytes;
+    iWrite = *(mng_uint32*) aBytes;
   }
 #endif
                                        /* ok; drop it in there */
@@ -4050,14 +4048,13 @@ mng_retcode mng_restore_bkgd_bgcolor (mng_datap pData)
   // generic way, works on all platforms
   // put the data in memory in the correct order
   {
-    mng_uint8 writeBytes[4] = {
-      (mng_uint8)(pData->iBGred   >> 8),
-      (mng_uint8)(pData->iBGgreen >> 8),
-      (mng_uint8)(pData->iBGblue  >> 8),
-      0x00
-    };
+    mng_uint8 aBytes[4];
+    aBytes[0] = (mng_uint8)(pData->iBGred   >> 8);
+    aBytes[1] = (mng_uint8)(pData->iBGgreen >> 8);
+    aBytes[2] = (mng_uint8)(pData->iBGblue  >> 8);
+    aBytes[3] = 0x00;
     // load that data into a register
-    iWrite = *(mng_uint32*) writeBytes;
+    iWrite = *(mng_uint32*) aBytes;
   }
 #endif
                                        /* ok; drop the background-color in there */

@@ -129,6 +129,8 @@
 /* *                                                                        * */
 /* *             1.0.9 - 10/10/2004 - G.R-P                                 * */
 /* *             - added MNG_NO_1_2_4BIT_SUPPORT support                    * */
+/* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
+/* *             - added conditional MNG_OPTIMIZE_OBJCLEANUP                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -194,6 +196,37 @@ mng_retcode mng_drop_invalid_objects (mng_datap pData)
 }
 
 /* ************************************************************************** */
+
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+mng_retcode MNG_LOCAL create_obj_general (mng_datap          pData,
+                                          mng_size_t         iObjsize,
+                                          mng_cleanupobject  fCleanup,
+                                          mng_processobject  fProcess,
+                                          mng_object_headerp *ppObject)
+{
+  mng_object_headerp pWork;
+
+  MNG_ALLOC (pData, pWork, iObjsize)
+
+  pWork->fCleanup = fCleanup;
+  pWork->fProcess = fProcess;
+  pWork->iObjsize = iObjsize;
+  *ppObject       = pWork;
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_free_obj_general  (mng_datap   pData,
+                                   mng_objectp pObject)
+{
+  MNG_FREEX (pData, pObject, ((mng_object_headerp)pObject)->iObjsize)
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
 /* *                                                                        * */
 /* * Image-data-object routines                                             * */
 /* *                                                                        * */
@@ -220,10 +253,20 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   MNG_TRACE (pData, MNG_FN_CREATE_IMGDATAOBJECT, MNG_LC_START)
 #endif
                                        /* get a buffer */
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+  {
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_imagedata),
+                                               (mng_cleanupobject)mng_free_imagedataobject,
+                                               MNG_NULL, &pImagedata);
+    if (iRetcode)
+      return iRetcode;
+  }
+#else
   MNG_ALLOC (pData, pImagedata, sizeof (mng_imagedata))
                                        /* fill the appropriate fields */
   pImagedata->sHeader.fCleanup   = (mng_cleanupobject)mng_free_imagedataobject;
   pImagedata->sHeader.fProcess   = MNG_NULL;
+#endif
   pImagedata->iRefcount          = 1;
   pImagedata->bFrozen            = MNG_FALSE;
   pImagedata->bConcrete          = bConcrete;
@@ -522,6 +565,9 @@ mng_retcode mng_create_imageobject (mng_datap  pData,
                                        /* fill the appropriate fields */
   pImage->sHeader.fCleanup = (mng_cleanupobject)mng_free_imageobject;
   pImage->sHeader.fProcess = MNG_NULL;
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+  pImage->sHeader.iObjsize = sizeof (mng_image);
+#endif
   pImage->iId              = iId;
   pImage->bFrozen          = MNG_FALSE;
   pImage->bVisible         = bVisible;
@@ -683,10 +729,20 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   }
 #endif
                                        /* get a buffer */
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+  {
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_image),
+                                               (mng_cleanupobject)mng_free_imageobject,
+                                               MNG_NULL, &pNew);
+    if (iRetcode)
+      return iRetcode;
+  }
+#else
   MNG_ALLOC (pData, pNew, sizeof (mng_image))
                                        /* fill or copy the appropriate fields */
   pNew->sHeader.fCleanup = (mng_cleanupobject)mng_free_imageobject;
   pNew->sHeader.fProcess = MNG_NULL;
+#endif
   pNew->iId              = iId;
   pNew->bFrozen          = MNG_FALSE;
   pNew->bVisible         = bVisible;
@@ -2494,10 +2550,19 @@ mng_retcode mng_create_ani_plte (mng_datap      pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_plte),
+                                               mng_free_obj_general,
+                                               mng_process_ani_plte,
+                                               &pPLTE);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pPLTE, sizeof (mng_ani_plte))
 
     pPLTE->sHeader.fCleanup = mng_free_ani_plte;
     pPLTE->sHeader.fProcess = mng_process_ani_plte;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pPLTE);
 
@@ -2515,6 +2580,7 @@ mng_retcode mng_create_ani_plte (mng_datap      pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_plte (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -2530,6 +2596,7 @@ mng_retcode mng_free_ani_plte (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2569,10 +2636,19 @@ mng_retcode mng_create_ani_trns (mng_datap    pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_trns),
+                                               mng_free_obj_general,
+                                               mng_process_ani_trns,
+                                               &pTRNS);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pTRNS, sizeof (mng_ani_trns))
 
     pTRNS->sHeader.fCleanup = mng_free_ani_trns;
     pTRNS->sHeader.fProcess = mng_process_ani_trns;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pTRNS);
 
@@ -2590,6 +2666,7 @@ mng_retcode mng_create_ani_trns (mng_datap    pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_trns (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -2605,6 +2682,7 @@ mng_retcode mng_free_ani_trns (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2645,10 +2723,19 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_gama),
+                                               mng_free_obj_general,
+                                               mng_process_ani_gama,
+                                               &pGAMA);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pGAMA, sizeof (mng_ani_gama))
 
     pGAMA->sHeader.fCleanup = mng_free_ani_gama;
     pGAMA->sHeader.fProcess = mng_process_ani_gama;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pGAMA);
 
@@ -2665,6 +2752,7 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_gama (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -2680,6 +2768,7 @@ mng_retcode mng_free_ani_gama (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2734,10 +2823,19 @@ mng_retcode mng_create_ani_chrm (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_chrm),
+                                               mng_free_obj_general,
+                                               mng_process_ani_chrm,
+                                               &pCHRM);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pCHRM, sizeof (mng_ani_chrm))
 
     pCHRM->sHeader.fCleanup = mng_free_ani_chrm;
     pCHRM->sHeader.fProcess = mng_process_ani_chrm;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pCHRM);
 
@@ -2761,6 +2859,7 @@ mng_retcode mng_create_ani_chrm (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_chrm (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -2776,6 +2875,7 @@ mng_retcode mng_free_ani_chrm (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2837,10 +2937,19 @@ mng_retcode mng_create_ani_srgb (mng_datap pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_srgb),
+                                               mng_free_obj_general,
+                                               mng_process_ani_srgb,
+                                               &pSRGB);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pSRGB, sizeof (mng_ani_srgb))
 
     pSRGB->sHeader.fCleanup = mng_free_ani_srgb;
     pSRGB->sHeader.fProcess = mng_process_ani_srgb;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pSRGB);
 
@@ -2857,6 +2966,7 @@ mng_retcode mng_create_ani_srgb (mng_datap pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_srgb (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -2872,6 +2982,7 @@ mng_retcode mng_free_ani_srgb (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -2920,10 +3031,19 @@ mng_retcode mng_create_ani_iccp (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_iccp),
+                                               mng_free_ani_iccp,
+                                               mng_process_ani_iccp,
+                                               &pICCP);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pICCP, sizeof (mng_ani_iccp))
 
     pICCP->sHeader.fCleanup = mng_free_ani_iccp;
     pICCP->sHeader.fProcess = mng_process_ani_iccp;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pICCP);
 
@@ -2958,13 +3078,19 @@ mng_retcode mng_free_ani_iccp (mng_datap   pData,
   if (pICCP->iProfilesize)
     MNG_FREEX (pData, pICCP->pProfile, pICCP->iProfilesize)
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pObject, sizeof (mng_ani_iccp))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_ICCP, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 
 /* ************************************************************************** */
@@ -3025,10 +3151,19 @@ mng_retcode mng_create_ani_bkgd (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_bkgd),
+                                               mng_free_obj_general,
+                                               mng_process_ani_bkgd,
+                                               &pBKGD);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pBKGD, sizeof (mng_ani_bkgd))
 
     pBKGD->sHeader.fCleanup = mng_free_ani_bkgd;
     pBKGD->sHeader.fProcess = mng_process_ani_bkgd;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pBKGD);
 
@@ -3046,6 +3181,7 @@ mng_retcode mng_create_ani_bkgd (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_bkgd (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3061,6 +3197,7 @@ mng_retcode mng_free_ani_bkgd (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3107,10 +3244,19 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_loop),
+                                               mng_free_ani_loop,
+                                               mng_process_ani_loop,
+                                               &pLOOP);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pLOOP, sizeof (mng_ani_loop))
 
     pLOOP->sHeader.fCleanup = mng_free_ani_loop;
     pLOOP->sHeader.fProcess = mng_process_ani_loop;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pLOOP);
 
@@ -3157,13 +3303,19 @@ mng_retcode mng_free_ani_loop (mng_datap   pData,
     MNG_FREEX (pData, pLOOP->pSignals, (pLOOP->iCount << 1))
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pObject, sizeof (mng_ani_loop))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 
 /* ************************************************************************** */
@@ -3203,10 +3355,19 @@ mng_retcode mng_create_ani_endl (mng_datap pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_endl),
+                                               mng_free_obj_general,
+                                               mng_process_ani_endl,
+                                               &pENDL);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pENDL, sizeof (mng_ani_endl))
 
     pENDL->sHeader.fCleanup = mng_free_ani_endl;
     pENDL->sHeader.fProcess = mng_process_ani_endl;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pENDL);
 
@@ -3222,6 +3383,7 @@ mng_retcode mng_create_ani_endl (mng_datap pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_endl (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3237,6 +3399,7 @@ mng_retcode mng_free_ani_endl (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3328,10 +3491,19 @@ mng_retcode mng_create_ani_defi (mng_datap pData)
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_defi),
+                                               mng_free_obj_general,
+                                               mng_process_ani_defi,
+                                               &pDEFI);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pDEFI, sizeof (mng_ani_defi))
 
     pDEFI->sHeader.fCleanup = mng_free_ani_defi;
     pDEFI->sHeader.fProcess = mng_process_ani_defi;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pDEFI);
 
@@ -3359,6 +3531,7 @@ mng_retcode mng_create_ani_defi (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_defi (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3374,6 +3547,7 @@ mng_retcode mng_free_ani_defi (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3434,10 +3608,19 @@ mng_retcode mng_create_ani_basi (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_basi),
+                                               mng_free_obj_general,
+                                               mng_process_ani_basi,
+                                               &pBASI);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pBASI, sizeof (mng_ani_basi))
 
     pBASI->sHeader.fCleanup = mng_free_ani_basi;
     pBASI->sHeader.fProcess = mng_process_ani_basi;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pBASI);
 
@@ -3458,6 +3641,7 @@ mng_retcode mng_create_ani_basi (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_basi (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3473,6 +3657,7 @@ mng_retcode mng_free_ani_basi (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3520,10 +3705,19 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_clon),
+                                               mng_free_obj_general,
+                                               mng_process_ani_clon,
+                                               &pCLON);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pCLON, sizeof (mng_ani_clon))
 
     pCLON->sHeader.fCleanup = mng_free_ani_clon;
     pCLON->sHeader.fProcess = mng_process_ani_clon;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pCLON);
 
@@ -3548,6 +3742,7 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_clon (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3563,6 +3758,7 @@ mng_retcode mng_free_ani_clon (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3609,10 +3805,19 @@ mng_retcode mng_create_ani_back (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_back),
+                                               mng_free_obj_general,
+                                               mng_process_ani_back,
+                                               &pBACK);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pBACK, sizeof (mng_ani_back))
 
     pBACK->sHeader.fCleanup = mng_free_ani_back;
     pBACK->sHeader.fProcess = mng_process_ani_back;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pBACK);
 
@@ -3633,6 +3838,7 @@ mng_retcode mng_create_ani_back (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_back (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3648,6 +3854,7 @@ mng_retcode mng_free_ani_back (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3699,10 +3906,19 @@ mng_retcode mng_create_ani_fram (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_fram),
+                                               mng_free_obj_general,
+                                               mng_process_ani_fram,
+                                               &pFRAM);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pFRAM, sizeof (mng_ani_fram))
 
     pFRAM->sHeader.fCleanup = mng_free_ani_fram;
     pFRAM->sHeader.fProcess = mng_process_ani_fram;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pFRAM);
 
@@ -3728,6 +3944,7 @@ mng_retcode mng_create_ani_fram (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_fram (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3743,6 +3960,7 @@ mng_retcode mng_free_ani_fram (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3795,10 +4013,19 @@ mng_retcode mng_create_ani_move (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_move),
+                                               mng_free_obj_general,
+                                               mng_process_ani_move,
+                                               &pMOVE);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pMOVE, sizeof (mng_ani_move))
 
     pMOVE->sHeader.fCleanup = mng_free_ani_move;
     pMOVE->sHeader.fProcess = mng_process_ani_move;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pMOVE);
 
@@ -3818,6 +4045,7 @@ mng_retcode mng_create_ani_move (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_move (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3833,6 +4061,7 @@ mng_retcode mng_free_ani_move (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3877,10 +4106,19 @@ mng_retcode mng_create_ani_clip (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_clip),
+                                               mng_free_obj_general,
+                                               mng_process_ani_clip,
+                                               &pCLIP);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pCLIP, sizeof (mng_ani_clip))
 
     pCLIP->sHeader.fCleanup = mng_free_ani_clip;
     pCLIP->sHeader.fProcess = mng_process_ani_clip;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pCLIP);
 
@@ -3902,6 +4140,7 @@ mng_retcode mng_create_ani_clip (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_clip (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3917,6 +4156,7 @@ mng_retcode mng_free_ani_clip (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -3958,10 +4198,19 @@ mng_retcode mng_create_ani_show (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_show),
+                                               mng_free_obj_general,
+                                               mng_process_ani_show,
+                                               &pSHOW);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pSHOW, sizeof (mng_ani_show))
 
     pSHOW->sHeader.fCleanup = mng_free_ani_show;
     pSHOW->sHeader.fProcess = mng_process_ani_show;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pSHOW);
 
@@ -3979,6 +4228,7 @@ mng_retcode mng_create_ani_show (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_show (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -3994,6 +4244,7 @@ mng_retcode mng_free_ani_show (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4045,10 +4296,19 @@ mng_retcode mng_create_ani_term (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_term),
+                                               mng_free_obj_general,
+                                               mng_process_ani_term,
+                                               &pTERM);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pTERM, sizeof (mng_ani_term))
 
     pTERM->sHeader.fCleanup = mng_free_ani_term;
     pTERM->sHeader.fProcess = mng_process_ani_term;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pTERM);
 
@@ -4067,6 +4327,7 @@ mng_retcode mng_create_ani_term (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_term (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4082,6 +4343,7 @@ mng_retcode mng_free_ani_term (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4115,10 +4377,19 @@ mng_retcode mng_create_ani_save (mng_datap pData)
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_save),
+                                               mng_free_obj_general,
+                                               mng_process_ani_save,
+                                               &pSAVE);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pSAVE, sizeof (mng_ani_save))
 
     pSAVE->sHeader.fCleanup = mng_free_ani_save;
     pSAVE->sHeader.fProcess = mng_process_ani_save;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pSAVE);
   }
@@ -4132,6 +4403,7 @@ mng_retcode mng_create_ani_save (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_save (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4147,6 +4419,7 @@ mng_retcode mng_free_ani_save (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4188,10 +4461,19 @@ mng_retcode mng_create_ani_seek (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_seek),
+                                               mng_free_ani_seek,
+                                               mng_process_ani_seek,
+                                               &pSEEK);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pSEEK, sizeof (mng_ani_seek))
 
     pSEEK->sHeader.fCleanup = mng_free_ani_seek;
     pSEEK->sHeader.fProcess = mng_process_ani_seek;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pSEEK);
 
@@ -4227,13 +4509,19 @@ mng_retcode mng_free_ani_seek (mng_datap   pData,
   if (pSEEK->iSegmentnamesize)
     MNG_FREEX (pData, pSEEK->zSegmentname, pSEEK->iSegmentnamesize + 1)
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pObject, sizeof (mng_ani_seek))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_SEEK, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 
 /* ************************************************************************** */
@@ -4306,10 +4594,19 @@ mng_retcode mng_create_ani_dhdr (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_dhdr),
+                                               mng_free_obj_general,
+                                               mng_process_ani_dhdr,
+                                               &pDHDR);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pDHDR, sizeof (mng_ani_dhdr))
 
     pDHDR->sHeader.fCleanup = mng_free_ani_dhdr;
     pDHDR->sHeader.fProcess = mng_process_ani_dhdr;
+#endif
 
     pDHDR->iObjectid        = iObjectid;
     pDHDR->iImagetype       = iImagetype;
@@ -4331,6 +4628,7 @@ mng_retcode mng_create_ani_dhdr (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_dhdr (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4346,6 +4644,7 @@ mng_retcode mng_free_ani_dhdr (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4393,10 +4692,19 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_prom),
+                                               mng_free_obj_general,
+                                               mng_process_ani_prom,
+                                               &pPROM);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pPROM, sizeof (mng_ani_prom))
 
     pPROM->sHeader.fCleanup = mng_free_ani_prom;
     pPROM->sHeader.fProcess = mng_process_ani_prom;
+#endif
 
     pPROM->iBitdepth        = iBitdepth;
     pPROM->iColortype       = iColortype;
@@ -4414,6 +4722,7 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_prom (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4429,6 +4738,7 @@ mng_retcode mng_free_ani_prom (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4469,10 +4779,19 @@ mng_retcode mng_create_ani_ipng (mng_datap pData)
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ipng),
+                                               mng_free_obj_general,
+                                               mng_process_ani_ipng,
+                                               &pIPNG);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pIPNG, sizeof (mng_ani_ipng))
 
     pIPNG->sHeader.fCleanup = mng_free_ani_ipng;
     pIPNG->sHeader.fProcess = mng_process_ani_ipng;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pIPNG);
   }
@@ -4486,6 +4805,7 @@ mng_retcode mng_create_ani_ipng (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_ipng (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4501,6 +4821,7 @@ mng_retcode mng_free_ani_ipng (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4540,10 +4861,19 @@ mng_retcode mng_create_ani_ijng (mng_datap pData)
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ijng),
+                                               mng_free_obj_general,
+                                               mng_process_ani_ijng,
+                                               &pIJNG);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pIJNG, sizeof (mng_ani_ijng))
 
     pIJNG->sHeader.fCleanup = mng_free_ani_ijng;
     pIJNG->sHeader.fProcess = mng_process_ani_ijng;
+#endif
 
     mng_add_ani_object (pData, (mng_object_headerp)pIJNG);
   }
@@ -4557,6 +4887,7 @@ mng_retcode mng_create_ani_ijng (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_ijng (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4572,6 +4903,7 @@ mng_retcode mng_free_ani_ijng (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4616,10 +4948,19 @@ mng_retcode mng_create_ani_pplt (mng_datap      pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_pplt),
+                                               mng_free_obj_general,
+                                               mng_process_ani_pplt,
+                                               &pPPLT);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pPPLT, sizeof (mng_ani_pplt))
 
     pPPLT->sHeader.fCleanup = mng_free_ani_pplt;
     pPPLT->sHeader.fProcess = mng_process_ani_pplt;
+#endif
 
     pPPLT->iType            = iType;
     pPPLT->iCount           = iCount;
@@ -4640,6 +4981,7 @@ mng_retcode mng_create_ani_pplt (mng_datap      pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_pplt (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4655,6 +4997,7 @@ mng_retcode mng_free_ani_pplt (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4706,10 +5049,19 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_magn),
+                                               mng_free_obj_general,
+                                               mng_process_ani_magn,
+                                               &pMAGN);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pMAGN, sizeof (mng_ani_magn))
 
     pMAGN->sHeader.fCleanup = mng_free_ani_magn;
     pMAGN->sHeader.fProcess = mng_process_ani_magn;
+#endif
 
     pMAGN->iFirstid         = iFirstid;
     pMAGN->iLastid          = iLastid;
@@ -4734,6 +5086,7 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
 mng_retcode mng_free_ani_magn (mng_datap   pData,
                                mng_objectp pObject)
 {
@@ -4749,6 +5102,7 @@ mng_retcode mng_free_ani_magn (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4797,10 +5151,19 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_past),
+                                               mng_free_ani_past,
+                                               mng_process_ani_past,
+                                               &pPAST);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pPAST, sizeof (mng_ani_past))
 
     pPAST->sHeader.fCleanup = mng_free_ani_past;
     pPAST->sHeader.fProcess = mng_process_ani_past;
+#endif
 
     pPAST->iTargetid        = iTargetid;
     pPAST->iTargettype      = iTargettype;
@@ -4840,13 +5203,19 @@ mng_retcode mng_free_ani_past (mng_datap   pData,
   if (pPAST->iCount)
     MNG_FREEX (pData, pPAST->pSources, (pPAST->iCount * sizeof (mng_past_source)))
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pObject, sizeof (mng_ani_past))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_PAST, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 #endif
 
@@ -4893,10 +5262,19 @@ mng_retcode mng_create_ani_disc (mng_datap   pData,
 
   if (pData->bCacheplayback)           /* caching playback info ? */
   {
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_disc),
+                                               mng_free_ani_disc,
+                                               mng_process_ani_disc,
+                                               &pDISC);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pDISC, sizeof (mng_ani_disc))
 
     pDISC->sHeader.fCleanup = mng_free_ani_disc;
     pDISC->sHeader.fProcess = mng_process_ani_disc;
+#endif
 
     pDISC->iCount           = iCount;
 
@@ -4930,13 +5308,19 @@ mng_retcode mng_free_ani_disc (mng_datap   pData,
   if (pDISC->iCount)
     MNG_FREEX (pData, pDISC->pIds, (pDISC->iCount << 1))
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pObject, sizeof (mng_ani_disc))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_DISC, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 
 /* ************************************************************************** */
@@ -4993,10 +5377,19 @@ mng_retcode mng_create_event (mng_datap  pData,
   {
     mng_object_headerp pLast;
 
+#ifdef MNG_OPTIMIZE_OBJCLEANUP
+    mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_event),
+                                               mng_free_event,
+                                               mng_process_event,
+                                               &pEvent);
+    if (iRetcode)
+      return iRetcode;
+#else
     MNG_ALLOC (pData, pEvent, sizeof (mng_event))
 
     pEvent->sHeader.fCleanup = mng_free_event;
     pEvent->sHeader.fProcess = mng_process_event;
+#endif
 
     pEvent->iEventtype       = iEventtype;
     pEvent->iMasktype        = iMasktype;
@@ -5051,13 +5444,19 @@ mng_retcode mng_free_event (mng_datap   pData,
   if (pEvent->iSegmentnamesize)
     MNG_FREEX (pData, pEvent->zSegmentname, pEvent->iSegmentnamesize + 1)
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   MNG_FREEX (pData, pEvent, sizeof (mng_event))
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_EVENT, MNG_LC_END)
 #endif
 
+#ifndef MNG_OPTIMIZE_OBJCLEANUP
   return MNG_NOERROR;
+#else
+  return mng_free_obj_general(pData, pObject);
+#endif
 }
 
 /* ************************************************************************** */

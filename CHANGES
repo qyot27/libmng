@@ -27,6 +27,7 @@ core:
 - added LITTLEENDIAN/BIGENDIAN fixtures (thanks J.Stiles)
 - inclusion of zlib/lcms/ijgsrc6b with <> instead of ""
 - added conditional MNG_OPTIMIZE_CHUNKINITFREE
+- added conditional MNG_OPTIMIZE_OBJCLEANUP
 
 samples:
 

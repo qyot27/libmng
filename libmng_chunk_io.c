@@ -410,7 +410,7 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 
 /* ************************************************************************** */
 
-#if !defined(MNG_SKIPCHUNK_iCCP) && !defined(MNG_SKIPCHUNK_zTXt) && !defined(MNG_SKIPCHUNK_iTXt)
+#if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || !defined(MNG_SKIPCHUNK_iTXt)
 MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
                                       mng_uint8p pInbuf,
                                       mng_uint32 iInsize,
@@ -486,7 +486,7 @@ MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
 #ifdef MNG_INCLUDE_WRITE_PROCS
 /* ************************************************************************** */
 
-#if !defined(MNG_SKIPCHUNK_iCCP) && !defined(MNG_SKIPCHUNK_zTXt) && !defined(MNG_SKIPCHUNK_iTXt)
+#if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || !defined(MNG_SKIPCHUNK_iTXt)
 MNG_LOCAL mng_retcode deflate_buffer (mng_datap  pData,
                                       mng_uint8p pInbuf,
                                       mng_uint32 iInsize,
