@@ -19,8 +19,10 @@ core:
 samples:
 
 contrib:
+- updated xmngview
 
 doc:
+- updated readme.contrib
 
 makefiles:
 

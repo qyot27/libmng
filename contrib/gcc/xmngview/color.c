@@ -1,3 +1,18 @@
+/*
+ * This code is mainly code I have found in
+ *   ida-0.14  Gerd Knorr <kraxel@bytesex.org>
+ *          http://bytesex.org/ida
+ * Ida is a small and fast image viewer, motif-based.
+ *
+ * Copyright (C) 2002 Gerd Knorr <kraxel@bytesex.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -13,13 +28,6 @@
 #include <X11/extensions/XShm.h>
 
 #include "xmng.h"
-
-/*
- * This code is mainly code I have found in
- *   ida-0.14  Gerd Knorr <kraxel@bytesex.org>
- *  		http://bytesex.org/ida
- * Ida is a small and fast image viewer, motif-based.
-*/
 
 static void (*dither_line)(unsigned char *src, unsigned char *dest, 
 	unsigned int y, unsigned int width);
@@ -71,9 +79,14 @@ static int x11_alloc_grays(Display * dpy, Colormap cmap, unsigned long *colors,
 
     for (i = 0; i < gray; i++) 
    {
+/* FIXME: original code
 	akt_color.red = i * 65535 / upb;
 	akt_color.green = i * 65535 / upb;
 	akt_color.blue = i * 65535 / upb;
+*/
+	akt_color.red = i * 255 / upb;
+	akt_color.green = i * 255 / upb;
+	akt_color.blue = i * 255 / upb;
 
 	if (!XAllocColor(dpy, cmap, &akt_color)) 
   {
@@ -559,20 +572,20 @@ static void dither_line_color(unsigned char *src, unsigned char *dest,
    {
 	dval = ymod[x & DITHER_MASK];
 
-	b = red_dither[*src++];
+	b = red_dither[src[0]];
 	if (dval < b)
 	    b >>= 8;
 
-	a = green_dither[*src++];
+	a = green_dither[src[1]];
 	if (dval < a)
 	    a >>= 8;
 	b += a;
 
-	a = blue_dither[*src++];
+	a = blue_dither[src[2]];
 	if (dval < a)
 	    a >>= 8;
 	b += a;
-
+	src += 3;
 	*dest++ = b & 0xff;
    }
 }
@@ -599,14 +612,16 @@ static void dither_line_gray(unsigned char *src, unsigned char *dest,
    }
 }
 
-void viewer_renderline(image_data *data, char *scanline, unsigned int row, 
-	unsigned int x, unsigned int width) 
+void viewer_renderline(image_data *data, unsigned char *scanline, 
+	unsigned int row, unsigned int x, unsigned int width)
 {
-    unsigned char *src, *dst, *r, *g, *b;
+    unsigned char *src, *dst;
     unsigned long pix;
 	XImage *ximage;
 	unsigned int col, max_col;
+	unsigned short mng_rgb_size;
 
+	mng_rgb_size = data->mng_rgb_size;
 	ximage = data->ximage;
     src = scanline;
 	col = x;
@@ -619,26 +634,21 @@ void viewer_renderline(image_data *data, char *scanline, unsigned int row,
 
 	while(col < max_col)
   {
-    XPutPixel(ximage, col, row, x11_map[*dst++]);
+    XPutPixel(ximage, col, row, x11_map[dst[0]]);
 	++col;
+	++dst;
   }
 	return;
    }
 /* display_type == TRUECOLOR
 */ 
-	r = src;
-	g = src + 1;
-	b = src + 2;
-
     while(col < max_col)
   {
-    pix = x11_lut_red[*r] | x11_lut_green[*g] | x11_lut_blue[*b];
+    pix = x11_lut_red[src[0]] | x11_lut_green[src[1]] | x11_lut_blue[src[2]];
 
     XPutPixel(ximage, col, row, pix);
 
 	++col;
-	r += CANVAS_RGB8_SIZE;
-	g += CANVAS_RGB8_SIZE;
-	b += CANVAS_RGB8_SIZE;
+	src += 3;
   }
 }

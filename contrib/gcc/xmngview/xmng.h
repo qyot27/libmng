@@ -15,6 +15,10 @@
 #define PSEUDOCOLOR 1
 #define TRUECOLOR   2
 
+#define MNG_TYPE 1
+#define JNG_TYPE 2
+#define PNG_TYPE 3
+
 #define SPACE_X	10
 #define SPACE_Y 10
 #define BUT_ENTRY_BORDER 0
@@ -27,6 +31,7 @@ typedef struct
 {
 	mng_handle user_handle;
 	Widget canvas;
+	int type;
     mng_uint32 delay;
     mng_uint32 img_width, img_height;
     mng_uint32 read_len;
@@ -48,6 +53,8 @@ typedef struct
 	int gray;
 	int display_depth, display_type;
 	int have_shmem;
+	Pixel bg_pixel;
+	int user_bg;
 
 	Visual *visual;
 	unsigned int depth;
@@ -72,7 +79,7 @@ extern void Viewer_postlude(void);
 extern XImage *x11_create_ximage(image_data *data);
 extern void x11_destroy_ximage(image_data *data);
 extern void x11_init_color(image_data *data);
-extern void viewer_renderline(image_data *data, char *scanline, 
+extern void viewer_renderline(image_data *data, unsigned char *scanline, 
 	unsigned int row, unsigned int x, unsigned int width);
 
 #endif

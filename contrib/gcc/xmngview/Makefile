@@ -1,14 +1,20 @@
-CFLAGS=-Wall -O2 -march=pentium -mcpu=pentium
-LIBS = -L/usr/X11R6/lib -L/usr/local/lib -lXm -lXt -lX11 -lmng -lm
+PROC=athlon
+CFLAGS=-g -Wall -O2 -march=$(PROC) -mcpu=$(PROC)
+MOTIFLIB=/usr/local/lesstif/lib
+MOTIFINC=/usr/local/lesstif/include
+MNGLIB=-lmng
+LIBS=-L/usr/X11R6/lib -L$(MOTIFLIB) -lXm -lXt -lX11 $(MNGLIB) -lm
+INC=-I/usr/X11R6/include -I$(MOTIFINC)
 CC=gcc
 LDFLAGS=
-PRG=xmngview
+
+all: clean compile
 
 compile:
-	$(CC) $(CFLAGS) color.c xmngplay.c -o $(PRG) $(LIBS)
+	$(CC) $(CFLAGS) $(INC) color.c xmngview.c -o xmngview $(LIBS)
 
 clean:
-	rm -f $(PRG)
+	rm -f xmngview core 
 
 install:
-	cp -a $(PRG)  /usr/local/bin/$(PRG)
+	cp -a xmngview  /usr/local/bin/xmngview
