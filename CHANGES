@@ -20,6 +20,7 @@ core:
 - fixed inclusion of IJNG chunk for non-JNG use (J.S)
 - fixed bug in chunk-storage of SHOW chunk (where from == to)
 - fixed bug in promote_g8_g8 with 16bit support off
+- more optimizations with 16bit support off
 
 samples:
 

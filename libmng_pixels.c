@@ -160,6 +160,10 @@
 /* *             - added more conditionals around 16-bit-supporting code    * */
 /* *             1.0.7 - 03/09/2004 - G.Juyn                                * */
 /* *             - fixed bug in promote_g8_g8 with 16bit support off        * */
+/* *             1.0.7 - 03/09/2004 - G.R-P                                 * */
+/* *             - more optimizations with 16bit support off                * */
+/* *             1.0.7 - 03/10/2004 - G.Juyn                                * */
+/* *             - fixed some warnings for 16bit optimizations              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -347,6 +351,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
+#ifndef MNG_NO_16BIT_SUPPORT
   mng_uint16 iA16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
@@ -354,6 +359,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
 #else
   mng_uint16 iFGg16;
   mng_uint16 iBGg16;
+#endif
 #endif
   mng_uint8  iA8;
 
@@ -521,8 +527,9 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
 #else
@@ -530,6 +537,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -942,8 +950,9 @@ mng_retcode mng_display_argb8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
 #else
@@ -951,6 +960,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif  
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1369,8 +1379,9 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
   mng_uint8p pAlphaline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
 #else
@@ -1378,6 +1389,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1600,6 +1612,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
+#ifndef MNG_NO_16BIT_SUPPORT
   mng_uint16 iA16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
@@ -1607,6 +1620,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
 #else
   mng_uint16 iFGg16;
   mng_uint16 iBGg16;
+#endif
 #endif
   mng_uint8  iA8;
 
@@ -1775,6 +1789,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
+#ifndef MNG_NO_16BIT_SUPPORT
   mng_uint16 iA16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
@@ -1782,6 +1797,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
 #else
   mng_uint16 iFGg16;
   mng_uint16 iBGg16;
+#endif
 #endif
   mng_uint8  iA8;
 
@@ -1955,8 +1971,9 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
 #else
@@ -1964,6 +1981,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2376,8 +2394,9 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
 #ifndef MNG_OPTIMIZE_FOOTPRINT_COMPOSE
   mng_uint16 iFGr16, iFGg16, iFGb16;
 #else
@@ -2385,6 +2404,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
 #endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2801,9 +2821,11 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
+#ifndef MNG_NO_16BIT_SUPPORT
   mng_uint16 iA16;
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
+#endif
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2955,9 +2977,11 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
+#ifndef MNG_NO_16BIT_SUPPORT
   mng_uint16 iA16;
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
+#endif
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3108,11 +3132,13 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3307,11 +3333,13 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
-  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_NO_16BIT_SUPPORT
+  mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
+#endif
   mng_uint8  iCr8, iCg8, iCb8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3411,7 +3439,7 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
                 iBGr16 = (mng_uint16)( (*(pScanline+1)) & 0xF8 );
                 iBGg16 = (mng_uint16)( (*(pScanline+1) << 5)  |  (((*(pScanline  )) & 0xE0) >>3 ) );
                 iBGb16 = (mng_uint16)( (*(pScanline  )) << 3   );
-                
+
 				iBGr16 = (mng_uint16)((mng_uint32)iBGr16 << 8) | iBGr16;
                 iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
                 iBGb16 = (mng_uint16)((mng_uint32)iBGb16 << 8) | iBGb16;
