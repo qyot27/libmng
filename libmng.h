@@ -2618,14 +2618,14 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_POLARITY_ONLY                0       /* DBYK */
 #define MNG_POLARITY_ALLBUT              1
 
-#define MNG_EVENT_NONE                   0       /* EvNT */
+#define MNG_EVENT_NONE                   0       /* evNT */
 #define MNG_EVENT_MOUSEENTER             1
 #define MNG_EVENT_MOUSEMOVE              2
 #define MNG_EVENT_MOUSEEXIT              3
 #define MNG_EVENT_MOUSEDOWN              4
 #define MNG_EVENT_MOUSEUP                5
 
-#define MNG_MASK_NONE                    0       /* EvNT */
+#define MNG_MASK_NONE                    0       /* evNT */
 #define MNG_MASK_BOX                     1
 #define MNG_MASK_OBJECT                  2
 #define MNG_MASK_OBJECTIX                3

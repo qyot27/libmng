@@ -1,12 +1,11 @@
-libmng 1.0.5-b2
+libmng 1.0.5-b3
 ---------------
 
-Second beta of the upcoming 1.0.5 release.
+Third beta of the upcoming 1.0.5 release.
 
-This addresses some minor problems detected during testing. It adds the
-proposed change to the MNG spec as discussed on the "mng-list" recently;
-eg. Adam's option 4.
-And it adds a little function to check at run-time if the lib is a beta or not.
+This fixes a couple of bad booboo's introduced in b2. The new code for
+termination_action=2 for TERM chunk handling worked great in its own, but had
+some undesirable side-effects. All is well again now!
 
 Gerard
 

@@ -1,4 +1,4 @@
-.TH LIBMNG 3 "September 24th, 2002"
+.TH LIBMNG 3 "October 15th, 2002"
 .SH NAME
 libmng \- Multiple-image Network Graphics (MNG) Reference Library 1.0.5
 .SH SYNOPSIS
@@ -30,8 +30,8 @@ INSTALL.README file for instructions on how to install libmng.
 
 Libmng was written to support and promote the MNG specification.
 
-The MNG-1.0 specification should be shortly available at
-<http://www.libpng.org/pub/mng/>.
+The MNG-1.0 specification is available at
+<http://www.libpng.org/pub/mng/spec/>.
 
 Other information about MNG can be found at the MNG home page,
 <http://www.libpng.org/pub/mng/>.
@@ -104,12 +104,12 @@ A very basic function which the library uses to allocate a memory-block
 with the given size. A typical implementation would be:
 
     mng_ptr my_alloc (mng_size_t iLen) {
-      return calloc (1, iSize);
+      return calloc (1, iLen);
     }
 
 Note that the library requires you to zero-out the memory-block!!!
 
-\- void mng_memfree (mng_ptr    pPtr, 
+\- void mng_memfree (mng_ptr    pPtr,
                     mng_size_t iLen)
 
 Counterpart of the previous function. Typically:
@@ -263,7 +263,7 @@ canvas and an optional separate alpha-channel canvas. The latter is
 used only with the MNG_CANVAS_RGB8_A8 canvas-style.
 
 If the getbkgdline() callback is not supplied the library will
-composite full or partially transparent pixels in the image against
+composite fully or partially transparent pixels in the image against
 a specified background color. See mng_set_bgcolor() for more details.
 If a chosen canvas-style includes an alpha-channel, this callback
 is very likely not needed.
@@ -271,7 +271,7 @@ is very likely not needed.
 The application is responsible for returning a pointer to a line of
 pixels, which should be in the exact format as defined by the call
 to mng_set_canvasstyle() and mng_set_bkgdstyle(), without gaps between
-the representation of each pixel.
+the representation of each pixel, unless specified by the canvas-style.
 
 \- mng_bool mng_refresh (mng_handle hHandle,
                         mng_uint32 iX,
@@ -288,7 +288,7 @@ from memory onto the actual output device.
 
 This function should return the number of milliseconds on some internal
 clock. The entire animation timing depends heavily on this function,
-1and the number returned should be as accurate as possible.
+and the number returned should be as accurate as possible.
 
 \- mng_bool mng_settimer (mng_handle hHandle,
                          mng_uint32 iMsecs)
@@ -358,7 +358,7 @@ need not be supplied. Even if you do supply them they will not be used.
 The actual code used is similar to the code discussed in the callback
 section:
 
-      pPtr = calloc (1, iSize);
+      pPtr = calloc (1, iLen);
 
       free (pPtr);
 
@@ -384,7 +384,7 @@ mng_get_userdata() function. This is especially handy in callback functions
 if your program may be handling multiple files at the same time.
 
 The second and third field supply the library with the memory callback
-1function entry-points. These are described in more detail in the callback
+function entry-points. These are described in more detail in the callback
 section and the previous paragraph.
 
 The fourth and last field may be used to supply the library with the
@@ -511,7 +511,7 @@ and return this in the mng_readdata() callback, without disturbing the
 chunk processing routines of the library.
 
 Suspension-mode does require a little extra care in the main logic of the
-1application. The read function may return with MNG_NEEDMOREDATA when the
+application. The read function may return with MNG_NEEDMOREDATA when the
 mng_readdata() callback returns less data then it needs to process the
 next chunk. This indicates the application to wait for more data to arrive
 and then resume processing by calling mng_read_resume().
@@ -520,7 +520,7 @@ and then resume processing by calling mng_read_resume().
 .SS The read HLAPI
 
 The actual reading is just plain simple. Since all I/O is done
-1outside the library through the callbacks, the library can focus on
+outside the library through the callbacks, the library can focus on
 its real task. Understanding, checking and labelling the input data!
 
 All you really need to do is this:
@@ -1086,7 +1086,7 @@ and this library, the specification takes precedence.
 
 .SH AUTHORS
 This man page: Gerard Juyn
-<gerard@libmng.com>
+<gerard at libmng.com>
 
 The contributing authors would like to thank all those who helped
 with testing, bug fixes, and patience.  This wouldn't have been
@@ -1095,13 +1095,12 @@ possible without all of you!!!
 
 .SH COPYRIGHT NOTICE:
 
-Copyright (c) 2000 Gerard Juyn
+Copyright (c) 2000-2002 Gerard Juyn
 
 For the purposes of this copyright and license, "Contributing Authors"
 is defined as the following set of individuals:
 
    Gerard Juyn
-   Tim Rowley
 
 The MNG Library is supplied "AS IS".  The Contributing Authors
 disclaim all warranties, expressed or implied, including, without

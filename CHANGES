@@ -1,11 +1,13 @@
 -----------------------------------------------------------
 
-1.0.5-b3 (oct ..th 2002)
+1.0.5-b3 (oct 15th 2002)
 ------------------------
 
 in short:
 
-CVS
+Fairly quick after beta2, since that introduced a couple of unfortunate
+booboo's and wasn't very workable. It also changes the standard configure
+script to build a standard shared object similar to what I intended.
 
 -------------------
 
@@ -21,6 +23,7 @@ samples:
 contrib:
 
 doc:
+- small cosmetic changes in man/libmng.3
 
 makefiles:
 
