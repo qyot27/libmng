@@ -43,6 +43,8 @@
 /* *             - fixed pointer confusion (contributed by Tim Rowley)      * */
 /* *             0.5.2 - 06/03/2000 - G.Juyn                                * */
 /* *             - fixed makeup for Linux gcc compile                       * */
+/* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
+/* *             - added support for RGB8_A8 canvasstyle                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -163,6 +165,7 @@ void set_display_routine (mng_datap pData)
     case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_ptr)display_rgb8;    break; }
     case MNG_CANVAS_RGBA8   : { pData->fDisplayrow = (mng_ptr)display_rgba8;   break; }
     case MNG_CANVAS_ARGB8   : { pData->fDisplayrow = (mng_ptr)display_argb8;   break; }
+    case MNG_CANVAS_RGB8_A8 : { pData->fDisplayrow = (mng_ptr)display_rgb8_a8; break; }
     case MNG_CANVAS_BGR8    : { pData->fDisplayrow = (mng_ptr)display_bgr8;    break; }
     case MNG_CANVAS_BGRA8   : { pData->fDisplayrow = (mng_ptr)display_bgra8;   break; }
     case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_ptr)display_abgr8;   break; }

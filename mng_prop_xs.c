@@ -33,6 +33,8 @@
 /* *             - added support for get/set default zlib/IJG parms         * */
 /* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
 /* *             - fixed up punctuation (contribution by Tim Rowley)        * */
+/* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
+/* *             - added support for RGB8_A8 canvasstyle                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -88,6 +90,7 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
     case MNG_CANVAS_RGB8    : break;
     case MNG_CANVAS_RGBA8   : break;
     case MNG_CANVAS_ARGB8   : break;
+    case MNG_CANVAS_RGB8_A8 : break;
     case MNG_CANVAS_BGR8    : break;
     case MNG_CANVAS_BGRA8   : break;
     case MNG_CANVAS_ABGR8   : break;

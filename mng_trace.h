@@ -38,6 +38,8 @@
 /* *             - added tracecodes for delta-image processing              * */
 /* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - added tracecodes for getalphaline callback               * */
+/* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
+/* *             - added tracecode for RGB8_A8 canvasstyle                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -376,6 +378,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_AGRAY16       1121
 #define MNG_FN_DISPLAY_DX15          1122
 #define MNG_FN_DISPLAY_DX16          1123
+#define MNG_FN_DISPLAY_RGB8_A8       1124
 
 /* ************************************************************************** */
 

@@ -31,6 +31,8 @@
 /* *             - added tracestrings for delta-image processing            * */
 /* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
 /* *             - added tracestrings for getalphaline callback             * */
+/* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
+/* *             - added tracestring for RGB8_A8 canvasstyle                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -345,6 +347,7 @@
     {MNG_FN_DISPLAY_AGRAY16,           "display_agray16"},
     {MNG_FN_DISPLAY_DX15,              "display_dx15"},
     {MNG_FN_DISPLAY_DX16,              "display_dx16"},
+    {MNG_FN_DISPLAY_RGB8_A8,           "display_rgb8_a8"},
 
     {MNG_FN_INIT_FULL_CMS,             "init_full_cms"},
     {MNG_FN_CORRECT_FULL_CMS,          "correct_full_cms"},

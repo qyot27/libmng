@@ -21,6 +21,8 @@
 /* *             0.5.2 - 05/22/2000 - G.Juyn                                * */
 /* *             - added some JNG definitions                               * */
 /* *             - added delta-image row-processing routines                * */
+/* *             0.5.2 - 06/05/2000 - G.Juyn                                * */
+/* *             - added support for RGB8_A8 canvasstyle                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -44,6 +46,7 @@
 mng_retcode display_rgb8       (mng_datap pData);
 mng_retcode display_rgba8      (mng_datap pData);
 mng_retcode display_argb8      (mng_datap pData);
+mng_retcode display_rgb8_a8    (mng_datap pData);
 mng_retcode display_bgr8       (mng_datap pData);
 mng_retcode display_bgra8      (mng_datap pData);
 mng_retcode display_abgr8      (mng_datap pData);
