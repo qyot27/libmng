@@ -3133,7 +3133,9 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
 mng_retcode mng_free_ani_loop (mng_datap   pData,
                                mng_objectp pObject)
 {
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
   mng_ani_loopp pLOOP = (mng_ani_loopp)pObject;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ANI_LOOP, MNG_LC_START)

@@ -19,6 +19,7 @@ core:
 - added premultiplied alpha canvas' for RGBA, ARGB, ABGR (thx to John Stiles)
 - fixed inclusion of IJNG chunk for non-JNG use (J.S)
 - fixed bug in chunk-storage of SHOW chunk (where from == to)
+- fixed bug in promote_g8_g8 with 16bit support off
 
 samples:
 

@@ -5657,7 +5657,7 @@ READ_CHUNK (mng_read_jhdr)
     ((mng_jhdrp)*ppChunk)->iImageinterlace   = *(pRawdata+11);
     ((mng_jhdrp)*ppChunk)->iAlphasampledepth = *(pRawdata+12);
 #ifdef MNG_NO_16BIT_SUPPORT
-    if (*pRawdata+12) > 8)
+    if (*(pRawdata+12) > 8)
         ((mng_jhdrp)*ppChunk)->iAlphasampledepth = 8;
 #endif
     ((mng_jhdrp)*ppChunk)->iAlphacompression = *(pRawdata+13);
@@ -8141,9 +8141,11 @@ WRITE_CHUNK (mng_write_loop)
   mng_uint8p  pRawdata;
   mng_uint32  iRawlen;
   mng_retcode iRetcode;
+#ifndef MNG_NO_LOOP_SIGNALS_SUPPORTED
   mng_uint8p  pTemp1;
   mng_uint32p pTemp2;
   mng_uint32  iX;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_WRITE_LOOP, MNG_LC_START)

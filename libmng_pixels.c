@@ -156,6 +156,8 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/09/2004 - G.Juyn                                * */
+/* *             - fixed bug in promote_g8_g8 with 16bit support off        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -9047,6 +9049,7 @@ mng_retcode mng_promote_g8_g8 (mng_datap pData)
   mng_uint8p pSrcline = (mng_uint8p)pData->pPromSrc;
   mng_uint8p pDstline = (mng_uint8p)pData->pPromDst;
   mng_uint32 iX;
+  mng_uint8  iB;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROMOTE_G8_G8, MNG_LC_START)
@@ -9058,7 +9061,10 @@ mng_retcode mng_promote_g8_g8 (mng_datap pData)
   for (iX = 0; iX < pData->iPromWidth; iX++)
 #endif
   {
-    *pDstline = ((mng_bitdepth_8)pData->fPromBitdepth) (*pSrcline);
+    iB = *pSrcline;
+    if (pData->fPromBitdepth)      /* bitdepth promoted ? */
+      iB = ((mng_bitdepth_8)pData->fPromBitdepth) (iB);
+    *pDstline = iB;
 
     pSrcline++;
     pDstline++;
