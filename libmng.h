@@ -247,6 +247,9 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 09/22/2002 - G.Juyn                                * */
 /* *             - added bgrx8 canvas (filler byte)                         * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added check for TERM placement during create/write       * */
+/* *             - added beta version function & constant                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -386,12 +389,13 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.5"
+#define MNG_VERSION_TEXT    "1.0.5-b2"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
 #define MNG_VERSION_RELEASE 5
+#define MNG_VERSION_BETA    MNG_TRUE
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text      (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so        (void);
@@ -399,6 +403,7 @@ MNG_EXT mng_uint8 MNG_DECL mng_version_dll       (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_major     (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_minor     (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_release   (void);
+MNG_EXT mng_bool  MNG_DECL mng_version_beta      (void);
 
 /* use the following call to check wether the version of libmng your app
    is using supports the given function; this is useful in apps that dynamically
@@ -2243,6 +2248,7 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_NOMATCHINGLOOP   (mng_retcode)1069 /* ENDL without matching LOOP  */
 #define MNG_SEEKNOTFOUND     (mng_retcode)1070 /* EvNT points to unknown SEEK */
 #define MNG_OBJNOTABSTRACT   (mng_retcode)1071 /* object must be abstract     */
+#define MNG_TERMSEQERROR     (mng_retcode)1072 /* TERM in wrong place         */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */

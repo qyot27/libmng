@@ -45,6 +45,8 @@
 /* *             - fixed read/write of MAGN chunk                           * */
 /* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
 /* *             - added support for PAST                                   * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added proposed change in handling of TERM- & if-delay    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -90,6 +92,7 @@ mng_retcode mng_process_display_idat  (mng_datap      pData,
 
 mng_retcode mng_process_display_iend  (mng_datap      pData);
 mng_retcode mng_process_display_mend  (mng_datap      pData);
+mng_retcode mng_process_display_mend2 (mng_datap      pData);
 mng_retcode mng_process_display_defi  (mng_datap      pData);
 
 mng_retcode mng_process_display_basi  (mng_datap      pData,

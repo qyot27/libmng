@@ -58,6 +58,8 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 09/23/2002 - G.Juyn                                * */
 /* *             - added in-memory color-correction of abstract images      * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - fixed DISC support                                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -524,6 +526,15 @@ typedef struct {                                 /* PAST object */
            mng_ptr           pSources;
         } mng_ani_past;
 typedef mng_ani_past * mng_ani_pastp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* DISC object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint32        iCount;
+           mng_uint16p       pIds;
+        } mng_ani_disc;
+typedef mng_ani_disc * mng_ani_discp;
 
 /* ************************************************************************** */
 

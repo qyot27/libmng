@@ -49,6 +49,8 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 09/23/2002 - G.Juyn                                * */
 /* *             - added in-memory color-correction of abstract images      * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - fixed DISC support                                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -335,6 +337,10 @@ mng_retcode mng_create_ani_past   (mng_datap      pData,
                                    mng_uint32     iCount,
                                    mng_ptr        pSources);
 
+mng_retcode mng_create_ani_disc   (mng_datap      pData,
+                                   mng_uint32     iCount,
+                                   mng_uint16p    pIds);
+
 /* ************************************************************************** */
 
 mng_retcode mng_free_ani_image    (mng_datap    pData,
@@ -393,6 +399,8 @@ mng_retcode mng_free_ani_pplt     (mng_datap    pData,
 mng_retcode mng_free_ani_magn     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_free_ani_past     (mng_datap    pData,
+                                   mng_objectp  pObject);
+mng_retcode mng_free_ani_disc     (mng_datap    pData,
                                    mng_objectp  pObject);
 
 /* ************************************************************************** */
@@ -453,6 +461,8 @@ mng_retcode mng_process_ani_pplt  (mng_datap    pData,
 mng_retcode mng_process_ani_magn  (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_ani_past  (mng_datap    pData,
+                                   mng_objectp  pObject);
+mng_retcode mng_process_ani_disc  (mng_datap    pData,
                                    mng_objectp  pObject);
 
 /* ************************************************************************** */

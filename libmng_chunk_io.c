@@ -169,6 +169,9 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 10/03/2002 - G.Juyn                                * */
 /* *             - fixed chunk-storage for evNT chunk                       * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - fixed DISC support                                       * */
+/* *             - added another fix for misplaced TERM chunk               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3840,6 +3843,12 @@ READ_CHUNK (mng_read_past)
 
 READ_CHUNK (mng_read_disc)
 {
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  mng_uint32  iCount;
+  mng_uint16p pIds;
+  mng_retcode iRetcode;
+#endif
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DISC, MNG_LC_START)
 #endif
@@ -3857,46 +3866,67 @@ READ_CHUNK (mng_read_disc)
   if ((iRawlen % 2) != 0)              /* check the length */
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-#ifdef MNG_SUPPORT_DISPLAY
-  {                                    /* process it */
-    mng_retcode iRetcode = mng_process_display_disc (pData, (iRawlen / 2),
-                                                     (mng_uint16p)pRawdata);
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  iCount = (iRawlen / sizeof (mng_uint16));
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-
-  }
-#endif /* MNG_SUPPORT_DISPLAY */
-
-#ifdef MNG_STORE_CHUNKS
-  if (pData->bStorechunks)
-  {                                    /* initialize storage */
-    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-                                       /* store the fields */
-    ((mng_discp)*ppChunk)->iCount = iRawlen / 2;
-
-    MNG_ALLOC (pData, ((mng_discp)*ppChunk)->pObjectids, iRawlen)
+  if (iCount)
+  {
+    MNG_ALLOC (pData, pIds, iRawlen)
 
 #ifndef MNG_BIGENDIAN_SUPPORTED
     {
       mng_uint32  iX;
       mng_uint8p  pIn  = pRawdata;
-      mng_uint16p pOut = ((mng_discp)*ppChunk)->pObjectids;
+      mng_uint16p pOut = pIds;
 
-      for (iX = 0; iX < ((mng_discp)*ppChunk)->iCount; iX++)
+      for (iX = 0; iX < iCount; iX++)
       {
         *pOut++ = mng_get_uint16 (pIn);
         pIn += 2;
       }
     }
 #else
-    MNG_COPY (((mng_discp)*ppChunk)->pObjectids, pRawdata, iRawlen)
+    MNG_COPY (pIds, pRawdata, iRawlen)
 #endif /* !MNG_BIGENDIAN_SUPPORTED */
   }
+#endif
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {                                    /* create playback object */
+    iRetcode = mng_create_ani_disc (pData, iCount, pIds);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* now process it */
+    iRetcode = mng_process_display_disc (pData, iCount, pIds);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_STORE_CHUNKS
+  if (pData->bStorechunks)
+  {                                    /* initialize storage */
+    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* store the fields */
+    ((mng_discp)*ppChunk)->iCount = iCount;
+
+    if (iRawlen)
+    {
+      MNG_ALLOC (pData, ((mng_discp)*ppChunk)->pObjectids, iRawlen)
+      MNG_COPY (((mng_discp)*ppChunk)->pObjectids, pIds, iRawlen)
+    }
+  }
 #endif /* MNG_STORE_CHUNKS */
+
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  if (iRawlen)
+    MNG_FREEX (pData, pIds, iRawlen)
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DISC, MNG_LC_END)
@@ -4506,7 +4536,11 @@ READ_CHUNK (mng_read_term)
 
                                        /* should be behind MHDR or SAVE !! */
   if ((!pData->bHasSAVE) && (pData->iChunkseq > 2))
+  {
+    pData->bMisplacedTERM = MNG_TRUE;  /* indicate we found a misplaced TERM */
+                                       /* and send a warning signal!!! */
     MNG_WARNING (pData, MNG_SEQUENCEERROR)
+  }
 
   if (pData->bHasLOOP)                 /* no way, jose! */
     MNG_ERROR (pData, MNG_SEQUENCEERROR)

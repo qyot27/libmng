@@ -98,6 +98,8 @@
 /* *             1.0.5 - 10/05/2002 - G.Juyn                                * */
 /* *             - fixed problem with cloned objects marked as invalid      * */
 /* *             - fixed problem cloning frozen object_buffers              * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - fixed DISC support                                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4480,7 +4482,7 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CREATE_ANI_MAGN, MNG_LC_END)
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_PAST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4530,6 +4532,91 @@ mng_retcode mng_process_ani_past (mng_datap   pData,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_PAST, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode mng_create_ani_disc (mng_datap   pData,
+                                 mng_uint32  iCount,
+                                 mng_uint16p pIds)
+{
+  mng_ani_discp pDISC;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_DISC, MNG_LC_START)
+#endif
+
+  if (pData->bCacheplayback)           /* caching playback info ? */
+  {
+    MNG_ALLOC (pData, pDISC, sizeof (mng_ani_disc))
+
+    pDISC->sHeader.fCleanup = mng_free_ani_disc;
+    pDISC->sHeader.fProcess = mng_process_ani_disc;
+
+    pDISC->iCount           = iCount;
+
+    if (iCount)
+    {
+      MNG_ALLOC (pData, pDISC->pIds, (iCount << 1))
+      MNG_COPY (pDISC->pIds, pIds, (iCount << 1))
+    }
+
+    mng_add_ani_object (pData, (mng_object_headerp)pDISC);
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_DISC, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_free_ani_disc (mng_datap   pData,
+                               mng_objectp pObject)
+{
+  mng_ani_discp pDISC = (mng_ani_discp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_DISC, MNG_LC_START)
+#endif
+
+  if (pDISC->iCount)
+    MNG_FREEX (pData, pDISC->pIds, (pDISC->iCount << 1))
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_disc))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_DISC, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_process_ani_disc (mng_datap   pData,
+                                  mng_objectp pObject)
+{
+  mng_ani_discp pDISC = (mng_ani_discp)pObject;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_DISC, MNG_LC_START)
+#endif
+
+  iRetcode = mng_process_display_disc (pData, pDISC->iCount, pDISC->pIds);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_DISC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

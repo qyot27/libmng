@@ -117,6 +117,9 @@
 /* *             - fixed LOOP iteration=0 special case                      * */
 /* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
 /* *             - finished support for BACK image & tiling                 * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added another fix for misplaced TERM chunk               * */
+/* *             - completed support for condition=2 in TERM chunk          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -447,6 +450,9 @@ typedef struct mng_data_struct {
            mng_bool          bFreezing;          /* indicates app requested a freeze */   
            mng_bool          bResetting;         /* indicates app requested a reset */   
            mng_bool          bNeedrefresh;       /* indicates screen-refresh is needed */
+           mng_bool          bMisplacedTERM;     /* indicates TERM is out of place */
+           mng_bool          bOnlyfirstframe;    /* show first frame after TERM and stop */
+           mng_uint32        iFramesafterTERM;   /* determines frame-count after TERM */          
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */

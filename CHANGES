@@ -1,11 +1,14 @@
 -----------------------------------------------------------
 
-1.0.5-.. (... ..th 2002)
+1.0.5-b2 (oct 9th 2002)
 ------------------------
 
 in short:
 
-cvs only
+Second beta for next 1.0.5 release. This addresses some minor problems
+detected during testing. It adds the proposed change to the MNG spec as
+discussed on the "mng-list" recently; eg. Adam's option 4.
+And it adds a little function to check at run-time if the lib is a beta or not.
 
 -------------------
 
@@ -16,6 +19,12 @@ core:
 - fixed dropping mix of frozen/unfrozen objects
 - fixed problem with cloned objects marked as invalid
 - fixed problem cloning frozen object_buffers
+- fixed DISC support
+- added proposed change in handling of TERM- & interframe-delay
+- added another fix for misplaced TERM chunk
+- added check for TERM placement during create/write
+- completed support for condition=2 in TERM chunk
+- added beta version function & constant
 
 samples:
 

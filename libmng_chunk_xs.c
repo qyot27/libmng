@@ -59,6 +59,8 @@
 /* *             - added HLAPI function to copy chunks                      * */
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added check for TERM placement during create/write       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2232,6 +2234,28 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
 
 /* ************************************************************************** */
 
+MNG_LOCAL mng_bool check_term (mng_datap   pData,
+                               mng_chunkid iChunkname)
+{
+  mng_chunk_headerp pChunk = (mng_chunk_headerp)pData->pLastchunk;
+
+  if (!pChunk)                         /* nothing added yet ? */
+    return MNG_TRUE;
+                                       /* last added chunk is TERM ? */
+  if (pChunk->iChunkname != MNG_UINT_TERM)
+    return MNG_TRUE;
+                                       /* previous to last is MHDR ? */
+  if ((pChunk->pPrev) && (((mng_chunk_headerp)pChunk->pPrev)->iChunkname == MNG_UINT_MHDR))
+    return MNG_TRUE;
+
+  if (iChunkname == MNG_UINT_SEEK)     /* new chunk to be added is SEEK ? */
+    return MNG_TRUE;
+
+  return MNG_FALSE;
+}
+
+/* ************************************************************************** */
+
 mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
                                         mng_uint32 iWidth,
                                         mng_uint32 iHeight,
@@ -2256,6 +2280,9 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_IHDR))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_ihdr (pData, &sChunkheader, &pChunk);
 
@@ -2303,6 +2330,9 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_PLTE))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_plte (pData, &sChunkheader, &pChunk);
 
@@ -2347,6 +2377,9 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_IDAT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_idat (pData, &sChunkheader, &pChunk);
 
@@ -2393,6 +2426,9 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_IEND))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_iend (pData, &sChunkheader, &pChunk);
 
@@ -2449,6 +2485,9 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_tRNS))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_trns (pData, &sChunkheader, &pChunk);
 
@@ -2501,6 +2540,9 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_gAMA))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_gama (pData, &sChunkheader, &pChunk);
 
@@ -2550,6 +2592,9 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_cHRM))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_chrm (pData, &sChunkheader, &pChunk);
 
@@ -2599,6 +2644,9 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_sRGB))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_srgb (pData, &sChunkheader, &pChunk);
 
@@ -2645,6 +2693,9 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_iCCP))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_iccp (pData, &sChunkheader, &pChunk);
 
@@ -2703,6 +2754,9 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_tEXt))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_text (pData, &sChunkheader, &pChunk);
 
@@ -2760,6 +2814,9 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_zTXt))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_ztxt (pData, &sChunkheader, &pChunk);
 
@@ -2823,6 +2880,9 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_iTXt))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_itxt (pData, &sChunkheader, &pChunk);
 
@@ -2898,6 +2958,9 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_bKGD))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_bkgd (pData, &sChunkheader, &pChunk);
 
@@ -2947,6 +3010,9 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_pHYs))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_phys (pData, &sChunkheader, &pChunk);
 
@@ -2992,6 +3058,9 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_sBIT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_sbit (pData, &sChunkheader, &pChunk);
 
@@ -3042,6 +3111,9 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_sPLT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_splt (pData, &sChunkheader, &pChunk);
 
@@ -3100,6 +3172,9 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_hIST))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_hist (pData, &sChunkheader, &pChunk);
 
@@ -3144,6 +3219,9 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_tIME))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
@@ -3195,6 +3273,12 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* must be very first! */
+  if (pData->iFirstchunkadded != 0)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_MHDR))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_mhdr (pData, &sChunkheader, &pChunk);
 
@@ -3240,6 +3324,9 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_MEND))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_mend (pData, &sChunkheader, &pChunk);
 
@@ -3286,6 +3373,9 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_LOOP))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_loop (pData, &sChunkheader, &pChunk);
 
@@ -3332,6 +3422,9 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_ENDL))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_endl (pData, &sChunkheader, &pChunk);
 
@@ -3382,6 +3475,9 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_DEFI))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_defi (pData, &sChunkheader, &pChunk);
 
@@ -3443,6 +3539,9 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_BASI))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_basi (pData, &sChunkheader, &pChunk);
 
@@ -3502,6 +3601,9 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_CLON))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_clon (pData, &sChunkheader, &pChunk);
 
@@ -3554,6 +3656,9 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_PAST))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_past (pData, &sChunkheader, &pChunk);
 
@@ -3664,6 +3769,9 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_DISC))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_disc (pData, &sChunkheader, &pChunk);
 
@@ -3717,6 +3825,9 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_BACK))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_back (pData, &sChunkheader, &pChunk);
 
@@ -3778,6 +3889,9 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_FRAM))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_fram (pData, &sChunkheader, &pChunk);
 
@@ -3850,6 +3964,9 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_MOVE))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_move (pData, &sChunkheader, &pChunk);
 
@@ -3900,6 +4017,9 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_CLIP))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_clip (pData, &sChunkheader, &pChunk);
 
@@ -3949,6 +4069,9 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_SHOW))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_show (pData, &sChunkheader, &pChunk);
 
@@ -4040,6 +4163,9 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_SAVE))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
 
@@ -4147,6 +4273,9 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_SEEK))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_seek (pData, &sChunkheader, &pChunk);
 
@@ -4195,6 +4324,9 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_eXPI))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_expi (pData, &sChunkheader, &pChunk);
 
@@ -4243,6 +4375,9 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_fPRI))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_fpri (pData, &sChunkheader, &pChunk);
 
@@ -4285,6 +4420,9 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_nEED))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_need (pData, &sChunkheader, &pChunk);
 
@@ -4334,6 +4472,9 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_pHYg))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_phyg (pData, &sChunkheader, &pChunk);
 
@@ -4385,6 +4526,9 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_JHDR))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_jhdr (pData, &sChunkheader, &pChunk);
 
@@ -4440,6 +4584,9 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   if ((pData->iFirstchunkadded != MNG_UINT_MHDR) &&
       (pData->iFirstchunkadded != MNG_UINT_JHDR)    )
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_JDAT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_jdat (pData, &sChunkheader, &pChunk);
 
@@ -4490,6 +4637,9 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
   if ((pData->iFirstchunkadded != MNG_UINT_MHDR) &&
       (pData->iFirstchunkadded != MNG_UINT_JHDR)    )
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_JSEP))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_jsep (pData, &sChunkheader, &pChunk);
 
@@ -4536,6 +4686,9 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_DHDR))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_dhdr (pData, &sChunkheader, &pChunk);
 
@@ -4584,6 +4737,9 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_PROM))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_prom (pData, &sChunkheader, &pChunk);
 
@@ -4625,6 +4781,9 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_IPNG))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_ipng (pData, &sChunkheader, &pChunk);
 
@@ -4663,6 +4822,9 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_PPLT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_pplt (pData, &sChunkheader, &pChunk);
 
@@ -4753,6 +4915,9 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_IJNG))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_ijng (pData, &sChunkheader, &pChunk);
 
@@ -4792,6 +4957,9 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_DROP))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_drop (pData, &sChunkheader, &pChunk);
 
@@ -4843,6 +5011,9 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_DBYK))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_dbyk (pData, &sChunkheader, &pChunk);
 
@@ -4891,6 +5062,9 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_ORDR))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_ordr (pData, &sChunkheader, &pChunk);
 
@@ -4987,6 +5161,9 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_MAGN))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_magn (pData, &sChunkheader, &pChunk);
 
@@ -5036,6 +5213,9 @@ mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
                                        /* must have had a MHDR first! */
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, MNG_UINT_evNT))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
 
@@ -5137,7 +5317,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_START)
 #endif
-
+                                                                                    
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
   pData = (mng_datap)hHandle;          /* and make it addressable */
 
@@ -5146,6 +5326,9 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
                                        /* must have had a header first! */
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* prevent misplaced TERM ! */
+  if (!check_term (pData, iChunkname))
+    MNG_ERROR (pData, MNG_TERMSEQERROR)
                                        /* create the chunk */
   iRetcode = mng_init_unknown (pData, &sChunkheader, &pChunk);
 

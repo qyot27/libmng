@@ -67,6 +67,8 @@
 /* *             - warnings are ignored by default now!                     * */
 /* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
 /* *             - added support for PAST                                   * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added check for TERM placement during create/write       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -160,6 +162,7 @@ MNG_LOCAL mng_error_entry const error_table [] =
     {MNG_NOMATCHINGLOOP,   "ENDL without matching LOOP"},
     {MNG_SEEKNOTFOUND,     "evNT points to unknown SEEK"},
     {MNG_OBJNOTABSTRACT,   "Destination object for PAST must be abstract"},
+    {MNG_TERMSEQERROR,     "TERM misplaced during creation of MNG stream"},
 
     {MNG_INVALIDCNVSTYLE,  "Canvas_style is invalid"},
     {MNG_WRONGCHUNK,       "Attempt to access the wrong chunk"},

@@ -1,12 +1,12 @@
-libmng 1.0.5-b1
+libmng 1.0.5-b2
 ---------------
 
-First beta of a large maintenance release!
+Second beta of the upcoming 1.0.5 release.
 
-This completes support of the MNG specification to nearly 100% (PAST, PROM,
-delta-images, BACK image+tile). It adds "dynamic" MNG and a few other neat
-routines as well as fixes several bugs reported through SourceForge or to
-me directly. The standard DLL is now compiled with lcms 1.0.9!
+This addresses some minor problems detected during testing. It adds the
+proposed change to the MNG spec as discussed on the "mng-list" recently;
+eg. Adam's option 4.
+And it adds a little function to check at run-time if the lib is a beta or not.
 
 Gerard
 

@@ -142,6 +142,10 @@
 /* *             - B597134 - libmng pollutes the linker namespace           * */
 /* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
 /* *             - fixed LOOP iteration=0 special case                      * */
+/* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
+/* *             - added another fix for misplaced TERM chunk               * */
+/* *             - completed support for condition=2 in TERM chunk          * */
+/* *             - added beta version function & constant                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -346,6 +350,8 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->bFreezing             = MNG_FALSE;
   pData->bResetting            = MNG_FALSE;
   pData->bNeedrefresh          = MNG_FALSE;
+  pData->bOnlyfirstframe       = MNG_FALSE;
+  pData->iFramesafterTERM      = 0;
 
   pData->iIterations           = 0;
                                        /* start of animation objects! */
@@ -523,6 +529,13 @@ mng_uint8 MNG_DECL mng_version_minor   (void)
 mng_uint8 MNG_DECL mng_version_release (void)
 {
   return MNG_VERSION_RELEASE;
+}
+
+/* ************************************************************************** */
+
+mng_bool MNG_DECL mng_version_beta (void)
+{
+  return MNG_VERSION_BETA;
 }
 
 /* ************************************************************************** */
@@ -848,6 +861,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_trapevent",              1, 0, 5},
     {"mng_updatemngheader",        1, 0, 0},
     {"mng_updatemngsimplicity",    1, 0, 0},
+    {"mng_version_beta",           1, 0, 5},
     {"mng_version_dll",            1, 0, 0},
     {"mng_version_major",          1, 0, 0},
     {"mng_version_minor",          1, 0, 0},
@@ -1289,6 +1303,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bFreezing             = MNG_FALSE;
   pData->bResetting            = MNG_FALSE;
   pData->bNeedrefresh          = MNG_FALSE;
+  pData->bMisplacedTERM        = MNG_FALSE;
+  pData->bOnlyfirstframe       = MNG_FALSE;
+  pData->iFramesafterTERM      = 0;
                                        /* these don't exist yet */
   pData->pCurrentobj           = MNG_NULL;
   pData->pCurraniobj           = MNG_NULL;
