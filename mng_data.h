@@ -44,6 +44,10 @@
 /* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
 /* *             - added parameter for delayed buffer-processing            * */
 /* *                                                                        * */
+/* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
+/* *             - added update-region parms for refresh calback            * */
+/* *             - added Needrefresh parameter                              * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -333,6 +337,7 @@ typedef struct mng_data_struct {
                                                     mng_read_resume! */
            mng_uint8         iSuspendpoint;      /* indicates at which point the flow
                                                     was broken to suspend input-reading */
+           mng_bool          bNeedrefresh;       /* indicates screen-refresh is needed */   
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */
@@ -343,6 +348,11 @@ typedef struct mng_data_struct {
            mng_objectp       pStorebuf;          /* current store object-buffer for row routines */
            mng_objectp       pRetrieveobj;       /* current retrieve object for row routines */
            mng_savedatap     pSavedata;          /* pointer to saved data (after SAVE) */
+
+           mng_uint32        iUpdateleft;        /* update region for refresh */
+           mng_uint32        iUpdateright;
+           mng_uint32        iUpdatetop;
+           mng_uint32        iUpdatebottom;
 
            mng_int8          iPass;              /* current interlacing pass;
                                                     negative value means no interlace */

@@ -50,6 +50,10 @@
 /* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
 /* *             - added initialization of the buffer-suspend parameter     * */
 /* *                                                                        * */
+/* *             0.5.2 - 06/16/2000 - G.Juyn                                * */
+/* *             - added initialization of update-region for refresh        * */
+/* *             - added initialization of Needrefresh parameter            * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -568,6 +572,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iBreakpoint           = 0;
   pData->bSuspended            = MNG_FALSE;
   pData->iSuspendpoint         = 0;
+  pData->bNeedrefresh          = MNG_FALSE;
 
   pData->pCurrentobj           = 0;    /* these don't exist yet */
   pData->pCurraniobj           = 0;
@@ -580,6 +585,11 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->pSavedata             = 0;    /* no saved data ! */
                                        /* TODO: remove in 1.0.0 !!! */
   pData->bEMNGMAhack           = MNG_FALSE;
+
+  pData->iUpdateleft           = 0;    /* no region updated yet */
+  pData->iUpdateright          = 0;
+  pData->iUpdatetop            = 0;
+  pData->iUpdatebottom         = 0;
 
   pData->iPass                 = 0;    /* interlacing stuff and temp buffers */
   pData->iRow                  = 0;

@@ -54,6 +54,8 @@
 /* *             - fixed display of stored JNG images                       * */
 /* *             0.5.3 - 06/13/2000 - G.Juyn                                * */
 /* *             - fixed problem with BASI-IEND as object 0                 * */
+/* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
+/* *             - changed progressive-display processing                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -83,6 +85,42 @@
 
 /* ************************************************************************** */
 /* *                                                                        * */
+/* * Progressive display refresh - does the actual call to refresh and sets * */
+/* * the timer to allow the app to perform the actual refresh to the screen * */
+/* * (eg. process its main message-loop)                                    * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode display_progressive_refresh (mng_datap  pData,
+                                         mng_uint32 iInterval)
+{                                      /* tell the app to refresh */
+  if ((pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
+  {
+    if (!pData->fRefresh (((mng_handle)pData),
+                          pData->iUpdatetop,    pData->iUpdateleft,
+                          pData->iUpdatebottom, pData->iUpdateright))
+      MNG_ERROR (pData, MNG_APPMISCERROR)
+
+    pData->iUpdateleft   = 0;          /* reset update-region */
+    pData->iUpdateright  = 0;
+    pData->iUpdatetop    = 0;
+    pData->iUpdatebottom = 0;
+    pData->bNeedrefresh  = MNG_FALSE;  /* reset refreshneeded indicator */
+
+    if (iInterval)                     /* interval requested ? */
+    {                                  /* setup the timer */
+      if (!pData->fSettimer ((mng_handle)pData, iInterval))
+        MNG_ERROR (pData, MNG_APPTIMERERROR)
+
+      pData->bTimerset = MNG_TRUE;     /* and indicate so */
+    }
+  }
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* *                                                                        * */
 /* * Generic display routines                                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
@@ -94,16 +132,28 @@
 mng_retcode interframe_delay (mng_datap pData)
 {
   mng_uint32 iWaitfor;
-  mng_bool   bOke;
+  mng_uint32 iInterval;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
 #endif
 
+  if (!pData->bRunning)                /* sanity check for frozen status */
+    MNG_WARNING (pData, MNG_IMAGEFROZEN)
+
   if (pData->iFramedelay > 0)          /* let the app refresh first */
-    if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                          pData->iHeight, pData->iWidth))
+  {
+    if (!pData->fRefresh (((mng_handle)pData),
+                          pData->iUpdatetop,    pData->iUpdateleft,
+                          pData->iUpdatebottom, pData->iUpdateright))
       MNG_ERROR (pData, MNG_APPMISCERROR)
+
+    pData->iUpdateleft   = 0;          /* reset update-region */
+    pData->iUpdateright  = 0;
+    pData->iUpdatetop    = 0;
+    pData->iUpdatebottom = 0;
+    pData->bNeedrefresh  = MNG_FALSE;  /* reset refreshneeded indicator */
+  }
                                        /* get current tickcount */
   pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
                                        /* tickcount wrapped around ? */
@@ -122,22 +172,14 @@ mng_retcode interframe_delay (mng_datap pData)
     iWaitfor = pData->iFrametime;
 
   if (pData->iRuntime < iWaitfor)      /* delay necessary ? */
-  {                                    /* then set the timer */
-    bOke = pData->fSettimer ((mng_handle)pData, iWaitfor - pData->iRuntime);
-    pData->bTimerset = MNG_TRUE;       /* and indicate so */
-  }
+    iInterval = iWaitfor - pData->iRuntime;
   else
-  {
-    if (!pData->bRunning)              /* sanity check for frozen status */
-      MNG_WARNING (pData, MNG_IMAGEFROZEN)
-                                       /* just give the app some breathing space */
-    bOke = pData->fSettimer ((mng_handle)pData, 1);
-    pData->bTimerset = MNG_TRUE;       /* and indicate so */
-  }
-
-  if (!bOke)                           /* timer set not oke ? */
+    iInterval = 1;                     /* force app to process messageloop */
+                                       /* set the timer */
+  if (!pData->fSettimer ((mng_handle)pData, iInterval))
     MNG_ERROR (pData, MNG_APPTIMERERROR)
 
+  pData->bTimerset   = MNG_TRUE;       /* and indicate so */
   pData->iFrametime  = iWaitfor;       /* increase frametime in advance */
                                        /* setup for next delay */
   pData->iFramedelay = pData->iNextdelay;
@@ -1428,10 +1470,7 @@ mng_retcode process_display_iend (mng_datap pData)
                                        /* if the image was displayed on the fly, */
                                        /* we'll have to make the app refresh */
     if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
-      if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                            pData->iHeight, pData->iWidth))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
-
+      pData->bNeedrefresh = MNG_TRUE;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1519,9 +1558,7 @@ mng_retcode process_display_mend (mng_datap pData)
   }
 
   if (!pData->pCurraniobj)             /* always let the app refresh at the end ! */
-    if (!pData->fRefresh (((mng_handle)pData), 0, 0,
-                          pData->iHeight, pData->iWidth))
-      MNG_ERROR (pData, MNG_APPMISCERROR)
+    pData->bNeedrefresh = MNG_TRUE;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END)

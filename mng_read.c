@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_read.c                copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -28,6 +28,9 @@
 /* *             - added support for JNG                                    * */
 /* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
 /* *             - fixed up punctuation (contribution by Tim Rowley)        * */
+/* *                                                                        * */
+/* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
+/* *             - changed progressive-display processing                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -222,6 +225,9 @@ mng_retcode read_chunk (mng_datap  pData)
     do                                 /* process it then */
     {
       iRetcode = ((mng_object_headerp)pData->pCurraniobj)->fProcess (pData, pData->pCurraniobj);
+                                       /* refresh needed ? */
+/*      if ((!iRetcode) && (!pData->bTimerset) && (pData->bNeedrefresh))
+        iRetcode = display_progressive_refresh (pData, 1); */
                                        /* can we advance to next object ? */
       if ((!iRetcode) && (!pData->bTimerset) && (pData->pCurraniobj))
       {
@@ -375,6 +381,15 @@ mng_retcode read_chunk (mng_datap  pData)
 #endif
         MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
     }
+  }
+
+                                       /* refresh needed ? */
+  if ((!pData->bTimerset) && (pData->bNeedrefresh))
+  {
+    iRetcode = display_progressive_refresh (pData, 1);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 
 #ifdef MNG_SUPPORT_TRACE

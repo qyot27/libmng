@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_display.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (definition)                            * */
 /* *                                                                        * */
@@ -21,6 +21,9 @@
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - added JNG support stuff                                  * */
 /* *                                                                        * */
+/* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
+/* *             - changed progressive-display processing                   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -33,6 +36,11 @@
 #include "libmng.h"
 #include "mng_data.h"
 
+/* ************************************************************************** */
+
+mng_retcode display_progressive_refresh (mng_datap  pData,
+                                         mng_uint32 iInterval);
+                                         
 /* ************************************************************************** */
 
 mng_retcode display_image (mng_datap  pData,

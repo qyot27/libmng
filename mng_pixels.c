@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_pixels.c              copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -41,6 +41,9 @@
 /* *             - added support for RGB8_A8 canvasstyle                    * */
 /* *             0.5.2 - 06/09/2000 - G.Juyn                                * */
 /* *             - fixed alpha-handling for alpha canvasstyles              * */
+/* *                                                                        * */
+/* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
+/* *             - changed progressive-display processing                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -103,9 +106,57 @@ mng_uint32 const interlace_divider  [7] = { 3, 3, 2, 2, 1, 1, 0 };
 
 /* ************************************************************************** */
 /* *                                                                        * */
+/* * Progressive display check - checks to see if progressive display is    * */
+/* * in order & indicates so                                                * */
+/* *                                                                        * */
+/* * The routine is called after a call to one of the display_xxx routines  * */
+/* * if appropriate                                                         * */
+/* *                                                                        * */
+/* * The refresh is warrented in the read_chunk routine (mng_read.c)        * */
+/* * and only during read&display processing, since there's not much point  * */
+/* * doing it from memory!                                                  * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode display_progressive_check (mng_datap pData)
+{                                      /* approximate the need for progressive display */
+  if (((pData->eImagetype != mng_it_mng) || (pData->iDataheight > 150)) &&
+      (pData->iDestb - pData->iDestt > 50) && (!pData->pCurraniobj))
+  {
+    mng_int32 iC = pData->iRow + pData->iDestt - pData->iSourcet;
+
+    if (iC % 20 == 0)                  /* every 20th line */
+      pData->bNeedrefresh = MNG_TRUE;
+
+  }
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* *                                                                        * */
 /* * Display routines - convert rowdata (which is already color-corrected)  * */
 /* * to the output canvas, respecting the opacity information               * */
 /* *                                                                        * */
+/* ************************************************************************** */
+
+void check_update_region (mng_datap pData)
+{                                      /* check for change in update-region */
+  if ((pData->iDestl < (mng_int32)pData->iUpdateleft) || (pData->iUpdateleft == 0))
+    pData->iUpdateleft   = pData->iDestl;
+
+  if (pData->iDestr > (mng_int32)pData->iUpdateright)
+    pData->iUpdateright  = pData->iDestr;
+
+  if ((pData->iRow < (mng_int32)pData->iUpdatetop) || (pData->iUpdatetop == 0))
+    pData->iUpdatetop    = pData->iRow;
+
+  if (pData->iRow > (mng_int32)pData->iUpdatebottom)
+    pData->iUpdatebottom = pData->iRow;
+
+  return;
+}
+
 /* ************************************************************************** */
 
 mng_retcode display_rgb8 (mng_datap pData)
@@ -234,6 +285,8 @@ mng_retcode display_rgb8 (mng_datap pData)
       }
     }
   }
+
+  check_update_region (pData);
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_END)
@@ -429,6 +482,8 @@ mng_retcode display_rgba8 (mng_datap pData)
     }
   }
 
+  check_update_region (pData);
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_END)
 #endif
@@ -623,6 +678,8 @@ mng_retcode display_argb8 (mng_datap pData)
       }
     }
   }
+
+  check_update_region (pData);
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_END)
@@ -828,6 +885,8 @@ mng_retcode display_rgb8_a8 (mng_datap pData)
     }
   }
 
+  check_update_region (pData);
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8_A8, MNG_LC_END)
 #endif
@@ -964,19 +1023,7 @@ mng_retcode display_bgr8 (mng_datap pData)
     }
   }
 
-  /* TODO: a smoother approximation for progressive intervals;
-     nb. certainly take stream-input-time into consideration */
-
-                                       /* progressive display ? */
-  if (((pData->eImagetype != mng_it_mng) || (pData->iDataheight > 300)) &&
-      (pData->iDestb - pData->iDestt > 100))
-  {
-    mng_int32 iC = pData->iRow + pData->iDestt - pData->iSourcet;
-
-    if (iC % 100 == 0)                 /* every 100th line (???) */
-      if (!pData->fRefresh ((mng_handle)pData, 0, 0, pData->iWidth, pData->iHeight))
-        MNG_ERROR (pData, MNG_APPMISCERROR)
-  }
+  check_update_region (pData);
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_END)
@@ -1172,6 +1219,8 @@ mng_retcode display_bgra8 (mng_datap pData)
     }
   }
 
+  check_update_region (pData);
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_END)
 #endif
@@ -1365,6 +1414,8 @@ mng_retcode display_abgr8 (mng_datap pData)
       }
     }
   }
+
+  check_update_region (pData);
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_END)
@@ -6388,7 +6439,12 @@ mng_retcode display_jpeg_rows (mng_datap pData)
         iRetcode = ((mng_correctrow)pData->fCorrectrow) (pData);
 
       if (!iRetcode)                   /* and display it */
+      {
         iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
+
+        if (!iRetcode)                 /* check progressive display refresh */
+          iRetcode = display_progressive_check (pData);
+      }
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -6461,8 +6517,12 @@ mng_retcode next_jpeg_row (mng_datap pData)
         iRetcode = ((mng_correctrow)pData->fCorrectrow) (pData);
 
       if (!iRetcode)                   /* and display it */
+      {
         iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
+        if (!iRetcode)                 /* check progressive display refresh */
+          iRetcode = display_progressive_check (pData);
+      }  
     }
 
     if (iRetcode)                      /* on error bail out */
