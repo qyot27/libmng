@@ -57,3 +57,10 @@ have been numerous questions about linking libmng with MSVC.
 Well, look no further. Here it is!
 
 ----------------------------------------------------------------------
+
+MSVC libmng project - A MSVC project to build libmng.dll - by Chad Austin
+
+Chad has contributed some project-files that you could use to build
+libmng.dll with MSVC. Please be sure to read the README file included.
+
+----------------------------------------------------------------------
