@@ -15,8 +15,11 @@ if ! test -f acinclude.m4; then
 fi
 aclocal
 
+# build the configure script
+autoconf
+
 # set up libtool
-libtoolize
+libtoolize --force
 
 # copy up our Makefile template and invoke automake
 if ! test -f Makefile.am; then
@@ -25,10 +28,7 @@ if ! test -f Makefile.am; then
 fi
 automake --foreign --add-missing
 
-# build the configure script
-autoconf
-
-# and invoke it
+# and finally invoke our new configure
 ./configure $*
 
 # end

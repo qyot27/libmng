@@ -2,7 +2,11 @@
 
 AUTOMAKE_OPTIONS = 1.3 foreign no-dependencies
 
-# libmng release 0.9.3
+# include the app subdirectories in the distribution
+EXTRA_DIST = makefiles doc contrib Unix bcb delphi
+
+
+# libmng release @VERSION@
 libmng_la_LDFLAGS = -version-info 0:0:0
 
 lib_LTLIBRARIES = libmng.la
@@ -20,3 +24,4 @@ libmng_la_SOURCES = libmng_callback_xs.c libmng_chunk_io.c \
 	libmng_filter.c libmng_hlapi.c libmng_jpeg.c \
 	libmng_object_prc.c libmng_pixels.c libmng_prop_xs.c \
 	libmng_read.c libmng_trace.c libmng_write.c libmng_zlib.c 
+
