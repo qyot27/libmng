@@ -10,7 +10,7 @@
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
 /* *    Gerard Juyn                 - gjuyn :at: users.sourceforge.net      * */
-/* *    Glenn Randers-Pehrson       -                                       * */
+/* *    Glenn Randers-Pehrson       - glennrp :at: users.sourceforge.net    * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
