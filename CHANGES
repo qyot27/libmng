@@ -1,5 +1,34 @@
 -----------------------------------------------------------
 
+1.0.5 (mar 1st 2003)
+-------------------------
+
+in short:
+
+Only a small fix for progressive jpeg suspension problem.
+
+This is the long-awaited final release containing the new 'dynamic MNG' feature
+and bringing MNG compliance to near 100%!
+
+-------------------
+
+bugfixes:
+- B683152 - libjpeg suspension not always honored correctly
+
+core:
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.5-rc3 (jan 20th 2003)
 -------------------------
 
@@ -389,7 +418,7 @@ core:
 - fixed reset_rundata to drop all objects (Thanks again, Gregg!)
 - fixed problem with cms profile being created multiple times when both
   iCCP & cHRM/gAMA are present (And again... Gregg)
-- moved mng_clear_cms to libmng_cms                   
+- moved mng_clear_cms to libmng_cms
 - added "default" sRGB generation (Thanks Marti!)
 
 samples:

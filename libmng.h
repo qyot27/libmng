@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000-2002 Gerard Juyn (gerard@libmng.com)                * */
+/* * Copyright (c) 2000-2003 Gerard Juyn (gerard@libmng.com)                * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
@@ -99,7 +99,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng.h                  copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng.h                  copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
@@ -391,13 +391,13 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.5-rc3"
+#define MNG_VERSION_TEXT    "1.0.5"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
 #define MNG_VERSION_RELEASE 5
-#define MNG_VERSION_BETA    MNG_TRUE
+#define MNG_VERSION_BETA    MNG_FALSE
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text      (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so        (void);

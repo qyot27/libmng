@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_jpeg.c             copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.4                                                      * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : JPEG library interface (implementation)                    * */
 /* *                                                                        * */
@@ -42,6 +42,9 @@
 /* *             1.0.4 - 06/22/2002 - G.Juyn                                * */
 /* *             - B526138 - returned IJGSRC6B calling convention to        * */
 /* *               default for MSVC                                         * */
+/* *                                                                        * */
+/* *             1.0.5 - 24/02/2003 - G.Juyn                                * */
+/* *             - B683152 - libjpeg suspension not always honored correctly* */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -284,6 +287,7 @@ mng_retcode mngjpeg_initialize (mng_datap pData)
   pData->bJPEGhasheader    = MNG_FALSE;
   pData->bJPEGdecostarted  = MNG_FALSE;
   pData->bJPEGscanstarted  = MNG_FALSE;
+  pData->bJPEGscanending   = MNG_FALSE;
 
   pData->bJPEGdecompress2  = MNG_FALSE;
   pData->bJPEGhasheader2   = MNG_FALSE;
@@ -362,6 +366,7 @@ mng_retcode mngjpeg_cleanup (mng_datap pData)
   pData->bJPEGhasheader    = MNG_FALSE;
   pData->bJPEGdecostarted  = MNG_FALSE;
   pData->bJPEGscanstarted  = MNG_FALSE;
+  pData->bJPEGscanending   = MNG_FALSE;
 
   pData->bJPEGdecompress2  = MNG_FALSE;
   pData->bJPEGhasheader2   = MNG_FALSE;
@@ -580,7 +585,8 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
                                        /* process some scanlines ? */
     if ((pData->bJPEGhasheader) && (pData->bJPEGdecostarted) &&
 	    ((!jpeg_input_complete (pData->pJPEGdinfo)) ||
-         (pData->pJPEGdinfo->output_scanline < pData->pJPEGdinfo->output_height)))
+         (pData->pJPEGdinfo->output_scanline < pData->pJPEGdinfo->output_height) ||
+         ((pData->bJPEGprogressive) && (pData->bJPEGscanending))))
     {
       mng_int32 iLines;
 
@@ -590,9 +596,7 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
         JSAMPROW pRow = (JSAMPROW)pData->pJPEGrow;
 
                                        /* init new pass ? */
-        if ((pData->bJPEGprogressive) &&
-            ((!pData->bJPEGscanstarted) ||
-             (pData->pJPEGdinfo->output_scanline >= pData->pJPEGdinfo->output_height)))
+        if ((pData->bJPEGprogressive) && (!pData->bJPEGscanstarted))
         {
           pData->bJPEGscanstarted = MNG_TRUE;
 
@@ -609,31 +613,34 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
         }
 
         /* while (scan lines remain to be read) */
-        do
+        if ((!pData->bJPEGprogressive) || (!pData->bJPEGscanending))
         {
+          do
+          {
           /*   jpeg_read_scanlines(...); */
 #ifdef MNG_SUPPORT_TRACE
-          MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_JPEG_READ_SCANLINES)
+            MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_JPEG_READ_SCANLINES)
 #endif
-          iLines = jpeg_read_scanlines (pData->pJPEGdinfo, (JSAMPARRAY)&pRow, 1);
+            iLines = jpeg_read_scanlines (pData->pJPEGdinfo, (JSAMPARRAY)&pRow, 1);
 
-          pData->pJPEGcurrent   = (mng_uint8p)pData->pJPEGdinfo->src->next_input_byte;
-          pData->iJPEGbufremain = (mng_uint32)pData->pJPEGdinfo->src->bytes_in_buffer;
+            pData->pJPEGcurrent   = (mng_uint8p)pData->pJPEGdinfo->src->next_input_byte;
+            pData->iJPEGbufremain = (mng_uint32)pData->pJPEGdinfo->src->bytes_in_buffer;
 
-          if (iLines > 0)              /* got something ? */
-          {
-            if (pData->fStorerow2)     /* store in object ? */
+            if (iLines > 0)            /* got something ? */
             {
-              iRetcode = ((mng_storerow)pData->fStorerow2) (pData);
+              if (pData->fStorerow2)   /* store in object ? */
+              {
+                iRetcode = ((mng_storerow)pData->fStorerow2) (pData);
 
-              if (iRetcode)            /* on error bail out */
+                if (iRetcode)          /* on error bail out */
                 return iRetcode;
 
+              }
             }
           }
+          while ((pData->pJPEGdinfo->output_scanline < pData->pJPEGdinfo->output_height) &&
+                 (iLines > 0));        /* until end-of-image or not enough input-data */
         }
-        while ((pData->pJPEGdinfo->output_scanline < pData->pJPEGdinfo->output_height) &&
-               (iLines > 0));          /* until end-of-image or not enough input-data */
 
         /* terminate output pass */
         if ((pData->bJPEGprogressive) &&
@@ -642,16 +649,23 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
 #ifdef MNG_SUPPORT_TRACE
           MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_JPEG_FINISH_OUTPUT)
 #endif
-          jpeg_finish_output (pData->pJPEGdinfo);
-                                       /* this scan has ended */
-          pData->bJPEGscanstarted = MNG_FALSE;
+          if (jpeg_finish_output (pData->pJPEGdinfo) != JPEG_SUSPENDED)
+          {                            /* this scan has ended */
+            pData->bJPEGscanstarted = MNG_FALSE;
+            pData->bJPEGscanending  = MNG_FALSE;
+          }
+          else
+          {
+            pData->bJPEGscanending  = MNG_TRUE;
+          }
         }
       }
-      while ((!jpeg_input_complete (pData->pJPEGdinfo)) && (iLines > 0));
+      while ((!jpeg_input_complete (pData->pJPEGdinfo)) &&
+             (iLines > 0) && (!pData->bJPEGscanending));
     }
                                        /* end of image ? */
     if ((pData->bJPEGhasheader) && (pData->bJPEGdecostarted) &&
-        (jpeg_input_complete (pData->pJPEGdinfo)) &&
+        (!pData->bJPEGscanending) && (jpeg_input_complete (pData->pJPEGdinfo)) &&
         (pData->pJPEGdinfo->input_scan_number == pData->pJPEGdinfo->output_scan_number))
     {
       /* jpeg_finish_decompress(...); */
@@ -978,7 +992,8 @@ mng_retcode mngjpeg_decompressdata2 (mng_datap  pData,
 #ifdef MNG_SUPPORT_TRACE
           MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_JPEG_FINISH_OUTPUT)
 #endif
-          jpeg_finish_output (pData->pJPEGdinfo2);
+          if (jpeg_finish_output (pData->pJPEGdinfo2) == JPEG_SUSPENDED)
+            jpeg_finish_output (pData->pJPEGdinfo2);
                                        /* this scan has ended */
           pData->bJPEGscanstarted2 = MNG_FALSE;
         }

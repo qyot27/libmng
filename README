@@ -1,9 +1,10 @@
-libmng 1.0.5-rc3
-----------------
+libmng 1.0.5
+------------
 
-Third release-candidate for the upcoming 1.0.5 version.
+Final release.
 
-Minor bug-fixes.
+This is the long-awaited final release for the new 'dynamic MNG' feature, and
+brings MNG compliance to near 100%.
 
 Gerard
 

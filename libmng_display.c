@@ -2001,7 +2001,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iBACKtile            = pSave->iBACKtile;
 
     pData->iFRAMmode            = pSave->iFRAMmode;
-    pData->iFRAMdelay           = pSave->iFRAMdelay;
+/*    pData->iFRAMdelay           = pSave->iFRAMdelay; */
     pData->iFRAMtimeout         = pSave->iFRAMtimeout;
     pData->bFRAMclipping        = pSave->bFRAMclipping;
     pData->iFRAMclipl           = pSave->iFRAMclipl;
@@ -2018,7 +2018,8 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iFrameclipt          = pSave->iFRAMclipt;
     pData->iFrameclipb          = pSave->iFRAMclipb; */
 
-    pData->iNextdelay           = pSave->iFRAMdelay;
+/*    pData->iNextdelay           = pSave->iFRAMdelay; */
+    pData->iNextdelay           = pData->iFramedelay;
 
     pData->iGlobalPLTEcount     = pSave->iGlobalPLTEcount;
     MNG_COPY (pData->aGlobalPLTEentries, pSave->aGlobalPLTEentries, sizeof (mng_rgbpaltab))
@@ -2074,7 +2075,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     }
 
     pData->iFRAMmode            = 1;
-    pData->iFRAMdelay           = 1;
+/*    pData->iFRAMdelay           = 1; */
     pData->iFRAMtimeout         = 0x7fffffffl;
     pData->bFRAMclipping        = MNG_FALSE;
     pData->iFRAMclipl           = 0;
@@ -2091,7 +2092,8 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
     pData->iFrameclipt          = 0;
     pData->iFrameclipb          = 0; */
 
-    pData->iNextdelay           = 1;
+/*    pData->iNextdelay           = 1; */
+    pData->iNextdelay           = pData->iFramedelay;
 
     pData->iGlobalPLTEcount     = 0;
 

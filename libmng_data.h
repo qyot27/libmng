@@ -125,6 +125,8 @@
 /* *             - fixed display of visible target of PAST operation        * */
 /* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
 /* *             - added support to get totals after mng_read()             * */
+/* *             1.0.5 - 24/02/2003 - G.Juyn                                * */
+/* *             - B683152 - libjpeg suspension not always honored correctly* */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -728,6 +730,7 @@ typedef struct mng_data_struct {
            mng_bool          bJPEGhasheader;     /* indicates "readheader" succeeded (JDAT) */
            mng_bool          bJPEGdecostarted;   /* indicates "decompress" started (JDAT) */
            mng_bool          bJPEGscanstarted;   /* indicates "first scan" started (JDAT) */
+           mng_bool          bJPEGscanending;    /* indicates "finish_output" suspended (JDAT) */
            mng_bool          bJPEGprogressive;   /* indicates a progressive image (JDAT) */
 
            mng_bool          bJPEGdecompress2;   /* indicates "decompress" initialized (JDAA) */
