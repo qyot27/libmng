@@ -23,6 +23,7 @@ core:
 - more optimizations with 16bit support off
 - put conditionals around openstream/closestream callbacks.
 - fixed typo (MNG_SKIPCHUNK_SAVE -> MNG_SKIPCHUNK_nEED)
+- fixed some 64-bit platform compiler warnings
 
 samples:
 

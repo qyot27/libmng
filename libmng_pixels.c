@@ -164,6 +164,8 @@
 /* *             - more optimizations with 16bit support off                * */
 /* *             1.0.7 - 03/10/2004 - G.Juyn                                * */
 /* *             - fixed some warnings for 16bit optimizations              * */
+/* *             1.0.7 - 03/21/2004 - G.Juyn                                * */
+/* *             - fixed some 64-bit platform compiler warnings             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -8248,8 +8250,10 @@ mng_retcode mng_scale_g1_g16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_G1_G16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1);
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1));
+  pWorkrow = pWorkrow + (pData->iRowsamples - 1);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 1);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8341,8 +8345,10 @@ mng_retcode mng_scale_g2_g16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_G2_G16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1);
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1));
+  pWorkrow = pWorkrow + (pData->iRowsamples - 1);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 1);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8406,8 +8412,10 @@ mng_retcode mng_scale_g4_g16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_G4_G16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1);
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1));
+  pWorkrow = pWorkrow + (pData->iRowsamples - 1);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 1);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8443,8 +8451,10 @@ mng_retcode mng_scale_g8_g16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_G8_G16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1);
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1));
+  pWorkrow = pWorkrow + (pData->iRowsamples - 1);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 1);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + pData->iRowsamples - 1); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 1)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8480,8 +8490,10 @@ mng_retcode mng_scale_ga8_ga16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_GA8_GA16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + ((pData->iRowsamples - 1) << 1));
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 2));
+  pWorkrow = pWorkrow + ((pData->iRowsamples - 1) << 1);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 2);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + ((pData->iRowsamples - 1) << 1)); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 2)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8519,8 +8531,10 @@ mng_retcode mng_scale_rgb8_rgb16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_RGB8_RGB16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + 3 * (pData->iRowsamples - 1));
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + 6 * (pData->iRowsamples - 1));
+  pWorkrow = pWorkrow + (3 * (pData->iRowsamples - 1));
+  pOutrow  = pOutrow  + (6 * (pData->iRowsamples - 1));
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + 3 * (pData->iRowsamples - 1)); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + 6 * (pData->iRowsamples - 1)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)
@@ -8560,8 +8574,10 @@ mng_retcode mng_scale_rgba8_rgba16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_SCALE_RGBA8_RGBA16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + ((pData->iRowsamples - 1) << 2));
-  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 3));
+  pWorkrow = pWorkrow + ((pData->iRowsamples - 1) << 2);
+  pOutrow  = pOutrow  + ((pData->iRowsamples - 1) << 3);
+/*  pWorkrow = (mng_uint8p)((mng_uint32)pWorkrow + ((pData->iRowsamples - 1) << 2)); */
+/*  pOutrow  = (mng_uint8p)((mng_uint32)pOutrow  + ((pData->iRowsamples - 1) << 3)); */
 
 #ifdef MNG_DECREMENT_LOOPS
   for (iX = pData->iRowsamples; iX > 0; iX--)

@@ -123,6 +123,8 @@
 /* *             - added conditionals around PAST chunk support             * */
 /* *             1.0.6 - 08/17/2003 - G.R-P                                 * */
 /* *             - added conditionals around MAGN chunk support             * */
+/* *             1.0.7 - 03/21/2004 - G.Juyn                                * */
+/* *             - fixed some 64-bit platform compiler warnings             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1666,8 +1668,10 @@ mng_retcode mng_promote_imageobject (mng_datap  pData,
     while ((!iRetcode) && (iY < iH))
     {
       iRetcode         = ((mng_promoterow)pData->fPromoterow) (pData);
-      pData->pPromSrc  = (mng_ptr)((mng_uint32)pData->pPromSrc + pBuf->iRowsize);
-      pData->pPromDst  = (mng_ptr)((mng_uint32)pData->pPromDst + iNewrowsize);
+      pData->pPromSrc  = (mng_uint8p)pData->pPromSrc + pBuf->iRowsize;
+      pData->pPromDst  = (mng_uint8p)pData->pPromDst + iNewrowsize;
+/*      pData->pPromSrc  = (mng_ptr)((mng_uint32)pData->pPromSrc + pBuf->iRowsize); */
+/*      pData->pPromDst  = (mng_ptr)((mng_uint32)pData->pPromDst + iNewrowsize); */
       iY++;
     }
 
