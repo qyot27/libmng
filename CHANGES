@@ -70,13 +70,11 @@ core:
 - added storage for pixel-/alpha-sampledepth for delta's
 - implemented delayed delta-processing                    
 - fixed putchunk_plte() to set bEmpty parameter (thanks Ben!)            
-- fixed to define MNG_FULL_CMS in case of MNG_INCLUDE_LCMS
 - added errorcode for delayed delta-processing            
 - added get/set for bKGD preference setting                
 - added get function for interlace/progressive display
 - fixed bug in empty PLTE handling
 - fixed seperate read() & display() processing          
-- fixed inclusion of lcms.h for *nix platforms             
 - fixed tRNS processing for gray-image < 8-bits
 
 samples:

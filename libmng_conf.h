@@ -30,8 +30,6 @@
 /* *             - added workaround for faulty PhotoShop iCCP chunk         * */
 /* *             0.9.3 - 09/16/2000 - G.Juyn                                * */
 /* *             - removed trace-options from default SO/DLL builds         * */
-/* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
-/* *             - fixed to define MNG_FULL_CMS in case of MNG_INCLUDE_LCMS * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -125,10 +123,6 @@
 /* MNG_FULL_CMS requires the lcms (little cms) external package ! */
 /* if you want your own app (or the OS) to handle color-management
    select MNG_APP_CMS */
-
-#if defined(MNG_INCLUDE_LCMS) && !defined(MNG_FULL_CMS)
-#define MNG_FULL_CMS
-#endif
 
 #if !defined(MNG_FULL_CMS) && !defined(MNG_GAMMA_ONLY) && !defined(MNG_NO_CMS) && !defined(MNG_APP_CMS)
 #if defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)

@@ -258,8 +258,7 @@
 #endif
 #endif
 
-/* lcms is the only supported CMS implementation */
-#if defined(MNG_FULL_CMS) && !defined(MNG_INCLUDE_LCMS)
+#ifdef MNG_FULL_CMS
 #define MNG_INCLUDE_LCMS
 #endif
 

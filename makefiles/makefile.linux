@@ -50,7 +50,7 @@ RANLIB=ranlib
 
 # current version numbers
 MNGMAJ = 0
-MNGMIN = 0.9.2
+MNGMIN = 0.9.3
 MNGVER = $(MNGMAJ).$(MNGMIN)
 
 INCPATH=$(prefix)/include

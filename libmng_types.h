@@ -83,8 +83,6 @@
 /* *             - added support for nEED                                   * */
 /* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
 /* *             - added callback to process non-critical unknown chunks    * */
-/* *             0.9.3 - 10/28/2000 - G.Juyn                                * */
-/* *             - fixed inclusion of lcms.h for *nix platforms             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -135,11 +133,7 @@
 #ifndef ZLIB_DLL
 #undef FAR
 #endif
-#ifdef WIN32
 #include "lcms.h"
-#else
-#include "lcms/lcms.h"
-#endif
 #endif /* MNG_INCLUDE_LCMS */
 
 #ifdef MNG_INCLUDE_IJG6B               /* IJG's jpgsrc6b */
