@@ -33,6 +33,8 @@
 /* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
 /* *             - defend against using undefined Open/Closestream function * */
+/* *             1.0.8 - 08/02/2004 - G.Juyn                                * */
+/* *             - added conditional to allow easier writing of large MNG's * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -82,6 +84,11 @@ mng_retcode mng_write_graphic (mng_datap pData)
       pData->iWritebufsize = 32768;    /* get a temporary write buffer */
                                        /* reserve 12 bytes for length, chunkname & crc */
       MNG_ALLOC (pData, pData->pWritebuf, pData->iWritebufsize+12)
+
+#ifdef MNG_TWEAK_LARGE_MNG_WRITES
+      if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_MHDR)
+      {
+#endif
                                        /* write the signature */
       if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
         mng_put_uint32 (pData->pWritebuf, PNG_SIG);
@@ -104,6 +111,9 @@ mng_retcode mng_write_graphic (mng_datap pData)
         MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize+12)
         MNG_ERROR (pData, MNG_OUTPUTERROR)
       }
+#ifdef MNG_TWEAK_LARGE_MNG_WRITES
+      }
+#endif
 
       while (pChunk)                   /* so long as there's something to write */
       {                                /* let's call it's output routine */

@@ -74,6 +74,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/01/2004 - G.Juyn                                * */
 /* *             - added missing get-/put-chunk-jdaa                        * */
+/* *             1.0.8 - 08/02/2004 - G.Juyn                                * */
+/* *             - added conditional to allow easier writing of large MNG's * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2576,6 +2578,7 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
 
   mng_add_chunk (pData, pChunk);       /* add it to the list */
 
+#ifndef MNG_TWEAK_LARGE_MNG_WRITES
 #ifdef MNG_INCLUDE_JNG
   if ((pData->iFirstchunkadded == MNG_UINT_IHDR) ||
       (pData->iFirstchunkadded == MNG_UINT_JHDR)    )
@@ -2583,6 +2586,7 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   if (pData->iFirstchunkadded == MNG_UINT_IHDR)
 #endif
     pData->bCreating = MNG_FALSE;      /* should be last chunk !!! */
+#endif /* MNG_TWEAK_LARGE_MNG_WRITES */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_END)

@@ -22,6 +22,7 @@ core:
 - added check for extreme chunk-lengths
 - change worst-case iAlphadepth to 1 for standalone PNGs
 - added support for 3+byte pixelsize for JPEG's
+- added conditional to allow easier writing of large MNG's
 
 samples:
 

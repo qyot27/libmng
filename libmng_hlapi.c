@@ -176,6 +176,8 @@
 /* *             - added data-push mechanisms for specialized decoders      * */
 /* *             1.0.8 - 07/06/2004 - G.R-P                                 * */
 /* *             - defend against using undefined openstream function       * */
+/* *             1.0.8 - 08/02/2004 - G.Juyn                                * */
+/* *             - added conditional to allow easier writing of large MNG's * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -230,6 +232,11 @@ mng_retcode mng_drop_chunks (mng_datap pData)
 
     pChunk = pNext;                    /* neeeext */
   }
+
+#ifdef MNG_TWEAK_LARGE_MNG_WRITES
+  pData->pFirstchunk = MNG_NULL;
+  pData->pLastchunk  = MNG_NULL;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_CHUNKS, MNG_LC_END)
@@ -2104,8 +2111,10 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 #endif
 
+#ifndef MNG_TWEAK_LARGE_MNG_WRITES
   if (pData->bCreating)                /* can't write while it's still being made! */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+#endif
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
