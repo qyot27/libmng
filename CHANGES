@@ -8,6 +8,9 @@ in short:
 Intermediate for the moment.
 
 - fixed bug 111300
+- added workaround for faulty PhotoShop iCCP chunk      
+- added MAGN chunk
+- fixed other assorted stuff
 
 -------------------
 
@@ -15,14 +18,15 @@ bugfixes:
 - B111300 - fixup for improved portability
 
 core:
-- fixed compiler-warnings from Mozilla               
-- added check for simplicity-bits in MHDR                 
-- added workaround for faulty PhotoShop iCCP chunk      
-- fixed app-supplied background restore                   
-- fixed TERM processing delay of 0 msecs            
+- fixed compiler-warnings from Mozilla
+- added check for simplicity-bits in MHDR
+- added workaround for faulty PhotoShop iCCP chunk
+- fixed app-supplied background restore
+- fixed TERM processing delay of 0 msecs
 - fixed write-code for zTXt & iTXt
-- fixed read-code for iTXt                                
-- added MAGN chunk                                        
+- fixed read-code for iTXt
+- added MAGN chunk
+- fixed sRGB precedence for gamma_only corection
 
 samples:
 
