@@ -643,7 +643,6 @@ mng_retcode MNG_DECL mng_set_displaygamma (mng_handle hHandle,
 
 /* ************************************************************************** */
 
-#ifndef MNG_NO_DFLT_INFO
 mng_retcode MNG_DECL mng_set_dfltimggamma (mng_handle hHandle,
                                            mng_float  dGamma)
 {
@@ -660,7 +659,6 @@ mng_retcode MNG_DECL mng_set_dfltimggamma (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-#endif
 
 /* ************************************************************************** */
 

@@ -236,8 +236,8 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SET_VIEWGAMMA,             "set_viewgamma"},
 #ifndef MNG_NO_DFLT_INFO
     {MNG_FN_SET_DISPLAYGAMMA,          "set_displaygamma"},
-    {MNG_FN_SET_DFLTIMGGAMMA,          "set_dfltimggamma"},
 #endif
+    {MNG_FN_SET_DFLTIMGGAMMA,          "set_dfltimggamma"},
     {MNG_FN_SET_SRGB,                  "set_srgb"},
     {MNG_FN_SET_OUTPUTPROFILE,         "set_outputprofile"},
     {MNG_FN_SET_SRGBPROFILE,           "set_srgbprofile"},
