@@ -1,6 +1,38 @@
 -----------------------------------------------------------
 
-1.0.5-rc2 dec 9th 2002)
+1.0.5-rc3 (jan 20th 2003)
+-------------------------
+
+in short:
+
+Third release-candidate for the upcoming 1.0.5 version.
+
+Minor bug-fixes and finalizing the accepted proposal (by official vote) for
+the TERM/frame_delay changes on mng-list (nov-dec/2002).
+
+-------------------
+
+bugfixes:
+- B654627 - fixed SEGV when no gettickcount callback (thanks Adam!)
+- B664383 - fixed typo (thanks Dimitri)
+- B664911 - fixed buffer overflow during init (thanks Alex!)
+
+core:
+- finalized changes in TERM/final_delay to elected proposal (positive vote)
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
+1.0.5-rc2 (dec 9th 2002)
 ------------------------
 
 in short:

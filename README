@@ -1,14 +1,9 @@
-libmng 1.0.5-rc1
+libmng 1.0.5-rc3
 ----------------
 
-Second release-candidate for the upcoming 1.0.5 version.
+Third release-candidate for the upcoming 1.0.5 version.
 
-This contains fixes for a few minor details reported by the loyal testers.
-It fixes some issues with the goframe/golayer/gotime processing and related
-stuff. And it adds a way to disable playback-caching from within the MNG,
-which is very useful for streaming-MNG encoders (such as gserver!).
-
-We should have a final 1.0.5 version pretty soon!
+Minor bug-fixes.
 
 Gerard
 

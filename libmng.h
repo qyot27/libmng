@@ -391,7 +391,7 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.5-rc2"
+#define MNG_VERSION_TEXT    "1.0.5-rc3"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
@@ -430,9 +430,9 @@ MNG_EXT mng_bool  MNG_DECL mng_supports_func     (mng_pchar  zFunction,
 #define MNG_PNG_VERSION_MAJ 1
 #define MNG_PNG_VERSION_MIN 2
 
-#define MNG_MNG_VERSION     "1.0"
+#define MNG_MNG_VERSION     "1.1"
 #define MNG_MNG_VERSION_MAJ 1
-#define MNG_MNG_VERSION_MIN 0
+#define MNG_MNG_VERSION_MIN 1
 #define MNG_MNG_DRAFT       99         /* deprecated;
                                           only used for nEED "MNG DRAFT nn" */
 

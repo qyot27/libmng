@@ -179,7 +179,11 @@
 /* *               interframe_delay)                                        * */
 /* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
 /* *             - fixed layer- & frame-counting during read()              * */
-/* *             - fixed goframe/golayer/gotime processing                 * */
+/* *             - fixed goframe/golayer/gotime processing                  * */
+/* *             1.0.5 - 01/19/2003 - G.Juyn                                * */
+/* *             - B654627 - fixed SEGV when no gettickcount callback       * */
+/* *             - B664383 - fixed typo                                     * */
+/* *             - finalized changes in TERM/final_delay to elected proposal* */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -357,18 +361,25 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
           return MNG_NOERROR;
         }
       }
-                                       /* get current tickcount */
-      pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
+
+      if (pData->fGettickcount)
+      {                                /* get current tickcount */
+        pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
                                        /* calculate interval since last sync-point */
-      if (pData->iRuntime < pData->iSynctime)
-        iRuninterval    = pData->iRuntime + ~pData->iSynctime + 1;
-      else
-        iRuninterval    = pData->iRuntime - pData->iSynctime;
+        if (pData->iRuntime < pData->iSynctime)
+          iRuninterval    = pData->iRuntime + ~pData->iSynctime + 1;
+        else
+          iRuninterval    = pData->iRuntime - pData->iSynctime;
                                        /* calculate actual run-time */
-      if (pData->iRuntime < pData->iStarttime)
-        pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
+        if (pData->iRuntime < pData->iStarttime)
+          pData->iRuntime = pData->iRuntime + ~pData->iStarttime + 1;
+        else
+          pData->iRuntime = pData->iRuntime - pData->iStarttime;
+      }
       else
-        pData->iRuntime = pData->iRuntime - pData->iStarttime;
+      {
+        iRuninterval = 0;
+      }
 
       iWaitfor = calculate_delay (pData, pData->iFramedelay);
 
@@ -2337,7 +2348,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
         ((mng_imagep)pData->pDeltaImage)->pImgbuf->iPixelsampledepth = pData->iBitdepth;
 
       if (!iRetcode)
-      {                                /* process immediatly if bitdepth & colortype are equal */
+      {                                /* process immediately if bitdepth & colortype are equal */
         pData->bDeltaimmediate =
           (mng_bool)((pData->iBitdepth  == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iBitdepth ) &&
                      (pData->iColortype == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iColortype)    );
@@ -2826,6 +2837,10 @@ mng_retcode mng_process_display_iend (mng_datap pData)
 
 /* ************************************************************************** */
 
+/* change in the MNG spec with regards to TERM delay & interframe_delay
+   as proposed by Adam M. Costello (option 4) and finalized by official vote
+   during december 2002 / check the 'mng-list' archives for more details */
+
 mng_retcode mng_process_display_mend (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -2859,13 +2874,6 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                }
 
       case 1 : {                       /* cease displaying anything */
-/* change in the MNG spec with regards to TERM delay & interframe_delay
-   as proposed by Adam M. Costello (option 4)
-   see 'mng-list' archives for more details */
-
-/*                 pData->bFrameclipping = MNG_FALSE;
-                 load_bkgdlayer (pData); */
-
                                        /* max(1, TERM delay, interframe_delay) */
                  if (pTERM->iDelay > pData->iFramedelay)
                    pData->iFramedelay = pTERM->iDelay;
@@ -2881,13 +2889,10 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                    return iRetcode;
 
                  pData->iBreakpoint = 10;
-/* end of change */
                  break;
                }
 
       case 2 : {                       /* show first image after TERM */
-/*                 mng_uint32 iWaitfor; */
-
                  iRetcode = restore_state (pData);
 
                  if (iRetcode)         /* on error bail out */
@@ -2907,12 +2912,6 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                    pData->iFramedelay = pTERM->iDelay;
                  if (!pData->iFramedelay)
                    pData->iFramedelay = 1;
-
-/*                 iWaitfor = calculate_delay (pData, pData->iFramedelay);
-                 iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
-
-                 if (iRetcode)
-                   return iRetcode; */
 
                  break;
                }
@@ -2938,25 +2937,13 @@ mng_retcode mng_process_display_mend (mng_datap pData)
 
                    if (pTERM->iDelay)  /* set the delay (?) */
                    {
-/* change in the MNG spec with regards to TERM delay & interframe_delay
-   as proposed by Adam M. Costello (option 4)
-   see 'mng-list' archives for more details */
-
-/*                     mng_uint32 iWaitfor; */
                                        /* max(1, TERM delay, interframe_delay) */
                      if (pTERM->iDelay > pData->iFramedelay)
                        pData->iFramedelay = pTERM->iDelay;
                      if (!pData->iFramedelay)
                        pData->iFramedelay = 1;
 
-/*                     iWaitfor = calculate_delay (pData, pData->iFramedelay);
-                     iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
-
-                     if (iRetcode)
-                       return iRetcode; */
-
                      pData->bNeedrefresh = MNG_TRUE;
-/* end of change */
                    }
                  }
                  else
@@ -2968,13 +2955,6 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                               }
 
                      case 1 : {        /* cease displaying anything */
-/* change in the MNG spec with regards to TERM delay & interframe_delay
-   as proposed by Adam M. Costello (option 4)
-   see 'mng-list' archives for more details */
-
-/*                                pData->bFrameclipping = MNG_FALSE;
-                                load_bkgdlayer (pData); */
-
                                        /* max(1, TERM delay, interframe_delay) */
                                 if (pTERM->iDelay > pData->iFramedelay)
                                   pData->iFramedelay = pTERM->iDelay;
@@ -2990,13 +2970,10 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                   return iRetcode;
 
                                 pData->iBreakpoint = 10;
-/* end of change */
                                 break;
                               }
 
                      case 2 : {        /* show first image after TERM */
-/*                                mng_uint32 iWaitfor; */
-
                                 iRetcode = restore_state (pData);
                                        /* on error bail out */
                                 if (iRetcode)
@@ -3017,21 +2994,13 @@ mng_retcode mng_process_display_mend (mng_datap pData)
                                 if (!pData->iFramedelay)
                                   pData->iFramedelay = 1;
 
-/*                                iWaitfor = calculate_delay (pData, pData->iFramedelay);
-                                iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
-
-                                if (iRetcode)
-                                  return iRetcode; */
-
                                 break;
                               }
-
                    }
                  }
 
                  break;
                }
-
     }
   }
                                        /* just reading ? */
