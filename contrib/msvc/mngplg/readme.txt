@@ -1,13 +1,13 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>
-Version 0.9.2  Nov 18, 2000
-Web site: <http://pobox.com/~jason1/imaging/mngplg/>
+Version 1.0.0  9 Aug 2002
+Web site: <http://pobox.com/~jason1/mngplg/>
 
 
 COPYRIGHT NOTICE
 
-Copyright (c) 2000 by Jason Summers <jason1@pobox.com>
+Copyright (c) 2000-2002 by Jason Summers <jason1@pobox.com>
 
 THIS SOFTWARE IS DISTRIBUTED IN THE HOPE THAT IT WILL BE USEFUL, BUT WITHOUT 
 ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR 
@@ -42,11 +42,10 @@ source code. Requirement (1) is satisfied by the inclusion of the source
 code to the plug-in. For requirement (2), you can get the lcms source code 
 at the web site listed at the beginning of this document, if necessary.
 
-
 ---------
 
 Based on libmng.
-   Copyright (c) 2000 Gerard Juyn (gerard@libmng.com)
+   Copyright (c) 2000,2002 Gerard Juyn (gerard@libmng.com)
    <http://www.libmng.com/>
 
 Uses the zlib compression library.
@@ -60,16 +59,28 @@ Uses the lcms color management library by Martí Maria Saguer.
 
 ---------
 
+SECURITY WARNING
+
+Although I've tried to write it carefully, MNGPLG has not had any sort of 
+security audit. Due to the nature of plug-ins, it is possible for certain 
+types of bugs to exist which may allow remote web sites to take control of 
+your computer or do harm to it by sending a carefully constructed data file 
+to the plug-in. (Many bugs like this have been discovered in every popular
+web browser.) If you are paranoid about security, you may not wish to 
+leave MNGPLG enabled in your browser for an extended period of time. To
+disable it, simply rename the "npmngplg.dll" file to "npmngplg.old".
+
+---------
 
 INTRODUCTION
 
 MNGPLG is a free Netscape-style browser plug-in which displays the MNG 
 image/animation format. It is configured to claim the following MIME types:
 
-video/x-mng
-video/mng
-image/x-jng
-image/jng
+ video/x-mng
+ video/mng
+ image/x-jng
+ image/jng
 
 It claims the file extensions ".mng" and ".jng", but file extensions should 
 only apply when no MIME type is available (e.g. on an FTP site, or on your 
@@ -85,24 +96,12 @@ have not, as of this writing, been officially registered.
 
 REQUIREMENTS
 
-MNG Requires a 32-bit Windows operating system, and a 32-bit web browser 
-that supports Netscape-style plug-ins. For example, it works in Netscape
-3 and higher, Opera 3.51 and higher, and (more or less) Microsoft
-Internet Explorer 3 and higher. Netscape 6 includes native support for
-MNG, so it should not be necessary to use a plug-in in most cases.
-
-
-WARNING
-
-Although I've tried to write it carefully, MNGPLG has not had any sort of 
-security audit. Due to the nature of plug-ins, it is possible for certain 
-types of bugs to exist which may allow remote web sites to take control of 
-your computer or do harm to it by sending a carefully constructed data file 
-to the plug-in. (Dozens of bugs like this have been discovered in every 
-popular browser.) If you are paranoid about security, you may not wish to 
-leave MNGPLG enabled in your browser for an extended period of time (or at 
-all). To disable it, simply rename the "npmngplg.dll" file to 
-"npmngplg.old".
+MNG requires a 32-bit Windows operating system, and a 32-bit web browser 
+that supports Netscape-style plug-ins. For example, it works in Netscape 3 
+and higher, Opera 3.51 and higher, and Microsoft Internet Explorer from 
+about version 3 to 5.0. (It does not readily work in IE 5.5sp2 and 
+higher.) Netscape 6 includes native support for MNG, so it should not be 
+necessary to use a plug-in in most cases.
 
 
 INSTALLATION
@@ -110,13 +109,8 @@ INSTALLATION
 There's no install program. To install it, copy the included "npmngplg.dll" 
 file to your browser's "Plugins" folder, then restart your browser.
 
-For Netscape, the Plugins folder is typically located somewhere like:
+For Netscape 4.x, the Plugins folder is typically located somewhere like:
 C:\Program Files\Netscape\Communicator\Program\Plugins
-
-For MSIE, it should be somewhere like:
-C:\Program Files\Internet Explorer\Plugins            or
-C:\Program Files\Microsoft Internet\Plugins           or
-C:\Program Files\Plus!\Microsoft Internet\Plugins     etc.
 
 Note: Windows Explorer, by default, is configured to hide files that end in 
 ".dll". You should probably change that setting. I'd tell you how, but it's 
@@ -128,30 +122,20 @@ Help|About Plug-ins from the main menu (with JavaScript enabled).
 To uninstall, delete the npmngplg.dll file. It does not create any other 
 files. It currently does not write anything to the Windows registry.
 
-It's possible that copying the plug-in to your Plugins folder will not be 
-sufficient to get Internet Explorer to use the plug-in. MSIE can easily be 
-confused by various settings in the Windows registry. A complete MSIE 
-plug-in troubleshooting guide is beyond the scope of this document. 
-Searching the registry and removing every reference to "mng" will probably 
-get it to work -- but back up your registry first, and don't blame me if you 
-screw something up. If you are not able to get MSIE to use this plug-in, 
-please ask a MSIE support group (not me) for help. Thanks.
-
 
 HOW TO USE
 
 In your web page, use the <embed> tag. For example:
 
-<embed src="foo.mng" width="100" height="100" type="video/mng">
+<embed src="foo.mng" width="100" height="100" type="video/x-mng">
 
 The src, width, and height attributes are required. Width and height should 
 match the actual width and height of the image.
 
 If possible, configure your web server (not browser) to assign the MIME type 
-"video/x-mng" (or "video/mng") to files that end in ".mng", and assign type 
-"video/x-jng" to files that end in ".jng". Strictly speaking, this is 
-*required*, but the "type" attribute will allow you to work around it in 
-most browsers.
+"video/x-mng" to files that end in ".mng", and assign type "image/x-jng" to
+files that end in ".jng". Strictly speaking, this is *required*, but the
+"type" attribute will allow you to work around it in most browsers.
 
 Right-click on an MNG image as it is being displayed to get a menu with some 
 of the usual features.
@@ -179,17 +163,13 @@ TARGET attribute in the EMBED tag. For example:
 
 SOURCE CODE
 
-The C source code is included. It's compatible with libmng 0.9.2 - 0.9.3
-(probably also later versions, possibly with minor changes).
+The C source code is included. I've only tested it with libmng 1.0.4,
+but it's probably also compatible with other versions, maybe with
+minor changes.
 
 To compile it, you'll need:
 
-- The plug-in interface files from Netscape 4's plug-in SDK (preferably the 
-one named winsdk40.zip). You need the files npapi.cpp and include\*.h. I 
-recommend copying the files to your project directory and adding them to you 
-project, rather than compiling them as a separate library.
-
-- libmng MNG library <http://www.libmng.com/>. 
+- libmng MNG library <http://www.libmng.com/>.
 
 libmng in turn uses some other libraries:
 
@@ -199,15 +179,19 @@ libmng in turn uses some other libraries:
 
     - [optional] lcms "Little Color Management System" library. 
 
-If you include lcms, turn on the MNG_FULL_CMS option in mng_conf.h before 
-compiling. Note that lcms is distributed under the LGPL -- be sure you 
-understand the implications of that before distributing any resulting 
+If you include lcms, turn on the MNG_FULL_CMS option in libmng_conf.h 
+before compiling. Note that lcms is distributed under the LGPL -- be sure 
+you understand the implications of that before distributing any resulting 
 executable files.
 
 If you don't include lcms, comment out the "#define MNGPLG_CMS" line in 
 npmngplg.c.
 
-I also recommend turning on the MNG_ERROR_TELLTALE option in mng_conf.h.
+I also recommend turning on the MNG_ERROR_TELLTALE option in 
+libmng_conf.h.
+
+The files from the Netscape plug-in SDK are no longer needed as of MNGPNG
+0.9.4.
 
 Make sure to include the npmngplg.def file in your project, or declare the 
 necessary DLL entry points in some other way.

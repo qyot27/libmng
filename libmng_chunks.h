@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunks.h           copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk structures (definition)                              * */
 /* *                                                                        * */
@@ -39,6 +39,11 @@
 /* *             - fixed DEFI behavior                                      * */
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added JDAA chunk                                         * */
+/* *                                                                        * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - added HLAPI function to copy chunks                      * */
+/* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
+/* *             - added event handling for dynamic MNG                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -81,6 +86,10 @@ typedef mng_retcode (*mng_readchunk)    (mng_datap   pData,
 typedef mng_retcode (*mng_writechunk)   (mng_datap   pData,
                                          mng_chunkp  pChunk);
 
+typedef mng_retcode (*mng_assignchunk)  (mng_datap   pData,
+                                         mng_chunkp  pChunkto,
+                                         mng_chunkp  pChunkfrom);
+
 /* ************************************************************************** */
 
 typedef struct {                       /* generic header */
@@ -89,6 +98,7 @@ typedef struct {                       /* generic header */
            mng_cleanupchunk  fCleanup;
            mng_readchunk     fRead;
            mng_writechunk    fWrite;
+           mng_assignchunk   fAssign;
            mng_chunkp        pNext;    /* for double-linked list */
            mng_chunkp        pPrev;
         } mng_chunk_header;
@@ -740,6 +750,29 @@ typedef struct {                       /* MAGN */
            mng_uint16        iMethodY;
         } mng_magn;
 typedef mng_magn * mng_magnp;
+
+/* ************************************************************************** */
+
+typedef struct {                       /* EvNT entry */
+           mng_uint8         iEventtype;
+           mng_uint8         iMasktype;
+           mng_int32         iLeft;
+           mng_int32         iRight;
+           mng_int32         iTop;
+           mng_int32         iBottom;
+           mng_uint16        iObjectid;
+           mng_uint8         iIndex;
+           mng_uint32        iSegmentnamesize;
+           mng_pchar         zSegmentname;
+        } mng_evnt_entry;
+typedef mng_evnt_entry * mng_evnt_entryp;
+
+typedef struct {                       /* EvNT */
+           mng_chunk_header  sHeader;
+           mng_uint32        iCount;
+           mng_evnt_entryp   pEntries;
+        } mng_evnt;
+typedef mng_evnt * mng_evntp;
 
 /* ************************************************************************** */
 

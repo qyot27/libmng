@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_hlapi.c            copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_hlapi.c            copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -115,6 +115,34 @@
 /* *             0.9.4 - 11/24/2000 - G.Juyn                                * */
 /* *             - moved restore of object 0 to libmng_display              * */
 /* *                                                                        * */
+/* *             1.0.1 - 02/08/2001 - G.Juyn                                * */
+/* *             - added MEND processing callback                           * */
+/* *             1.0.1 - 02/13/2001 - G.Juyn                                * */
+/* *             - fixed first FRAM_MODE=4 timing problem                   * */
+/* *             1.0.1 - 04/21/2001 - G.Juyn                                * */
+/* *             - fixed bug with display_reset/display_resume (Thanks G!)  * */
+/* *             1.0.1 - 04/22/2001 - G.Juyn                                * */
+/* *             - fixed memory-leak (Thanks Gregg!)                        * */
+/* *             1.0.1 - 04/23/2001 - G.Juyn                                * */
+/* *             - fixed reset_rundata to drop all objects                  * */
+/* *             1.0.1 - 04/25/2001 - G.Juyn                                * */
+/* *             - moved mng_clear_cms to libmng_cms                        * */
+/* *                                                                        * */
+/* *             1.0.2 - 06/23/2001 - G.Juyn                                * */
+/* *             - added optimization option for MNG-video playback         * */
+/* *             - added processterm callback                               * */
+/* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
+/* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.5 - 07/08/2002 - G.Juyn                                * */
+/* *             - B578572 - removed eMNGma hack (thanks Dimitri!)          * */
+/* *             1.0.5 - 07/16/2002 - G.Juyn                                * */
+/* *             - B581625 - large chunks fail with suspension reads        * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
+/* *             - fixed LOOP iteration=0 special case                      * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -144,33 +172,6 @@
 /* *                                                                        * */
 /* * local routines                                                         * */
 /* *                                                                        * */
-/* ************************************************************************** */
-
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_INCLUDE_LCMS)
-mng_retcode mng_clear_cms (mng_datap pData)
-{
-#ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CLEAR_CMS, MNG_LC_START)
-#endif
-
-  if (pData->hTrans)                   /* transformation still active ? */
-    mnglcms_freetransform (pData->hTrans);
-
-  pData->hTrans = 0;
-
-  if (pData->hProf1)                   /* file profile still active ? */
-    mnglcms_freeprofile (pData->hProf1);
-
-  pData->hProf1 = 0;
-
-#ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CLEAR_CMS, MNG_LC_END)
-#endif
-
-  return MNG_NOERROR;
-}
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
-
 /* ************************************************************************** */
 
 #if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
@@ -230,6 +231,9 @@ mng_retcode mng_drop_objects (mng_datap pData,
     pObject = pNext;                   /* neeeext */
   }
 
+  pData->pFirstimgobj = MNG_NULL;      /* clean this up!!! */
+  pData->pLastimgobj  = MNG_NULL;
+
   if (bDropaniobj)                     /* drop animation objects ? */
   {
     pObject = pData->pFirstaniobj;     /* get first stored animation-object (if any) */
@@ -243,6 +247,26 @@ mng_retcode mng_drop_objects (mng_datap pData,
 
       pObject = pNext;                 /* neeeext */
     }
+
+    pData->pFirstaniobj = MNG_NULL;    /* clean this up!!! */
+    pData->pLastaniobj  = MNG_NULL;
+
+#ifdef MNG_SUPPORT_DYNAMICMNG
+    pObject = pData->pFirstevent;      /* get first event-object (if any) */
+
+    while (pObject)                    /* more objects to discard ? */
+    {
+      pNext = ((mng_object_headerp)pObject)->pNext;
+                                       /* call appropriate cleanup */
+      fCleanup = ((mng_object_headerp)pObject)->fCleanup;
+      fCleanup (pData, pObject);
+
+      pObject = pNext;                 /* neeeext */
+    }
+
+    pData->pFirstevent = MNG_NULL;     /* clean this up!!! */
+    pData->pLastevent  = MNG_NULL;
+#endif
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -285,13 +309,32 @@ mng_retcode mng_drop_savedata (mng_datap pData)
 #ifdef MNG_SUPPORT_DISPLAY
 mng_retcode mng_reset_rundata (mng_datap pData)
 {
-  drop_invalid_objects (pData);        /* drop invalidly stored objects */
-  mng_drop_savedata    (pData);        /* drop invalidly stored savedata */
-  mng_reset_objzero    (pData);        /* reset object 0 */
+  mng_drop_invalid_objects (pData);    /* drop invalidly stored objects */
+  mng_drop_savedata        (pData);    /* drop stored savedata */
+  mng_reset_objzero        (pData);    /* reset object 0 */
+                                       /* drop stored objects (if any) */
+  mng_drop_objects         (pData, MNG_FALSE);
 
+  pData->bFramedone            = MNG_FALSE;
   pData->iFrameseq             = 0;    /* reset counters & stuff */
   pData->iLayerseq             = 0;
   pData->iFrametime            = 0;
+
+  pData->bSkipping             = MNG_FALSE;
+
+#ifdef MNG_SUPPORT_DYNAMICMNG
+  pData->bDynamic              = MNG_FALSE;
+  pData->bRunningevent         = MNG_FALSE;
+  pData->bStopafterseek        = MNG_FALSE;
+  pData->iEventx               = 0;
+  pData->iEventy               = 0;
+  pData->pLastmousemove        = MNG_NULL;
+#endif
+
+  pData->iRequestframe         = 0;
+  pData->iRequestlayer         = 0;
+  pData->iRequesttime          = 0;
+  pData->bSearching            = MNG_FALSE;
 
   pData->iRuntime              = 0;
   pData->iSynctime             = 0;
@@ -304,6 +347,10 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->bFreezing             = MNG_FALSE;
   pData->bResetting            = MNG_FALSE;
   pData->bNeedrefresh          = MNG_FALSE;
+
+  pData->iIterations           = 0;
+                                       /* start of animation objects! */
+  pData->pCurraniobj           = MNG_NULL;
 
   pData->iUpdateleft           = 0;    /* reset region */
   pData->iUpdateright          = 0;
@@ -393,13 +440,36 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iDeltaBlocky          = 0;
   pData->bDeltaimmediate       = MNG_FALSE;
 
+  pData->fDeltagetrow          = MNG_NULL;
+  pData->fDeltaaddrow          = MNG_NULL;
+  pData->fDeltareplacerow      = MNG_NULL;
+  pData->fDeltaputrow          = MNG_NULL;
+
+  pData->fPromoterow           = MNG_NULL;
+  pData->fPromBitdepth         = MNG_NULL;
+  pData->pPromBuf              = MNG_NULL;
+  pData->iPromColortype        = 0;
+  pData->iPromBitdepth         = 0;
+  pData->iPromFilltype         = 0;
+  pData->iPromWidth            = 0;
+  pData->pPromSrc              = MNG_NULL;
+  pData->pPromDst              = MNG_NULL;
+
+  pData->iMAGNfromid           = 0;
+  pData->iMAGNtoid             = 0;
+
+  pData->iPastx                = 0;
+  pData->iPasty                = 0;
+
+  pData->pLastseek             = MNG_NULL;
+  
   return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
 
 /* ************************************************************************** */
 
-void cleanup_errors (mng_datap pData)
+MNG_LOCAL void cleanup_errors (mng_datap pData)
 {
   pData->iErrorcode = MNG_NOERROR;
   pData->iSeverity  = 0;
@@ -455,6 +525,387 @@ mng_uint8 MNG_DECL mng_version_release (void)
 {
   return MNG_VERSION_RELEASE;
 }
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * 'supports' function                                                    * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_FUNCQUERY
+typedef struct {
+                 mng_pchar  zFunction;
+                 mng_uint8  iMajor;    /* Major == 0 means not implemented ! */ 
+                 mng_uint8  iMinor;
+                 mng_uint8  iRelease;
+               } mng_func_entry;
+typedef mng_func_entry const * mng_func_entryp;
+
+MNG_LOCAL mng_func_entry const func_table [] =
+  {                                    /* keep it alphabetically sorted !!!!! */
+    {"mng_cleanup",                1, 0, 0},
+    {"mng_copy_chunk",             1, 0, 5},
+    {"mng_create",                 1, 0, 0},
+    {"mng_display",                1, 0, 0},
+    {"mng_display_freeze",         1, 0, 0},
+    {"mng_display_goframe",        1, 0, 0},
+    {"mng_display_golayer",        1, 0, 0},
+    {"mng_display_gotime",         1, 0, 0},
+    {"mng_display_reset",          1, 0, 0},
+    {"mng_display_resume",         1, 0, 0},
+    {"mng_get_alphabitdepth",      1, 0, 0},
+    {"mng_get_alphacompression",   1, 0, 0},
+    {"mng_get_alphadepth",         1, 0, 0},
+    {"mng_get_alphafilter",        1, 0, 0},
+    {"mng_get_alphainterlace",     1, 0, 0},
+    {"mng_get_bgcolor",            1, 0, 0},
+    {"mng_get_bitdepth",           1, 0, 0},
+    {"mng_get_bkgdstyle",          1, 0, 0},
+    {"mng_get_cacheplayback",      1, 0, 2},
+    {"mng_get_canvasstyle",        1, 0, 0},
+    {"mng_get_colortype",          1, 0, 0},
+    {"mng_get_compression",        1, 0, 0},
+    {"mng_get_currentframe",       1, 0, 0},
+    {"mng_get_currentlayer",       1, 0, 0},
+    {"mng_get_currentplaytime",    1, 0, 0},
+    {"mng_get_dfltimggamma",       1, 0, 0},
+    {"mng_get_dfltimggammaint",    1, 0, 0},
+    {"mng_get_displaygamma",       1, 0, 0},
+    {"mng_get_displaygammaint",    1, 0, 0},
+    {"mng_get_doprogressive",      1, 0, 2},
+    {"mng_get_filter",             1, 0, 0},
+    {"mng_get_framecount",         1, 0, 0},
+    {"mng_get_imageheight",        1, 0, 0},
+    {"mng_get_imagelevel",         1, 0, 0},
+    {"mng_get_imagetype",          1, 0, 0},
+    {"mng_get_imagewidth",         1, 0, 0},
+    {"mng_get_interlace",          1, 0, 0},
+    {"mng_get_jpeg_dctmethod",     1, 0, 0},
+    {"mng_get_jpeg_maxjdat",       1, 0, 0},
+    {"mng_get_jpeg_optimized",     1, 0, 0},
+    {"mng_get_jpeg_progressive",   1, 0, 0},
+    {"mng_get_jpeg_quality",       1, 0, 0},
+    {"mng_get_jpeg_smoothing",     1, 0, 0},
+    {"mng_get_lastbackchunk",      1, 0, 3},
+    {"mng_get_lastseekname",       1, 0, 5},
+    {"mng_get_layercount",         1, 0, 0},
+    {"mng_get_maxcanvasheight",    1, 0, 0},
+    {"mng_get_maxcanvaswidth",     1, 0, 0},
+    {"mng_get_playtime",           1, 0, 0},
+    {"mng_get_refreshpass",        1, 0, 0},
+    {"mng_get_runtime",            1, 0, 0},
+    {"mng_get_sectionbreaks",      1, 0, 0},
+    {"mng_get_sigtype",            1, 0, 0},
+    {"mng_get_simplicity",         1, 0, 0},
+    {"mng_get_speed",              1, 0, 0},
+    {"mng_get_srgb",               1, 0, 0},
+    {"mng_get_starttime",          1, 0, 0},
+    {"mng_get_storechunks",        1, 0, 0},
+    {"mng_get_suspensionmode",     1, 0, 0},
+    {"mng_get_ticks",              1, 0, 0},
+    {"mng_get_usebkgd",            1, 0, 0},
+    {"mng_get_userdata",           1, 0, 0},
+    {"mng_get_viewgamma",          1, 0, 0},
+    {"mng_get_viewgammaint",       1, 0, 0},
+    {"mng_get_zlib_level",         1, 0, 0},
+    {"mng_get_zlib_maxidat",       1, 0, 0},
+    {"mng_get_zlib_memlevel",      1, 0, 0},
+    {"mng_get_zlib_method",        1, 0, 0},
+    {"mng_get_zlib_strategy",      1, 0, 0},
+    {"mng_get_zlib_windowbits",    1, 0, 0},
+    {"mng_getcb_closestream",      1, 0, 0},
+    {"mng_getcb_errorproc",        1, 0, 0},
+    {"mng_getcb_getalphaline",     1, 0, 0},
+    {"mng_getcb_getbkgdline",      1, 0, 0},
+    {"mng_getcb_getcanvasline",    1, 0, 0},
+    {"mng_getcb_gettickcount",     1, 0, 0},
+    {"mng_getcb_memalloc",         1, 0, 0},
+    {"mng_getcb_memfree",          1, 0, 0},
+    {"mng_getcb_openstream",       1, 0, 0},
+    {"mng_getcb_processarow",      1, 0, 0},
+    {"mng_getcb_processchroma",    1, 0, 0},
+    {"mng_getcb_processgamma",     1, 0, 0},
+    {"mng_getcb_processheader",    1, 0, 0},
+    {"mng_getcb_processiccp",      1, 0, 0},
+    {"mng_getcb_processmend",      1, 0, 1},
+    {"mng_getcb_processneed",      1, 0, 0},
+    {"mng_getcb_processsave",      1, 0, 0},
+    {"mng_getcb_processseek",      1, 0, 0},
+    {"mng_getcb_processsrgb",      1, 0, 0},
+    {"mng_getcb_processterm",      1, 0, 2},
+    {"mng_getcb_processtext",      1, 0, 0},
+    {"mng_getcb_processunknown",   1, 0, 0},
+    {"mng_getcb_readdata",         1, 0, 0},
+    {"mng_getcb_refresh",          1, 0, 0},
+    {"mng_getcb_settimer",         1, 0, 0},
+    {"mng_getcb_traceproc",        1, 0, 0},
+    {"mng_getcb_writedata",        1, 0, 0},
+    {"mng_getchunk_back",          1, 0, 0},
+    {"mng_getchunk_basi",          1, 0, 0},
+    {"mng_getchunk_bkgd",          1, 0, 0},
+    {"mng_getchunk_chrm",          1, 0, 0},
+    {"mng_getchunk_clip",          1, 0, 0},
+    {"mng_getchunk_clon",          1, 0, 0},
+    {"mng_getchunk_dbyk",          1, 0, 0},
+    {"mng_getchunk_defi",          1, 0, 0},
+    {"mng_getchunk_dhdr",          1, 0, 0},
+    {"mng_getchunk_disc",          1, 0, 0},
+    {"mng_getchunk_drop",          1, 0, 0},
+    {"mng_getchunk_endl",          1, 0, 0},
+    {"mng_getchunk_evnt",          1, 0, 5},
+    {"mng_getchunk_evnt_entry",    1, 0, 5},
+    {"mng_getchunk_expi",          1, 0, 0},
+    {"mng_getchunk_fpri",          1, 0, 0},
+    {"mng_getchunk_fram",          1, 0, 0},
+    {"mng_getchunk_gama",          1, 0, 0},
+    {"mng_getchunk_hist",          1, 0, 0},
+    {"mng_getchunk_iccp",          1, 0, 0},
+    {"mng_getchunk_idat",          1, 0, 0},
+    {"mng_getchunk_iend",          1, 0, 0},
+    {"mng_getchunk_ihdr",          1, 0, 0},
+    {"mng_getchunk_ijng",          1, 0, 0},
+    {"mng_getchunk_ipng",          1, 0, 0},
+    {"mng_getchunk_itxt",          1, 0, 0},
+    {"mng_getchunk_jdaa",          1, 0, 0},
+    {"mng_getchunk_jdat",          1, 0, 0},
+    {"mng_getchunk_jhdr",          1, 0, 0},
+    {"mng_getchunk_jsep",          1, 0, 0},
+    {"mng_getchunk_loop",          1, 0, 0},
+    {"mng_getchunk_magn",          1, 0, 0},
+    {"mng_getchunk_mend",          1, 0, 0},
+    {"mng_getchunk_mhdr",          1, 0, 0},
+    {"mng_getchunk_move",          1, 0, 0},
+    {"mng_getchunk_need",          1, 0, 0},
+    {"mng_getchunk_ordr",          1, 0, 0},
+    {"mng_getchunk_ordr_entry",    1, 0, 0},
+    {"mng_getchunk_past",          1, 0, 0},
+    {"mng_getchunk_past_src",      1, 0, 0},
+    {"mng_getchunk_phyg",          1, 0, 0},
+    {"mng_getchunk_phys",          1, 0, 0},
+    {"mng_getchunk_plte",          1, 0, 0},
+    {"mng_getchunk_pplt",          1, 0, 0},
+    {"mng_getchunk_pplt_entry",    1, 0, 0},
+    {"mng_getchunk_prom",          1, 0, 0},
+    {"mng_getchunk_save",          1, 0, 0},
+    {"mng_getchunk_save_entry",    1, 0, 0},
+    {"mng_getchunk_sbit",          1, 0, 0},
+    {"mng_getchunk_seek",          1, 0, 0},
+    {"mng_getchunk_show",          1, 0, 0},
+    {"mng_getchunk_splt",          1, 0, 0},
+    {"mng_getchunk_srgb",          1, 0, 0},
+    {"mng_getchunk_term",          1, 0, 0},
+    {"mng_getchunk_text",          1, 0, 0},
+    {"mng_getchunk_time",          1, 0, 0},
+    {"mng_getchunk_trns",          1, 0, 0},
+    {"mng_getchunk_unkown",        1, 0, 0},
+    {"mng_getchunk_ztxt",          1, 0, 0},
+    {"mng_getimgdata_chunk",       0, 0, 0},
+    {"mng_getimgdata_chunkseq",    0, 0, 0},
+    {"mng_getimgdata_seq",         0, 0, 0},
+    {"mng_getlasterror",           1, 0, 0},
+    {"mng_initialize",             1, 0, 0},
+    {"mng_iterate_chunks",         1, 0, 0},
+    {"mng_putchunk_back",          1, 0, 0},
+    {"mng_putchunk_basi",          1, 0, 0},
+    {"mng_putchunk_bkgd",          1, 0, 0},
+    {"mng_putchunk_chrm",          1, 0, 0},
+    {"mng_putchunk_clip",          1, 0, 0},
+    {"mng_putchunk_clon",          1, 0, 0},
+    {"mng_putchunk_dbyk",          1, 0, 0},
+    {"mng_putchunk_defi",          1, 0, 0},
+    {"mng_putchunk_dhdr",          1, 0, 0},
+    {"mng_putchunk_disc",          1, 0, 0},
+    {"mng_putchunk_drop",          1, 0, 0},
+    {"mng_putchunk_endl",          1, 0, 0},
+    {"mng_putchunk_evnt",          1, 0, 5},
+    {"mng_putchunk_evnt_entry",    1, 0, 5},
+    {"mng_putchunk_expi",          1, 0, 0},
+    {"mng_putchunk_fpri",          1, 0, 0},
+    {"mng_putchunk_fram",          1, 0, 0},
+    {"mng_putchunk_gama",          1, 0, 0},
+    {"mng_putchunk_hist",          1, 0, 0},
+    {"mng_putchunk_iccp",          1, 0, 0},
+    {"mng_putchunk_idat",          1, 0, 0},
+    {"mng_putchunk_iend",          1, 0, 0},
+    {"mng_putchunk_ihdr",          1, 0, 0},
+    {"mng_putchunk_ijng",          1, 0, 0},
+    {"mng_putchunk_ipng",          1, 0, 0},
+    {"mng_putchunk_itxt",          1, 0, 0},
+    {"mng_putchunk_jdaa",          1, 0, 0},
+    {"mng_putchunk_jdat",          1, 0, 0},
+    {"mng_putchunk_jhdr",          1, 0, 0},
+    {"mng_putchunk_jsep",          1, 0, 0},
+    {"mng_putchunk_loop",          1, 0, 0},
+    {"mng_putchunk_magn",          1, 0, 0},
+    {"mng_putchunk_mend",          1, 0, 0},
+    {"mng_putchunk_mhdr",          1, 0, 0},
+    {"mng_putchunk_move",          1, 0, 0},
+    {"mng_putchunk_need",          1, 0, 0},
+    {"mng_putchunk_ordr",          1, 0, 0},
+    {"mng_putchunk_ordr_entry",    1, 0, 0},
+    {"mng_putchunk_past",          1, 0, 0},
+    {"mng_putchunk_past_src",      1, 0, 0},
+    {"mng_putchunk_phyg",          1, 0, 0},
+    {"mng_putchunk_phys",          1, 0, 0},
+    {"mng_putchunk_plte",          1, 0, 0},
+    {"mng_putchunk_pplt",          1, 0, 0},
+    {"mng_putchunk_pplt_entry",    1, 0, 0},
+    {"mng_putchunk_prom",          1, 0, 0},
+    {"mng_putchunk_save",          1, 0, 0},
+    {"mng_putchunk_save_entry",    1, 0, 0},
+    {"mng_putchunk_sbit",          1, 0, 0},
+    {"mng_putchunk_seek",          1, 0, 0},
+    {"mng_putchunk_show",          1, 0, 0},
+    {"mng_putchunk_splt",          1, 0, 0},
+    {"mng_putchunk_srgb",          1, 0, 0},
+    {"mng_putchunk_term",          1, 0, 0},
+    {"mng_putchunk_text",          1, 0, 0},
+    {"mng_putchunk_time",          1, 0, 0},
+    {"mng_putchunk_trns",          1, 0, 0},
+    {"mng_putchunk_unkown",        1, 0, 0},
+    {"mng_putchunk_ztxt",          1, 0, 0},
+    {"mng_putimgdata_ihdr",        0, 0, 0},
+    {"mng_putimgdata_jhdr",        0, 0, 0},
+    {"mng_reset",                  1, 0, 0},
+    {"mng_read",                   1, 0, 0},
+    {"mng_read_resume",            1, 0, 0},
+    {"mng_readdisplay",            1, 0, 0},
+    {"mng_set_bgcolor",            1, 0, 0},
+    {"mng_set_bkgdstyle",          1, 0, 0},
+    {"mng_set_cacheplayback",      1, 0, 2},
+    {"mng_set_canvasstyle",        1, 0, 0},
+    {"mng_set_dfltimggamma",       1, 0, 0},
+    {"mng_set_dfltimggammaint",    1, 0, 0},
+    {"mng_set_displaygamma",       1, 0, 0},
+    {"mng_set_displaygammaint",    1, 0, 0},
+    {"mng_set_doprogressive",      1, 0, 2},
+    {"mng_set_jpeg_dctmethod",     1, 0, 0},
+    {"mng_set_jpeg_maxjdat",       1, 0, 0},
+    {"mng_set_jpeg_optimized",     1, 0, 0},
+    {"mng_set_jpeg_progressive",   1, 0, 0},
+    {"mng_set_jpeg_quality",       1, 0, 0},
+    {"mng_set_jpeg_smoothing",     1, 0, 0},
+    {"mng_set_maxcanvasheight",    1, 0, 0},
+    {"mng_set_maxcanvassize",      1, 0, 0},
+    {"mng_set_maxcanvaswidth",     1, 0, 0},
+    {"mng_set_outputprofile",      1, 0, 0},
+    {"mng_set_outputprofile2",     1, 0, 0},
+    {"mng_set_outputsrgb",         1, 0, 1},
+    {"mng_set_sectionbreaks",      1, 0, 0},
+    {"mng_set_speed",              1, 0, 0},
+    {"mng_set_srgb",               1, 0, 0},
+    {"mng_set_srgbimplicit",       1, 0, 1},
+    {"mng_set_srgbprofile",        1, 0, 0},
+    {"mng_set_srgbprofile2",       1, 0, 0},
+    {"mng_set_storechunks",        1, 0, 0},
+    {"mng_set_suspensionmode",     1, 0, 0},
+    {"mng_set_usebkgd",            1, 0, 0},
+    {"mng_set_userdata",           1, 0, 0},
+    {"mng_set_viewgamma",          1, 0, 0},
+    {"mng_set_viewgammaint",       1, 0, 0},
+    {"mng_set_zlib_level",         1, 0, 0},
+    {"mng_set_zlib_maxidat",       1, 0, 0},
+    {"mng_set_zlib_memlevel",      1, 0, 0},
+    {"mng_set_zlib_method",        1, 0, 0},
+    {"mng_set_zlib_strategy",      1, 0, 0},
+    {"mng_set_zlib_windowbits",    1, 0, 0},
+    {"mng_setcb_closestream",      1, 0, 0},
+    {"mng_setcb_errorproc",        1, 0, 0},
+    {"mng_setcb_getalphaline",     1, 0, 0},
+    {"mng_setcb_getbkgdline",      1, 0, 0},
+    {"mng_setcb_getcanvasline",    1, 0, 0},
+    {"mng_setcb_gettickcount",     1, 0, 0},
+    {"mng_setcb_memalloc",         1, 0, 0},
+    {"mng_setcb_memfree",          1, 0, 0},
+    {"mng_setcb_openstream",       1, 0, 0},
+    {"mng_setcb_processarow",      1, 0, 0},
+    {"mng_setcb_processchroma",    1, 0, 0},
+    {"mng_setcb_processgamma",     1, 0, 0},
+    {"mng_setcb_processheader",    1, 0, 0},
+    {"mng_setcb_processiccp",      1, 0, 0},
+    {"mng_setcb_processmend",      1, 0, 1},
+    {"mng_setcb_processneed",      1, 0, 0},
+    {"mng_setcb_processsave",      1, 0, 0},
+    {"mng_setcb_processseek",      1, 0, 0},
+    {"mng_setcb_processsrgb",      1, 0, 0},
+    {"mng_setcb_processterm",      1, 0, 2},
+    {"mng_setcb_processtext",      1, 0, 0},
+    {"mng_setcb_processunknown",   1, 0, 0},
+    {"mng_setcb_readdata",         1, 0, 0},
+    {"mng_setcb_refresh",          1, 0, 0},
+    {"mng_setcb_settimer",         1, 0, 0},
+    {"mng_setcb_traceproc",        1, 0, 0},
+    {"mng_setcb_writedata",        1, 0, 0},
+    {"mng_status_creating",        1, 0, 0},
+    {"mng_status_displaying",      1, 0, 0},
+    {"mng_status_error",           1, 0, 0},
+    {"mng_status_reading",         1, 0, 0},
+    {"mng_status_running",         1, 0, 0},
+    {"mng_status_runningevent",    1, 0, 5},
+    {"mng_status_suspendbreak",    1, 0, 0},
+    {"mng_status_timerbreak",      1, 0, 0},
+    {"mng_status_writing",         1, 0, 0},
+    {"mng_supports_func",          1, 0, 5},
+    {"mng_trapevent",              1, 0, 5},
+    {"mng_updatemngheader",        1, 0, 0},
+    {"mng_updatemngsimplicity",    1, 0, 0},
+    {"mng_version_dll",            1, 0, 0},
+    {"mng_version_major",          1, 0, 0},
+    {"mng_version_minor",          1, 0, 0},
+    {"mng_version_release",        1, 0, 0},
+    {"mng_version_so",             1, 0, 0},
+    {"mng_version_text",           1, 0, 0},
+    {"mng_write",                  1, 0, 0},
+  };
+
+mng_bool MNG_DECL mng_supports_func (mng_pchar  zFunction,
+                                     mng_uint8* iMajor,
+                                     mng_uint8* iMinor,
+                                     mng_uint8* iRelease)
+{
+  mng_int32       iTop, iLower, iUpper, iMiddle;
+  mng_func_entryp pEntry;          /* pointer to found entry */
+                                   /* determine max index of table */
+  iTop = (sizeof (func_table) / sizeof (func_table [0])) - 1;
+
+  iLower  = 0;                     /* initialize binary search */
+  iMiddle = iTop >> 1;             /* start in the middle */
+  iUpper  = iTop;
+  pEntry  = 0;                     /* no goods yet! */
+
+  do                               /* the binary search itself */
+    {
+      mng_int32 iRslt = strcmp(func_table [iMiddle].zFunction, zFunction);
+      if (iRslt < 0)
+        iLower = iMiddle + 1;
+      else if (iRslt > 0)
+        iUpper = iMiddle - 1;
+      else
+      {
+        pEntry = &func_table [iMiddle];
+        break;
+      };
+
+      iMiddle = (iLower + iUpper) >> 1;
+    }
+  while (iLower <= iUpper);
+
+  if (pEntry)                      /* found it ? */
+  {
+    *iMajor   = pEntry->iMajor;
+    *iMinor   = pEntry->iMinor;
+    *iRelease = pEntry->iRelease;
+    return MNG_TRUE;
+  }
+  else
+  {
+    *iMajor   = 0;
+    *iMinor   = 0;
+    *iRelease = 0;
+    return MNG_FALSE;
+  }
+}
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -520,6 +971,10 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->bStorechunks          = MNG_TRUE;
                                        /* no breaks at section-borders */
   pData->bSectionbreaks        = MNG_FALSE;
+                                       /* initially cache playback info */
+  pData->bCacheplayback        = MNG_TRUE;
+                                       /* progressive refresh for large images */
+  pData->bDoProgressive        = MNG_TRUE;
                                        /* normal animation-speed ! */
   pData->iSpeed                = mng_st_normal;
                                        /* initial image limits */
@@ -544,7 +999,9 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->fProcesssave          = MNG_NULL;
   pData->fProcessseek          = MNG_NULL;
   pData->fProcessneed          = MNG_NULL;
+  pData->fProcessmend          = MNG_NULL;
   pData->fProcessunknown       = MNG_NULL;
+  pData->fProcessterm          = MNG_NULL;
   pData->fGetcanvasline        = MNG_NULL;
   pData->fGetbkgdline          = MNG_NULL;
   pData->fGetalphaline         = MNG_NULL;
@@ -562,9 +1019,9 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY             /* create object 0 */
-  iRetcode = create_imageobject (pData, 0, MNG_TRUE, MNG_TRUE, MNG_TRUE,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, MNG_FALSE,
-                                 0, 0, 0, 0, &pImage);
+  iRetcode = mng_create_imageobject (pData, 0, MNG_TRUE, MNG_TRUE, MNG_TRUE,
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, MNG_FALSE,
+                                     0, 0, 0, 0, &pImage);
 
   if (iRetcode)                        /* on error drop out */
   {
@@ -587,6 +1044,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->iSuspendbufleft       = 0;
   pData->iChunklen             = 0;
   pData->pReadbufnext          = MNG_NULL;
+  pData->pLargebufnext         = MNG_NULL;
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -645,7 +1103,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   mng_clear_cms (pData);               /* cleanup left-over cms stuff if any */
 #endif
 
-#ifdef MNG_INCLUDE_JNG
+#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_INCLUDE_JNG)
   mngjpeg_cleanup (pData);             /* cleanup jpeg stuff */
 #endif
 
@@ -653,7 +1111,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   if (pData->bInflating)               /* if we've been inflating */
   {
 #ifdef MNG_INCLUDE_DISPLAY_PROCS
-    cleanup_rowproc (pData);           /* cleanup row-processing, */
+    mng_cleanup_rowproc (pData);       /* cleanup row-processing, */
 #endif
     mngzlib_inflatefree (pData);       /* cleanup inflate! */
   }
@@ -661,7 +1119,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 
 #ifdef MNG_SUPPORT_READ
   if ((pData->bReading) && (!pData->bEOF))
-    process_eof (pData);               /* cleanup app streaming */
+    mng_process_eof (pData);           /* cleanup app streaming */
                                        /* cleanup default read buffers */
   MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
   MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
@@ -803,6 +1261,17 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iLayerseq             = 0;
   pData->iFrametime            = 0;
 
+  pData->bSkipping             = MNG_FALSE;
+  
+#ifdef MNG_SUPPORT_DYNAMICMNG
+  pData->bDynamic              = MNG_FALSE;
+  pData->bRunningevent         = MNG_FALSE;
+  pData->bStopafterseek        = MNG_FALSE;
+  pData->iEventx               = 0;
+  pData->iEventy               = 0;
+  pData->pLastmousemove        = MNG_NULL;
+#endif
+
   pData->iRequestframe         = 0;
   pData->iRequestlayer         = 0;
   pData->iRequesttime          = 0;
@@ -831,8 +1300,6 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->pRetrieveobj          = MNG_NULL;
                                        /* no saved data ! */
   pData->pSavedata             = MNG_NULL;
-                                       /* TODO: remove in 1.0.0 !!! */
-  pData->bEMNGMAhack           = MNG_FALSE;
 
   pData->iUpdateleft           = 0;    /* no region updated yet */
   pData->iUpdateright          = 0;
@@ -858,7 +1325,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iLevel3               = 0;
   pData->pWorkrow              = MNG_NULL;
   pData->pPrevrow              = MNG_NULL;
-  pData->pRGBArow              = 0;
+  pData->pRGBArow              = MNG_NULL;
   pData->bIsRGBA16             = MNG_TRUE;
   pData->bIsOpaque             = MNG_TRUE;
   pData->iFilterbpp            = 1;
@@ -876,6 +1343,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->pLastimgobj           = MNG_NULL;
   pData->pFirstaniobj          = MNG_NULL;
   pData->pLastaniobj           = MNG_NULL;
+#ifdef MNG_SUPPORT_DYNAMICMNG
+  pData->pFirstevent           = MNG_NULL;
+  pData->pLastevent            = MNG_NULL;
+#endif
                                        /* no processing callbacks */
   pData->fDisplayrow           = MNG_NULL;
   pData->fRestbkgdrow          = MNG_NULL;
@@ -884,6 +1355,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->fStorerow             = MNG_NULL;
   pData->fProcessrow           = MNG_NULL;
   pData->fDifferrow            = MNG_NULL;
+  pData->fScalerow             = MNG_NULL;
+  pData->fDeltarow             = MNG_NULL;
+  pData->fFliprow              = MNG_NULL;
+  pData->fTilerow              = MNG_NULL;
   pData->fInitrowproc          = MNG_NULL;
 
   pData->iPLTEcount            = 0;    /* no PLTE data */
@@ -967,6 +1442,29 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iDeltaBlockx          = 0;
   pData->iDeltaBlocky          = 0;
   pData->bDeltaimmediate       = MNG_FALSE;
+
+  pData->fDeltagetrow          = MNG_NULL;
+  pData->fDeltaaddrow          = MNG_NULL;
+  pData->fDeltareplacerow      = MNG_NULL;
+  pData->fDeltaputrow          = MNG_NULL;
+
+  pData->fPromoterow           = MNG_NULL;
+  pData->fPromBitdepth         = MNG_NULL;
+  pData->pPromBuf              = MNG_NULL;
+  pData->iPromColortype        = 0;
+  pData->iPromBitdepth         = 0;
+  pData->iPromFilltype         = 0;
+  pData->iPromWidth            = 0;
+  pData->pPromSrc              = MNG_NULL;
+  pData->pPromDst              = MNG_NULL;
+
+  pData->iMAGNfromid           = 0;
+  pData->iMAGNtoid             = 0;
+
+  pData->iPastx                = 0;
+  pData->iPasty                = 0;
+
+  pData->pLastseek             = MNG_NULL;
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -1001,61 +1499,22 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
   MNG_VALIDHANDLE (*hHandle)           /* check validity handle */
   pData = ((mng_datap)(*hHandle));     /* and address main structure */
 
-#ifdef MNG_SUPPORT_READ
-  if ((pData->bReading) && (!pData->bEOF))
-    process_eof (pData);               /* cleanup app streaming */
-                                       /* cleanup default read buffers */
-  MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
-  MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
-  MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
-#endif
-
-#ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffers */
-  MNG_FREE (pData, pData->pWritebuf, pData->iWritebufsize)
-#endif
+  mng_reset (*hHandle);                /* do an implicit reset to cleanup most stuff */
 
 #ifdef MNG_SUPPORT_DISPLAY             /* drop object 0 */
-  free_imageobject (pData, (mng_imagep)pData->pObjzero);
+  mng_free_imageobject (pData, (mng_imagep)pData->pObjzero);
 #endif
 
-#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_INCLUDE_LCMS)
-  mng_clear_cms (pData);               /* cleanup left-over cms stuff if any */
-
+#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
   if (pData->hProf2)                   /* output profile defined ? */
     mnglcms_freeprofile (pData->hProf2);
 
   if (pData->hProf3)                   /* sRGB profile defined ? */
     mnglcms_freeprofile (pData->hProf3);
-
-#endif /* MNG_SUPPORT_DISPLAY && MNG_INCLUDE_LCMS */
-
-#ifdef MNG_INCLUDE_JNG
-  mngjpeg_cleanup (pData);             /* cleanup jpeg stuff */
-#endif
-
-#ifdef MNG_INCLUDE_ZLIB
-  if (pData->bInflating)               /* if we've been inflating */
-  {
-#ifdef MNG_INCLUDE_DISPLAY_PROCS
-    cleanup_rowproc (pData);           /* cleanup row-processing, */
-#endif
-    mngzlib_inflatefree (pData);       /* cleanup inflate! */
-  }
-#endif /* MNG_INCLUDE_ZLIB */
+#endif 
 
 #ifdef MNG_INCLUDE_ZLIB
   mngzlib_cleanup (pData);             /* cleanup zlib stuff */
-#endif
-
-#if defined(MNG_SUPPORT_READ) || defined(MNG_SUPPORT_WRITE)
-  mng_drop_chunks  (pData);            /* drop stored chunks (if any) */
-#endif
-
-#ifdef MNG_SUPPORT_DISPLAY
-  mng_drop_objects (pData, MNG_TRUE);  /* drop stored objects (if any) */
-
-  if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
-    MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1112,6 +1571,9 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 #endif
 
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
   cleanup_errors (pData);              /* cleanup previous errors */
 
   pData->bReading = MNG_TRUE;          /* read only! */
@@ -1119,7 +1581,7 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   if (!pData->fOpenstream (hHandle))   /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
-    iRetcode = read_graphic (pData);
+    iRetcode = mng_read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */
   {
@@ -1175,7 +1637,7 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
                         pData->fGettickcount (hHandle);
 #endif
 
-  iRetcode = read_graphic (pData);     /* continue reading now */
+  iRetcode = mng_read_graphic (pData); /* continue reading now */
 
   if (pData->bEOF)                     /* at EOF ? */
   {
@@ -1237,7 +1699,7 @@ mng_retcode MNG_DECL mng_write (mng_handle hHandle)
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
-  iRetcode = write_graphic (pData);    /* do the write */
+  iRetcode = mng_write_graphic (pData);/* do the write */
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1350,12 +1812,12 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   if (!pData->fOpenstream (hHandle))   /* open it and start reading */
     iRetcode = MNG_APPIOERROR;
   else
-    iRetcode = read_graphic (pData);
+    iRetcode = mng_read_graphic (pData);
 
   if (pData->bEOF)                     /* already at EOF ? */
   {
     pData->bReading = MNG_FALSE;       /* then we're no longer reading */
-    drop_invalid_objects (pData);      /* drop invalidly stored objects */
+    mng_drop_invalid_objects (pData);  /* drop invalidly stored objects */
   }
   
   if (iRetcode)                        /* on error bail out */
@@ -1373,7 +1835,12 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   if (pData->bSectionwait)             /* indicate section break ? */
     iRetcode = MNG_NEEDSECTIONWAIT;
   else
-    pData->bRunning = MNG_FALSE;       /* no breaks = end of run */
+  {                                    /* no breaks = end of run */
+    pData->bRunning = MNG_FALSE;
+
+    if (pData->bFreezing)              /* dynamic MNG reached SEEK ? */
+      pData->bFreezing = MNG_FALSE;    /* reset it ! */
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
@@ -1440,8 +1907,8 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   pData->iStarttime    = pData->iSynctime;
   pData->iEndtime      = 0;
   pData->pCurraniobj   = pData->pFirstaniobj;
-
-  iRetcode = process_display (pData);  /* go do it */
+                                       /* go do it */
+  iRetcode = mng_process_display (pData);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1449,7 +1916,12 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
   if (pData->bTimerset)                /* indicate timer break ? */
     iRetcode = MNG_NEEDTIMERWAIT;
   else
-    pData->bRunning = MNG_FALSE;       /* no breaks = end of run */
+  {                                    /* no breaks = end of run */
+    pData->bRunning = MNG_FALSE;
+
+    if (pData->bFreezing)              /* dynamic MNG reached SEEK ? */
+      pData->bFreezing = MNG_FALSE;    /* reset it ! */
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END)
@@ -1497,13 +1969,13 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
 
         pData->bSuspended = MNG_FALSE; /* now reset this flag */  
                                        /* and continue reading */
-        iRetcode = read_graphic (pData);
+        iRetcode = mng_read_graphic (pData);
 
         if (pData->bEOF)               /* already at EOF ? */
         {
           pData->bReading = MNG_FALSE; /* then we're no longer reading */
                                        /* drop invalidly stored objects */
-          drop_invalid_objects (pData);
+          mng_drop_invalid_objects (pData);
         }
       }
       else
@@ -1511,7 +1983,7 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
       {                                /* synchronize timing */
         pData->iSynctime = pData->fGettickcount (hHandle);
                                        /* resume display processing */
-        iRetcode = process_display (pData);
+        iRetcode = mng_process_display (pData);
       }
     }
     else
@@ -1524,7 +1996,7 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     pData->iSynctime = pData->fGettickcount (hHandle);
     pData->bRunning  = MNG_TRUE;       /* it's restarted again ! */
                                        /* resume display processing */
-    iRetcode = process_display (pData);
+    iRetcode = mng_process_display (pData);
   }
 
   if (iRetcode)                        /* on error bail out */
@@ -1543,34 +2015,16 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     iRetcode = MNG_NEEDSECTIONWAIT;
   else
   {                                    /* no breaks = end of run */
-    pData->bRunning        = MNG_FALSE;
+    pData->bRunning = MNG_FALSE;
 
     if (pData->bFreezing)              /* trying to freeze ? */
-    {                                  /* then we're there ! */
-      pData->bFreezing     = MNG_FALSE;
-    }
+      pData->bFreezing = MNG_FALSE;    /* then we're there */
 
     if (pData->bResetting)             /* trying to reset as well ? */
     {                                  /* full stop!!! */
-      pData->bDisplaying   = MNG_FALSE;
-      pData->bTimerset     = MNG_FALSE;
-      pData->iBreakpoint   = 0;
-      pData->bSectionwait  = MNG_FALSE;
-      pData->bFreezing     = MNG_FALSE;
-      pData->bResetting    = MNG_FALSE;
-      pData->pCurraniobj   = MNG_NULL;
-      pData->iFrameseq     = 0;        /* reset all display-state variables */
-      pData->iLayerseq     = 0;
-      pData->iFrametime    = 0;
-      pData->iRequestframe = 0;
-      pData->iRequestlayer = 0;
-      pData->iRequesttime  = 0;
-      pData->bSearching    = MNG_FALSE;
-                                       /* drop all display objects */
-      iRetcode = mng_drop_objects (pData, MNG_FALSE);
+      pData->bDisplaying = MNG_FALSE;
 
-      if (!iRetcode)                   /* drop the savebuffer */
-        iRetcode = mng_drop_savedata (pData);
+      iRetcode = mng_reset_rundata (pData);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1642,6 +2096,9 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
   if ((!pData->bDisplaying) || (pData->bReading))
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
   cleanup_errors (pData);              /* cleanup previous errors */
 
   if (pData->bRunning)                 /* is it running ? */
@@ -1655,27 +2112,10 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
       return iRetcode;
   }
   else
-  {
-    pData->bDisplaying   = MNG_FALSE;  /* full stop!!! */
-    pData->bRunning      = MNG_FALSE;
-    pData->bTimerset     = MNG_FALSE;
-    pData->iBreakpoint   = 0;
-    pData->bSectionwait  = MNG_FALSE;
-    pData->bFreezing     = MNG_FALSE;
-    pData->bResetting    = MNG_FALSE;
-    pData->pCurraniobj   = MNG_NULL;
-    pData->iFrameseq     = 0;          /* reset all display-state variables */
-    pData->iLayerseq     = 0;
-    pData->iFrametime    = 0;
-    pData->iRequestframe = 0;
-    pData->iRequestlayer = 0;
-    pData->iRequesttime  = 0;
-    pData->bSearching    = MNG_FALSE;
-                                       /* drop all display objects */
-    iRetcode = mng_drop_objects (pData, MNG_FALSE);
+  {                                    /* full stop!!! */
+    pData->bDisplaying = MNG_FALSE;
 
-    if (!iRetcode)                     /* drop the savebuffer */
-      iRetcode = mng_drop_savedata (pData);
+    iRetcode = mng_reset_rundata (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1711,13 +2151,16 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
   if ((!pData->bDisplaying) || (pData->bRunning))
     MNG_ERROR ((mng_datap)hHandle, MNG_FUNCTIONINVALID)
 
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
   if (iFramenr > pData->iFramecount)   /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_FRAMENRTOOHIGH);
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
   pData->iRequestframe = iFramenr;     /* go find the requested frame then */
-  iRetcode = process_display (pData);
+  iRetcode = mng_process_display (pData);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1752,13 +2195,16 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
   if ((!pData->bDisplaying) || (pData->bRunning))
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
   if (iLayernr > pData->iLayercount)   /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_LAYERNRTOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
   pData->iRequestlayer = iLayernr;     /* go find the requested layer then */
-  iRetcode = process_display (pData);
+  iRetcode = mng_process_display (pData);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1793,13 +2239,16 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
   if ((!pData->bDisplaying) || (pData->bRunning))
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
   if (iPlaytime > pData->iPlaytime)    /* is the parameter within bounds ? */
     MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
 
   pData->iRequesttime = iPlaytime;     /* go find the requested playtime then */
-  iRetcode = process_display (pData);
+  iRetcode = mng_process_display (pData);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1811,6 +2260,181 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
   return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_SUPPORT_DYNAMICMNG)
+mng_retcode MNG_DECL mng_trapevent (mng_handle hHandle,
+                                    mng_uint8  iEventtype,
+                                    mng_int32  iX,
+                                    mng_int32  iY)
+{
+  mng_datap   pData;
+  mng_eventp  pEvent;
+  mng_bool    bFound = MNG_FALSE;
+  mng_retcode iRetcode;
+  mng_imagep  pImage;
+  mng_uint8p  pPixel;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = ((mng_datap)hHandle);        /* and make it addressable */
+
+  if (pData->eImagetype != mng_it_mng) /* is it an animation ? */
+    MNG_ERROR (pData, MNG_NOTANANIMATION)
+
+  if (!pData->bDisplaying)             /* can we expect this call ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* let's find a matching event object */
+  pEvent = (mng_eventp)pData->pFirstevent;
+
+  while ((pEvent) && (!bFound))
+  {                                    /* matching eventtype ? */
+    if (pEvent->iEventtype == iEventtype)
+    {
+      switch (pEvent->iMasktype)       /* check X/Y on basis of masktype */
+      {
+        case MNG_MASK_NONE :           /* no mask is easy */
+          {
+            bFound = MNG_TRUE;
+            break;
+          }
+
+        case MNG_MASK_BOX :            /* inside the given box ? */
+          {                            /* right- and bottom-border don't count ! */
+            if ((iX >= pEvent->iLeft) && (iX < pEvent->iRight) &&
+                (iY >= pEvent->iTop) && (iY < pEvent->iBottom))
+              bFound = MNG_TRUE;
+            break;
+          }
+          
+        case MNG_MASK_OBJECT :         /* non-zero pixel in the image object ? */
+          {
+            pImage = mng_find_imageobject (pData, pEvent->iObjectid);
+                                       /* valid image ? */
+            if ((pImage) && (pImage->pImgbuf->iBitdepth <= 8) &&
+                ((pImage->pImgbuf->iColortype == 0) || (pImage->pImgbuf->iColortype == 3)) &&
+                ((mng_int32)pImage->pImgbuf->iWidth  > iX) &&
+                ((mng_int32)pImage->pImgbuf->iHeight > iY))
+            {
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+
+              if (*pPixel)             /* non-zero ? */
+                bFound = MNG_TRUE;
+            }
+
+            break;
+          }
+
+        case MNG_MASK_OBJECTIX :       /* pixel in the image object matches index ? */
+          {
+            pImage = mng_find_imageobject (pData, pEvent->iObjectid);
+                                       /* valid image ? */
+            if ((pImage) && (pImage->pImgbuf->iBitdepth <= 8) &&
+                ((pImage->pImgbuf->iColortype == 0) || (pImage->pImgbuf->iColortype == 3)) &&
+                ((mng_int32)pImage->pImgbuf->iWidth  > iX) && (iX >= 0) &&
+                ((mng_int32)pImage->pImgbuf->iHeight > iY) && (iY >= 0))
+            {
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+                                       /* matching index ? */
+              if (*pPixel == pEvent->iIndex)
+                bFound = MNG_TRUE;
+            }
+
+            break;
+          }
+
+        case MNG_MASK_BOXOBJECT :      /* non-zero pixel in the image object ? */
+          {
+            mng_int32 iTempx = iX - pEvent->iLeft;
+            mng_int32 iTempy = iY - pEvent->iTop;
+
+            pImage = mng_find_imageobject (pData, pEvent->iObjectid);
+                                       /* valid image ? */
+            if ((pImage) && (pImage->pImgbuf->iBitdepth <= 8) &&
+                ((pImage->pImgbuf->iColortype == 0) || (pImage->pImgbuf->iColortype == 3)) &&
+                (iTempx < (mng_int32)pImage->pImgbuf->iWidth) &&
+                (iTempx >= 0) && (iX < pEvent->iRight) &&
+                (iTempy < (mng_int32)pImage->pImgbuf->iHeight) &&
+                (iTempy >= 0) && (iY < pEvent->iBottom))
+            {
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+
+              if (*pPixel)             /* non-zero ? */
+                bFound = MNG_TRUE;
+            }
+
+            break;
+          }
+
+        case MNG_MASK_BOXOBJECTIX :    /* pixel in the image object matches index ? */
+          {
+            mng_int32 iTempx = iX - pEvent->iLeft;
+            mng_int32 iTempy = iY - pEvent->iTop;
+
+            pImage = mng_find_imageobject (pData, pEvent->iObjectid);
+                                       /* valid image ? */
+            if ((pImage) && (pImage->pImgbuf->iBitdepth <= 8) &&
+                ((pImage->pImgbuf->iColortype == 0) || (pImage->pImgbuf->iColortype == 3)) &&
+                (iTempx < (mng_int32)pImage->pImgbuf->iWidth) &&
+                (iTempx >= 0) && (iX < pEvent->iRight) &&
+                (iTempy < (mng_int32)pImage->pImgbuf->iHeight) &&
+                (iTempy >= 0) && (iY < pEvent->iBottom))
+            {
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+                                       /* matching index ? */
+              if (*pPixel == pEvent->iIndex)
+                bFound = MNG_TRUE;
+            }
+
+            break;
+          }
+
+      }
+    }
+
+    if (!bFound)                       /* try the next one */
+      pEvent = (mng_eventp)pEvent->sHeader.pNext;
+  }
+                                       /* found one that's not the last mousemove ? */
+  if ((pEvent) && ((mng_objectp)pEvent != pData->pLastmousemove))
+  {                                    /* can we start an event process now ? */
+    if ((!pData->bReading) && (!pData->bRunning))
+    {
+      pData->iEventx = iX;             /* save coordinates */
+      pData->iEventy = iY;
+                                       /* do it then ! */
+      iRetcode = pEvent->sHeader.fProcess (pData, pEvent);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+                                       /* remember last mousemove event */
+      if (pEvent->iEventtype == MNG_EVENT_MOUSEMOVE)
+        pData->pLastmousemove = (mng_objectp)pEvent;
+      else
+        pData->pLastmousemove = MNG_NULL;
+    }
+    else
+    {
+
+      /* TODO: store unprocessed events or not ??? */
+
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_TRAPEVENT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif
 
 /* ************************************************************************** */
 
@@ -1855,4 +2479,5 @@ mng_retcode MNG_DECL mng_getlasterror (mng_handle   hHandle,
 /* ************************************************************************** */
 /* * end of file                                                            * */
 /* ************************************************************************** */
+
 

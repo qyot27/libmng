@@ -1,3 +1,11 @@
+2001-07-08  Greg Roelofs  <newt@pobox.com>
+	- added SDL/libmng/zlib/libjpeg version info to usage screen
+	- added mouse-click handling (as an alternate quit mode)
+	- added completely static build
+	- fixed automake setup to order options and libraries correctly on
+	  link line, and included resulting files (configure, Makefile.in,
+	  etc.) in order to match instructions in INSTALL file
+
 2000-07-06  Ralph Giles  <giles@ashlu.bc.ca>
 	* Release 0.1
 	- added error handling callback

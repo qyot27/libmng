@@ -1,4 +1,4 @@
-libmng - Multiple-image Network Graphics (MNG) Reference Library 1.0.0
+libmng - Multiple-image Network Graphics (MNG) Reference Library 1.0.5
 
 DESCRIPTION
 The libmng library supports decoding, displaying, encoding, and various
@@ -12,7 +12,7 @@ I. Introduction
 
 This file describes how to use and modify the MNG reference library
 (known as libmng) for your own use.  There are seven sections to this
-file: introduction, callbacks, housekeeping, reading, displaying, 
+file: introduction, callbacks, housekeeping, reading, displaying,
 writing, and modification and configuration notes for various special
 platforms. We assume that libmng is already installed; see the
 INSTALL.README file for instructions on how to install libmng.
@@ -20,13 +20,13 @@ INSTALL.README file for instructions on how to install libmng.
 Libmng was written to support and promote the MNG specification.
 
 The latest MNG specification (currently 1.0) is available at
-  http://www.libpng.org/pub/mng
+  http://www.libpng.org/pub/mng/
 
 Other information about MNG can be found at the MNG home page at
-  http://www.libpng.org/pub/mng
+  http://www.libpng.org/pub/mng/
 
 The latest version of libmng can be found at its own homepage at
-  http://www.libmng.com
+  http://www.libmng.com/
 
 In most cases the library will not need to be changed.
 For standardization purposes the library contains both a Windows DLL
@@ -40,7 +40,7 @@ to use.
 
 Libmng uses zlib for its compression and decompression of MNG files.
 Further information about zlib, and the latest version of zlib, can be
-found at the zlib home page, <http://www.info-zip.org/pub/infozip/zlib/>.
+found at the zlib home page, <http://www.zlib.org/>.
 The zlib compression utility is a general purpose utility that is
 useful for more than MNG/PNG files, and can be used without libmng.
 See the documentation delivered with zlib for more details.
@@ -50,7 +50,7 @@ Libmng optionally uses the JPEG library by the Independant JPEG Group
 the MNG specification, and allows for inclusion of JPEG decoded and
 thus highly compressed (photographic) images.
 Further information about the IJG JPEG library and the latest sources
-can be found at <http://www.ijg.org>.
+can be found at <http://www.ijg.org/>.
 
 Libmng can also optionally use the lcms (little CMS) library by
 Marti Maria Saguer. This library provides an excellent color-management
@@ -117,11 +117,11 @@ This is the recommended place to do I/O initialization & finalization.
 Whether you do or not, is up to you. The library does not put any
 meaning into the calls. They are simply provided for your convenience.
 
-- mng_bool mng_readdata (mng_handle  hHandle, 
-                         mng_ptr     pBuf, 
-                         mng_uint32  iBuflen, 
+- mng_bool mng_readdata (mng_handle  hHandle,
+                         mng_ptr     pBuf,
+                         mng_uint32  iBuflen,
                          mng_uint32p pRead)
-    
+
 This function is called when the library needs some more input while
 reading an image. The reading process supports two modes:
 Suspension-mode (SMOD) and non-suspension-mode (NSMOD).
@@ -140,7 +140,7 @@ more input-data has arrived.
 For NSMOD this function could be as simple as:
 
     mng_bool my_read (mng_handle  hHandle,
-                      mng_ptr     pBuf, 
+                      mng_ptr     pBuf,
                       mng_uint32  iBuflen,
                       mng_uint32p pRead) {
       *pRead = fread (pBuf, 1, iBuflen, myfile);
@@ -148,8 +148,8 @@ For NSMOD this function could be as simple as:
     }
 
 - mng_bool mng_writedata (mng_handle  hHandle,
-                          mng_ptr     pBuf, 
-                          mng_uint32  iBuflen, 
+                          mng_ptr     pBuf,
+                          mng_uint32  iBuflen,
                           mng_uint32p pWritten)
 
 This function is called during the mng_write() function to actually
@@ -902,7 +902,7 @@ the library to advance the animation to the next frame.
 - mng_display_reset (mng_handle hHandle)
 
 This function will "reset" the animation into its pristine state.
-Calling mng_display_resume() afterwards will restart the animation
+Calling mng_display() afterwards will re-display the animation
 from the first frame.
 
 - mng_display_golayer    (mng_handle hHandle,

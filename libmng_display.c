@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_display.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_display.c          copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -134,6 +134,36 @@
 /* *             0.9.5 -  1/23/2001 - G.Juyn                                * */
 /* *             - fixed timing-problem with switching framing_modes        * */
 /* *                                                                        * */
+/* *             1.0.1 - 02/08/2001 - G.Juyn                                * */
+/* *             - added MEND processing callback                           * */
+/* *             1.0.1 - 02/13/2001 - G.Juyn                                * */
+/* *             - fixed first FRAM_MODE=4 timing problem                   * */
+/* *             1.0.1 - 04/21/2001 - G.Juyn                                * */
+/* *             - fixed memory-leak for JNGs with alpha (Thanks Gregg!)    * */
+/* *             - added BGRA8 canvas with premultiplied alpha              * */
+/* *                                                                        * */
+/* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
+/* *             - fixed memory-leak with delta-images (Thanks Michael!)    * */
+/* *                                                                        * */
+/* *             1.0.5 - 08/15/2002 - G.Juyn                                * */
+/* *             - completed PROM support                                   * */
+/* *             - completed delta-image support                            * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *             1.0.5 - 09/13/2002 - G.Juyn                                * */
+/* *             - fixed read/write of MAGN chunk                           * */
+/* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
+/* *             - fixed LOOP iteration=0 special case                      * */
+/* *             1.0.5 - 09/19/2002 - G.Juyn                                * */
+/* *             - fixed color-correction for restore-background handling   * */
+/* *             - optimized restore-background for bKGD cases              * */
+/* *             - cleaned up some old stuff                                * */
+/* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
+/* *             - finished support for BACK image & tiling                 * */
+/* *             - added support for PAST                                   * */
+/* *             1.0.5 - 09/22/2002 - G.Juyn                                * */
+/* *             - added bgrx8 canvas (filler byte)                         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -143,6 +173,7 @@
 #ifdef __BORLANDC__
 #pragma hdrstop
 #endif
+#include "libmng_chunks.h"
 #include "libmng_objects.h"
 #include "libmng_object_prc.h"
 #include "libmng_memory.h"
@@ -162,8 +193,8 @@
 
 /* ************************************************************************** */
 
-mng_retcode set_delay (mng_datap  pData,
-                       mng_uint32 iInterval)
+MNG_LOCAL mng_retcode set_delay (mng_datap  pData,
+                                 mng_uint32 iInterval)
 {
   if (!iInterval)                      /* at least 1 msec please! */
     iInterval = 1;
@@ -184,12 +215,12 @@ mng_retcode set_delay (mng_datap  pData,
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode display_progressive_refresh (mng_datap  pData,
+mng_retcode mng_display_progressive_refresh (mng_datap  pData,
                                          mng_uint32 iInterval)
 {
   if (!pData->bSearching)              /* we mustn't be searching !!! */
-  {
-    if ((pData->bRunning) &&           /* let the app refresh first ? */
+  {                                    /* let the app refresh first ? */
+    if ((pData->bRunning) && (!pData->bSkipping) &&
         (pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
     {
       if (!pData->fRefresh (((mng_handle)pData),
@@ -223,7 +254,7 @@ mng_retcode display_progressive_refresh (mng_datap  pData,
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode interframe_delay (mng_datap pData)
+MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 {
   mng_uint32  iWaitfor = 0;
   mng_uint32  iInterval;
@@ -237,8 +268,8 @@ mng_retcode interframe_delay (mng_datap pData)
   if (!pData->bSearching)              /* we mustn't be searching !!! */
   {                                    
     if (pData->iFramedelay > 0)        /* real delay ? */
-    {
-      if ((pData->bRunning) &&         /* let the app refresh first ? */
+    {                                  /* let the app refresh first ? */
+      if ((pData->bRunning) && (!pData->bSkipping) &&
           (pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
         if (!pData->fRefresh (((mng_handle)pData),
                               pData->iUpdateleft,  pData->iUpdatetop,
@@ -301,8 +332,8 @@ mng_retcode interframe_delay (mng_datap pData)
         iInterval = iWaitfor - iRuninterval;
       else
         iInterval = 1;                 /* force app to process messageloop */
-
-      if (pData->bRunning)             /* set the timer ? */
+                                       /* set the timer ? */
+      if ((pData->bRunning) && (!pData->bSkipping))
       {
         iRetcode = set_delay (pData, iInterval);
 
@@ -310,8 +341,8 @@ mng_retcode interframe_delay (mng_datap pData)
           return iRetcode;
       }
     }
-
-    if (pData->bRunning)               /* increase frametime in advance */
+                                       /* increase frametime in advance */
+    if ((pData->bRunning) && (!pData->bSkipping))
       pData->iFrametime = pData->iFrametime + iWaitfor;
                                        /* setup for next delay */
     pData->iFramedelay = pData->iNextdelay;
@@ -326,36 +357,38 @@ mng_retcode interframe_delay (mng_datap pData)
 
 /* ************************************************************************** */
 
-void set_display_routine (mng_datap pData)
+MNG_LOCAL void set_display_routine (mng_datap pData)
 {                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bFreezing))
+  if ((pData->bRunning) && (!pData->bSkipping))
   {
     switch (pData->iCanvasstyle)         /* determine display routine */
     {
-      case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_fptr)display_rgb8;    break; }
-      case MNG_CANVAS_RGBA8   : { pData->fDisplayrow = (mng_fptr)display_rgba8;   break; }
-      case MNG_CANVAS_ARGB8   : { pData->fDisplayrow = (mng_fptr)display_argb8;   break; }
-      case MNG_CANVAS_RGB8_A8 : { pData->fDisplayrow = (mng_fptr)display_rgb8_a8; break; }
-      case MNG_CANVAS_BGR8    : { pData->fDisplayrow = (mng_fptr)display_bgr8;    break; }
-      case MNG_CANVAS_BGRA8   : { pData->fDisplayrow = (mng_fptr)display_bgra8;   break; }
-      case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_fptr)display_abgr8;   break; }
-/*      case MNG_CANVAS_RGB16   : { pData->fDisplayrow = (mng_fptr)display_rgb16;   break; } */
-/*      case MNG_CANVAS_RGBA16  : { pData->fDisplayrow = (mng_fptr)display_rgba16;  break; } */
-/*      case MNG_CANVAS_ARGB16  : { pData->fDisplayrow = (mng_fptr)display_argb16;  break; } */
-/*      case MNG_CANVAS_BGR16   : { pData->fDisplayrow = (mng_fptr)display_bgr16;   break; } */
-/*      case MNG_CANVAS_BGRA16  : { pData->fDisplayrow = (mng_fptr)display_bgra16;  break; } */
-/*      case MNG_CANVAS_ABGR16  : { pData->fDisplayrow = (mng_fptr)display_abgr16;  break; } */
-/*      case MNG_CANVAS_INDEX8  : { pData->fDisplayrow = (mng_fptr)display_index8;  break; } */
-/*      case MNG_CANVAS_INDEXA8 : { pData->fDisplayrow = (mng_fptr)display_indexa8; break; } */
-/*      case MNG_CANVAS_AINDEX8 : { pData->fDisplayrow = (mng_fptr)display_aindex8; break; } */
-/*      case MNG_CANVAS_GRAY8   : { pData->fDisplayrow = (mng_fptr)display_gray8;   break; } */
-/*      case MNG_CANVAS_GRAY16  : { pData->fDisplayrow = (mng_fptr)display_gray16;  break; } */
-/*      case MNG_CANVAS_GRAYA8  : { pData->fDisplayrow = (mng_fptr)display_graya8;  break; } */
-/*      case MNG_CANVAS_GRAYA16 : { pData->fDisplayrow = (mng_fptr)display_graya16; break; } */
-/*      case MNG_CANVAS_AGRAY8  : { pData->fDisplayrow = (mng_fptr)display_agray8;  break; } */
-/*      case MNG_CANVAS_AGRAY16 : { pData->fDisplayrow = (mng_fptr)display_agray16; break; } */
-/*      case MNG_CANVAS_DX15    : { pData->fDisplayrow = (mng_fptr)display_dx15;    break; } */
-/*      case MNG_CANVAS_DX16    : { pData->fDisplayrow = (mng_fptr)display_dx16;    break; } */
+      case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8;     break; }
+      case MNG_CANVAS_RGBA8   : { pData->fDisplayrow = (mng_fptr)mng_display_rgba8;    break; }
+      case MNG_CANVAS_ARGB8   : { pData->fDisplayrow = (mng_fptr)mng_display_argb8;    break; }
+      case MNG_CANVAS_RGB8_A8 : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8_a8;  break; }
+      case MNG_CANVAS_BGR8    : { pData->fDisplayrow = (mng_fptr)mng_display_bgr8;     break; }
+      case MNG_CANVAS_BGRX8   : { pData->fDisplayrow = (mng_fptr)mng_display_bgrx8;    break; }
+      case MNG_CANVAS_BGRA8   : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8;    break; }
+      case MNG_CANVAS_BGRA8PM : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8_pm; break; }
+      case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_fptr)mng_display_abgr8;    break; }
+/*      case MNG_CANVAS_RGB16   : { pData->fDisplayrow = (mng_fptr)mng_display_rgb16;    break; } */
+/*      case MNG_CANVAS_RGBA16  : { pData->fDisplayrow = (mng_fptr)mng_display_rgba16;   break; } */
+/*      case MNG_CANVAS_ARGB16  : { pData->fDisplayrow = (mng_fptr)mng_display_argb16;   break; } */
+/*      case MNG_CANVAS_BGR16   : { pData->fDisplayrow = (mng_fptr)mng_display_bgr16;    break; } */
+/*      case MNG_CANVAS_BGRA16  : { pData->fDisplayrow = (mng_fptr)mng_display_bgra16;   break; } */
+/*      case MNG_CANVAS_ABGR16  : { pData->fDisplayrow = (mng_fptr)mng_display_abgr16;   break; } */
+/*      case MNG_CANVAS_INDEX8  : { pData->fDisplayrow = (mng_fptr)mng_display_index8;   break; } */
+/*      case MNG_CANVAS_INDEXA8 : { pData->fDisplayrow = (mng_fptr)mng_display_indexa8;  break; } */
+/*      case MNG_CANVAS_AINDEX8 : { pData->fDisplayrow = (mng_fptr)mng_display_aindex8;  break; } */
+/*      case MNG_CANVAS_GRAY8   : { pData->fDisplayrow = (mng_fptr)mng_display_gray8;    break; } */
+/*      case MNG_CANVAS_GRAY16  : { pData->fDisplayrow = (mng_fptr)mng_display_gray16;   break; } */
+/*      case MNG_CANVAS_GRAYA8  : { pData->fDisplayrow = (mng_fptr)mng_display_graya8;   break; } */
+/*      case MNG_CANVAS_GRAYA16 : { pData->fDisplayrow = (mng_fptr)mng_display_graya16;  break; } */
+/*      case MNG_CANVAS_AGRAY8  : { pData->fDisplayrow = (mng_fptr)mng_display_agray8;   break; } */
+/*      case MNG_CANVAS_AGRAY16 : { pData->fDisplayrow = (mng_fptr)mng_display_agray16;  break; } */
+/*      case MNG_CANVAS_DX15    : { pData->fDisplayrow = (mng_fptr)mng_display_dx15;     break; } */
+/*      case MNG_CANVAS_DX16    : { pData->fDisplayrow = (mng_fptr)mng_display_dx16;     break; } */
     }
   }
 
@@ -364,34 +397,42 @@ void set_display_routine (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode load_bkgdlayer (mng_datap pData)
+MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bFreezing))
+  if ((pData->bRunning) && (!pData->bSkipping))
   {
     mng_int32   iY;
-    mng_retcode iRetcode;              /* save values */
-    mng_int32   iDestl      = pData->iDestl;
-    mng_int32   iDestr      = pData->iDestr;
-    mng_int32   iDestt      = pData->iDestt;
-    mng_int32   iDestb      = pData->iDestb;
-    mng_int32   iSourcel    = pData->iSourcel;
-    mng_int32   iSourcer    = pData->iSourcer;
-    mng_int32   iSourcet    = pData->iSourcet;
-    mng_int32   iSourceb    = pData->iSourceb;
-    mng_int8    iPass       = pData->iPass;
-    mng_int32   iRow        = pData->iRow;
-    mng_int32   iRowinc     = pData->iRowinc;
-    mng_int32   iCol        = pData->iCol;
-    mng_int32   iColinc     = pData->iColinc;
-    mng_int32   iRowsamples = pData->iRowsamples;
-    mng_int32   iRowsize    = pData->iRowsize;
-    mng_bool    bIsRGBA16   = pData->bIsRGBA16;
-    mng_bool    bIsOpaque   = pData->bIsOpaque;
-    mng_fptr    fCorrectrow = pData->fCorrectrow;
+    mng_retcode iRetcode;
+    mng_bool    bColorcorr   = MNG_FALSE;
+                                       /* save values */
+    mng_int32   iDestl       = pData->iDestl;
+    mng_int32   iDestr       = pData->iDestr;
+    mng_int32   iDestt       = pData->iDestt;
+    mng_int32   iDestb       = pData->iDestb;
+    mng_int32   iSourcel     = pData->iSourcel;
+    mng_int32   iSourcer     = pData->iSourcer;
+    mng_int32   iSourcet     = pData->iSourcet;
+    mng_int32   iSourceb     = pData->iSourceb;
+    mng_int8    iPass        = pData->iPass;
+    mng_int32   iRow         = pData->iRow;
+    mng_int32   iRowinc      = pData->iRowinc;
+    mng_int32   iCol         = pData->iCol;
+    mng_int32   iColinc      = pData->iColinc;
+    mng_int32   iRowsamples  = pData->iRowsamples;
+    mng_int32   iRowsize     = pData->iRowsize;
+    mng_uint8p  pPrevrow     = pData->pPrevrow;
+    mng_uint8p  pRGBArow     = pData->pRGBArow;
+    mng_bool    bIsRGBA16    = pData->bIsRGBA16;
+    mng_bool    bIsOpaque    = pData->bIsOpaque;
+    mng_fptr    fCorrectrow  = pData->fCorrectrow;
+    mng_fptr    fDisplayrow  = pData->fDisplayrow;
+    mng_fptr    fRetrieverow = pData->fRetrieverow;
+    mng_objectp pCurrentobj  = pData->pCurrentobj;
+    mng_objectp pRetrieveobj = pData->pRetrieveobj;
 
     pData->iDestl   = 0;               /* determine clipping region */
     pData->iDestt   = 0;
@@ -415,7 +456,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
       pData->iColinc     = 1;
       pData->iRowsamples = pData->iWidth;
       pData->iRowsize    = pData->iRowsamples << 2;
-      pData->bIsRGBA16   = MNG_FALSE;    /* let's keep it simple ! */
+      pData->bIsRGBA16   = MNG_FALSE;  /* let's keep it simple ! */
       pData->bIsOpaque   = MNG_TRUE;
 
       pData->iSourcel    = 0;          /* source relative to destination */
@@ -425,54 +466,71 @@ mng_retcode load_bkgdlayer (mng_datap pData)
 
       set_display_routine (pData);     /* determine display routine */
                                        /* default restore using preset BG color */
-      pData->fRestbkgdrow = (mng_fptr)restore_bkgd_bgcolor;
+      pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgcolor;
 
       if (((pData->eImagetype == mng_it_png) || (pData->eImagetype == mng_it_jng)) &&
           (pData->bUseBKGD))
       {                                /* prefer bKGD in PNG/JNG */
-        mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
+        if (!pData->pCurrentobj)
+          pData->pCurrentobj = pData->pObjzero;
 
-        if (!pImage)
-          pImage = (mng_imagep)pData->pObjzero;
-
-        if (pImage->pImgbuf->bHasBKGD)
-          pData->fRestbkgdrow = (mng_fptr)restore_bkgd_bkgd;
+        if (((mng_imagep)pData->pCurrentobj)->pImgbuf->bHasBKGD)
+        {
+          pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bkgd;
+          bColorcorr          = MNG_TRUE;
+        }
       }
 
       if (pData->fGetbkgdline)         /* background-canvas-access callback set ? */
       {
         switch (pData->iBkgdstyle)
         {
-          case MNG_CANVAS_RGB8    : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_rgb8;    break; }
-          case MNG_CANVAS_BGR8    : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_bgr8;    break; }
-  /*        case MNG_CANVAS_RGB16   : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_rgb16;   break; } */
-  /*        case MNG_CANVAS_BGR16   : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_bgr16;   break; } */
-  /*        case MNG_CANVAS_INDEX8  : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_index8;  break; } */
-  /*        case MNG_CANVAS_GRAY8   : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_gray8;   break; } */
-  /*        case MNG_CANVAS_GRAY16  : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_gray16;  break; } */
-  /*        case MNG_CANVAS_DX15    : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_dx15;    break; } */
-  /*        case MNG_CANVAS_DX16    : { pData->fRestbkgdrow = (mng_fptr)restore_bkgd_dx16;    break; } */
+          case MNG_CANVAS_RGB8    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb8;    break; }
+          case MNG_CANVAS_BGR8    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgr8;    break; }
+          case MNG_CANVAS_BGRX8   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgrx8;   break; }
+  /*        case MNG_CANVAS_RGB16   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb16;   break; } */
+  /*        case MNG_CANVAS_BGR16   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgr16;   break; } */
+  /*        case MNG_CANVAS_INDEX8  : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_index8;  break; } */
+  /*        case MNG_CANVAS_GRAY8   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_gray8;   break; } */
+  /*        case MNG_CANVAS_GRAY16  : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_gray16;  break; } */
+  /*        case MNG_CANVAS_DX15    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_dx15;    break; } */
+  /*        case MNG_CANVAS_DX16    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_dx16;    break; } */
         }
       }
 
       if (pData->bHasBACK)
       {                                /* background image ? */
         if ((pData->iBACKmandatory & 0x02) && (pData->iBACKimageid))
-          pData->fRestbkgdrow = (mng_fptr)restore_bkgd_backimage;
+        {
+          pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_backcolor;
+          bColorcorr          = MNG_TRUE;
+        }
         else                           /* background color ? */
         if (pData->iBACKmandatory & 0x01)
-          pData->fRestbkgdrow = (mng_fptr)restore_bkgd_backcolor;
-
+        {
+          pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_backcolor;
+          bColorcorr          = MNG_TRUE;
+        }
       }
 
       pData->fCorrectrow = MNG_NULL;   /* default no color-correction */
 
-
-      /* TODO: determine color correction; this is tricky;
-         the BACK color is treated differently as the image;
-         it probably requires a rewrite of the logic here... */
-
-
+      if (bColorcorr)                  /* do we have to do color-correction ? */
+      {
+#ifdef MNG_NO_CMS
+        iRetcode = MNG_NOERROR;
+#else
+#if defined(MNG_FULL_CMS)              /* determine color-management routine */
+        iRetcode = mng_init_full_cms   (pData, MNG_TRUE, MNG_FALSE, MNG_FALSE);
+#elif defined(MNG_GAMMA_ONLY)
+        iRetcode = mng_init_gamma_only (pData, MNG_TRUE, MNG_FALSE, MNG_FALSE);
+#elif defined(MNG_APP_CMS)
+        iRetcode = mng_init_app_cms    (pData, MNG_TRUE, MNG_FALSE, MNG_FALSE);
+#endif
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+#endif /* MNG_NO_CMS */
+      }
                                        /* get a temporary row-buffer */
       MNG_ALLOC (pData, pData->pRGBArow, pData->iRowsize)
 
@@ -490,7 +548,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
           iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
         if (!iRetcode)
-          iRetcode = next_row (pData); /* adjust variables for next row */
+          iRetcode = mng_next_row (pData);
 
         iY++;                          /* and next line */
       }
@@ -500,26 +558,227 @@ mng_retcode load_bkgdlayer (mng_datap pData)
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
 
+#if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
+      if (bColorcorr)                  /* did we do color-correction ? */
+      {
+        iRetcode = mng_clear_cms (pData);
+
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+      }
+#endif
+                                       /* background image ? */
+      if ((pData->bHasBACK) && (pData->iBACKmandatory & 0x02) && (pData->iBACKimageid))
+      {
+        mng_imagep pImage;
+                                       /* let's find that object then */
+        pData->pRetrieveobj = mng_find_imageobject (pData, pData->iBACKimageid);
+        pImage              = (mng_imagep)pData->pRetrieveobj;
+                                       /* exists, viewable and visible ? */
+        if ((pImage) && (pImage->bViewable) && (pImage->bVisible))
+        {                              /* will it fall within the target region ? */
+          if ((pImage->iPosx < pData->iDestr) && (pImage->iPosy < pData->iDestb)             &&
+              ((pData->iBACKtile) ||
+               ((pImage->iPosx + (mng_int32)pImage->pImgbuf->iWidth  >= pData->iDestl) &&
+                (pImage->iPosy + (mng_int32)pImage->pImgbuf->iHeight >= pData->iDestt)    )) &&
+              ((!pImage->bClipped) ||
+               ((pImage->iClipl <= pImage->iClipr) && (pImage->iClipt <= pImage->iClipb)     &&
+                (pImage->iClipl < pData->iDestr)   && (pImage->iClipr >= pData->iDestl)      &&
+                (pImage->iClipt < pData->iDestb)   && (pImage->iClipb >= pData->iDestt)         )))
+          {                            /* right; we've got ourselves something to do */
+                                       /* clip output region with image's clipping region */
+            if (pImage->iClipl > pData->iDestl)
+              pData->iDestl = pImage->iClipl;
+            if (pImage->iClipr < pData->iDestr)
+              pData->iDestr = pImage->iClipr;
+            if (pImage->iClipt > pData->iDestt)
+              pData->iDestt = pImage->iClipt;
+            if (pImage->iClipb < pData->iDestb)
+              pData->iDestb = pImage->iClipb;
+                                       /* image offset does some extra clipping too ! */
+            if (pImage->iPosx > pData->iDestl)
+              pData->iDestl = pImage->iPosx;
+            if (pImage->iPosy > pData->iDestt)
+              pData->iDestt = pImage->iPosy;
+
+            if (!pData->iBACKtile)     /* without tiling further clipping is needed */
+            {
+              if (pImage->iPosx + (mng_int32)pImage->pImgbuf->iWidth  < pData->iDestr)
+                pData->iDestr = pImage->iPosx + (mng_int32)pImage->pImgbuf->iWidth;
+              if (pImage->iPosy + (mng_int32)pImage->pImgbuf->iHeight < pData->iDestb)
+                pData->iDestb = pImage->iPosy + (mng_int32)pImage->pImgbuf->iHeight;
+            }
+            
+            pData->iSourcel    = 0;    /* source relative to destination */
+            pData->iSourcer    = pData->iDestr - pData->iDestl;
+            pData->iSourcet    = 0;
+            pData->iSourceb    = pData->iDestb - pData->iDestt;
+                                       /* 16-bit background ? */
+            pData->bIsRGBA16      = (mng_bool)(pImage->pImgbuf->iBitdepth > 8);
+                                       /* let restore routine now the offsets !!! */
+            pData->iBackimgoffsx  = pImage->iPosx;
+            pData->iBackimgoffsy  = pImage->iPosy;
+            pData->iBackimgwidth  = pImage->pImgbuf->iWidth;
+            pData->iBackimgheight = pImage->pImgbuf->iHeight;
+            pData->iRow           = 0; /* start at the top again !! */
+                                       /* determine background object retrieval routine */
+            switch (pImage->pImgbuf->iColortype)
+            {
+              case  0 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
+
+                          pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
+                          break;
+                        }
+
+              case  2 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
+
+                          pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
+                          break;
+                        }
+
+              case  3 : { pData->fRetrieverow   = (mng_fptr)mng_retrieve_idx8;
+                          pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
+                          break;
+                        }
+
+              case  4 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
+
+                          pData->bIsOpaque      = MNG_FALSE;
+                          break;
+                        }
+
+              case  6 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
+
+                          pData->bIsOpaque      = MNG_FALSE;
+                          break;
+                        }
+
+              case  8 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
+
+                          pData->bIsOpaque      = MNG_TRUE;
+                          break;
+                        }
+
+              case 10 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
+
+                          pData->bIsOpaque      = MNG_TRUE;
+                          break;
+                        }
+
+              case 12 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
+
+                          pData->bIsOpaque      = MNG_FALSE;
+                          break;
+                        }
+
+              case 14 : { if (pImage->pImgbuf->iBitdepth > 8)
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
+                          else
+                            pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
+
+                          pData->bIsOpaque      = MNG_FALSE;
+                          break;
+                        }
+            }
+
+#ifdef MNG_NO_CMS
+            iRetcode = MNG_NOERROR;
+#else
+#if defined(MNG_FULL_CMS)              /* determine color-management routine */
+            iRetcode = mng_init_full_cms   (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#elif defined(MNG_GAMMA_ONLY)
+            iRetcode = mng_init_gamma_only (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#elif defined(MNG_APP_CMS)
+            iRetcode = mng_init_app_cms    (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#endif
+            if (iRetcode)              /* on error bail out */
+              return iRetcode;
+#endif /* MNG_NO_CMS */
+                                       /* get temporary row-buffers */
+            MNG_ALLOC (pData, pData->pPrevrow, pData->iRowsize)
+            MNG_ALLOC (pData, pData->pRGBArow, pData->iRowsize)
+
+            iY       = pData->iDestt;  /* this is where we start */
+            iRetcode = MNG_NOERROR;    /* so far, so good */
+
+            while ((!iRetcode) && (iY < pData->iDestb))
+            {                          /* restore a background row */
+              iRetcode = mng_restore_bkgd_backimage (pData);
+                                       /* color correction ? */
+              if ((!iRetcode) && (pData->fCorrectrow))
+                iRetcode = ((mng_correctrow)pData->fCorrectrow) (pData);
+
+              if (!iRetcode)           /* so... display it */
+                iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
+
+              if (!iRetcode)
+                iRetcode = mng_next_row (pData);
+
+              iY++;                    /* and next line */
+            }
+                                       /* drop temporary row-buffers */
+            MNG_FREE (pData, pData->pRGBArow, pData->iRowsize)
+            MNG_FREE (pData, pData->pPrevrow, pData->iRowsize)
+
+            if (iRetcode)              /* on error bail out */
+              return iRetcode;
+
+#if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
+            iRetcode = mng_clear_cms (pData);
+
+            if (iRetcode)              /* on error bail out */
+              return iRetcode;
+#endif
+          }
+        }
+      }
     }
 
-    pData->iDestl      = iDestl;       /* restore values */
-    pData->iDestr      = iDestr;
-    pData->iDestt      = iDestt;
-    pData->iDestb      = iDestb;
-    pData->iSourcel    = iSourcel;
-    pData->iSourcer    = iSourcer;
-    pData->iSourcet    = iSourcet;
-    pData->iSourceb    = iSourceb;
-    pData->iPass       = iPass;
-    pData->iRow        = iRow;
-    pData->iRowinc     = iRowinc;
-    pData->iCol        = iCol;
-    pData->iColinc     = iColinc;
-    pData->iRowsamples = iRowsamples;
-    pData->iRowsize    = iRowsize;
-    pData->bIsRGBA16   = bIsRGBA16;
-    pData->bIsOpaque   = bIsOpaque;
-    pData->fCorrectrow = fCorrectrow;
+    pData->iDestl       = iDestl;      /* restore values */
+    pData->iDestr       = iDestr;
+    pData->iDestt       = iDestt;
+    pData->iDestb       = iDestb;
+    pData->iSourcel     = iSourcel;
+    pData->iSourcer     = iSourcer;
+    pData->iSourcet     = iSourcet;
+    pData->iSourceb     = iSourceb;
+    pData->iPass        = iPass;
+    pData->iRow         = iRow;
+    pData->iRowinc      = iRowinc;
+    pData->iCol         = iCol;
+    pData->iColinc      = iColinc;
+    pData->iRowsamples  = iRowsamples;
+    pData->iRowsize     = iRowsize;
+    pData->pPrevrow     = pPrevrow;
+    pData->pRGBArow     = pRGBArow;
+    pData->bIsRGBA16    = bIsRGBA16;
+    pData->bIsOpaque    = bIsOpaque;
+    pData->fCorrectrow  = fCorrectrow;
+    pData->fDisplayrow  = fDisplayrow; 
+    pData->fRetrieverow = fRetrieverow;
+    pData->pCurrentobj  = pCurrentobj;
+    pData->pRetrieveobj = pRetrieveobj;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -531,7 +790,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode clear_canvas (mng_datap pData)
+MNG_LOCAL mng_retcode clear_canvas (mng_datap pData)
 {
   mng_int32   iY;
   mng_retcode iRetcode;
@@ -573,7 +832,7 @@ mng_retcode clear_canvas (mng_datap pData)
     iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
     if (!iRetcode)
-      iRetcode = next_row (pData);     /* adjust variables for next row */
+      iRetcode = mng_next_row (pData); /* adjust variables for next row */
 
     iY++;                              /* and next line */
   }
@@ -592,18 +851,18 @@ mng_retcode clear_canvas (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode next_frame (mng_datap  pData,
-                        mng_uint8  iFramemode,
-                        mng_uint8  iChangedelay,
-                        mng_uint32 iDelay,
-                        mng_uint8  iChangetimeout,
-                        mng_uint32 iTimeout,
-                        mng_uint8  iChangeclipping,
-                        mng_uint8  iCliptype,
-                        mng_int32  iClipl,
-                        mng_int32  iClipr,
-                        mng_int32  iClipt,
-                        mng_int32  iClipb)
+MNG_LOCAL mng_retcode next_frame (mng_datap  pData,
+                                  mng_uint8  iFramemode,
+                                  mng_uint8  iChangedelay,
+                                  mng_uint32 iDelay,
+                                  mng_uint8  iChangetimeout,
+                                  mng_uint32 iTimeout,
+                                  mng_uint8  iChangeclipping,
+                                  mng_uint8  iCliptype,
+                                  mng_int32  iClipl,
+                                  mng_int32  iClipr,
+                                  mng_int32  iClipt,
+                                  mng_int32  iClipb)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -617,15 +876,14 @@ mng_retcode next_frame (mng_datap  pData,
                                        /* interframe delay required ? */
     if ((iOldmode == 2) || (iOldmode == 4))
     {
-/* changed here because FRAM 1/3 will delay themselves before each image */
       if ((pData->iFrameseq) && (iFramemode != 1) && (iFramemode != 3))
         iRetcode = interframe_delay (pData);
       else
         pData->iFramedelay = pData->iNextdelay;
     }
     else
-    {
-      if (iFramemode == 4)             /* delay before inserting background layer? */
+    {                                  /* delay before inserting background layer? */
+      if ((pData->bFramedone) && (iFramemode == 4))
         iRetcode = interframe_delay (pData);
     }
 
@@ -645,7 +903,7 @@ mng_retcode next_frame (mng_datap  pData,
       pData->iNextdelay = iDelay;      /* for *after* next subframe */
 
       if ((iOldmode == 2) || (iOldmode == 4))
-        pData->iFramedelay = iDelay;
+        pData->iFramedelay = pData->iFRAMdelay;
 
       if (iChangedelay == 2)           /* also overall ? */
         pData->iFRAMdelay = iDelay;
@@ -653,9 +911,6 @@ mng_retcode next_frame (mng_datap  pData,
     else
     {                                  /* reload default */
       pData->iNextdelay = pData->iFRAMdelay;
-
-/*      if ((iOldmode == 2) || (iOldmode == 4))
-        pData->iFramedelay = pData->iNextdelay; */
     }
 
     if (iChangetimeout)                /* timeout changed ? */
@@ -729,9 +984,11 @@ mng_retcode next_frame (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
+    {
       pData->iFrameseq++;              /* count the frame ! */
-
+      pData->bFramedone = MNG_TRUE;    /* and indicate we've done one */
+    }
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -743,7 +1000,7 @@ mng_retcode next_frame (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode next_layer (mng_datap pData)
+MNG_LOCAL mng_retcode next_layer (mng_datap pData)
 {
   mng_imagep  pImage;
   mng_retcode iRetcode = MNG_NOERROR;
@@ -774,7 +1031,7 @@ mng_retcode next_layer (mng_datap pData)
       {                                /* for MNG we do it right away */
         iRetcode = load_bkgdlayer (pData);
 
-        if (pData->bRunning)
+        if ((pData->bRunning) && (!pData->bSkipping))
           pData->iLayerseq++;          /* and it counts as a layer then ! */
       }
     }
@@ -843,7 +1100,7 @@ mng_retcode next_layer (mng_datap pData)
       pData->iSourceb = pData->iSourcet + pData->iDestb - pData->iDestt;
     }
 
-    if (pData->bRunning)
+    if ((pData->bRunning) && (!pData->bSkipping))
       pData->iLayerseq++;              /* count the layer ! */
   }
 
@@ -856,22 +1113,22 @@ mng_retcode next_layer (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode display_image (mng_datap  pData,
-                           mng_imagep pImage,
-                           mng_bool   bLayeradvanced)
+mng_retcode mng_display_image (mng_datap  pData,
+                               mng_imagep pImage,
+                               mng_bool   bLayeradvanced)
 {
   mng_retcode iRetcode;
-  
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bFreezing))
+  if ((pData->bRunning) && (!pData->bSkipping))
   {
     if ( (!pData->iBreakpoint) &&      /* needs magnification ? */
          ( (pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY) ) )
     {
-      iRetcode = magnify_imageobject (pData, pImage);
+      iRetcode = mng_magnify_imageobject (pData, pImage);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -899,11 +1156,11 @@ mng_retcode display_image (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if (pData->bRunning)
+    if ((pData->bRunning) && (!pData->bSkipping))
       pData->iLayerseq++;              /* and it counts as a layer then ! */
   }
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bFreezing))
+  if ((pData->bRunning) && (!pData->bSkipping))
   {
     if (!pData->bTimerset)             /* all systems still go ? */
     {
@@ -918,34 +1175,34 @@ mng_retcode display_image (mng_datap  pData,
         switch (pImage->pImgbuf->iColortype)
         {
           case  0 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_g16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_g8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
 
                       pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
                       break;
                     }
 
           case  2 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgb16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgb8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
 
                       pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
                       break;
                     }
 
 
-          case  3 : { pData->fRetrieverow   = (mng_fptr)retrieve_idx8;
+          case  3 : { pData->fRetrieverow   = (mng_fptr)mng_retrieve_idx8;
                       pData->bIsOpaque      = (mng_bool)(!pImage->pImgbuf->bHasTRNS);
                       break;
                     }
 
 
           case  4 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_ga16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_ga8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
 
                       pData->bIsOpaque      = MNG_FALSE;
                       break;
@@ -953,27 +1210,27 @@ mng_retcode display_image (mng_datap  pData,
 
 
           case  6 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgba16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgba8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
 
                       pData->bIsOpaque      = MNG_FALSE;
                       break;
                     }
 
           case  8 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_g16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_g8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
 
                       pData->bIsOpaque      = MNG_TRUE;
                       break;
                     }
 
           case 10 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgb16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgb8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
 
                       pData->bIsOpaque      = MNG_TRUE;
                       break;
@@ -981,9 +1238,9 @@ mng_retcode display_image (mng_datap  pData,
 
 
           case 12 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_ga16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_ga8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
 
                       pData->bIsOpaque      = MNG_FALSE;
                       break;
@@ -991,9 +1248,9 @@ mng_retcode display_image (mng_datap  pData,
 
 
           case 14 : { if (pImage->pImgbuf->iBitdepth > 8)
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgba16;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
                       else
-                        pData->fRetrieverow = (mng_fptr)retrieve_rgba8;
+                        pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
 
                       pData->bIsOpaque      = MNG_FALSE;
                       break;
@@ -1022,11 +1279,11 @@ mng_retcode display_image (mng_datap  pData,
         iRetcode = MNG_NOERROR;
 #else
 #if defined(MNG_FULL_CMS)              /* determine color-management routine */
-        iRetcode = init_full_cms_object   (pData);
+        iRetcode = mng_init_full_cms   (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
 #elif defined(MNG_GAMMA_ONLY)
-        iRetcode = init_gamma_only_object (pData);
+        iRetcode = mng_init_gamma_only (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
 #elif defined(MNG_APP_CMS)
-        iRetcode = init_app_cms_object    (pData);
+        iRetcode = mng_init_app_cms    (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
 #endif
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -1047,7 +1304,7 @@ mng_retcode display_image (mng_datap  pData,
             iRetcode = ((mng_displayrow)pData->fDisplayrow) (pData);
 
           if (!iRetcode)               /* adjust variables for next row */
-            iRetcode = next_row (pData);
+            iRetcode = mng_next_row (pData);
 
           iY++;                        /* and next line */
         }
@@ -1056,6 +1313,13 @@ mng_retcode display_image (mng_datap  pData,
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
+
+#if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
+        iRetcode = mng_clear_cms (pData);
+
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+#endif
       }
     }
   }
@@ -1069,20 +1333,21 @@ mng_retcode display_image (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode execute_delta_image (mng_datap  pData,
-                                 mng_imagep pTarget,
-                                 mng_imagep pDelta)
+mng_retcode mng_execute_delta_image (mng_datap  pData,
+                                     mng_imagep pTarget,
+                                     mng_imagep pDelta)
 {
   mng_imagedatap pBuftarget = pTarget->pImgbuf;
   mng_imagedatap pBufdelta  = pDelta->pImgbuf;
   mng_uint32     iY;
   mng_retcode    iRetcode;
+  mng_ptr        pSaveRGBA;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_EXECUTE_DELTA_IMAGE, MNG_LC_START)
 #endif
                                        /* actively running ? */
-  if ((pData->bRunning) && (!pData->bFreezing))
+  if ((pData->bRunning) && (!pData->bSkipping))
   {
     if (pBufdelta->bHasPLTE)           /* palette in delta ? */
     {
@@ -1190,9 +1455,114 @@ mng_retcode execute_delta_image (mng_datap  pData,
     {
       pData->fScalerow = MNG_NULL;     /* not needed by default */
 
-      switch (pBuftarget->iBitdepth)   /* determine scaling routine */
+      switch (pBufdelta->iBitdepth)    /* determine scaling routine */
       {
+        case  1 : {
+                    switch (pBuftarget->iBitdepth)
+                    {
+                      case  2 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g2;  break; }
+                      case  4 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g4;  break; }
+                      case  8 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g8;  break; }
+                      case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g1_g16; break; }
+                    }
+                    break;
+                  }
 
+        case  2 : {
+                    switch (pBuftarget->iBitdepth)
+                    {
+                      case  1 : { pData->fScalerow = (mng_fptr)mng_scale_g2_g1;  break; }
+                      case  4 : { pData->fScalerow = (mng_fptr)mng_scale_g2_g4;  break; }
+                      case  8 : { pData->fScalerow = (mng_fptr)mng_scale_g2_g8;  break; }
+                      case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g2_g16; break; }
+                    }
+                    break;
+                  }
+
+        case  4 : {
+                    switch (pBuftarget->iBitdepth)
+                    {
+                      case  1 : { pData->fScalerow = (mng_fptr)mng_scale_g4_g1;  break; }
+                      case  2 : { pData->fScalerow = (mng_fptr)mng_scale_g4_g2;  break; }
+                      case  8 : { pData->fScalerow = (mng_fptr)mng_scale_g4_g8;  break; }
+                      case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g4_g16; break; }
+                    }
+                    break;
+                  }
+
+        case  8 : {
+                    switch (pBufdelta->iColortype)
+                    {
+                      case  0 : ;
+                      case  3 : ;
+                      case  8 : {
+                                  switch (pBuftarget->iBitdepth)
+                                  {
+                                    case  1 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g1;  break; }
+                                    case  2 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g2;  break; }
+                                    case  4 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g4;  break; }
+                                    case 16 : { pData->fScalerow = (mng_fptr)mng_scale_g8_g16; break; }
+                                  }
+                                  break;
+                                }
+                      case  2 : ;
+                      case 10 : {
+                                  if (pBuftarget->iBitdepth == 16)
+                                    pData->fScalerow = (mng_fptr)mng_scale_rgb8_rgb16;
+                                  break;
+                                }
+                      case  4 : ;
+                      case 12 : {
+                                  if (pBuftarget->iBitdepth == 16)
+                                    pData->fScalerow = (mng_fptr)mng_scale_ga8_ga16;
+                                  break;
+                                }
+                      case  6 : ;
+                      case 14 : {
+                                  if (pBuftarget->iBitdepth == 16)
+                                    pData->fScalerow = (mng_fptr)mng_scale_rgba8_rgba16;
+                                  break;
+                                }
+                    }
+                    break;
+                  }
+
+        case 16 : {
+                    switch (pBufdelta->iColortype)
+                    {
+                      case  0 : ;
+                      case  3 : ;
+                      case  8 : {
+                                  switch (pBuftarget->iBitdepth)
+                                  {
+                                    case 1 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g1; break; }
+                                    case 2 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g2; break; }
+                                    case 4 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g4; break; }
+                                    case 8 : { pData->fScalerow = (mng_fptr)mng_scale_g16_g8; break; }
+                                  }
+                                  break;
+                                }
+                      case  2 : ;
+                      case 10 : {
+                                  if (pBuftarget->iBitdepth == 8)
+                                    pData->fScalerow = (mng_fptr)mng_scale_rgb16_rgb8;
+                                  break;
+                                }
+                      case  4 : ;
+                      case 12 : {
+                                  if (pBuftarget->iBitdepth == 8)
+                                    pData->fScalerow = (mng_fptr)mng_scale_ga16_ga8;
+                                  break;
+                                }
+                      case  6 : ;
+                      case 14 : {
+                                  if (pBuftarget->iBitdepth == 8)
+                                    pData->fScalerow = (mng_fptr)mng_scale_rgba16_rgba8;
+                                  break;
+                                }
+                    }
+                    break;
+                  }
 
       }
 
@@ -1211,11 +1581,11 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  1 : { pData->fDeltarow = (mng_fptr)delta_g1_g1;   break; }
-                          case  2 : { pData->fDeltarow = (mng_fptr)delta_g2_g2;   break; }
-                          case  4 : { pData->fDeltarow = (mng_fptr)delta_g4_g4;   break; }
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_g8_g8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_g16_g16; break; }
+                          case  1 : { pData->fDeltarow = (mng_fptr)mng_delta_g1_g1;   break; }
+                          case  2 : { pData->fDeltarow = (mng_fptr)mng_delta_g2_g2;   break; }
+                          case  4 : { pData->fDeltarow = (mng_fptr)mng_delta_g4_g4;   break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_g8_g8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_g16_g16; break; }
                         }
                       }
                     }
@@ -1233,8 +1603,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_rgb8_rgb8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_rgb16_rgb16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_rgb8_rgb8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_rgb16_rgb16; break; }
                         }
                       }
                     }
@@ -1251,10 +1621,10 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  1 : { pData->fDeltarow = (mng_fptr)delta_g1_g1; break; }
-                          case  2 : { pData->fDeltarow = (mng_fptr)delta_g2_g2; break; }
-                          case  4 : { pData->fDeltarow = (mng_fptr)delta_g4_g4; break; }
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_g8_g8; break; }
+                          case  1 : { pData->fDeltarow = (mng_fptr)mng_delta_g1_g1; break; }
+                          case  2 : { pData->fDeltarow = (mng_fptr)mng_delta_g2_g2; break; }
+                          case  4 : { pData->fDeltarow = (mng_fptr)mng_delta_g4_g4; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_g8_g8; break; }
                         }
                       }
                     }
@@ -1272,8 +1642,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_ga8_ga8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_ga16_ga16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_ga8_ga8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_ga16_ga16; break; }
                         }
                       }
                     }
@@ -1286,8 +1656,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_ga8_g8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_ga16_g16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_ga8_g8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_ga16_g16; break; }
                         }
                       }
                     }
@@ -1299,8 +1669,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_ga8_a8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_ga16_a16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_ga8_a8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_ga16_a16; break; }
                         }
                       }
                     }
@@ -1318,8 +1688,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_rgba8_rgba8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_rgba16_rgba16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba8_rgba8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba16_rgba16; break; }
                         }
                       }
                     }
@@ -1331,8 +1701,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_rgba8_rgb8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_rgba16_rgb16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba8_rgb8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba16_rgb16; break; }
                         }
                       }
                     }
@@ -1344,8 +1714,8 @@ mng_retcode execute_delta_image (mng_datap  pData,
                       {
                         switch (pBuftarget->iBitdepth)
                         {
-                          case  8 : { pData->fDeltarow = (mng_fptr)delta_rgba8_a8;   break; }
-                          case 16 : { pData->fDeltarow = (mng_fptr)delta_rgba16_a16; break; }
+                          case  8 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba8_a8;   break; }
+                          case 16 : { pData->fDeltarow = (mng_fptr)mng_delta_rgba16_a16; break; }
                         }
                       }
                     }
@@ -1367,8 +1737,10 @@ mng_retcode execute_delta_image (mng_datap  pData,
                                        /* indicate where to retrieve & where to store */
         pData->pRetrieveobj = (mng_objectp)pDelta;
         pData->pStoreobj    = (mng_objectp)pTarget;
+
+        pSaveRGBA = pData->pRGBArow;   /* save current temp-buffer! */
                                        /* get a temporary row-buffer */
-        MNG_ALLOC (pData, pData->pRGBArow, pBufdelta->iRowsize)
+        MNG_ALLOC (pData, pData->pRGBArow, (pBufdelta->iRowsize << 1))
 
         iY       = 0;                  /* this is where we start */
         iRetcode = MNG_NOERROR;        /* still oke for now */
@@ -1386,12 +1758,13 @@ mng_retcode execute_delta_image (mng_datap  pData,
             iRetcode = ((mng_deltarow)pData->fDeltarow) (pData);
 
           if (!iRetcode)               /* adjust variables for next row */
-            iRetcode = next_row (pData);
+            iRetcode = mng_next_row (pData);
 
           iY++;                        /* and next line */
         }
                                        /* drop the temporary row-buffer */
-        MNG_FREE (pData, pData->pRGBArow, pBufdelta->iRowsize)
+        MNG_FREE (pData, pData->pRGBArow, (pBufdelta->iRowsize << 1))
+        pData->pRGBArow = pSaveRGBA;   /* restore saved temp-buffer! */
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -1412,7 +1785,7 @@ mng_retcode execute_delta_image (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode save_state (mng_datap pData)
+MNG_LOCAL mng_retcode save_state (mng_datap pData)
 {
   mng_savedatap pSave;
   mng_imagep    pImage;
@@ -1509,8 +1882,8 @@ mng_retcode save_state (mng_datap pData)
 mng_retcode mng_reset_objzero (mng_datap pData)
 {
   mng_imagep  pImage   = (mng_imagep)pData->pObjzero;
-  mng_retcode iRetcode = reset_object_details (pData, pImage, 0, 0, 0,
-                                               0, 0, 0, 0, MNG_TRUE);
+  mng_retcode iRetcode = mng_reset_object_details (pData, pImage, 0, 0, 0,
+                                                   0, 0, 0, 0, MNG_TRUE);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1538,7 +1911,7 @@ mng_retcode mng_reset_objzero (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode restore_state (mng_datap pData)
+MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 {
   mng_savedatap pSave;
   mng_imagep    pImage;
@@ -1552,6 +1925,8 @@ mng_retcode restore_state (mng_datap pData)
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
+                                       /* fresh cycle; fake no frames done yet */
+  pData->bFramedone             = MNG_FALSE;
 
   if (pData->pSavedata)                /* do we have a saved state ? */
   {
@@ -1637,15 +2012,12 @@ mng_retcode restore_state (mng_datap pData)
     pData->bHasglobalBKGD       = MNG_FALSE;
 #endif /* MNG_SUPPORT_READ || MNG_SUPPORT_WRITE */
 
-    if (!pData->bEMNGMAhack)             /* TODO: remove line in 1.0.0 !!! */
-    {                                    /* TODO: remove line in 1.0.0 !!! */
     pData->iBACKred             = 0;
     pData->iBACKgreen           = 0;
     pData->iBACKblue            = 0;
     pData->iBACKmandatory       = 0;
     pData->iBACKimageid         = 0;
     pData->iBACKtile            = 0;
-    }                                    /* TODO: remove line in 1.0.0 !!! */
 
     pData->iFRAMmode            = 1;
     pData->iFRAMdelay           = 1;
@@ -1694,8 +2066,6 @@ mng_retcode restore_state (mng_datap pData)
     pData->iGlobalBKGDblue      = 0;
   }
 
-  if (!pData->bEMNGMAhack)             /* TODO: remove line in 1.0.0 !!! */
-  {                                    /* TODO: remove line in 1.0.0 !!! */
                                        /* drop un-frozen image objects */
   pImage = (mng_imagep)pData->pFirstimgobj;
 
@@ -1727,7 +2097,7 @@ mng_retcode restore_state (mng_datap pData)
       }
       else
       {                                /* free the image buffer */
-        iRetcode = free_imagedataobject (pData, pImage->pImgbuf);
+        iRetcode = mng_free_imagedataobject (pData, pImage->pImgbuf);
                                        /* and cleanup the object */
         MNG_FREEX (pData, pImage, sizeof (mng_image))
 
@@ -1741,7 +2111,6 @@ mng_retcode restore_state (mng_datap pData)
       pImage = (mng_imagep)pImage->sHeader.pNext;
 
   }
-  }                                    /* TODO: remove line in 1.0.0 !!! */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_END)
@@ -1756,7 +2125,7 @@ mng_retcode restore_state (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode process_display (mng_datap pData)
+mng_retcode mng_process_display (mng_datap pData)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -1809,11 +2178,11 @@ mng_retcode process_display (mng_datap pData)
     {
       switch (pData->iBreakpoint)      /* return to broken display routine */
       {
-        case 1  : { iRetcode = process_display_fram2 (pData); break; }
+        case 1  : { iRetcode = mng_process_display_fram2 (pData); break; }
         case 3  : ;                    /* same as 4 !!! */
-        case 4  : { iRetcode = process_display_show  (pData); break; }
-        case 5  : { iRetcode = process_display_clon2 (pData); break; }
-        case 9  : { iRetcode = process_display_magn2 (pData); break; }
+        case 4  : { iRetcode = mng_process_display_show  (pData); break; }
+        case 5  : { iRetcode = mng_process_display_clon2 (pData); break; }
+        case 9  : { iRetcode = mng_process_display_magn2 (pData); break; }
         default : MNG_ERROR (pData, MNG_INTERNALERROR)
       }
     }
@@ -1832,7 +2201,7 @@ mng_retcode process_display (mng_datap pData)
       pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
                                        /* MEND processing to be done ? */
       if ((pData->eImagetype == mng_it_mng) && (!pData->pCurraniobj))
-        iRetcode = process_display_mend (pData);
+        iRetcode = mng_process_display_mend (pData);
 
       if (!pData->pCurraniobj)         /* refresh after last image ? */
         pData->bNeedrefresh = MNG_TRUE;
@@ -1846,7 +2215,7 @@ mng_retcode process_display (mng_datap pData)
                                        /* refresh needed ? */
   if ((!pData->bTimerset) && (pData->bNeedrefresh))
   {
-    iRetcode = display_progressive_refresh (pData, 1);
+    iRetcode = mng_display_progressive_refresh (pData, 1);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1874,7 +2243,7 @@ mng_retcode process_display (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
-mng_retcode process_display_ihdr (mng_datap pData)
+mng_retcode mng_process_display_ihdr (mng_datap pData)
 {                                      /* address the current "object" if any */
   mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
@@ -1900,11 +2269,11 @@ mng_retcode process_display_ihdr (mng_datap pData)
     if (pData->bHasDHDR)               /* is a delta-image ? */
     {
       if (pData->iDeltatype == MNG_DELTATYPE_REPLACE)
-        iRetcode = reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iBitdepth, pData->iColortype,
-                                         pData->iCompression, pData->iFilter,
-                                         pData->iInterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_TRUE);
       else
       if ((pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD    ) ||
           (pData->iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
@@ -1920,26 +2289,34 @@ mng_retcode process_display_ihdr (mng_datap pData)
       if ((pData->iDeltatype == MNG_DELTATYPE_BLOCKCOLORADD    ) ||
           (pData->iDeltatype == MNG_DELTATYPE_BLOCKCOLORREPLACE)    )
         ((mng_imagep)pData->pDeltaImage)->pImgbuf->iPixelsampledepth = pData->iBitdepth;
-        
-                                       /* process immediatly if bitdepth & colortype are equal */
-      pData->bDeltaimmediate =
-        (mng_bool)((pData->iBitdepth  == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iBitdepth ) &&
-                   (pData->iColortype == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iColortype)    );
+
+      if (!iRetcode)
+      {                                /* process immediatly if bitdepth & colortype are equal */
+        pData->bDeltaimmediate =
+          (mng_bool)((pData->iBitdepth  == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iBitdepth ) &&
+                     (pData->iColortype == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iColortype)    );
+                                       /* be sure to reset object 0 */
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_TRUE);
+      }
     }
     else
     {
       if (pImage)                      /* update object buffer ? */
-        iRetcode = reset_object_details (pData, pImage,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iBitdepth, pData->iColortype,
-                                         pData->iCompression, pData->iFilter,
-                                         pData->iInterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, pImage,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_TRUE);
       else
-        iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iBitdepth, pData->iColortype,
-                                         pData->iCompression, pData->iFilter,
-                                         pData->iInterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_TRUE);
     }
 
     if (iRetcode)                      /* on error bail out */
@@ -1981,41 +2358,41 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  {
                    case  1 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_g1_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_g1_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g1_i;
 
                                break;
                              }
                    case  2 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_g2_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_g2_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g2_i;
 
                                break;
                              }
                    case  4 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_g4_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_g4_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g4_i;
 
                                break;
                              }
                    case  8 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_g8_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_g8_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g8_i;
 
                                break;
                              }
                    case 16 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_g16_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g16_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_g16_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_g16_i;
 
                                break;
                              }
@@ -2028,17 +2405,17 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  {
                    case  8 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_rgb8_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgb8_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_rgb8_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgb8_i;
 
                                break;
                              }
                    case 16 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_rgb16_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgb16_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_rgb16_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgb16_i;
 
                                break;
                              }
@@ -2051,33 +2428,33 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  {
                    case  1 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_idx1_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_idx1_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx1_i;
 
                                break;
                              }
                    case  2 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_idx2_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx2_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_idx2_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx2_i;
 
                                break;
                              }
                    case  4 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_idx4_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx4_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_idx4_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx4_i;
 
                                break;
                              }
                    case  8 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_idx8_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_idx8_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_idx8_i;
 
                                break;
                              }
@@ -2090,17 +2467,17 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  {
                    case  8 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_ga8_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_ga8_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_ga8_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_ga8_i;
 
                                break;
                              }
                    case 16 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_ga16_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_ga16_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_ga16_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_ga16_i;
 
                                break;
                              }
@@ -2113,17 +2490,17 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  {
                    case  8 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_rgba8_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgba8_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_rgba8_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgba8_i;
 
                                break;
                              }
                    case 16 : {
                                if (!pData->iInterlace)
-                                 pData->fInitrowproc = (mng_fptr)init_rgba16_ni;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgba16_ni;
                                else
-                                 pData->fInitrowproc = (mng_fptr)init_rgba16_i;
+                                 pData->fInitrowproc = (mng_fptr)mng_init_rgba16_i;
 
                                break;
                              }
@@ -2138,8 +2515,9 @@ mng_retcode process_display_ihdr (mng_datap pData)
     pData->iLevel1    = 0;    
     pData->iLevel2    = 0;
     pData->iLevel3    = 0;
-                                       /* leveling & differing ? */
-/*    if (pData->iFilter & 0x40)
+
+#ifdef FILTER192                       /* leveling & differing ? */
+    if (pData->iFilter == MNG_FILTER_DIFFERING)
     {
       switch (pData->iColortype)
       {
@@ -2173,18 +2551,21 @@ mng_retcode process_display_ihdr (mng_datap pData)
                  }
         case 6 : {
                    if (pData->iBitdepth <= 8)
-                     pData->iPixelofs  = 5;
+                     pData->iFilterofs = 4;
                    else
                      pData->iFilterofs = 8;
 
                    break;
                  }
       }
-    } */
-                                       /* no adaptive filtering ? */
-/*    if (pData->iFilter & 0x01)
+    }
+#endif
+
+#ifdef FILTER193                       /* no adaptive filtering ? */
+    if (pData->iFilter == MNG_FILTER_NOFILTER)
       pData->iPixelofs = pData->iFilterofs;
-    else */
+    else
+#endif    
       pData->iPixelofs = pData->iFilterofs + 1;
 
   }
@@ -2198,9 +2579,9 @@ mng_retcode process_display_ihdr (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_idat (mng_datap  pData,
-                                  mng_uint32 iRawlen,
-                                  mng_uint8p pRawdata)
+mng_retcode mng_process_display_idat (mng_datap  pData,
+                                      mng_uint32 iRawlen,
+                                      mng_uint8p pRawdata)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -2216,17 +2597,19 @@ mng_retcode process_display_idat (mng_datap  pData,
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
       pData->iLayerseq++;              /* and it counts as a layer then ! */
   }
 
-  if (!pData->bInflating)              /* if we're not inflating already */
-  {                                    /* initialize row-processing */
+  if (pData->fInitrowproc)             /* need to initialize row processing? */
+  {
     iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
-
-    if (!iRetcode)                     /* initialize inflate */
-      iRetcode = mngzlib_inflateinit (pData);
+    pData->fInitrowproc = MNG_NULL;    /* only call this once !!! */
   }
+
+  if ((!iRetcode) && (!pData->bInflating))
+                                       /* initialize inflate */
+    iRetcode = mngzlib_inflateinit (pData);
 
   if (!iRetcode)                       /* all ok? then inflate, my man */
     iRetcode = mngzlib_inflaterows (pData, iRawlen, pRawdata);
@@ -2243,7 +2626,7 @@ mng_retcode process_display_idat (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_iend (mng_datap pData)
+mng_retcode mng_process_display_iend (mng_datap pData)
 {
   mng_retcode iRetcode, iRetcode2;
   mng_bool bDodisplay = MNG_FALSE;
@@ -2282,7 +2665,7 @@ mng_retcode process_display_iend (mng_datap pData)
                                        /* display it now then ? */
     if ((pImage->bVisible) && (pImage->bViewable))
     {                                  /* ok, so do it */
-      iRetcode = display_image (pData, pImage, bDodisplay);
+      iRetcode = mng_display_image (pData, pImage, bDodisplay);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2299,7 +2682,7 @@ mng_retcode process_display_iend (mng_datap pData)
 
     if (!pData->iBreakpoint)
     {                                  /* perform the delta operations needed */
-      iRetcode = execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
+      iRetcode = mng_execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2307,7 +2690,7 @@ mng_retcode process_display_iend (mng_datap pData)
                                        /* display it now then ? */
     if ((pImage->bVisible) && (pImage->bViewable))
     {                                  /* ok, so do it */
-      iRetcode = display_image (pData, pImage, MNG_FALSE);
+      iRetcode = mng_display_image (pData, pImage, MNG_FALSE);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2321,12 +2704,12 @@ mng_retcode process_display_iend (mng_datap pData)
   {
     pData->iBreakpoint = 0;            /* clear this flag now ! */
                                        /* cleanup object 0 */
-    reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                          0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
+    mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                              0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
 
     if (pData->bInflating)             /* if we've been inflating */
     {                                  /* cleanup row-processing, */
-      iRetcode  = cleanup_rowproc (pData);
+      iRetcode  = mng_cleanup_rowproc (pData);
                                        /* also cleanup inflate! */
       iRetcode2 = mngzlib_inflatefree (pData);
 
@@ -2339,7 +2722,7 @@ mng_retcode process_display_iend (mng_datap pData)
 #ifdef MNG_INCLUDE_JNG
     if (pData->bJPEGdecompress)        /* if we've been decompressing JDAT */
     {                                  /* cleanup row-processing, */
-      iRetcode  = cleanup_rowproc (pData);
+      iRetcode  = mng_cleanup_rowproc (pData);
                                        /* also cleanup decompress! */
       iRetcode2 = mngjpeg_decompressfree (pData);
 
@@ -2351,7 +2734,7 @@ mng_retcode process_display_iend (mng_datap pData)
 
     if (pData->bJPEGdecompress2)       /* if we've been decompressing JDAA */
     {                                  /* cleanup row-processing, */
-      iRetcode  = cleanup_rowproc (pData);
+      iRetcode  = mng_cleanup_rowproc (pData);
                                        /* also cleanup decompress! */
       iRetcode2 = mngjpeg_decompressfree2 (pData);
 
@@ -2398,18 +2781,31 @@ mng_retcode process_display_iend (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_mend (mng_datap pData)
+mng_retcode mng_process_display_mend (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START)
 #endif
+
+#ifdef MNG_SUPPORT_DYNAMICMNG
+  if (pData->bStopafterseek)           /* need to stop after this ? */
+  {
+    pData->bFreezing      = MNG_TRUE;  /* stop processing on this one */
+    pData->bRunningevent  = MNG_FALSE;
+    pData->bStopafterseek = MNG_FALSE;
+    pData->bNeedrefresh   = MNG_TRUE;  /* make sure the last bit is displayed ! */
+  }
+#endif
                                        /* TERM processed ? */
-  if ((pData->bDisplaying) && (pData->bRunning) && (pData->bHasTERM))
+  if ((pData->bDisplaying) && (pData->bRunning) &&
+      (pData->bHasTERM) && (pData->pTermaniobj))
   {
     mng_retcode   iRetcode;
     mng_ani_termp pTERM;
                                        /* get the right animation object ! */
     pTERM = (mng_ani_termp)pData->pTermaniobj;
+
+    pData->iIterations++;              /* increase iteration count */
 
     switch (pTERM->iTermaction)        /* determine what to do! */
     {
@@ -2440,6 +2836,15 @@ mng_retcode process_display_mend (mng_datap pData)
 
                    if (iRetcode)       /* on error bail out */
                      return iRetcode;
+                                       /* notify the app ? */
+                   if (pData->fProcessmend)
+                   {
+                     mng_bool bOke = pData->fProcessmend ((mng_handle)pData,
+                                                          pData->iIterations,
+                                                          pTERM->iItermax);
+                     if (!bOke)        /* stop here and now ? */ 
+                       break;
+                   }
                                        /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
 
@@ -2473,7 +2878,7 @@ mng_retcode process_display_mend (mng_datap pData)
                        }
                      }
 
-                     iRetcode = display_progressive_refresh (pData, iWaitfor);
+                     iRetcode = mng_display_progressive_refresh (pData, iWaitfor);
 
                      if (iRetcode)     /* on error bail out */
                        return iRetcode;
@@ -2521,7 +2926,7 @@ mng_retcode process_display_mend (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_defi (mng_datap pData)
+mng_retcode mng_process_display_defi (mng_datap pData)
 {
   mng_imagep pImage;
 
@@ -2555,19 +2960,19 @@ mng_retcode process_display_defi (mng_datap pData)
   }
   else
   {                                    /* already exists ? */
-    pImage = (mng_imagep)find_imageobject (pData, pData->iDEFIobjectid);
+    pImage = (mng_imagep)mng_find_imageobject (pData, pData->iDEFIobjectid);
 
     if (!pImage)                       /* if not; create new */
     {
-      mng_retcode iRetcode = create_imageobject (pData, pData->iDEFIobjectid,
-                                                 (mng_bool)(pData->iDEFIconcrete == 1),
-                                                 (mng_bool)(pData->iDEFIdonotshow == 0),
-                                                 MNG_FALSE, 0, 0, 0, 0, 0, 0, 0,
-                                                 pData->iDEFIlocax, pData->iDEFIlocay,
-                                                 pData->bDEFIhasclip,
-                                                 pData->iDEFIclipl, pData->iDEFIclipr,
-                                                 pData->iDEFIclipt, pData->iDEFIclipb,
-                                                 &pImage);
+      mng_retcode iRetcode = mng_create_imageobject (pData, pData->iDEFIobjectid,
+                                                     (mng_bool)(pData->iDEFIconcrete == 1),
+                                                     (mng_bool)(pData->iDEFIdonotshow == 0),
+                                                     MNG_FALSE, 0, 0, 0, 0, 0, 0, 0,
+                                                     pData->iDEFIlocax, pData->iDEFIlocay,
+                                                     pData->bDEFIhasclip,
+                                                     pData->iDEFIclipl, pData->iDEFIclipr,
+                                                     pData->iDEFIclipt, pData->iDEFIclipb,
+                                                     &pImage);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2610,13 +3015,13 @@ mng_retcode process_display_defi (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_basi (mng_datap  pData,
-                                  mng_uint16 iRed,
-                                  mng_uint16 iGreen,
-                                  mng_uint16 iBlue,
-                                  mng_bool   bHasalpha,
-                                  mng_uint16 iAlpha,
-                                  mng_uint8  iViewable)
+mng_retcode mng_process_display_basi (mng_datap  pData,
+                                      mng_uint16 iRed,
+                                      mng_uint16 iGreen,
+                                      mng_uint16 iBlue,
+                                      mng_bool   bHasalpha,
+                                      mng_uint16 iAlpha,
+                                      mng_uint8  iViewable)
 {                                      /* address the current "object" if any */
   mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
   mng_uint8p     pWork;
@@ -2638,10 +3043,10 @@ mng_retcode process_display_basi (mng_datap  pData,
   pData->fStorerow   = MNG_NULL;
   pData->fProcessrow = MNG_NULL;
                                        /* set parms now that they're known */
-  iRetcode = reset_object_details (pData, pImage, pData->iDatawidth,
-                                   pData->iDataheight, pData->iBitdepth,
-                                   pData->iColortype, pData->iCompression,
-                                   pData->iFilter, pData->iInterlace, MNG_FALSE);
+  iRetcode = mng_reset_object_details (pData, pImage, pData->iDatawidth,
+                                       pData->iDataheight, pData->iBitdepth,
+                                       pData->iColortype, pData->iCompression,
+                                       pData->iFilter, pData->iInterlace, MNG_FALSE);
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* save the viewable flag */
@@ -2805,41 +3210,41 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  case  1 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_g1_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_g1_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g1_i;
 
                              break;
                            }
                  case  2 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_g2_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_g2_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g2_i;
 
                              break;
                            }
                  case  4 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_g4_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_g4_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g4_i;
 
                              break;
                            }
                  case  8 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_g8_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_g8_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g8_i;
 
                              break;
                            }
                  case 16 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_g16_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g16_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_g16_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_g16_i;
 
                              break;
                            }
@@ -2852,17 +3257,17 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  case  8 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_rgb8_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgb8_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_rgb8_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgb8_i;
 
                              break;
                            }
                  case 16 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_rgb16_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgb16_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_rgb16_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgb16_i;
 
                              break;
                            }
@@ -2875,33 +3280,33 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  case  1 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_idx1_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_idx1_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx1_i;
 
                              break;
                            }
                  case  2 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_idx2_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx2_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_idx2_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx2_i;
 
                              break;
                            }
                  case  4 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_idx4_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx4_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_idx4_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx4_i;
 
                              break;
                            }
                  case  8 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_idx8_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_idx8_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_idx8_i;
 
                              break;
                            }
@@ -2914,17 +3319,17 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  case  8 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_ga8_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_ga8_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_ga8_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_ga8_i;
 
                              break;
                            }
                  case 16 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_ga16_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_ga16_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_ga16_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_ga16_i;
 
                              break;
                            }
@@ -2937,17 +3342,17 @@ mng_retcode process_display_basi (mng_datap  pData,
                {
                  case  8 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_rgba8_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgba8_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_rgba8_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgba8_i;
 
                              break;
                            }
                  case 16 : {
                              if (!pData->iInterlace)
-                               pData->fInitrowproc = (mng_fptr)init_rgba16_ni;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgba16_ni;
                              else
-                               pData->fInitrowproc = (mng_fptr)init_rgba16_i;
+                               pData->fInitrowproc = (mng_fptr)mng_init_rgba16_i;
 
                              break;
                            }
@@ -2962,8 +3367,9 @@ mng_retcode process_display_basi (mng_datap  pData,
   pData->iLevel1    = 0;
   pData->iLevel2    = 0;
   pData->iLevel3    = 0;
-                                       /* leveling & differing ? */
-/*  if (pData->iFilter & 0x40)
+
+#ifdef FILTER192
+  if (pData->iFilter == 0xC0)          /* leveling & differing ? */
   {
     switch (pData->iColortype)
     {
@@ -2997,18 +3403,21 @@ mng_retcode process_display_basi (mng_datap  pData,
                }
       case 6 : {
                  if (pData->iBitdepth <= 8)
-                   pData->iPixelofs  = 5;
+                   pData->iFilterofs = 4;
                  else
                    pData->iFilterofs = 8;
 
                  break;
                }
     }
-  } */
-                                       /* no adaptive filtering ? */
-/*  if (pData->iFilter & 0x01)
+  }
+#endif
+
+#ifdef FILTER193
+  if (pData->iFilter == 0xC1)          /* no adaptive filtering ? */
     pData->iPixelofs = pData->iFilterofs;
-  else */
+  else
+#endif
     pData->iPixelofs = pData->iFilterofs + 1;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3020,17 +3429,17 @@ mng_retcode process_display_basi (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_clon (mng_datap  pData,
-                                  mng_uint16 iSourceid,
-                                  mng_uint16 iCloneid,
-                                  mng_uint8  iClonetype,
-                                  mng_bool   bHasdonotshow,
-                                  mng_uint8  iDonotshow,
-                                  mng_uint8  iConcrete,
-                                  mng_bool   bHasloca,
-                                  mng_uint8  iLocationtype,
-                                  mng_int32  iLocationx,
-                                  mng_int32  iLocationy)
+mng_retcode mng_process_display_clon (mng_datap  pData,
+                                      mng_uint16 iSourceid,
+                                      mng_uint16 iCloneid,
+                                      mng_uint8  iClonetype,
+                                      mng_bool   bHasdonotshow,
+                                      mng_uint8  iDonotshow,
+                                      mng_uint8  iConcrete,
+                                      mng_bool   bHasloca,
+                                      mng_uint8  iLocationtype,
+                                      mng_int32  iLocationx,
+                                      mng_int32  iLocationy)
 {
   mng_imagep  pSource, pClone;
   mng_bool    bVisible, bAbstract;
@@ -3040,9 +3449,9 @@ mng_retcode process_display_clon (mng_datap  pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START)
 #endif
                                        /* locate the source object first */
-  pSource = find_imageobject (pData, iSourceid);
+  pSource = mng_find_imageobject (pData, iSourceid);
                                        /* check if the clone exists */
-  pClone  = find_imageobject (pData, iCloneid);
+  pClone  = mng_find_imageobject (pData, iCloneid);
 
   if (!pSource)                        /* source must exist ! */
     MNG_ERROR (pData, MNG_OBJECTUNKNOWN);
@@ -3060,25 +3469,25 @@ mng_retcode process_display_clon (mng_datap  pData,
   switch (iClonetype)                  /* determine action to take */
   {
     case 0 : {                         /* full clone */
-               iRetcode = clone_imageobject (pData, iCloneid, MNG_FALSE,
-                                             bVisible, bAbstract, bHasloca,
-                                             iLocationtype, iLocationx, iLocationy,
-                                             pSource, &pClone);
+               iRetcode = mng_clone_imageobject (pData, iCloneid, MNG_FALSE,
+                                                 bVisible, bAbstract, bHasloca,
+                                                 iLocationtype, iLocationx, iLocationy,
+                                                 pSource, &pClone);
                break;
              }
 
     case 1 : {                         /* partial clone */
-               iRetcode = clone_imageobject (pData, iCloneid, MNG_TRUE,
-                                             bVisible, bAbstract, bHasloca,
-                                             iLocationtype, iLocationx, iLocationy,
-                                             pSource, &pClone);
+               iRetcode = mng_clone_imageobject (pData, iCloneid, MNG_TRUE,
+                                                 bVisible, bAbstract, bHasloca,
+                                                 iLocationtype, iLocationx, iLocationy,
+                                                 pSource, &pClone);
                break;
              }
 
     case 2 : {                         /* renumber object */
-               iRetcode = renum_imageobject (pData, pSource, iCloneid,
-                                             bVisible, bAbstract, bHasloca,
-                                             iLocationtype, iLocationx, iLocationy);
+               iRetcode = mng_renum_imageobject (pData, pSource, iCloneid,
+                                                 bVisible, bAbstract, bHasloca,
+                                                 iLocationtype, iLocationx, iLocationy);
                pClone   = pSource;
                break;
              }
@@ -3093,7 +3502,7 @@ mng_retcode process_display_clon (mng_datap  pData,
   {
     pData->pLastclone = pClone;        /* remember in case of timer break ! */
                                        /* display it */
-    display_image (pData, pClone, MNG_FALSE);
+    mng_display_image (pData, pClone, MNG_FALSE);
 
     if (pData->bTimerset)              /* timer break ? */
       pData->iBreakpoint = 5;
@@ -3108,13 +3517,13 @@ mng_retcode process_display_clon (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_clon2 (mng_datap pData)
+mng_retcode mng_process_display_clon2 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START)
 #endif
                                        /* only called after timer break ! */
-  display_image (pData, (mng_imagep)pData->pLastclone, MNG_FALSE);
+  mng_display_image (pData, (mng_imagep)pData->pLastclone, MNG_FALSE);
   pData->iBreakpoint = 0;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3126,9 +3535,9 @@ mng_retcode process_display_clon2 (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_disc (mng_datap   pData,
-                                  mng_uint32  iCount,
-                                  mng_uint16p pIds)
+mng_retcode mng_process_display_disc (mng_datap   pData,
+                                      mng_uint32  iCount,
+                                      mng_uint16p pIds)
 {
   mng_uint32 iX;
   mng_imagep pImage;
@@ -3143,12 +3552,12 @@ mng_retcode process_display_disc (mng_datap   pData,
 
     for (iX = 0; iX < iCount; iX++)    /* iterate the list */
     {
-      pImage = find_imageobject (pData, *pWork++);
-
+      pImage = mng_find_imageobject (pData, *pWork++);
+                   
       if (pImage)                      /* found the object ? */
       {                                /* then drop it */
-        iRetcode = free_imageobject (pData, pImage);
-
+        iRetcode = mng_free_imageobject (pData, pImage);
+                       
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
@@ -3165,8 +3574,8 @@ mng_retcode process_display_disc (mng_datap   pData,
 
       if (!pImage->bFrozen)            /* not frozen ? */
       {                                /* then drop it */
-        iRetcode = free_imageobject (pData, pImage);
-
+        iRetcode = mng_free_imageobject (pData, pImage);
+                       
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
@@ -3182,18 +3591,18 @@ mng_retcode process_display_disc (mng_datap   pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_fram (mng_datap  pData,
-                                  mng_uint8  iFramemode,
-                                  mng_uint8  iChangedelay,
-                                  mng_uint32 iDelay,
-                                  mng_uint8  iChangetimeout,
-                                  mng_uint32 iTimeout,
-                                  mng_uint8  iChangeclipping,
-                                  mng_uint8  iCliptype,
-                                  mng_int32  iClipl,
-                                  mng_int32  iClipr,
-                                  mng_int32  iClipt,
-                                  mng_int32  iClipb)
+mng_retcode mng_process_display_fram (mng_datap  pData,
+                                      mng_uint8  iFramemode,
+                                      mng_uint8  iChangedelay,
+                                      mng_uint32 iDelay,
+                                      mng_uint8  iChangetimeout,
+                                      mng_uint32 iTimeout,
+                                      mng_uint8  iChangeclipping,
+                                      mng_uint8  iCliptype,
+                                      mng_int32  iClipl,
+                                      mng_int32  iClipr,
+                                      mng_int32  iClipt,
+                                      mng_int32  iClipb)
 {
   mng_retcode iRetcode;
 
@@ -3217,7 +3626,7 @@ mng_retcode process_display_fram (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_fram2 (mng_datap pData)
+mng_retcode mng_process_display_fram2 (mng_datap pData)
 {
   mng_retcode iRetcode;
 
@@ -3237,12 +3646,12 @@ mng_retcode process_display_fram2 (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_move (mng_datap  pData,
-                                  mng_uint16 iFromid,
-                                  mng_uint16 iToid,
-                                  mng_uint8  iMovetype,
-                                  mng_int32  iMovex,
-                                  mng_int32  iMovey)
+mng_retcode mng_process_display_move (mng_datap  pData,
+                                      mng_uint16 iFromid,
+                                      mng_uint16 iToid,
+                                      mng_uint8  iMovetype,
+                                      mng_int32  iMovex,
+                                      mng_int32  iMovey)
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -3256,8 +3665,8 @@ mng_retcode process_display_move (mng_datap  pData,
     if (!iX)                           /* object id=0 ? */
       pImage = (mng_imagep)pData->pObjzero;
     else
-      pImage = find_imageobject (pData, iX);
-
+      pImage = mng_find_imageobject (pData, iX);
+                   
     if (pImage)                        /* object exists ? */
     {
       switch (iMovetype)
@@ -3285,14 +3694,14 @@ mng_retcode process_display_move (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_clip (mng_datap  pData,
-                                  mng_uint16 iFromid,
-                                  mng_uint16 iToid,
-                                  mng_uint8  iCliptype,
-                                  mng_int32  iClipl,
-                                  mng_int32  iClipr,
-                                  mng_int32  iClipt,
-                                  mng_int32  iClipb)
+mng_retcode mng_process_display_clip (mng_datap  pData,
+                                      mng_uint16 iFromid,
+                                      mng_uint16 iToid,
+                                      mng_uint8  iCliptype,
+                                      mng_int32  iClipl,
+                                      mng_int32  iClipr,
+                                      mng_int32  iClipt,
+                                      mng_int32  iClipb)
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -3306,8 +3715,8 @@ mng_retcode process_display_clip (mng_datap  pData,
     if (!iX)                           /* object id=0 ? */
       pImage = (mng_imagep)pData->pObjzero;
     else
-      pImage = find_imageobject (pData, iX);
-
+      pImage = mng_find_imageobject (pData, iX);
+                   
     if (pImage)                        /* object exists ? */
     {
       switch (iCliptype)
@@ -3341,7 +3750,7 @@ mng_retcode process_display_clip (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_show (mng_datap pData)
+mng_retcode mng_process_display_show (mng_datap pData)
 {
   mng_int16  iX, iS, iFrom, iTo;
   mng_imagep pImage;
@@ -3355,10 +3764,10 @@ mng_retcode process_display_show (mng_datap pData)
 
   if (pData->iBreakpoint == 3)         /* previously broken during cycle-mode ? */
   {
-    pImage = find_imageobject (pData, pData->iSHOWnextid);
-
+    pImage = mng_find_imageobject (pData, pData->iSHOWnextid);
+                 
     if (pImage)                        /* still there ? */
-      display_image (pData, pImage, MNG_FALSE);
+      mng_display_image (pData, pImage, MNG_FALSE);
 
     pData->iBreakpoint = 0;            /* let's not go through this again! */
   }
@@ -3403,8 +3812,8 @@ mng_retcode process_display_show (mng_datap pData)
         {
           for (iX = iFrom; iX <= iTo; iX += iS)
           {
-            pImage = find_imageobject (pData, (mng_uint16)iX);
-
+            pImage = mng_find_imageobject (pData, (mng_uint16)iX);
+                         
             if (pImage)                  /* object exists ? */
             {
               if (iFound)                /* already found a candidate ? */
@@ -3429,8 +3838,8 @@ mng_retcode process_display_show (mng_datap pData)
         {
           for (iX = iFrom; iX >= iTo; iX += iS)
           {
-            pImage = find_imageobject (pData, (mng_uint16)iX);
-
+            pImage = mng_find_imageobject (pData, (mng_uint16)iX);
+                         
             if (pImage)                  /* object exists ? */
             {
               if (iFound)                /* already found a candidate ? */
@@ -3462,7 +3871,7 @@ mng_retcode process_display_show (mng_datap pData)
                                        /* display it ? */
       if ((pData->iSHOWmode == 6) && (pFound))
       {
-        display_image (pData, pFound, MNG_FALSE);
+        mng_display_image (pData, pFound, MNG_FALSE);
 
         if (pData->bTimerset)          /* timer set ? */
         {
@@ -3475,13 +3884,13 @@ mng_retcode process_display_show (mng_datap pData)
     {
       do
       {
-        pImage = find_imageobject (pData, iX);
-
+        pImage = mng_find_imageobject (pData, iX);
+                     
         if (pImage)                    /* object exists ? */
         {
           if (pData->iBreakpoint)      /* did we get broken last time ? */
           {                            /* could only happen in the display routine */
-            display_image (pData, pImage, MNG_FALSE);
+            mng_display_image (pData, pImage, MNG_FALSE);
             pData->iBreakpoint = 0;    /* only once inside this loop please ! */
           }
           else
@@ -3490,7 +3899,7 @@ mng_retcode process_display_show (mng_datap pData)
             {
               case 0 : {
                          pImage->bVisible = MNG_TRUE;
-                         display_image (pData, pImage, MNG_FALSE);
+                         mng_display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 1 : {
@@ -3499,7 +3908,7 @@ mng_retcode process_display_show (mng_datap pData)
                        }
               case 2 : {
                          if (pImage->bVisible)
-                           display_image (pData, pImage, MNG_FALSE);
+                           mng_display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 3 : {
@@ -3509,7 +3918,7 @@ mng_retcode process_display_show (mng_datap pData)
               case 4 : {
                          pImage->bVisible = (mng_bool)(!pImage->bVisible);
                          if (pImage->bVisible)
-                           display_image (pData, pImage, MNG_FALSE);
+                           mng_display_image (pData, pImage, MNG_FALSE);
                          break;
                        }
               case 5 : {
@@ -3546,7 +3955,7 @@ mng_retcode process_display_show (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_save (mng_datap pData)
+mng_retcode mng_process_display_save (mng_datap pData)
 {
   mng_retcode iRetcode;
 
@@ -3568,18 +3977,34 @@ mng_retcode process_display_save (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_seek (mng_datap pData)
+mng_retcode mng_process_display_seek (mng_datap pData)
 {
-  mng_retcode iRetcode;
-
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_START)
 #endif
 
-  iRetcode = restore_state (pData);    /* restore the initial or SAVE state */
+#ifdef MNG_SUPPORT_DYNAMICMNG
+  if (pData->bStopafterseek)           /* need to stop after this SEEK ? */
+  {
+    pData->bFreezing      = MNG_TRUE;  /* stop processing on this one */
+    pData->bRunningevent  = MNG_FALSE;
+    pData->bStopafterseek = MNG_FALSE;
+    pData->bNeedrefresh   = MNG_TRUE;  /* make sure the last bit is displayed ! */
+  }
+  else
+#endif
+  {                                    /* restore the initial or SAVE state */
+    mng_retcode iRetcode = restore_state (pData);
 
-  if (iRetcode)                        /* on error bail out */
-    return iRetcode;
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
+#ifdef MNG_SUPPORT_DYNAMICMNG
+                                       /* stop after next SEEK ? */
+    if ((pData->bDynamic) || (pData->bRunningevent))
+      pData->bStopafterseek = MNG_TRUE;
+#endif
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_END)
@@ -3591,7 +4016,7 @@ mng_retcode process_display_seek (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-mng_retcode process_display_jhdr (mng_datap pData)
+mng_retcode mng_process_display_jhdr (mng_datap pData)
 {                                      /* address the current "object" if any */
   mng_imagep  pImage   = (mng_imagep)pData->pCurrentobj;
   mng_retcode iRetcode = MNG_NOERROR;
@@ -3625,11 +4050,11 @@ mng_retcode process_display_jhdr (mng_datap pData)
     {
       if (pData->iDeltatype == MNG_DELTATYPE_REPLACE)
       {
-        iRetcode = reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
-                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
-                                         pData->iJHDRalphainterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                             pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                             pData->iJHDRalphainterlace, MNG_TRUE);
 
         ((mng_imagep)pData->pDeltaImage)->pImgbuf->iAlphabitdepth    = pData->iJHDRalphabitdepth;
         ((mng_imagep)pData->pDeltaImage)->pImgbuf->iJHDRcompression  = pData->iJHDRimgcompression;
@@ -3657,11 +4082,11 @@ mng_retcode process_display_jhdr (mng_datap pData)
     {
       if (pImage)                      /* update object buffer ? */
       {
-        iRetcode = reset_object_details (pData, pImage,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
-                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
-                                         pData->iJHDRalphainterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, pImage,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                             pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                             pData->iJHDRalphainterlace, MNG_TRUE);
 
         pImage->pImgbuf->iAlphabitdepth    = pData->iJHDRalphabitdepth;
         pImage->pImgbuf->iJHDRcompression  = pData->iJHDRimgcompression;
@@ -3670,11 +4095,11 @@ mng_retcode process_display_jhdr (mng_datap pData)
       }
       else                             /* update object 0 */
       {
-        iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
-                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
-                                         pData->iJHDRalphainterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                             pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                             pData->iJHDRalphainterlace, MNG_TRUE);
 
         ((mng_imagep)pData->pObjzero)->pImgbuf->iAlphabitdepth    = pData->iJHDRalphabitdepth;
         ((mng_imagep)pData->pObjzero)->pImgbuf->iJHDRcompression  = pData->iJHDRimgcompression;
@@ -3718,7 +4143,9 @@ mng_retcode process_display_jhdr (mng_datap pData)
   }
 
   if (!pData->bTimerset)               /* no timer break ? */
-  {
+  {                                    /* default row initialization ! */
+    pData->fInitrowproc = (mng_fptr)mng_init_rowproc;
+
     if ((!pData->bHasDHDR) || (pData->iDeltatype == MNG_DELTATYPE_REPLACE))
     {                                  /* 8-bit JPEG ? */
       if (pData->iJHDRimgbitdepth == 8)
@@ -3730,29 +4157,29 @@ mng_retcode process_display_jhdr (mng_datap pData)
         {
           case MNG_COLORTYPE_JPEGGRAY :
                {
-                 pData->fStorerow2   = (mng_fptr)store_jpeg_g8;
-                 pData->fRetrieverow = (mng_fptr)retrieve_g8;
+                 pData->fStorerow2   = (mng_fptr)mng_store_jpeg_g8;
+                 pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
                  pData->bIsOpaque    = MNG_TRUE;
                  break;
                }
           case MNG_COLORTYPE_JPEGCOLOR :
                {
-                 pData->fStorerow2   = (mng_fptr)store_jpeg_rgb8;
-                 pData->fRetrieverow = (mng_fptr)retrieve_rgb8;
+                 pData->fStorerow2   = (mng_fptr)mng_store_jpeg_rgb8;
+                 pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
                  pData->bIsOpaque    = MNG_TRUE;
                  break;
                }
           case MNG_COLORTYPE_JPEGGRAYA :
                {
-                 pData->fStorerow2   = (mng_fptr)store_jpeg_ga8;
-                 pData->fRetrieverow = (mng_fptr)retrieve_ga8;
+                 pData->fStorerow2   = (mng_fptr)mng_store_jpeg_ga8;
+                 pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
                  pData->bIsOpaque    = MNG_FALSE;
                  break;
                }
           case MNG_COLORTYPE_JPEGCOLORA :
                {
-                 pData->fStorerow2   = (mng_fptr)store_jpeg_rgba8;
-                 pData->fRetrieverow = (mng_fptr)retrieve_rgba8;
+                 pData->fStorerow2   = (mng_fptr)mng_store_jpeg_rgba8;
+                 pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
                  pData->bIsOpaque    = MNG_FALSE;
                  break;
                }
@@ -3772,12 +4199,12 @@ mng_retcode process_display_jhdr (mng_datap pData)
                                        /* determine alpha processing routine */
         switch (pData->iJHDRalphabitdepth)
         {
-          case  1 : { pData->fInitrowproc = (mng_fptr)init_jpeg_a1_ni;  break; }
-          case  2 : { pData->fInitrowproc = (mng_fptr)init_jpeg_a2_ni;  break; }
-          case  4 : { pData->fInitrowproc = (mng_fptr)init_jpeg_a4_ni;  break; }
-          case  8 : { pData->fInitrowproc = (mng_fptr)init_jpeg_a8_ni;  break; }
-          case 16 : { pData->fInitrowproc = (mng_fptr)init_jpeg_a16_ni; break; }
-        }                                        
+          case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a1_ni;  break; }
+          case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a2_ni;  break; }
+          case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a4_ni;  break; }
+          case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a8_ni;  break; }
+          case 16 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a16_ni; break; }
+        }
       }
       else                             /* possible JDAA alpha-channel ? */
       if (pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG)
@@ -3785,16 +4212,16 @@ mng_retcode process_display_jhdr (mng_datap pData)
         if (pData->iJHDRimgbitdepth == 8)
         {
           if (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA)
-            pData->fStorerow3 = (mng_fptr)store_jpeg_g8_alpha;
+            pData->fStorerow3 = (mng_fptr)mng_store_jpeg_g8_alpha;
           else
           if (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)
-            pData->fStorerow3 = (mng_fptr)store_jpeg_rgb8_alpha;
+            pData->fStorerow3 = (mng_fptr)mng_store_jpeg_rgb8_alpha;
         }
         else
         {
           /* TODO: 12-bit JPEG with 8-bit JDAA */
         }
-      }  
+      }
                                        /* initialize JPEG library */
       iRetcode = mngjpeg_initialize (pData);
 
@@ -3809,11 +4236,11 @@ mng_retcode process_display_jhdr (mng_datap pData)
                                        /* determine alpha processing routine */
       switch (pData->iJHDRalphabitdepth)
       {
-        case  1 : { pData->fInitrowproc = (mng_fptr)init_g1_ni;  break; }
-        case  2 : { pData->fInitrowproc = (mng_fptr)init_g2_ni;  break; }
-        case  4 : { pData->fInitrowproc = (mng_fptr)init_g4_ni;  break; }
-        case  8 : { pData->fInitrowproc = (mng_fptr)init_g8_ni;  break; }
-        case 16 : { pData->fInitrowproc = (mng_fptr)init_g16_ni; break; }
+        case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;  break; }
+        case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;  break; }
+        case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;  break; }
+        case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;  break; }
+        case 16 : { pData->fInitrowproc = (mng_fptr)mng_init_g16_ni; break; }
       }
     }
 
@@ -3822,19 +4249,22 @@ mng_retcode process_display_jhdr (mng_datap pData)
     pData->iLevel1    = 0;    
     pData->iLevel2    = 0;
     pData->iLevel3    = 0;
-                                       /* leveling & differing ? */
-/*    if (pData->iJHDRalphafilter & 0x40)
+
+#ifdef FILTER192                       /* leveling & differing ? */
+    if (pData->iJHDRalphafilter == 0xC0)
     {
        if (pData->iJHDRalphabitdepth <= 8)
          pData->iFilterofs = 1;
        else
          pData->iFilterofs = 2;
 
-    } */
-                                       /* no adaptive filtering ? */
-/*    if (pData->iJHDRalphafilter & 0x01)
+    }
+#endif
+#ifdef FILTER193                       /* no adaptive filtering ? */
+    if (pData->iJHDRalphafilter == 0xC1)
       pData->iPixelofs = pData->iFilterofs;
-    else */
+    else
+#endif
       pData->iPixelofs = pData->iFilterofs + 1;
 
   }
@@ -3850,9 +4280,9 @@ mng_retcode process_display_jhdr (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-mng_retcode process_display_jdaa (mng_datap  pData,
-                                  mng_uint32 iRawlen,
-                                  mng_uint8p pRawdata)
+mng_retcode mng_process_display_jdaa (mng_datap  pData,
+                                      mng_uint32 iRawlen,
+                                      mng_uint8p pRawdata)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -3862,10 +4292,11 @@ mng_retcode process_display_jdaa (mng_datap  pData,
 
   if (!pData->bJPEGdecompress2)        /* if we're not decompressing already */
   {
-    if (pData->fInitrowproc)           /* initialize row-processing */
+    if (pData->fInitrowproc)           /* initialize row-processing? */
+    {
       iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
-    else
-      iRetcode = init_rowproc (pData); /* this still if no alpha present ! */
+      pData->fInitrowproc = MNG_NULL;  /* only call this once !!! */
+    }
 
     if (!iRetcode)                     /* initialize decompress */
       iRetcode = mngjpeg_decompressinit2 (pData);
@@ -3874,20 +4305,23 @@ mng_retcode process_display_jdaa (mng_datap  pData,
   if (!iRetcode)                       /* all ok? then decompress, my man */
     iRetcode = mngjpeg_decompressdata2 (pData, iRawlen, pRawdata);
 
+  if (iRetcode)
+    return iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAA, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-mng_retcode process_display_jdat (mng_datap  pData,
-                                  mng_uint32 iRawlen,
-                                  mng_uint8p pRawdata)
+mng_retcode mng_process_display_jdat (mng_datap  pData,
+                                      mng_uint32 iRawlen,
+                                      mng_uint8p pRawdata)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -3900,7 +4334,7 @@ mng_retcode process_display_jdat (mng_datap  pData,
     pData->bRestorebkgd = MNG_FALSE;
     iRetcode            = load_bkgdlayer (pData);
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning))
       pData->iLayerseq++;              /* and it counts as a layer then ! */
 
     if (iRetcode)                      /* on error bail out */
@@ -3909,10 +4343,11 @@ mng_retcode process_display_jdat (mng_datap  pData,
 
   if (!pData->bJPEGdecompress)         /* if we're not decompressing already */
   {
-    if (pData->fInitrowproc)           /* initialize row-processing */
+    if (pData->fInitrowproc)           /* initialize row-processing? */
+    {
       iRetcode = ((mng_initrowproc)pData->fInitrowproc) (pData);
-    else
-      iRetcode = init_rowproc (pData); /* this still if no alpha present ! */   
+      pData->fInitrowproc = MNG_NULL;  /* only call this once !!! */
+    }
 
     if (!iRetcode)                     /* initialize decompress */
       iRetcode = mngjpeg_decompressinit (pData);
@@ -3921,24 +4356,27 @@ mng_retcode process_display_jdat (mng_datap  pData,
   if (!iRetcode)                       /* all ok? then decompress, my man */
     iRetcode = mngjpeg_decompressdata (pData, iRawlen, pRawdata);
 
+  if (iRetcode)
+    return iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 #endif /* MNG_INCLUDE_JNG */
 
 /* ************************************************************************** */
 
-mng_retcode process_display_dhdr (mng_datap  pData,
-                                  mng_uint16 iObjectid,
-                                  mng_uint8  iImagetype,
-                                  mng_uint8  iDeltatype,
-                                  mng_uint32 iBlockwidth,
-                                  mng_uint32 iBlockheight,
-                                  mng_uint32 iBlockx,
-                                  mng_uint32 iBlocky)
+mng_retcode mng_process_display_dhdr (mng_datap  pData,
+                                      mng_uint16 iObjectid,
+                                      mng_uint8  iImagetype,
+                                      mng_uint8  iDeltatype,
+                                      mng_uint32 iBlockwidth,
+                                      mng_uint32 iBlockheight,
+                                      mng_uint32 iBlockx,
+                                      mng_uint32 iBlocky)
 {
   mng_imagep  pImage;
   mng_retcode iRetcode;
@@ -3959,16 +4397,16 @@ mng_retcode process_display_dhdr (mng_datap  pData,
   pData->fDeltareplacerow = MNG_NULL;
   pData->fDeltaputrow     = MNG_NULL;
 
-  pImage = find_imageobject (pData, iObjectid);
-
+  pImage = mng_find_imageobject (pData, iObjectid);
+               
   if (pImage)                          /* object exists ? */
   {
     if (pImage->pImgbuf->bConcrete)    /* is it concrete ? */
     {                                  /* previous magnification to be done ? */
       if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
       {
-        iRetcode = magnify_imageobject (pData, pImage);
-
+        iRetcode = mng_magnify_imageobject (pData, pImage);
+                       
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
@@ -3989,6 +4427,18 @@ mng_retcode process_display_dhdr (mng_datap  pData,
       pData->iFilter               = pImage->pImgbuf->iFilter;
       pData->iInterlace            = pImage->pImgbuf->iInterlace;
 
+      if ((iDeltatype == MNG_DELTATYPE_BLOCKPIXELADD    ) ||
+          (iDeltatype == MNG_DELTATYPE_BLOCKPIXELREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
+      else
+      if ((iDeltatype == MNG_DELTATYPE_BLOCKALPHAADD    ) ||
+          (iDeltatype == MNG_DELTATYPE_BLOCKALPHAREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iAlphasampledepth;
+      else
+      if ((iDeltatype == MNG_DELTATYPE_BLOCKCOLORADD    ) ||
+          (iDeltatype == MNG_DELTATYPE_BLOCKCOLORREPLACE)    )
+        pData->iBitdepth           = pImage->pImgbuf->iPixelsampledepth;
+
 #ifdef MNG_INCLUDE_JNG
       pData->iJHDRimgbitdepth      = pImage->pImgbuf->iBitdepth;
       pData->iJHDRcolortype        = pImage->pImgbuf->iColortype;
@@ -4001,7 +4451,14 @@ mng_retcode process_display_dhdr (mng_datap  pData,
 #endif
                                        /* block size specified ? */
       if (iDeltatype != MNG_DELTATYPE_NOCHANGE)
-      {
+      {                                /* block entirely within target ? */
+        if (iDeltatype != MNG_DELTATYPE_REPLACE)
+        {
+          if (((iBlockx + iBlockwidth ) > pData->iDatawidth ) ||
+              ((iBlocky + iBlockheight) > pData->iDataheight)    )
+            MNG_ERROR (pData, MNG_INVALIDBLOCK)
+        }
+
         pData->iDatawidth          = iBlockwidth;
         pData->iDataheight         = iBlockheight;
       }
@@ -4072,11 +4529,11 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                                        /* full image replace ? */
       if (iDeltatype == MNG_DELTATYPE_REPLACE)
       {
-        iRetcode = reset_object_details (pData, pImage,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iBitdepth, pData->iColortype,
-                                         pData->iCompression, pData->iFilter,
-                                         pData->iInterlace, MNG_FALSE);
+        iRetcode = mng_reset_object_details (pData, pImage,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_FALSE);
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -4089,11 +4546,11 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                                        /* we store in object 0 and process it later */
         pData->pStoreobj = pData->pObjzero;
                                        /* make sure to initialize object 0 then */
-        iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                                         pData->iDatawidth, pData->iDataheight,
-                                         pData->iBitdepth, pData->iColortype,
-                                         pData->iCompression, pData->iFilter,
-                                         pData->iInterlace, MNG_TRUE);
+        iRetcode = mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                             pData->iDatawidth, pData->iDataheight,
+                                             pData->iBitdepth, pData->iColortype,
+                                             pData->iCompression, pData->iFilter,
+                                             pData->iInterlace, MNG_TRUE);
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -4129,9 +4586,9 @@ mng_retcode process_display_dhdr (mng_datap  pData,
           MNG_COPY (pBufzero->aTRNSentries, pBuf->aTRNSentries,
                     sizeof (pBufzero->aTRNSentries))
         }
-                                       /* process immediatly if bitdepth & colortype are equal */
+                                       /* process immediately if bitdepth & colortype are equal */
         pData->bDeltaimmediate =
-          (mng_bool)((pData->bDisplaying) && (pData->bRunning) &&
+          (mng_bool)((pData->bDisplaying) && (!pData->bSkipping) && (pData->bRunning) &&
                      (pData->iBitdepth  == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iBitdepth ) &&
                      (pData->iColortype == ((mng_imagep)pData->pDeltaImage)->pImgbuf->iColortype)    );
       }
@@ -4143,41 +4600,41 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                    {
                      case  1 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_g1_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_g1_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g1_i;
 
                                  break;
                                }
                      case  2 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_g2_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_g2_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g2_i;
 
                                  break;
                                }
                      case  4 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_g4_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_g4_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g4_i;
 
                                  break;
                                }
                      case  8 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_g8_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_g8_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g8_i;
 
                                  break;
                                }
                      case 16 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_g16_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g16_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_g16_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_g16_i;
 
                                  break;
                                }
@@ -4190,17 +4647,17 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                    {
                      case  8 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_rgb8_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgb8_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_rgb8_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgb8_i;
 
                                  break;
                                }
                      case 16 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_rgb16_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgb16_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_rgb16_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgb16_i;
 
                                  break;
                                }
@@ -4213,33 +4670,33 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                    {
                      case  1 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_idx1_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx1_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_idx1_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx1_i;
 
                                  break;
                                }
                      case  2 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_idx2_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx2_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_idx2_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx2_i;
 
                                  break;
                                }
                      case  4 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_idx4_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx4_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_idx4_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx4_i;
 
                                  break;
                                }
                      case  8 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_idx8_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx8_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_idx8_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_idx8_i;
 
                                  break;
                                }
@@ -4252,17 +4709,17 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                    {
                      case  8 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_ga8_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_ga8_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_ga8_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_ga8_i;
 
                                  break;
                                }
                      case 16 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_ga16_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_ga16_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_ga16_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_ga16_i;
 
                                  break;
                                }
@@ -4275,17 +4732,17 @@ mng_retcode process_display_dhdr (mng_datap  pData,
                    {
                      case  8 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_rgba8_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgba8_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_rgba8_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgba8_i;
 
                                  break;
                                }
                      case 16 : {
                                  if (!pData->iInterlace)
-                                   pData->fInitrowproc = (mng_fptr)init_rgba16_ni;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgba16_ni;
                                  else
-                                   pData->fInitrowproc = (mng_fptr)init_rgba16_i;
+                                   pData->fInitrowproc = (mng_fptr)mng_init_rgba16_i;
 
                                  break;
                                }
@@ -4311,18 +4768,66 @@ mng_retcode process_display_dhdr (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_prom (mng_datap  pData,
-                                  mng_uint8  iBitdepth,
-                                  mng_uint8  iColortype,
-                                  mng_uint8  iFilltype)
+mng_retcode mng_process_display_prom (mng_datap  pData,
+                                      mng_uint8  iBitdepth,
+                                      mng_uint8  iColortype,
+                                      mng_uint8  iFilltype)
 {
+  mng_imagep     pImage;
+  mng_imagedatap pBuf;
+  mng_retcode    iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PROM, MNG_LC_START)
 #endif
 
+  if (!pData->pDeltaImage)             /* gotta have this now! */
+    MNG_ERROR (pData, MNG_INVALIDDELTA)
 
-  /* TODO: everything */
-  
+  pImage = (mng_imagep)pData->pDeltaImage;
+  pBuf   = pImage->pImgbuf;
+                                       /* can't demote bitdepth! */
+  if (iBitdepth < pBuf->iBitdepth)
+    MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
+
+  if ( ((pBuf->iColortype == MNG_COLORTYPE_GRAY      ) &&
+        (iColortype       != MNG_COLORTYPE_GRAY      ) &&
+        (iColortype       != MNG_COLORTYPE_GRAYA     ) &&
+        (iColortype       != MNG_COLORTYPE_RGB       ) &&
+        (iColortype       != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_GRAYA     ) &&
+        (iColortype       != MNG_COLORTYPE_GRAYA     ) &&
+        (iColortype       != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_RGB       ) &&
+        (iColortype       != MNG_COLORTYPE_RGB       ) &&
+        (iColortype       != MNG_COLORTYPE_RGBA      )    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_RGBA      ) &&
+        (iColortype       != MNG_COLORTYPE_RGBA      )    ) ||
+#ifdef MNG_INCLUDE_JNG
+       ((pBuf->iColortype == MNG_COLORTYPE_JPEGGRAY  ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGGRAY  ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLOR ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGGRAYA ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_JPEGCOLOR ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLOR ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_JPEGGRAYA ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGGRAYA ) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+       ((pBuf->iColortype == MNG_COLORTYPE_JPEGCOLORA) &&
+        (iColortype       != MNG_COLORTYPE_JPEGCOLORA)    ) ||
+#endif
+       ((pBuf->iColortype == MNG_COLORTYPE_INDEXED   ) &&
+        (iColortype       != MNG_COLORTYPE_INDEXED   ) &&
+        (iColortype       != MNG_COLORTYPE_RGB       ) &&
+        (iColortype       != MNG_COLORTYPE_RGBA      )    )    )
+    MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+
+  iRetcode = mng_promote_imageobject (pData, pImage, iBitdepth, iColortype, iFilltype);
+                 
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PROM, MNG_LC_END)
@@ -4333,7 +4838,7 @@ mng_retcode process_display_prom (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_ipng (mng_datap pData)
+mng_retcode mng_process_display_ipng (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IPNG, MNG_LC_START)
@@ -4350,7 +4855,7 @@ mng_retcode process_display_ipng (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_ijng (mng_datap pData)
+mng_retcode mng_process_display_ijng (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IJNG, MNG_LC_START)
@@ -4367,12 +4872,12 @@ mng_retcode process_display_ijng (mng_datap pData)
 
 /* ************************************************************************** */
 
-mng_retcode process_display_pplt (mng_datap      pData,
-                                  mng_uint8      iType,
-                                  mng_uint32     iCount,
-                                  mng_palette8ep paIndexentries,
-                                  mng_uint8p     paAlphaentries,
-                                  mng_uint8p     paUsedentries)
+mng_retcode mng_process_display_pplt (mng_datap      pData,
+                                      mng_uint8      iType,
+                                      mng_uint32     iCount,
+                                      mng_palette8ep paIndexentries,
+                                      mng_uint8p     paAlphaentries,
+                                      mng_uint8p     paUsedentries)
 {
   mng_uint32     iX;
   mng_imagep     pImage = (mng_imagep)pData->pObjzero;
@@ -4509,17 +5014,17 @@ mng_retcode process_display_pplt (mng_datap      pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_magn (mng_datap  pData,
-                                  mng_uint16 iFirstid,
-                                  mng_uint16 iLastid,
-                                  mng_uint16 iMethodX,
-                                  mng_uint16 iMX,
-                                  mng_uint16 iMY,
-                                  mng_uint16 iML,
-                                  mng_uint16 iMR,
-                                  mng_uint16 iMT,
-                                  mng_uint16 iMB,
-                                  mng_uint16 iMethodY)
+mng_retcode mng_process_display_magn (mng_datap  pData,
+                                      mng_uint16 iFirstid,
+                                      mng_uint16 iLastid,
+                                      mng_uint8  iMethodX,
+                                      mng_uint16 iMX,
+                                      mng_uint16 iMY,
+                                      mng_uint16 iML,
+                                      mng_uint16 iMR,
+                                      mng_uint16 iMT,
+                                      mng_uint16 iMB,
+                                      mng_uint8  iMethodY)
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -4545,14 +5050,14 @@ mng_retcode process_display_magn (mng_datap  pData,
     }
     else
     {
-      pImage = find_imageobject (pData, iX);
-                                       /* object exists & is not frozen ? */
+      pImage = mng_find_imageobject (pData, iX);
+                                           /* object exists & is not frozen ? */
       if ((pImage) && (!pImage->bFrozen))
       {                                /* previous magnification to be done ? */
         if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
         {
-          mng_retcode iRetcode = magnify_imageobject (pData, pImage);
-
+          mng_retcode iRetcode = mng_magnify_imageobject (pData, pImage);
+                                     
           if (iRetcode)                /* on error bail out */
             return iRetcode;
         }
@@ -4575,12 +5080,12 @@ mng_retcode process_display_magn (mng_datap  pData,
   {
     if (iX)                            /* only real objects ! */
     {
-      pImage = find_imageobject (pData, iX);
-                                       /* object exists & is not frozen  &
+      pImage = mng_find_imageobject (pData, iX);
+                                           /* object exists & is not frozen  &
                                           is visible & is viewable ? */
       if ((pImage) && (!pImage->bFrozen) &&
           (pImage->bVisible) && (pImage->bViewable))
-        display_image (pData, pImage, MNG_FALSE);
+        mng_display_image (pData, pImage, MNG_FALSE);
     }
 
     iX++;
@@ -4602,7 +5107,7 @@ mng_retcode process_display_magn (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode process_display_magn2 (mng_datap pData)
+mng_retcode mng_process_display_magn2 (mng_datap pData)
 {
   mng_uint16 iX;
   mng_imagep pImage;
@@ -4617,12 +5122,12 @@ mng_retcode process_display_magn2 (mng_datap pData)
   {
     if (iX)                            /* only real objects ! */
     {
-      pImage = find_imageobject (pData, iX);
+      pImage = mng_find_imageobject (pData, iX);
                                        /* object exists & is not frozen  &
                                           is visible & is viewable ? */
       if ((pImage) && (!pImage->bFrozen) &&
           (pImage->bVisible) && (pImage->bViewable))
-        display_image (pData, pImage, MNG_FALSE);
+        mng_display_image (pData, pImage, MNG_FALSE);
     }
 
     iX++;
@@ -4633,6 +5138,489 @@ mng_retcode process_display_magn2 (mng_datap pData)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_process_display_past (mng_datap  pData,
+                                      mng_uint16 iTargetid,
+                                      mng_uint8  iTargettype,
+                                      mng_int32  iTargetx,
+                                      mng_int32  iTargety,
+                                      mng_uint32 iCount,
+                                      mng_ptr    pSources)
+{
+  mng_retcode      iRetcode = MNG_NOERROR;
+  mng_imagep       pTargetimg;
+  mng_imagep       pSourceimg;
+  mng_past_sourcep pSource = (mng_past_sourcep)pSources;
+  mng_uint32       iX      = 0;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_START)
+#endif
+
+  if (iTargetid)                       /* a real destination object ? */
+  {                                    /* let's find it then */
+    pTargetimg = (mng_imagep)mng_find_imageobject (pData, iTargetid);
+
+    if (!pTargetimg)                   /* if it doesn't exists; do a barf */
+      MNG_ERROR (pData, MNG_OBJECTUNKNOWN)
+                                       /* it's gotta be abstract !!! */
+    if (pTargetimg->pImgbuf->bConcrete)
+      MNG_ERROR (pData, MNG_OBJNOTABSTRACT)
+                                       /* whe want 32-/64-bit RGBA to play with ! */
+    if ((pTargetimg->pImgbuf->iBitdepth <= MNG_BITDEPTH_8)          ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_GRAY)    ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_RGB)     ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_INDEXED) ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_GRAYA)      )
+      iRetcode = mng_promote_imageobject (pData, pTargetimg, MNG_BITDEPTH_8,
+                                          MNG_COLORTYPE_RGBA,
+                                          MNG_FILLMETHOD_LEFTBITREPLICATE);
+    else
+    if ((pTargetimg->pImgbuf->iBitdepth > MNG_BITDEPTH_8)              &&
+        ((pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_GRAY)  ||
+         (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_RGB)   ||
+         (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_GRAYA)    )   )
+      iRetcode = mng_promote_imageobject (pData, pTargetimg, MNG_BITDEPTH_16,
+                                          MNG_COLORTYPE_RGBA,
+                                          MNG_FILLMETHOD_LEFTBITREPLICATE);
+    else
+    if ((pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_JPEGGRAY)  ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_JPEGCOLOR) ||
+        (pTargetimg->pImgbuf->iColortype ==  MNG_COLORTYPE_JPEGGRAYA)    )
+      iRetcode = mng_promote_imageobject (pData, pTargetimg,
+                                          pTargetimg->pImgbuf->iBitdepth,
+                                          MNG_COLORTYPE_JPEGCOLORA,
+                                          MNG_FILLMETHOD_LEFTBITREPLICATE);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* make it really abstract ? */
+    if (!pTargetimg->pImgbuf->bCorrected)
+    {
+      iRetcode = mng_colorcorrect_object (pData, pTargetimg);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+  }
+  else
+  {                                    /* pasting into object 0 !!! */
+    pTargetimg = (mng_imagep)pData->pObjzero;
+                                       /* is it usable ??? */
+    if ((pTargetimg->bClipped) &&
+        (pTargetimg->iClipr > pTargetimg->iPosx) &&
+        (pTargetimg->iClipb > pTargetimg->iPosy))
+    {
+                                       /* make it 32-bit RGBA please !!! */
+      iRetcode = mng_reset_object_details (pData, pTargetimg,
+                                           pTargetimg->iClipr - pTargetimg->iPosx,
+                                           pTargetimg->iClipb - pTargetimg->iPosy,
+                                           MNG_BITDEPTH_8, MNG_COLORTYPE_RGBA,
+                                           0, 0, 0, MNG_FALSE);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+    else
+      pTargetimg = MNG_NULL;           /* clipped beyond visibility ! */
+  }
+
+  if (pTargetimg)                      /* usable destination ? */
+  {
+    mng_int32      iSourceY;
+    mng_int32      iSourceYinc;
+    mng_int32      iSourcerowsize;
+    mng_int32      iSourcesamples;
+    mng_bool       bSourceRGBA16;
+    mng_int32      iTargetY;
+    mng_int32      iTargetrowsize;
+    mng_int32      iTargetsamples;
+    mng_bool       bTargetRGBA16 = MNG_FALSE;
+    mng_imagedatap pBuf;
+                                       /* needs magnification ? */
+    if ((pTargetimg->iMAGN_MethodX) || (pTargetimg->iMAGN_MethodY))
+      iRetcode = mng_magnify_imageobject (pData, pTargetimg);
+
+    if (!iRetcode)                     /* still ok ? */
+    {
+      bTargetRGBA16 = (mng_bool)(pTargetimg->pImgbuf->iBitdepth > 8);
+
+      switch (iTargettype)             /* determine target x/y */
+      {
+        case 0 : {
+                   pData->iPastx = iTargetx;
+                   pData->iPasty = iTargety;
+                   break;
+                 }
+
+        case 1 : {
+                   pData->iPastx = pTargetimg->iPastx + iTargetx;
+                   pData->iPasty = pTargetimg->iPasty + iTargety;
+                   break;
+                 }
+
+        case 2 : {
+                   pData->iPastx += iTargetx;
+                   pData->iPasty += iTargety;
+                   break;
+                 }
+      }
+                                       /* save for next time ... */
+      pTargetimg->iPastx      = pData->iPastx;
+      pTargetimg->iPasty      = pData->iPasty;
+                                       /* get temporary work-buffers */
+      MNG_ALLOC (pData, pData->pRGBArow, (pTargetimg->pImgbuf->iRowsize << 1))
+      MNG_ALLOC (pData, pData->pWorkrow, (pTargetimg->pImgbuf->iRowsize << 1))
+                                       /* address destination for row-routines */
+      pData->pStoreobj        = (mng_objectp)pTargetimg;
+      pData->pStorebuf        = (mng_objectp)pTargetimg->pImgbuf;
+    }
+                                       /* process the sources one by one */
+    while ((!iRetcode) && (iX < iCount))
+    {                                  /* find the little bastards first */
+      pSourceimg              = (mng_imagep)mng_find_imageobject (pData, pSource->iSourceid);
+                                       /* exists and viewable? */
+      if ((pSourceimg) && (pSourceimg->bViewable))
+      {                                /* needs magnification ? */
+        if ((pSourceimg->iMAGN_MethodX) || (pSourceimg->iMAGN_MethodY))
+          iRetcode = mng_magnify_imageobject (pData, pSourceimg);
+
+        if (!iRetcode)                 /* still ok ? */
+        {
+          pBuf                = (mng_imagedatap)pSourceimg->pImgbuf;
+                                       /* address source for row-routines */
+          pData->pRetrieveobj = (mng_objectp)pSourceimg;
+
+          pData->iPass        = -1;    /* init row-processing variables */
+          pData->iRowinc      = 1;
+          pData->iColinc      = 1;
+          pData->iPixelofs    = 0;
+          iSourcesamples      = (mng_int32)pBuf->iWidth;
+          iSourcerowsize      = pBuf->iRowsize;
+          bSourceRGBA16       = (mng_bool)(pBuf->iBitdepth > 8);
+                                       /* make sure the delta-routines do the right thing */
+          pData->iDeltatype   = MNG_DELTATYPE_BLOCKPIXELREPLACE;
+
+          switch (pBuf->iColortype)
+          {
+            case  0 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
+
+                        pData->bIsOpaque      = (mng_bool)(!pBuf->bHasTRNS);
+                        break;
+                      }
+
+            case  2 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
+
+                        pData->bIsOpaque      = (mng_bool)(!pBuf->bHasTRNS);
+                        break;
+                      }
+
+
+            case  3 : { pData->fRetrieverow   = (mng_fptr)mng_retrieve_idx8;
+                        pData->bIsOpaque      = (mng_bool)(!pBuf->bHasTRNS);
+                        break;
+                      }
+
+
+            case  4 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
+
+                        pData->bIsOpaque      = MNG_FALSE;
+                        break;
+                      }
+
+
+            case  6 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
+
+                        pData->bIsOpaque      = MNG_FALSE;
+                        break;
+                      }
+
+            case  8 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_g16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_g8;
+
+                        pData->bIsOpaque      = MNG_TRUE;
+                        break;
+                      }
+
+            case 10 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgb8;
+
+                        pData->bIsOpaque      = MNG_TRUE;
+                        break;
+                      }
+
+
+            case 12 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_ga8;
+
+                        pData->bIsOpaque      = MNG_FALSE;
+                        break;
+                      }
+
+
+            case 14 : { if (bSourceRGBA16)
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba16;
+                        else
+                          pData->fRetrieverow = (mng_fptr)mng_retrieve_rgba8;
+
+                        pData->bIsOpaque      = MNG_FALSE;
+                        break;
+                      }
+          }
+                                       /* determine scaling */
+          if ((!bSourceRGBA16) && (bTargetRGBA16))
+            pData->fScalerow = (mng_fptr)mng_scale_rgba8_rgba16;
+          else
+          if ((bSourceRGBA16) && (!bTargetRGBA16))
+            pData->fScalerow = (mng_fptr)mng_scale_rgba16_rgba8;
+          else
+            pData->fScalerow = MNG_NULL;
+
+                                       /* default no color-correction */
+          pData->fCorrectrow = MNG_NULL;
+
+#if defined(MNG_FULL_CMS)              /* determine color-management routine */
+          iRetcode = mng_init_full_cms   (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#elif defined(MNG_GAMMA_ONLY)
+          iRetcode = mng_init_gamma_only (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#elif defined(MNG_APP_CMS)
+          iRetcode = mng_init_app_cms    (pData, MNG_FALSE, MNG_FALSE, MNG_TRUE);
+#endif
+        }
+
+        if (!iRetcode)                 /* still ok ? */
+        {  
+          pData->fFliprow = MNG_NULL;  /* no flipping or tiling by default */
+          pData->fTilerow = MNG_NULL;
+                                       /* but perhaps we do have to ... */
+          switch (pSource->iOrientation)
+          {
+            case 2 : ;
+            case 4 : {
+                       if (bTargetRGBA16)
+                         pData->fFliprow = (mng_fptr)mng_flip_rgba16;
+                       else
+                         pData->fFliprow = (mng_fptr)mng_flip_rgba8;
+                       break;
+                     }
+
+            case 8 : {
+                       if (bTargetRGBA16)
+                         pData->fTilerow = (mng_fptr)mng_tile_rgba16;
+                       else
+                         pData->fTilerow = (mng_fptr)mng_tile_rgba8;
+                       break;
+                     }
+          }
+                                       /* determine composition routine */
+                                       /* note that we're abusing the delta-routine setup !!! */
+          switch (pSource->iComposition)
+          {
+            case 0 : {                 /* composite over */
+                       if (bTargetRGBA16)
+                         pData->fDeltarow = (mng_fptr)mng_composeover_rgba16;
+                       else
+                         pData->fDeltarow = (mng_fptr)mng_composeover_rgba8;
+                       break;
+                     }
+
+            case 1 : {                 /* replace */
+                       if (bTargetRGBA16)
+                         pData->fDeltarow = (mng_fptr)mng_delta_rgba16_rgba16;
+                       else
+                         pData->fDeltarow = (mng_fptr)mng_delta_rgba8_rgba8;
+                       break;
+                     }
+
+            case 2 : {                 /* composite under */
+                       if (bTargetRGBA16)
+                         pData->fDeltarow = (mng_fptr)mng_composeunder_rgba16;
+                       else
+                         pData->fDeltarow = (mng_fptr)mng_composeunder_rgba8;
+                       break;
+                     }
+          }
+                                       /* determine offsets & clipping */
+          if (pSource->iOffsettype == 1)
+          {
+            pData->iDestl          = pData->iPastx + pSource->iOffsetx;
+            pData->iDestt          = pData->iPasty + pSource->iOffsety;
+          }
+          else
+          {
+            pData->iDestl          = pSource->iOffsetx;
+            pData->iDestt          = pSource->iOffsety;
+          }
+
+          pData->iDestr            = (mng_int32)pTargetimg->pImgbuf->iWidth;
+          pData->iDestb            = (mng_int32)pTargetimg->pImgbuf->iHeight;
+                                       /* take the source dimension into account ? */
+          if (pSource->iOrientation != 8)
+          {
+            pData->iDestr          = MIN_COORD (pData->iDestr, pData->iDestl + (mng_int32)pBuf->iWidth);
+            pData->iDestb          = MIN_COORD (pData->iDestb, pData->iDestt + (mng_int32)pBuf->iHeight);
+          }
+                                       /* source clipping */
+          if (pSource->iBoundarytype == 1)
+          {
+            if (pData->iDestl < pData->iPastx + pSource->iBoundaryl)
+              pData->iSourcel      = pData->iPastx + pSource->iBoundaryl - pData->iDestl;
+            else
+              pData->iSourcel      = 0;
+
+            if (pData->iDestt < pData->iPasty + pSource->iBoundaryt)
+              pData->iSourcet      = pData->iPasty + pSource->iBoundaryt - pData->iDestt;
+            else
+              pData->iSourcet      = 0;
+
+            pData->iDestl          = MAX_COORD (pData->iDestl, pData->iPastx + pSource->iBoundaryl);
+            pData->iDestt          = MAX_COORD (pData->iDestt, pData->iPasty + pSource->iBoundaryt);
+            pData->iDestr          = MIN_COORD (pData->iDestr, pData->iPastx + pSource->iBoundaryr);
+            pData->iDestb          = MIN_COORD (pData->iDestb, pData->iPasty + pSource->iBoundaryb);
+          }
+          else
+          {
+            if (pData->iDestl < pSource->iBoundaryl)
+              pData->iSourcel      = pSource->iBoundaryl - pData->iDestl;
+            else
+              pData->iSourcel      = 0;
+
+            if (pData->iDestt < pSource->iBoundaryt)
+              pData->iSourcet      = pSource->iBoundaryt - pData->iDestt;
+            else
+              pData->iSourcet      = 0;
+
+            pData->iDestl          = MAX_COORD (pData->iDestl, pSource->iBoundaryl);
+            pData->iDestt          = MAX_COORD (pData->iDestt, pSource->iBoundaryt);
+            pData->iDestr          = MIN_COORD (pData->iDestr, pSource->iBoundaryr);
+            pData->iDestb          = MIN_COORD (pData->iDestb, pSource->iBoundaryb);
+          }
+
+          if (pData->iSourcel)         /* indent source ? */
+          {
+             if (bTargetRGBA16)        /* abuse tiling routine to shift source-pixels */
+               pData->fTilerow = (mng_fptr)mng_tile_rgba16;
+             else
+               pData->fTilerow = (mng_fptr)mng_tile_rgba8;
+          }
+                                       /* anything to display ? */
+          if ((pData->iDestl <= pData->iDestr) && (pData->iDestt <= pData->iDestb))
+          {                            /* init variables for the loop */
+            if ((pSource->iOrientation == 2) || (pSource->iOrientation == 6))
+            {
+              iSourceY             = (mng_int32)pBuf->iHeight - 1 - pData->iSourcet;
+              iSourceYinc          = -1;
+            }
+            else
+            {
+              iSourceY             = pData->iSourcet;
+              iSourceYinc          = 1;
+            }
+
+            iTargetY               = pData->iDestt;
+            pData->iCol            = pData->iDestl;
+
+            iTargetsamples         = pData->iDestr - pData->iDestl;
+
+            if (bTargetRGBA16)
+              iTargetrowsize       = (iTargetsamples << 3);
+            else
+              iTargetrowsize       = (iTargetsamples << 2);
+
+            while ((!iRetcode) && (iTargetY < pData->iDestb))
+            {                          /* get a row */
+              pData->iRow          = iSourceY;
+              pData->iRowsamples   = iSourcesamples;
+              pData->iRowsize      = iSourcerowsize;
+              pData->bIsRGBA16     = bSourceRGBA16;
+              iRetcode             = ((mng_retrieverow)pData->fRetrieverow) (pData);
+                                       /* scale it (if necessary) */
+              if ((!iRetcode) && (pData->fScalerow))
+                iRetcode           = ((mng_scalerow)pData->fScalerow) (pData);
+
+              pData->bIsRGBA16     = bTargetRGBA16;
+                                       /* color correction (if necessary) */
+              if ((!iRetcode) && (pData->fCorrectrow))
+                iRetcode           = ((mng_correctrow)pData->fCorrectrow) (pData);
+                                       /* flipping (if necessary) */
+              if ((!iRetcode) && (pData->fFliprow))
+                iRetcode           = ((mng_fliprow)pData->fFliprow) (pData);
+                                       /* tiling (if necessary) */
+              if ((!iRetcode) && (pData->fTilerow))
+                iRetcode           = ((mng_tilerow)pData->fTilerow) (pData);
+
+              if (!iRetcode)           /* and paste..... */
+              {
+                pData->iRow        = iTargetY;
+                pData->iRowsamples = iTargetsamples;
+                pData->iRowsize    = iTargetrowsize;
+                iRetcode           = ((mng_deltarow)pData->fDeltarow) (pData);
+              }
+
+              iSourceY += iSourceYinc; /* and next line */
+
+              if (iSourceY < 0)
+                iSourceY = (mng_int32)pBuf->iHeight - 1;
+              else
+              if (iSourceY >= (mng_int32)pBuf->iHeight)
+                iSourceY = 0;
+
+              iTargetY++;
+            }
+          }
+
+#if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
+          if (!iRetcode)
+            iRetcode = mng_clear_cms (pData);
+#endif
+        }
+
+        pSource++;                     /* neeeeext */
+        iX++;
+      }
+    }
+                                       /* drop the temporary row-buffer */
+    MNG_FREEX (pData, pData->pWorkrow, (pTargetimg->pImgbuf->iRowsize << 1))
+    MNG_FREEX (pData, pData->pRGBArow, (pTargetimg->pImgbuf->iRowsize << 1))
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
+    if (!iTargetid)                    /* did we paste into object 0 ? */
+    {                                  /* display it then ! */
+      iRetcode = mng_display_image (pData, pTargetimg, MNG_FALSE);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PAST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

@@ -5,6 +5,9 @@
  *  during toying with libmng (http://www.limng.com)
  *
  *  License: GPL :-))
+ *
+ *  7 July 2001:  added key-press/button-press handling to exit viewer without
+ *                window-manager help; added libmng version info [Greg Roelofs]
  */
 
 #include <unistd.h>
@@ -55,7 +58,36 @@ main (int argc, char ** argv)
 
   if (argc < 2)
     {
-      g_print ("Usage: dummy <file.mng>\n");
+      g_print ("Usage:  %s <file.mng>\n\n", argv[0]);
+
+      g_print ("   Compiled with GTK+ %d.%d.%d; using GTK+ %d.%d.%d.\n",
+        GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+        gtk_major_version, gtk_minor_version, gtk_micro_version);
+#ifdef GDK_PIXBUF_VERSION
+      g_print ("   Compiled with gdk-pixbuf %s; using gdk-pixbuf %s.\n",
+        GDK_PIXBUF_VERSION, gdk_pixbuf_version);
+#endif
+      g_print ("   Compiled with libmng %s; using libmng %s.\n",
+        MNG_VERSION_TEXT, mng_version_text());
+      g_print ("   Compiled with zlib %s; using zlib %s.\n",
+        ZLIB_VERSION, zlib_version);
+#ifdef JPEG_LIB_VERSION
+        {
+          int major = JPEG_LIB_VERSION / 10;
+          int minor = JPEG_LIB_VERSION % 10;
+          char minoralpha[2];
+
+          if (minor)
+            {
+              minoralpha[0] = (char)(minor - 1 + 'a');
+              minoralpha[1] = '\0';
+            }
+          else
+              minoralpha[0] = '\0';
+          g_print ("   Compiled with libjpeg %d%s.\n", major, minoralpha);
+        }
+#endif
+      g_print ("\nPress Esc or Q, or click mouse button, to quit.\n");
       return 1;
     }
 
@@ -77,6 +109,16 @@ main (int argc, char ** argv)
 			   NULL);
   gtk_signal_connect (GTK_OBJECT (window), "delete_event",
 		      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+  gtk_signal_connect (GTK_OBJECT (window), "destroy",
+		      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+
+  /* any keypress (e.g., Esc or Q) or mouse-button click will quit viewer */
+  gtk_signal_connect (GTK_OBJECT (window), "key_press_event",
+		      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+  gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
+  gtk_signal_connect (GTK_OBJECT (window), "button_press_event",
+		      GTK_SIGNAL_FUNC (gtk_main_quit), NULL);
+
   align = gtk_alignment_new (0.5, 0.5, 0.0, 0.0);
   gtk_container_add (GTK_CONTAINER (window), align);
   frame = gtk_frame_new (NULL);

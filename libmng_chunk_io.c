@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_io.c         copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_chunk_io.c         copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
 /* *                                                                        * */
@@ -142,6 +142,32 @@
 /* *             0.9.5 -  1/25/2001 - G.Juyn                                * */
 /* *             - fixed some small compiler warnings (thanks Nikki)        * */
 /* *                                                                        * */
+/* *             1.0.2 - 05/05/2000 - G.Juyn                                * */
+/* *             - B421427 - writes wrong format in bKGD and tRNS           * */
+/* *             1.0.2 - 06/20/2000 - G.Juyn                                * */
+/* *             - B434583 - compiler-warning if MNG_STORE_CHUNKS undefined * */
+/* *                                                                        * */
+/* *             1.0.5 - 07/08/2002 - G.Juyn                                * */
+/* *             - B578572 - removed eMNGma hack (thanks Dimitri!)          * */
+/* *             1.0.5 - 08/07/2002 - G.Juyn                                * */
+/* *             - added test-option for PNG filter method 193 (=no filter) * */
+/* *             1.0.5 - 08/15/2002 - G.Juyn                                * */
+/* *             - completed PROM support                                   * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *             1.0.5 - 09/07/2002 - G.Juyn                                * */
+/* *             - fixed reading of FRAM with just frame_mode and name      * */
+/* *             1.0.5 - 09/13/2002 - G.Juyn                                * */
+/* *             - fixed read/write of MAGN chunk                           * */
+/* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
+/* *             - added event handling for dynamic MNG                     * */
+/* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
+/* *             - fixed LOOP iteration=0 special case                      * */
+/* *             1.0.5 - 09/19/2002 - G.Juyn                                * */
+/* *             - misplaced TERM is now treated as warning                 * */
+/* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
+/* *             - added support for PAST                                   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -178,7 +204,7 @@
 /* ************************************************************************** */
 
 /* Make the table for a fast CRC. */
-void make_crc_table (mng_datap pData)
+MNG_LOCAL void make_crc_table (mng_datap pData)
 {
   mng_uint32 iC;
   mng_int32  iN, iK;
@@ -206,10 +232,10 @@ void make_crc_table (mng_datap pData)
    is the 1's complement of the final running CRC (see the
    crc() routine below). */
 
-mng_uint32 update_crc (mng_datap  pData,
-                       mng_uint32 iCrc,
-                       mng_uint8p pBuf,
-                       mng_int32  iLen)
+MNG_LOCAL mng_uint32 update_crc (mng_datap  pData,
+                                 mng_uint32 iCrc,
+                                 mng_uint8p pBuf,
+                                 mng_int32  iLen)
 {
   mng_uint32 iC = iCrc;
   mng_int32 iN;
@@ -224,9 +250,9 @@ mng_uint32 update_crc (mng_datap  pData,
 }
 
 /* Return the CRC of the bytes buf[0..len-1]. */
-mng_uint32 crc (mng_datap  pData,
-                mng_uint8p pBuf,
-                mng_int32  iLen)
+mng_uint32 mng_crc (mng_datap  pData,
+                    mng_uint8p pBuf,
+                    mng_int32  iLen)
 {
   return update_crc (pData, 0xffffffffU, pBuf, iLen) ^ 0xffffffffU;
 }
@@ -316,7 +342,7 @@ void mng_put_uint16 (mng_uint8p pBuf,
 
 /* ************************************************************************** */
 
-mng_uint8p find_null (mng_uint8p pIn)
+MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 {
   mng_uint8p pOut = pIn;
 
@@ -328,12 +354,12 @@ mng_uint8p find_null (mng_uint8p pIn)
 
 /* ************************************************************************** */
 
-mng_retcode inflate_buffer (mng_datap  pData,
-                            mng_uint8p pInbuf,
-                            mng_uint32 iInsize,
-                            mng_uint8p *pOutbuf,
-                            mng_uint32 *iOutsize,
-                            mng_uint32 *iRealsize)
+MNG_LOCAL mng_retcode inflate_buffer (mng_datap  pData,
+                                      mng_uint8p pInbuf,
+                                      mng_uint32 iInsize,
+                                      mng_uint8p *pOutbuf,
+                                      mng_uint32 *iOutsize,
+                                      mng_uint32 *iRealsize)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -404,12 +430,12 @@ mng_retcode inflate_buffer (mng_datap  pData,
 /* B004 */
 /* ************************************************************************** */
 
-mng_retcode deflate_buffer (mng_datap  pData,
-                            mng_uint8p pInbuf,
-                            mng_uint32 iInsize,
-                            mng_uint8p *pOutbuf,
-                            mng_uint32 *iOutsize,
-                            mng_uint32 *iRealsize)
+MNG_LOCAL mng_retcode deflate_buffer (mng_datap  pData,
+                                      mng_uint8p pInbuf,
+                                      mng_uint32 iInsize,
+                                      mng_uint8p *pOutbuf,
+                                      mng_uint32 *iOutsize,
+                                      mng_uint32 *iRealsize)
 {
   mng_retcode iRetcode = MNG_NOERROR;
 
@@ -461,10 +487,10 @@ mng_retcode deflate_buffer (mng_datap  pData,
 
 /* ************************************************************************** */
 
-mng_retcode write_raw_chunk (mng_datap   pData,
-                             mng_chunkid iChunkname,
-                             mng_uint32  iRawlen,
-                             mng_uint8p  pRawdata)
+MNG_LOCAL mng_retcode write_raw_chunk (mng_datap   pData,
+                                       mng_chunkid iChunkname,
+                                       mng_uint32  iRawlen,
+                                       mng_uint8p  pRawdata)
 {
   mng_uint32 iCrc;
   mng_uint32 iWritten;
@@ -508,7 +534,7 @@ mng_retcode write_raw_chunk (mng_datap   pData,
     mng_put_uint32 (pData->pWritebuf,   iRawlen);
     mng_put_uint32 (pData->pWritebuf+4, (mng_uint32)iChunkname);
                                        /* calculate the crc */
-    iCrc = crc (pData, pData->pWritebuf+4, iRawlen + 4);
+    iCrc = mng_crc (pData, pData->pWritebuf+4, iRawlen + 4);
                                        /* add it to the buffer */
     mng_put_uint32 (pData->pWritebuf + iRawlen + 8, iCrc);
                                        /* write it in a single pass */
@@ -541,7 +567,7 @@ mng_retcode write_raw_chunk (mng_datap   pData,
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_ihdr)
+READ_CHUNK (mng_read_ihdr)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IHDR, MNG_LC_START)
@@ -603,16 +629,29 @@ READ_CHUNK (read_ihdr)
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  if ((pData->eSigtype == mng_it_png) && (pData->iFilter))
+#if defined(FILTER192) || defined(FILTER193)
+  if ((pData->iFilter != MNG_FILTER_ADAPTIVE ) &&
+#if defined(FILTER192) && defined(FILTER193)
+      (pData->iFilter != MNG_FILTER_DIFFERING) &&
+      (pData->iFilter != MNG_FILTER_NOFILTER )    )
+#else
+#ifdef FILTER192
+      (pData->iFilter != MNG_FILTER_DIFFERING)    )
+#else
+      (pData->iFilter != MNG_FILTER_NOFILTER )    )
+#endif
+#endif
     MNG_ERROR (pData, MNG_INVALIDFILTER)
-  else
-  if (pData->iFilter & (~MNG_FILTER_DIFFERING))
+#else
+  if (pData->iFilter)
     MNG_ERROR (pData, MNG_INVALIDFILTER)
+#endif
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
       (pData->iInterlace != MNG_INTERLACE_ADAM7)    )
     MNG_ERROR (pData, MNG_INVALIDINTERLACE)
 
+#ifdef MNG_SUPPORT_DISPLAY
   if (pData->bHasDHDR)                 /* check the colortype for delta-images ! */
   {
     mng_imagedatap pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
@@ -626,6 +665,7 @@ READ_CHUNK (read_ihdr)
         MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
     }
   }
+#endif
 
   if (!pData->bHasheader)              /* first chunk ? */
   {
@@ -649,7 +689,6 @@ READ_CHUNK (read_ihdr)
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
         MNG_ERROR (pData, MNG_APPMISCERROR)
-
   }
 
   if (!pData->bHasDHDR)
@@ -657,7 +696,7 @@ READ_CHUNK (read_ihdr)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = process_display_ihdr (pData);
+    mng_retcode iRetcode = mng_process_display_ihdr (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -691,7 +730,7 @@ READ_CHUNK (read_ihdr)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_plte)
+READ_CHUNK (mng_read_plte)
 {
 #if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
   mng_uint32  iX;
@@ -828,8 +867,8 @@ READ_CHUNK (read_plte)
     }
 
     {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_plte (pData, pData->iGlobalPLTEcount,
-                                              pData->aGlobalPLTEentries);
+      mng_retcode iRetcode = mng_create_ani_plte (pData, pData->iGlobalPLTEcount,
+                                                  pData->aGlobalPLTEentries);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -869,7 +908,7 @@ READ_CHUNK (read_plte)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_idat)
+READ_CHUNK (mng_read_idat)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IDAT, MNG_LC_START)
@@ -890,7 +929,7 @@ READ_CHUNK (read_idat)
   if (pData->bHasJSEP)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #endif
-                                       /* not allowed for for deltatype NO_CHANGE */
+                                       /* not allowed for deltatype NO_CHANGE */
   if ((pData->bHasDHDR) && ((pData->iDeltatype == MNG_DELTATYPE_NOCHANGE)))
     MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
                                        /* can only be empty in BASI-block! */
@@ -905,7 +944,7 @@ READ_CHUNK (read_idat)
 #ifdef MNG_SUPPORT_DISPLAY
   if (iRawlen)
   {                                    /* display processing */
-    mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
+    mng_retcode iRetcode = mng_process_display_idat (pData, iRawlen, pRawdata);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -940,7 +979,7 @@ READ_CHUNK (read_idat)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_iend)
+READ_CHUNK (mng_read_iend)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IEND, MNG_LC_START)
@@ -963,12 +1002,12 @@ READ_CHUNK (read_iend)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create an animation object */
-    mng_retcode iRetcode = create_ani_image (pData);
-
+    mng_retcode iRetcode = mng_create_ani_image (pData);
+                               
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* display processing */
-    iRetcode = process_display_iend (pData);
+    iRetcode = mng_process_display_iend (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -1020,7 +1059,7 @@ READ_CHUNK (read_iend)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_trns)
+READ_CHUNK (mng_read_trns)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TRNS, MNG_LC_START)
@@ -1194,8 +1233,8 @@ READ_CHUNK (read_trns)
     MNG_COPY (pData->aGlobalTRNSrawdata, pRawdata, iRawlen)
 
     {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_trns (pData, pData->iGlobalTRNSrawlen,
-                                              pData->aGlobalTRNSrawdata);
+      mng_retcode iRetcode = mng_create_ani_trns (pData, pData->iGlobalTRNSrawlen,
+                                                  pData->aGlobalTRNSrawdata);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1263,7 +1302,7 @@ READ_CHUNK (read_trns)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_gama)
+READ_CHUNK (mng_read_gama)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_GAMA, MNG_LC_START)
@@ -1342,8 +1381,8 @@ READ_CHUNK (read_gama)
       pData->iGlobalGamma = mng_get_uint32 (pRawdata);
 
     {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_gama (pData, (mng_bool)(iRawlen == 0),
-                                              pData->iGlobalGamma);
+      mng_retcode iRetcode = mng_create_ani_gama (pData, (mng_bool)(iRawlen == 0),
+                                                  pData->iGlobalGamma);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1376,7 +1415,7 @@ READ_CHUNK (read_gama)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_chrm)
+READ_CHUNK (mng_read_chrm)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CHRM, MNG_LC_START)
@@ -1498,11 +1537,11 @@ READ_CHUNK (read_chrm)
       }
 
       {                                /* create an animation object */
-        mng_retcode iRetcode = create_ani_chrm (pData, (mng_bool)(iRawlen == 0),
-                                                iWhitepointx,   iWhitepointy,
-                                                iPrimaryredx,   iPrimaryredy,
-                                                iPrimarygreenx, iPrimarygreeny,
-                                                iPrimarybluex,  iPrimarybluey);
+        mng_retcode iRetcode = mng_create_ani_chrm (pData, (mng_bool)(iRawlen == 0),
+                                                    iWhitepointx,   iWhitepointy,
+                                                    iPrimaryredx,   iPrimaryredy,
+                                                    iPrimarygreenx, iPrimarygreeny,
+                                                    iPrimarybluex,  iPrimarybluey);
 
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
@@ -1544,7 +1583,7 @@ READ_CHUNK (read_chrm)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_srgb)
+READ_CHUNK (mng_read_srgb)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SRGB, MNG_LC_START)
@@ -1623,8 +1662,8 @@ READ_CHUNK (read_srgb)
       pData->iGlobalRendintent = *pRawdata;
 
     {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_srgb (pData, (mng_bool)(iRawlen == 0),
-                                              pData->iGlobalRendintent);
+      mng_retcode iRetcode = mng_create_ani_srgb (pData, (mng_bool)(iRawlen == 0),
+                                                  pData->iGlobalRendintent);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1657,7 +1696,7 @@ READ_CHUNK (read_srgb)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_iccp)
+READ_CHUNK (mng_read_iccp)
 {
   mng_retcode iRetcode;
   mng_uint8p  pTemp;
@@ -1716,10 +1755,11 @@ READ_CHUNK (read_iccp)
   {
     if (iRawlen == 2615)               /* is it the sRGB profile ? */
     {
-      mng_chunk_header chunk_srgb = {MNG_UINT_sRGB, init_srgb, free_srgb,
-                                     read_srgb, write_srgb, 0, 0};
+      mng_chunk_header chunk_srgb = {MNG_UINT_sRGB, mng_init_srgb, mng_free_srgb,
+                                     mng_read_srgb, mng_write_srgb, mng_assign_srgb,
+                                     0, 0};
                                        /* pretend it's an sRGB chunk then ! */
-      iRetcode = read_srgb (pData, &chunk_srgb, 1, (mng_ptr)"0", ppChunk);
+      iRetcode = mng_read_srgb (pData, &chunk_srgb, 1, (mng_ptr)"0", ppChunk);
 
       if (iRetcode)                    /* on error bail out */
       {                                /* don't forget to drop the temp buffer */
@@ -1805,9 +1845,9 @@ READ_CHUNK (read_iccp)
       }
 
                                        /* create an animation object */
-      iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
-                                  pData->iGlobalProfilesize,
-                                  pData->pGlobalProfile);
+      iRetcode = mng_create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
+                                      pData->iGlobalProfilesize,
+                                      pData->pGlobalProfile);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -1883,7 +1923,7 @@ READ_CHUNK (read_iccp)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_text)
+READ_CHUNK (mng_read_text)
 {
   mng_uint32 iKeywordlen, iTextlen;
   mng_pchar  zKeyword, zText;
@@ -1978,7 +2018,7 @@ READ_CHUNK (read_text)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_ztxt)
+READ_CHUNK (mng_read_ztxt)
 {
   mng_retcode iRetcode;
   mng_uint32  iKeywordlen, iTextlen;
@@ -2119,7 +2159,7 @@ READ_CHUNK (read_ztxt)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_itxt)
+READ_CHUNK (mng_read_itxt)
 {
   mng_retcode iRetcode;
   mng_uint32  iKeywordlen, iTextlen, iLanguagelen, iTranslationlen;
@@ -2326,7 +2366,7 @@ READ_CHUNK (read_itxt)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_bkgd)
+READ_CHUNK (mng_read_bkgd)
 {
 #ifdef MNG_SUPPORT_DISPLAY
   mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
@@ -2456,9 +2496,9 @@ READ_CHUNK (read_bkgd)
     }
 
     {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_bkgd (pData, pData->iGlobalBKGDred,
-                                              pData->iGlobalBKGDgreen,
-                                              pData->iGlobalBKGDblue);
+      mng_retcode iRetcode = mng_create_ani_bkgd (pData, pData->iGlobalBKGDred,
+                                                  pData->iGlobalBKGDgreen,
+                                                  pData->iGlobalBKGDblue);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
@@ -2512,7 +2552,7 @@ READ_CHUNK (read_bkgd)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_phys)
+READ_CHUNK (mng_read_phys)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PHYS, MNG_LC_START)
@@ -2575,7 +2615,7 @@ READ_CHUNK (read_phys)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_sbit)
+READ_CHUNK (mng_read_sbit)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SBIT, MNG_LC_START)
@@ -2694,7 +2734,7 @@ READ_CHUNK (read_sbit)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_splt)
+READ_CHUNK (mng_read_splt)
 {
   mng_uint8p pTemp;
   mng_uint32 iNamelen;
@@ -2793,7 +2833,7 @@ READ_CHUNK (read_splt)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_hist)
+READ_CHUNK (mng_read_hist)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_HIST, MNG_LC_START)
@@ -2847,7 +2887,7 @@ READ_CHUNK (read_hist)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_time)
+READ_CHUNK (mng_read_time)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TIME, MNG_LC_START)
@@ -2897,7 +2937,7 @@ READ_CHUNK (read_time)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_mhdr)
+READ_CHUNK (mng_read_mhdr)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MHDR, MNG_LC_START)
@@ -2992,7 +3032,7 @@ READ_CHUNK (read_mhdr)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_mend)
+READ_CHUNK (mng_read_mend)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MEND, MNG_LC_START)
@@ -3006,7 +3046,7 @@ READ_CHUNK (read_mend)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* do something */
-    mng_retcode iRetcode = process_display_mend (pData);
+    mng_retcode iRetcode = mng_process_display_mend (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3034,7 +3074,7 @@ READ_CHUNK (read_mend)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_loop)
+READ_CHUNK (mng_read_loop)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_LOOP, MNG_LC_START)
@@ -3042,6 +3082,9 @@ READ_CHUNK (read_loop)
 
   if (!pData->bHasMHDR)                /* sequence checks */
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  if (!pData->bCacheplayback)          /* must store playback info to work!! */
+    MNG_ERROR (pData, MNG_LOOPWITHCACHEOFF)
 
 #ifdef MNG_INCLUDE_JNG
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
@@ -3101,13 +3144,15 @@ READ_CHUNK (read_loop)
         }
       }
     }
-
                                        /* create the LOOP ani-object */
-    iRetcode = create_ani_loop (pData, iLevel, iRepeat, iTermination,
-                                       iItermin, iItermax, 0, 0);
+    iRetcode = mng_create_ani_loop (pData, iLevel, iRepeat, iTermination,
+                                           iItermin, iItermax, 0, 0);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
+                                       /* skip till matching ENDL if iteration=0 */
+    if ((!pData->bSkipping) && (iRepeat == 0))
+      pData->bSkipping = MNG_TRUE;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -3185,7 +3230,7 @@ READ_CHUNK (read_loop)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_endl)
+READ_CHUNK (mng_read_endl)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_ENDL, MNG_LC_START)
@@ -3210,8 +3255,8 @@ READ_CHUNK (read_endl)
     {
       mng_uint8 iLevel = *pRawdata;    /* get the nest level */
                                        /* create an ENDL animation object */
-      mng_retcode iRetcode = create_ani_endl (pData, iLevel);
-
+      mng_retcode iRetcode = mng_create_ani_endl (pData, iLevel);
+                                 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
 
@@ -3225,11 +3270,8 @@ READ_CHUNK (read_endl)
       }
     }
     else
-    {
-
-      /* TODO: error abort ??? */
-
-    }
+      MNG_ERROR (pData, MNG_NOMATCHINGLOOP)
+      
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -3254,7 +3296,7 @@ READ_CHUNK (read_endl)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_defi)
+READ_CHUNK (mng_read_defi)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DEFI, MNG_LC_START)
@@ -3332,10 +3374,10 @@ READ_CHUNK (read_defi)
       pData->iDEFIclipb        = 0;
     }
                                        /* create an animation object */
-    iRetcode = create_ani_defi (pData);
-
+    iRetcode = mng_create_ani_defi (pData);
+                   
     if (!iRetcode)                     /* do display processing */
-      iRetcode = process_display_defi (pData);
+      iRetcode = mng_process_display_defi (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3401,7 +3443,7 @@ READ_CHUNK (read_defi)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_basi)
+READ_CHUNK (mng_read_basi)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_BASI, MNG_LC_START)
@@ -3456,8 +3498,23 @@ READ_CHUNK (read_basi)
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  if (pData->iFilter & (~MNG_FILTER_DIFFERING))
+#if defined(FILTER192) || defined(FILTER193)
+  if ((pData->iFilter != MNG_FILTER_ADAPTIVE ) &&
+#if defined(FILTER192) && defined(FILTER193)
+      (pData->iFilter != MNG_FILTER_DIFFERING) &&
+      (pData->iFilter != MNG_FILTER_NOFILTER )    )
+#else
+#ifdef FILTER192
+      (pData->iFilter != MNG_FILTER_DIFFERING)    )
+#else
+      (pData->iFilter != MNG_FILTER_NOFILTER )    )
+#endif
+#endif
     MNG_ERROR (pData, MNG_INVALIDFILTER)
+#else
+  if (pData->iFilter)
+    MNG_ERROR (pData, MNG_INVALIDFILTER)
+#endif
 
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
       (pData->iInterlace != MNG_INTERLACE_ADAM7)    )
@@ -3491,12 +3548,12 @@ READ_CHUNK (read_basi)
     if (iRawlen > 21)
       iViewable = *(pRawdata+21);
                                        /* create an animation object */
-    iRetcode = create_ani_basi (pData, iRed, iGreen, iBlue,
-                                bHasalpha, iAlpha, iViewable);
+    iRetcode = mng_create_ani_basi (pData, iRed, iGreen, iBlue,
+                                    bHasalpha, iAlpha, iViewable);
 
     if (!iRetcode)                     /* display-processing... */
-      iRetcode = process_display_basi (pData, iRed, iGreen, iBlue,
-                                       bHasalpha, iAlpha, iViewable);
+      iRetcode = mng_process_display_basi (pData, iRed, iGreen, iBlue,
+                                           bHasalpha, iAlpha, iViewable);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3545,7 +3602,7 @@ READ_CHUNK (read_basi)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_clon)
+READ_CHUNK (mng_read_clon)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CLON, MNG_LC_START)
@@ -3601,14 +3658,15 @@ READ_CHUNK (read_clon)
       iLocationy    = mng_get_int32 (pRawdata+12);
     }
 
-    iRetcode = create_ani_clon (pData, iSourceid, iCloneid, iClonetype,
-                                bHasdonotshow, iDonotshow, iConcrete,
-                                bHasloca, iLocationtype, iLocationx, iLocationy);
+    iRetcode = mng_create_ani_clon (pData, iSourceid, iCloneid, iClonetype,
+                                    bHasdonotshow, iDonotshow, iConcrete,
+                                    bHasloca, iLocationtype, iLocationx, iLocationy);
 
     if (!iRetcode)                     /* do display processing */
-      iRetcode = process_display_clon (pData, iSourceid, iCloneid, iClonetype,
-                                       bHasdonotshow, iDonotshow, iConcrete,
-                                       bHasloca, iLocationtype, iLocationx, iLocationy);
+      iRetcode = mng_process_display_clon (pData, iSourceid, iCloneid, iClonetype,
+                                           bHasdonotshow, iDonotshow, iConcrete,
+                                           bHasloca, iLocationtype, iLocationx,
+                                           iLocationy);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3659,9 +3717,20 @@ READ_CHUNK (read_clon)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_past)
+READ_CHUNK (mng_read_past)
 {
-  mng_uint32 iCount;
+#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
+  mng_retcode      iRetcode;
+  mng_uint16       iTargetid;
+  mng_uint8        iTargettype;
+  mng_int32        iTargetx;
+  mng_int32        iTargety;
+  mng_uint32       iCount;
+  mng_uint32       iSize;
+  mng_ptr          pSources;
+  mng_uint32       iX;
+  mng_past_sourcep pSource;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PAST, MNG_LC_START)
@@ -3681,60 +3750,82 @@ READ_CHUNK (read_past)
   if ((iRawlen < 41) || (((iRawlen - 11) % 30) != 0))
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-  iCount = ((iRawlen - 11) / 30);      /* how many entries again */
+#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
+  iTargetid   = mng_get_uint16 (pRawdata);
+  iTargettype = *(pRawdata+2);
+  iTargetx    = mng_get_int32  (pRawdata+3);
+  iTargety    = mng_get_int32  (pRawdata+7);
+  iCount      = ((iRawlen - 11) / 30); /* how many entries again? */
+  iSize       = iCount * sizeof (mng_past_source);
+
+  pRawdata += 11;
+                                       /* get a buffer for all the source blocks */
+  MNG_ALLOC (pData, pSources, iSize)
+
+  pSource = (mng_past_sourcep)pSources;
+
+  for (iX = 0; iX < iCount; iX++)      /* now copy the source blocks */
+  {
+    pSource->iSourceid     = mng_get_uint16 (pRawdata);
+    pSource->iComposition  = *(pRawdata+2);
+    pSource->iOrientation  = *(pRawdata+3);
+    pSource->iOffsettype   = *(pRawdata+4);
+    pSource->iOffsetx      = mng_get_int32 (pRawdata+5);
+    pSource->iOffsety      = mng_get_int32 (pRawdata+9);
+    pSource->iBoundarytype = *(pRawdata+13);
+    pSource->iBoundaryl    = mng_get_int32 (pRawdata+14);
+    pSource->iBoundaryr    = mng_get_int32 (pRawdata+18);
+    pSource->iBoundaryt    = mng_get_int32 (pRawdata+22);
+    pSource->iBoundaryb    = mng_get_int32 (pRawdata+26);
+
+    pSource++;
+    pRawdata += 30;
+  }
+#endif
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
+  {                                    /* create playback object */
+    iRetcode = mng_create_ani_past (pData, iTargetid, iTargettype, iTargetx,
+                                    iTargety, iCount, pSources);
 
+    if (!iRetcode)                     /* do display processing */
+      iRetcode = mng_process_display_past (pData, iTargetid, iTargettype, iTargetx,
+                                           iTargety, iCount, pSources);
 
-    /* TODO: something !!! */
-
-
+    if (iRetcode)                      /* on error bail out */
+    {
+      MNG_FREEX (pData, pSources, iSize)
+      return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
-  {
-    mng_uint32       iX;
-    mng_past_sourcep pSource;
-                                       /* initialize storage */
-    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+  {                                    /* initialize storage */
+    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
 
     if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-                                       /* store the fields */
-    ((mng_pastp)*ppChunk)->iDestid     = mng_get_uint16 (pRawdata);
-    ((mng_pastp)*ppChunk)->iTargettype = *(pRawdata+2);
-    ((mng_pastp)*ppChunk)->iTargetx    = mng_get_int32  (pRawdata+3);
-    ((mng_pastp)*ppChunk)->iTargety    = mng_get_int32  (pRawdata+7);
-    ((mng_pastp)*ppChunk)->iCount      = iCount;
-
-    pRawdata += 11;
-                                       /* get a buffer for all the source blocks */
-    MNG_ALLOC (pData, ((mng_pastp)*ppChunk)->pSources, (iCount * sizeof (mng_past_source)))
-
-    pSource = ((mng_pastp)*ppChunk)->pSources;
-
-    for (iX = 0; iX < iCount; iX++)    /* now copy the source blocks */
     {
-      pSource->iSourceid     = mng_get_uint16 (pRawdata);
-      pSource->iComposition  = *(pRawdata+2);
-      pSource->iOrientation  = *(pRawdata+3);
-      pSource->iOffsettype   = *(pRawdata+4);
-      pSource->iOffsetx      = mng_get_int32 (pRawdata+5);
-      pSource->iOffsety      = mng_get_int32 (pRawdata+9);
-      pSource->iBoundarytype = *(pRawdata+13);
-      pSource->iBoundaryl    = mng_get_int32 (pRawdata+14);
-      pSource->iBoundaryr    = mng_get_int32 (pRawdata+18);
-      pSource->iBoundaryt    = mng_get_int32 (pRawdata+22);
-      pSource->iBoundaryb    = mng_get_int32 (pRawdata+26);
-
-      pSource  += sizeof (mng_past_source);
-      pRawdata += 30;
+      MNG_FREEX (pData, pSources, iSize)
+      return iRetcode;
     }
+                                       /* store the fields */
+    ((mng_pastp)*ppChunk)->iDestid     = iTargetid;
+    ((mng_pastp)*ppChunk)->iTargettype = iTargettype;
+    ((mng_pastp)*ppChunk)->iTargetx    = iTargetx;
+    ((mng_pastp)*ppChunk)->iTargety    = iTargety;
+    ((mng_pastp)*ppChunk)->iCount      = iCount;
+                                       /* get a buffer & copy the source blocks */
+    MNG_ALLOC (pData, ((mng_pastp)*ppChunk)->pSources, iSize)
+    MNG_COPY (((mng_pastp)*ppChunk)->pSources, pSources, iSize)
   }
 #endif /* MNG_STORE_CHUNKS */
+
+#if defined(MNG_STORE_CHUNKS) || defined(MNG_SUPPORT_DISPLAY)
+                                       /* free the source block buffer */
+  MNG_FREEX (pData, pSources, iSize)
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PAST, MNG_LC_END)
@@ -3745,7 +3836,7 @@ READ_CHUNK (read_past)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_disc)
+READ_CHUNK (mng_read_disc)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DISC, MNG_LC_START)
@@ -3766,8 +3857,8 @@ READ_CHUNK (read_disc)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* process it */
-    mng_retcode iRetcode = process_display_disc (pData, (iRawlen / 2),
-                                                 (mng_uint16p)pRawdata);
+    mng_retcode iRetcode = mng_process_display_disc (pData, (iRawlen / 2),
+                                                     (mng_uint16p)pRawdata);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -3814,7 +3905,7 @@ READ_CHUNK (read_disc)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_back)
+READ_CHUNK (mng_read_back)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_BACK, MNG_LC_START)
@@ -3857,9 +3948,9 @@ READ_CHUNK (read_back)
     else
       pData->iBACKtile      = 0;
 
-    iRetcode = create_ani_back (pData, pData->iBACKred, pData->iBACKgreen,
-                                pData->iBACKblue, pData->iBACKmandatory,
-                                pData->iBACKimageid, pData->iBACKtile);
+    iRetcode = mng_create_ani_back (pData, pData->iBACKred, pData->iBACKgreen,
+                                    pData->iBACKblue, pData->iBACKmandatory,
+                                    pData->iBACKimageid, pData->iBACKtile);
 
     if (iRetcode)                    /* on error bail out */
       return iRetcode;
@@ -3899,10 +3990,12 @@ READ_CHUNK (read_back)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_fram)
+READ_CHUNK (mng_read_fram)
 {
   mng_uint8p pTemp;
+#ifdef MNG_STORE_CHUNKS
   mng_uint32 iNamelen;
+#endif
   mng_uint32 iRemain;
   mng_uint32 iRequired = 0;
 
@@ -3922,7 +4015,9 @@ READ_CHUNK (read_fram)
 
   if (iRawlen <= 1)                    /* only framing-mode ? */
   {
+#ifdef MNG_STORE_CHUNKS
     iNamelen = 0;                      /* indicate so */
+#endif
     iRemain  = 0;
     pTemp    = MNG_NULL;
   }
@@ -3931,12 +4026,17 @@ READ_CHUNK (read_fram)
     pTemp = find_null (pRawdata+1);    /* find null-separator */
                                        /* not found inside input-data ? */
     if ((pTemp - pRawdata) > (mng_int32)iRawlen)
-      MNG_ERROR (pData, MNG_NULLNOTFOUND)
+      pTemp  = pRawdata + iRawlen;     /* than remainder is name */
 
+#ifdef MNG_STORE_CHUNKS
     iNamelen = (mng_uint32)((pTemp - pRawdata) - 1);
-    iRemain  = (mng_uint32)(iRawlen - (pTemp - pRawdata) - 1);
-                                       /* remains must be empty or at least 4 bytes */
-    if ((iRemain != 0) && (iRemain < 4))
+#endif
+    iRemain  = (mng_uint32)(iRawlen - (pTemp - pRawdata));
+
+    if (iRemain)                       /* if there is remaining data it's less 1 byte */
+      iRemain--;
+
+    if ((iRemain) && (iRemain < 4))    /* remains must be empty or at least 4 bytes */
       MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
     if (iRemain)
@@ -4027,16 +4127,16 @@ READ_CHUNK (read_fram)
       }
     }
 
-    iRetcode = create_ani_fram (pData, iFramemode, iChangedelay, iDelay,
-                                iChangetimeout, iTimeout,
-                                iChangeclipping, iCliptype,
-                                iClipl, iClipr, iClipt, iClipb);
+    iRetcode = mng_create_ani_fram (pData, iFramemode, iChangedelay, iDelay,
+                                    iChangetimeout, iTimeout,
+                                    iChangeclipping, iCliptype,
+                                    iClipl, iClipr, iClipt, iClipb);
 
     if (!iRetcode)                     /* now go and do something */
-      iRetcode = process_display_fram (pData, iFramemode, iChangedelay, iDelay,
-                                       iChangetimeout, iTimeout,
-                                       iChangeclipping, iCliptype,
-                                       iClipl, iClipr, iClipt, iClipb);
+      iRetcode = mng_process_display_fram (pData, iFramemode, iChangedelay, iDelay,
+                                           iChangetimeout, iTimeout,
+                                           iChangeclipping, iCliptype,
+                                           iClipl, iClipr, iClipt, iClipb);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4151,7 +4251,7 @@ READ_CHUNK (read_fram)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_move)
+READ_CHUNK (mng_read_move)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MOVE, MNG_LC_START)
@@ -4174,19 +4274,19 @@ READ_CHUNK (read_move)
   {
     mng_retcode iRetcode;
                                        /* create a MOVE animation object */
-    iRetcode = create_ani_move (pData, mng_get_uint16 (pRawdata),
-                                       mng_get_uint16 (pRawdata+2),
-                                       *(pRawdata+4),
-                                       mng_get_int32 (pRawdata+5),
-                                       mng_get_int32 (pRawdata+9));
+    iRetcode = mng_create_ani_move (pData, mng_get_uint16 (pRawdata),
+                                           mng_get_uint16 (pRawdata+2),
+                                           *(pRawdata+4),
+                                           mng_get_int32 (pRawdata+5),
+                                           mng_get_int32 (pRawdata+9));
 
     if (!iRetcode)                     /* process the move */
-      iRetcode = process_display_move (pData,
-                                       mng_get_uint16 (pRawdata),
-                                       mng_get_uint16 (pRawdata+2),
-                                       *(pRawdata+4),
-                                       mng_get_int32 (pRawdata+5),
-                                       mng_get_int32 (pRawdata+9));
+      iRetcode = mng_process_display_move (pData,
+                                           mng_get_uint16 (pRawdata),
+                                           mng_get_uint16 (pRawdata+2),
+                                           *(pRawdata+4),
+                                           mng_get_int32 (pRawdata+5),
+                                           mng_get_int32 (pRawdata+9));
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4219,7 +4319,7 @@ READ_CHUNK (read_move)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_clip)
+READ_CHUNK (mng_read_clip)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_CLIP, MNG_LC_START)
@@ -4242,23 +4342,23 @@ READ_CHUNK (read_clip)
   {
     mng_retcode iRetcode;
                                        /* create a CLIP animation object */
-    iRetcode = create_ani_clip (pData, mng_get_uint16 (pRawdata),
-                                       mng_get_uint16 (pRawdata+2),
-                                       *(pRawdata+4),
-                                       mng_get_int32 (pRawdata+5),
-                                       mng_get_int32 (pRawdata+9),
-                                       mng_get_int32 (pRawdata+13),
-                                       mng_get_int32 (pRawdata+17));
+    iRetcode = mng_create_ani_clip (pData, mng_get_uint16 (pRawdata),
+                                           mng_get_uint16 (pRawdata+2),
+                                           *(pRawdata+4),
+                                           mng_get_int32 (pRawdata+5),
+                                           mng_get_int32 (pRawdata+9),
+                                           mng_get_int32 (pRawdata+13),
+                                           mng_get_int32 (pRawdata+17));
 
     if (!iRetcode)                     /* process the clipping */
-      iRetcode = process_display_clip (pData,
-                                       mng_get_uint16 (pRawdata),
-                                       mng_get_uint16 (pRawdata+2),
-                                       *(pRawdata+4),
-                                       mng_get_int32 (pRawdata+5),
-                                       mng_get_int32 (pRawdata+9),
-                                       mng_get_int32 (pRawdata+13),
-                                       mng_get_int32 (pRawdata+17));
+      iRetcode = mng_process_display_clip (pData,
+                                           mng_get_uint16 (pRawdata),
+                                           mng_get_uint16 (pRawdata+2),
+                                           *(pRawdata+4),
+                                           mng_get_int32 (pRawdata+5),
+                                           mng_get_int32 (pRawdata+9),
+                                           mng_get_int32 (pRawdata+13),
+                                           mng_get_int32 (pRawdata+17));
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4293,7 +4393,7 @@ READ_CHUNK (read_clip)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_show)
+READ_CHUNK (mng_read_show)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SHOW, MNG_LC_START)
@@ -4337,11 +4437,11 @@ READ_CHUNK (read_show)
       pData->iSHOWtoid   = 65535;
     }
                                        /* create a SHOW animation object */
-    iRetcode = create_ani_show (pData, pData->iSHOWfromid, pData->iSHOWtoid,
-                                       pData->iSHOWmode);
+    iRetcode = mng_create_ani_show (pData, pData->iSHOWfromid,
+                                    pData->iSHOWtoid, pData->iSHOWmode);
 
     if (!iRetcode)                     /* go and do it! */
-      iRetcode = process_display_show (pData);
+      iRetcode = mng_process_display_show (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4381,8 +4481,13 @@ READ_CHUNK (read_show)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_term)
+READ_CHUNK (mng_read_term)
 {
+  mng_uint8   iTermaction;
+  mng_uint8   iIteraction = 0;
+  mng_uint32  iDelay      = 0;
+  mng_uint32  iItermax    = 0;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_TERM, MNG_LC_START)
 #endif
@@ -4397,6 +4502,10 @@ READ_CHUNK (read_term)
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
+                                       /* should be behind MHDR or SAVE !! */
+  if ((!pData->bHasSAVE) && (pData->iChunkseq > 2))
+    MNG_WARNING (pData, MNG_SEQUENCEERROR)
+
   if (pData->bHasLOOP)                 /* no way, jose! */
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
@@ -4407,29 +4516,25 @@ READ_CHUNK (read_term)
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
   pData->bHasTERM = MNG_TRUE;
-                                       /* TODO: remove in 1.0.0 !!! */
-  if ((!pData->bHasSAVE) && (pData->iChunkseq > 2))
-    pData->bEMNGMAhack = MNG_TRUE;
+
+  iTermaction = *pRawdata;             /* get the fields */
+
+  if (iRawlen > 1)
+  {
+    iIteraction = *(pRawdata+1);
+    iDelay      = mng_get_uint32 (pRawdata+2);
+    iItermax    = mng_get_uint32 (pRawdata+6);
+  }
+
+  if (pData->fProcessterm)             /* inform the app ? */
+    if (!pData->fProcessterm (((mng_handle)pData), iTermaction, iIteraction,
+                                                   iDelay, iItermax))
+      MNG_ERROR (pData, MNG_APPMISCERROR)
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_uint8   iTermaction;
-    mng_uint8   iIteraction = 0;
-    mng_uint32  iDelay      = 0;
-    mng_uint32  iItermax    = 0;
-    mng_retcode iRetcode;
-
-    iTermaction = *pRawdata;           /* get the fields */
-
-    if (iRawlen > 1)
-    {
-      iIteraction = *(pRawdata+1);
-      iDelay      = mng_get_uint32 (pRawdata+2);
-      iItermax    = mng_get_uint32 (pRawdata+6);
-    }
-                                       /* create the TERM ani-object */
-    iRetcode = create_ani_term (pData, iTermaction, iIteraction,
-                                       iDelay, iItermax);
+  {                                    /* create the TERM ani-object */
+    mng_retcode iRetcode = mng_create_ani_term (pData, iTermaction, iIteraction,
+                                                iDelay, iItermax);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4446,14 +4551,10 @@ READ_CHUNK (read_term)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* store the fields */
-    ((mng_termp)*ppChunk)->iTermaction = *pRawdata;
-
-    if (iRawlen > 1)
-    {
-      ((mng_termp)*ppChunk)->iIteraction = *(pRawdata+1);
-      ((mng_termp)*ppChunk)->iDelay      = mng_get_uint32 (pRawdata+2);
-      ((mng_termp)*ppChunk)->iItermax    = mng_get_uint32 (pRawdata+6);
-    }
+    ((mng_termp)*ppChunk)->iTermaction = iTermaction;
+    ((mng_termp)*ppChunk)->iIteraction = iIteraction;
+    ((mng_termp)*ppChunk)->iDelay      = iDelay;
+    ((mng_termp)*ppChunk)->iItermax    = iItermax;
   }
 #endif /* MNG_STORE_CHUNKS */
 
@@ -4466,7 +4567,7 @@ READ_CHUNK (read_term)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_save)
+READ_CHUNK (mng_read_save)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SAVE, MNG_LC_START)
@@ -4501,10 +4602,10 @@ READ_CHUNK (read_save)
 
 
                                        /* create a SAVE animation object */
-    iRetcode = create_ani_save (pData);
-
+    iRetcode = mng_create_ani_save (pData);
+                   
     if (!iRetcode)                     /* process it */
-      iRetcode = process_display_save (pData);
+      iRetcode = mng_process_display_save (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -4677,8 +4778,10 @@ READ_CHUNK (read_save)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_seek)
+READ_CHUNK (mng_read_seek)
 {
+  mng_retcode iRetcode;
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_SEEK, MNG_LC_START)
 #endif
@@ -4692,6 +4795,15 @@ READ_CHUNK (read_seek)
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+#ifdef MNG_SUPPORT_DISPLAY
+                                       /* create a SEEK animation object */
+  iRetcode = mng_create_ani_seek (pData, iRawlen, (mng_pchar)pRawdata);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+    
+#endif /* MNG_SUPPORT_DISPLAY */
 
   if (pData->fProcessseek)             /* inform the app ? */
   {
@@ -4712,23 +4824,11 @@ READ_CHUNK (read_seek)
   }
 
 #ifdef MNG_SUPPORT_DISPLAY
-  {
-    mng_retcode iRetcode;
+                                       /* do display processing of the SEEK */
+  iRetcode = mng_process_display_seek (pData);
 
-
-    /* TODO: something with the name ??? */
-
-
-
-                                       /* create a SEEK animation object */
-    iRetcode = create_ani_seek (pData);
-
-    if (!iRetcode)                     /* process it */
-      iRetcode = process_display_seek (pData);
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-  }
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_STORE_CHUNKS
@@ -4758,7 +4858,7 @@ READ_CHUNK (read_seek)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_expi)
+READ_CHUNK (mng_read_expi)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_EXPI, MNG_LC_START)
@@ -4817,7 +4917,7 @@ READ_CHUNK (read_expi)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_fpri)
+READ_CHUNK (mng_read_fpri)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_FPRI, MNG_LC_START)
@@ -4868,12 +4968,12 @@ READ_CHUNK (read_fpri)
 
 /* ************************************************************************** */
 
-mng_bool CheckKeyword (mng_datap  pData,
-                       mng_uint8p pKeyword)
+MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
+                                 mng_uint8p pKeyword)
 {
   mng_chunkid handled_chunks [] =
   {
-    MNG_UINT_BACK,
+    MNG_UINT_BACK,                     /* keep it sorted !!!! */
     MNG_UINT_BASI,
     MNG_UINT_CLIP,
     MNG_UINT_CLON,
@@ -4902,7 +5002,7 @@ mng_bool CheckKeyword (mng_datap  pData,
     MNG_UINT_MHDR,
     MNG_UINT_MOVE,
 /* TODO:    MNG_UINT_ORDR,  */
-/* TODO:    MNG_UINT_PAST,  */
+    MNG_UINT_PAST,
     MNG_UINT_PLTE,
     MNG_UINT_PPLT,
     MNG_UINT_PROM,
@@ -4913,6 +5013,7 @@ mng_bool CheckKeyword (mng_datap  pData,
     MNG_UINT_bKGD,
     MNG_UINT_cHRM,
 /* TODO:    MNG_UINT_eXPI,  */
+    MNG_UINT_evNT,
 /* TODO:    MNG_UINT_fPRI,  */
     MNG_UINT_gAMA,
 /* TODO:    MNG_UINT_hIST,  */
@@ -4998,7 +5099,7 @@ mng_bool CheckKeyword (mng_datap  pData,
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_need)
+READ_CHUNK (mng_read_need)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_NEED, MNG_LC_START)
@@ -5073,7 +5174,7 @@ READ_CHUNK (read_need)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_phyg)
+READ_CHUNK (mng_read_phyg)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_PHYG, MNG_LC_START)
@@ -5131,7 +5232,7 @@ READ_CHUNK (read_phyg)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-READ_CHUNK (read_jhdr)
+READ_CHUNK (mng_read_jhdr)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JHDR, MNG_LC_START)
@@ -5168,9 +5269,9 @@ READ_CHUNK (read_jhdr)
       (pData->iJHDRcolortype != MNG_COLORTYPE_JPEGCOLORA)    )
     MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
 
-  if ((pData->iJHDRimgbitdepth !=  8) &&
-      (pData->iJHDRimgbitdepth != 12) &&
-      (pData->iJHDRimgbitdepth != 20)    )
+  if ((pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8     ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG12    ) &&
+      (pData->iJHDRimgbitdepth != MNG_BITDEPTH_JPEG8AND12)    )
     MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
   if (pData->iJHDRimgcompression != MNG_COMPRESSION_BASELINEJPEG)
@@ -5183,11 +5284,11 @@ READ_CHUNK (read_jhdr)
   if ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
       (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    )
   {
-    if ((pData->iJHDRalphabitdepth !=  1) &&
-        (pData->iJHDRalphabitdepth !=  2) &&
-        (pData->iJHDRalphabitdepth !=  4) &&
-        (pData->iJHDRalphabitdepth !=  8) &&
-        (pData->iJHDRalphabitdepth != 16)    )
+    if ((pData->iJHDRalphabitdepth != MNG_BITDEPTH_1 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_2 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_4 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_8 ) &&
+        (pData->iJHDRalphabitdepth != MNG_BITDEPTH_16)    )
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
     if ((pData->iJHDRalphacompression != MNG_COMPRESSION_DEFLATE     ) &&
@@ -5195,11 +5296,26 @@ READ_CHUNK (read_jhdr)
       MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
     if ((pData->iJHDRalphacompression == MNG_COMPRESSION_BASELINEJPEG) &&
-        (pData->iJHDRalphabitdepth    !=  8                          )    )
+        (pData->iJHDRalphabitdepth    !=  MNG_BITDEPTH_8             )    )
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
-    if (pData->iJHDRalphafilter & (~MNG_FILTER_DIFFERING))
+#if defined(FILTER192) || defined(FILTER193)
+    if ((pData->iJHDRalphafilter != MNG_FILTER_ADAPTIVE ) &&
+#if defined(FILTER192) && defined(FILTER193)
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING) &&
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#else
+#ifdef FILTER192
+        (pData->iJHDRalphafilter != MNG_FILTER_DIFFERING)    )
+#else
+        (pData->iJHDRalphafilter != MNG_FILTER_NOFILTER )    )
+#endif
+#endif
       MNG_ERROR (pData, MNG_INVALIDFILTER)
+#else
+    if (pData->iJHDRalphafilter)
+      MNG_ERROR (pData, MNG_INVALIDFILTER)
+#endif
 
     if ((pData->iJHDRalphainterlace != MNG_INTERLACE_NONE ) &&
         (pData->iJHDRalphainterlace != MNG_INTERLACE_ADAM7)    )
@@ -5208,16 +5324,16 @@ READ_CHUNK (read_jhdr)
   }
   else
   {
-    if (pData->iJHDRalphabitdepth    != 0)
+    if (pData->iJHDRalphabitdepth)
       MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
 
-    if (pData->iJHDRalphacompression != 0)
+    if (pData->iJHDRalphacompression)
       MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-    if (pData->iJHDRalphafilter      != 0)
+    if (pData->iJHDRalphafilter)
       MNG_ERROR (pData, MNG_INVALIDFILTER)
 
-    if (pData->iJHDRalphainterlace   != 0)
+    if (pData->iJHDRalphainterlace)
       MNG_ERROR (pData, MNG_INVALIDINTERLACE)
 
   }
@@ -5249,7 +5365,7 @@ READ_CHUNK (read_jhdr)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = process_display_jhdr (pData);
+    mng_retcode iRetcode = mng_process_display_jhdr (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5290,7 +5406,7 @@ READ_CHUNK (read_jhdr)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-READ_CHUNK (read_jdaa)
+READ_CHUNK (mng_read_jdaa)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAA, MNG_LC_START)
@@ -5313,7 +5429,7 @@ READ_CHUNK (read_jdaa)
 #ifdef MNG_SUPPORT_DISPLAY
   if (iRawlen)
   {                                    /* display processing for non-empty chunks */
-    mng_retcode iRetcode = process_display_jdaa (pData, iRawlen, pRawdata);
+    mng_retcode iRetcode = mng_process_display_jdaa (pData, iRawlen, pRawdata);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5352,7 +5468,7 @@ READ_CHUNK (read_jdaa)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-READ_CHUNK (read_jdat)
+READ_CHUNK (mng_read_jdat)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JDAT, MNG_LC_START)
@@ -5369,7 +5485,7 @@ READ_CHUNK (read_jdat)
 #ifdef MNG_SUPPORT_DISPLAY
   if (iRawlen)
   {                                    /* display processing for non-empty chunks */
-    mng_retcode iRetcode = process_display_jdat (pData, iRawlen, pRawdata);
+    mng_retcode iRetcode = mng_process_display_jdat (pData, iRawlen, pRawdata);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5408,7 +5524,7 @@ READ_CHUNK (read_jdat)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-READ_CHUNK (read_jsep)
+READ_CHUNK (mng_read_jsep)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_JSEP, MNG_LC_START)
@@ -5445,7 +5561,7 @@ READ_CHUNK (read_jsep)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_dhdr)
+READ_CHUNK (mng_read_dhdr)
 {
   mng_uint8 iImagetype, iDeltatype;
 #ifdef MNG_SUPPORT_TRACE
@@ -5480,7 +5596,8 @@ READ_CHUNK (read_dhdr)
   if ((iDeltatype == MNG_DELTATYPE_NOCHANGE) && (iRawlen > 4))
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-  pData->bHasDHDR = MNG_TRUE;          /* inside a DHDR-IEND block now */
+  pData->bHasDHDR   = MNG_TRUE;        /* inside a DHDR-IEND block now */
+  pData->iDeltatype = iDeltatype;      
 
   pData->iImagelevel++;                /* one level deeper */
 
@@ -5505,12 +5622,12 @@ READ_CHUNK (read_dhdr)
       iBlocky      = mng_get_uint32 (pRawdata+16);
     }
 
-    iRetcode = create_ani_dhdr (pData, iObjectid, iImagetype, iDeltatype,
-                                iBlockwidth, iBlockheight, iBlockx, iBlocky);
+    iRetcode = mng_create_ani_dhdr (pData, iObjectid, iImagetype, iDeltatype,
+                                    iBlockwidth, iBlockheight, iBlockx, iBlocky);
 
     if (!iRetcode)                     /* display processing ? */
-      iRetcode = process_display_dhdr (pData, iObjectid, iImagetype, iDeltatype,
-                                       iBlockwidth, iBlockheight, iBlockx, iBlocky);
+      iRetcode = mng_process_display_dhdr (pData, iObjectid, iImagetype, iDeltatype,
+                                           iBlockwidth, iBlockheight, iBlockx, iBlocky);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5553,7 +5670,7 @@ READ_CHUNK (read_dhdr)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_prom)
+READ_CHUNK (mng_read_prom)
 {
   mng_uint8 iColortype;
   mng_uint8 iSampledepth;
@@ -5593,15 +5710,14 @@ READ_CHUNK (read_prom)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = create_ani_prom (pData, iSampledepth, iColortype, iFilltype);
-
+    mng_retcode iRetcode = mng_create_ani_prom (pData, iSampledepth,
+                                                iColortype, iFilltype);
+                               
     if (!iRetcode)                     /* display processing ? */
-      iRetcode = process_display_prom (pData, iSampledepth,
-                                       iColortype, iFilltype);
-
+      iRetcode = mng_process_display_prom (pData, iSampledepth,
+                                           iColortype, iFilltype);
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -5628,7 +5744,7 @@ READ_CHUNK (read_prom)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_ipng)
+READ_CHUNK (mng_read_ipng)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IPNG, MNG_LC_START)
@@ -5642,10 +5758,10 @@ READ_CHUNK (read_ipng)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = create_ani_ipng (pData);
-
+    mng_retcode iRetcode = mng_create_ani_ipng (pData);
+                               
     if (!iRetcode)                     /* process it */
-      iRetcode = process_display_ipng (pData);
+      iRetcode = mng_process_display_ipng (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5672,7 +5788,7 @@ READ_CHUNK (read_ipng)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_pplt)
+READ_CHUNK (mng_read_pplt)
 {
   mng_uint8     iDeltatype;
   mng_uint8p    pTemp;
@@ -5811,13 +5927,13 @@ READ_CHUNK (read_pplt)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {                                    /* create animation object */
-    mng_retcode iRetcode = create_ani_pplt (pData, iDeltatype, iMax,
-                                            aIndexentries, aAlphaentries,
-                                            aUsedentries);
+    mng_retcode iRetcode = mng_create_ani_pplt (pData, iDeltatype, iMax,
+                                                aIndexentries, aAlphaentries,
+                                                aUsedentries);
 
     if (!iRetcode)                     /* execute it now ? */
-      iRetcode = process_display_pplt (pData, iDeltatype, iMax, aIndexentries,
-                                       aAlphaentries, aUsedentries);
+      iRetcode = mng_process_display_pplt (pData, iDeltatype, iMax, aIndexentries,
+                                           aAlphaentries, aUsedentries);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5856,7 +5972,7 @@ READ_CHUNK (read_pplt)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_ijng)
+READ_CHUNK (mng_read_ijng)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_IJNG, MNG_LC_START)
@@ -5870,10 +5986,10 @@ READ_CHUNK (read_ijng)
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
-    mng_retcode iRetcode = create_ani_ijng (pData);
-
+    mng_retcode iRetcode = mng_create_ani_ijng (pData);
+                               
     if (!iRetcode)                     /* process it */
-      iRetcode = process_display_ijng (pData);
+      iRetcode = mng_process_display_ijng (pData);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -5900,7 +6016,7 @@ READ_CHUNK (read_ijng)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_drop)
+READ_CHUNK (mng_read_drop)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DROP, MNG_LC_START)
@@ -5962,7 +6078,7 @@ READ_CHUNK (read_drop)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_dbyk)
+READ_CHUNK (mng_read_dbyk)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DBYK, MNG_LC_START)
@@ -6013,7 +6129,7 @@ READ_CHUNK (read_dbyk)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_ordr)
+READ_CHUNK (mng_read_ordr)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_ORDR, MNG_LC_START)
@@ -6076,11 +6192,12 @@ READ_CHUNK (read_ordr)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_magn)
+READ_CHUNK (mng_read_magn)
 {
   mng_uint16 iFirstid, iLastid;
-  mng_uint16 iMethodX, iMethodY;
+  mng_uint8  iMethodX, iMethodY;
   mng_uint16 iMX, iMY, iML, iMR, iMT, iMB;
+  mng_bool   bFaulty;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MAGN, MNG_LC_START)
@@ -6093,58 +6210,132 @@ READ_CHUNK (read_magn)
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
                                        /* check length */
-  if ((iRawlen > 20) || ((iRawlen & 0x01) != 0))
+  if (iRawlen > 20)
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
-  if (iRawlen > 0)                     /* get the fields */
-    iFirstid = mng_get_uint16 (pRawdata);
-  else
-    iFirstid = 0;
+  /* following is an ugly hack to allow faulty layout caused by previous
+     versions of libmng and MNGeye, which wrote MAGN with a 16-bit
+     MethodX/MethodY (as opposed to the proper 8-bit as defined in the spec!) */
 
-  if (iRawlen > 2)
-    iLastid  = mng_get_uint16 (pRawdata+2);
+  if ((iRawlen ==  6) || (iRawlen ==  8) || (iRawlen == 10) || (iRawlen == 12) ||
+      (iRawlen == 14) || (iRawlen == 16) || (iRawlen == 20))
+    bFaulty = MNG_TRUE;                /* these lengths are all wrong */
+  else                                 /* length 18 can be right or wrong !!! */
+  if ((iRawlen ==  18) && (mng_get_uint16 (pRawdata+4) <= 5) &&
+      (mng_get_uint16 (pRawdata+6)  < 256) &&
+      (mng_get_uint16 (pRawdata+8)  < 256) &&
+      (mng_get_uint16 (pRawdata+10) < 256) &&
+      (mng_get_uint16 (pRawdata+12) < 256) &&
+      (mng_get_uint16 (pRawdata+14) < 256) &&
+      (mng_get_uint16 (pRawdata+16) < 256))
+    bFaulty = MNG_TRUE;                /* this is very likely the wrong layout */
   else
-    iLastid  = iFirstid;
+    bFaulty = MNG_FALSE;               /* all other cases are handled as right */
 
-  if (iRawlen > 4)
-    iMethodX = mng_get_uint16 (pRawdata+4);
-  else
-    iMethodX = 0;
+  if (bFaulty)                         /* wrong layout ? */
+  {
+    if (iRawlen > 0)                   /* get the fields */
+      iFirstid = mng_get_uint16 (pRawdata);
+    else
+      iFirstid = 0;
 
-  if (iRawlen > 6)
-    iMX      = mng_get_uint16 (pRawdata+6);
-  else
-    iMX      = 1;
+    if (iRawlen > 2)
+      iLastid  = mng_get_uint16 (pRawdata+2);
+    else
+      iLastid  = iFirstid;
 
-  if (iRawlen > 8)
-    iMY      = mng_get_uint16 (pRawdata+8);
-  else
-    iMY      = iMX;
+    if (iRawlen > 4)
+      iMethodX = (mng_uint8)(mng_get_uint16 (pRawdata+4));
+    else
+      iMethodX = 0;
 
-  if (iRawlen > 10)
-    iML      = mng_get_uint16 (pRawdata+10);
-  else
-    iML      = iMX;
+    if (iRawlen > 6)
+      iMX      = mng_get_uint16 (pRawdata+6);
+    else
+      iMX      = 1;
 
-  if (iRawlen > 12)
-    iMR      = mng_get_uint16 (pRawdata+12);
-  else
-    iMR      = iMX;
+    if (iRawlen > 8)
+      iMY      = mng_get_uint16 (pRawdata+8);
+    else
+      iMY      = iMX;
 
-  if (iRawlen > 14)
-    iMT      = mng_get_uint16 (pRawdata+14);
-  else
-    iMT      = iMY;
+    if (iRawlen > 10)
+      iML      = mng_get_uint16 (pRawdata+10);
+    else
+      iML      = iMX;
 
-  if (iRawlen > 16)
-    iMB      = mng_get_uint16 (pRawdata+16);
-  else
-    iMB      = iMY;
+    if (iRawlen > 12)
+      iMR      = mng_get_uint16 (pRawdata+12);
+    else
+      iMR      = iMX;
 
-  if (iRawlen > 18)
-    iMethodY = mng_get_uint16 (pRawdata+18);
-  else
-    iMethodY = iMethodX;
+    if (iRawlen > 14)
+      iMT      = mng_get_uint16 (pRawdata+14);
+    else
+      iMT      = iMY;
+
+    if (iRawlen > 16)
+      iMB      = mng_get_uint16 (pRawdata+16);
+    else
+      iMB      = iMY;
+
+    if (iRawlen > 18)
+      iMethodY = (mng_uint8)(mng_get_uint16 (pRawdata+18));
+    else
+      iMethodY = iMethodX;
+  }
+  else                                 /* proper layout !!!! */
+  {
+    if (iRawlen > 0)                   /* get the fields */
+      iFirstid = mng_get_uint16 (pRawdata);
+    else
+      iFirstid = 0;
+
+    if (iRawlen > 2)
+      iLastid  = mng_get_uint16 (pRawdata+2);
+    else
+      iLastid  = iFirstid;
+
+    if (iRawlen > 4)
+      iMethodX = *(pRawdata+4);
+    else
+      iMethodX = 0;
+
+    if (iRawlen > 5)
+      iMX      = mng_get_uint16 (pRawdata+5);
+    else
+      iMX      = 1;
+
+    if (iRawlen > 7)
+      iMY      = mng_get_uint16 (pRawdata+7);
+    else
+      iMY      = iMX;
+
+    if (iRawlen > 9)
+      iML      = mng_get_uint16 (pRawdata+9);
+    else
+      iML      = iMX;
+
+    if (iRawlen > 11)
+      iMR      = mng_get_uint16 (pRawdata+11);
+    else
+      iMR      = iMX;
+
+    if (iRawlen > 13)
+      iMT      = mng_get_uint16 (pRawdata+13);
+    else
+      iMT      = iMY;
+
+    if (iRawlen > 15)
+      iMB      = mng_get_uint16 (pRawdata+15);
+    else
+      iMB      = iMY;
+
+    if (iRawlen > 17)
+      iMethodY = *(pRawdata+17);
+    else
+      iMethodY = iMethodX;
+  }
                                        /* check field validity */
   if ((iMethodX > 5) || (iMethodY > 5))
     MNG_ERROR (pData, MNG_INVALIDMETHOD)
@@ -6153,12 +6344,12 @@ READ_CHUNK (read_magn)
   {
     mng_retcode iRetcode;
 
-    iRetcode = create_ani_magn (pData, iFirstid, iLastid, iMethodX,
-                                iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
+    iRetcode = mng_create_ani_magn (pData, iFirstid, iLastid, iMethodX,
+                                    iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
 
     if (!iRetcode)                     /* display processing ? */
-      iRetcode = process_display_magn (pData, iFirstid, iLastid, iMethodX,
-                                       iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
+      iRetcode = mng_process_display_magn (pData, iFirstid, iLastid, iMethodX,
+                                           iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
@@ -6196,7 +6387,363 @@ READ_CHUNK (read_magn)
 
 /* ************************************************************************** */
 
-READ_CHUNK (read_unknown)
+READ_CHUNK (mng_read_evnt)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_EVNT, MNG_LC_START)
+#endif
+                                       /* sequence checks */
+  if ((!pData->bHasMHDR) || (pData->bHasSAVE))
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+
+  if (iRawlen < 2)                     /* must have at least 1 entry ! */
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_SUPPORT_DYNAMICMNG)
+  {
+    if (iRawlen)                       /* not empty ? */
+    {
+      mng_retcode iRetcode;
+      mng_uint8p  pTemp;
+      mng_uint8p  pNull;
+      mng_uint32  iLen;
+      mng_uint8   iEventtype;
+      mng_uint8   iMasktype;
+      mng_int32   iLeft;
+      mng_int32   iRight;
+      mng_int32   iTop;
+      mng_int32   iBottom;
+      mng_uint16  iObjectid;
+      mng_uint8   iIndex;
+      mng_uint32  iNamesize;
+
+      pTemp = pRawdata;
+      iLen  = iRawlen;
+
+      while (iLen)                   /* anything left ? */
+      {
+        iEventtype = *pTemp;         /* eventtype */
+        if (iEventtype > 5)
+          MNG_ERROR (pData, MNG_INVALIDEVENT);
+
+        pTemp++;
+
+        iMasktype  = *pTemp;         /* masktype */
+        if (iMasktype > 5)
+          MNG_ERROR (pData, MNG_INVALIDMASK);
+
+        pTemp++;
+        iLen -= 2;
+
+        iLeft     = 0;
+        iRight    = 0;
+        iTop      = 0;
+        iBottom   = 0;
+        iObjectid = 0;
+        iIndex    = 0;
+
+        switch (iMasktype)
+        {
+          case 1 :
+            {
+              if (iLen > 16)
+              {
+                iLeft     = mng_get_int32 (pTemp);
+                iRight    = mng_get_int32 (pTemp+4);
+                iTop      = mng_get_int32 (pTemp+8);
+                iBottom   = mng_get_int32 (pTemp+12);
+                pTemp += 16;
+                iLen -= 16;
+              }
+              else
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              break;
+            }
+          case 2 :
+            {
+              if (iLen > 2)
+              {
+                iObjectid = mng_get_uint16 (pTemp);
+                pTemp += 2;
+                iLen -= 2;
+              }
+              else
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              break;
+            }
+          case 3 :
+            {
+              if (iLen > 3)
+              {
+                iObjectid = mng_get_uint16 (pTemp);
+                iIndex    = *(pTemp+2);
+                pTemp += 3;
+                iLen -= 3;
+              }
+              else
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              break;
+            }
+          case 4 :
+            {
+              if (iLen > 18)
+              {
+                iLeft     = mng_get_int32 (pTemp);
+                iRight    = mng_get_int32 (pTemp+4);
+                iTop      = mng_get_int32 (pTemp+8);
+                iBottom   = mng_get_int32 (pTemp+12);
+                iObjectid = mng_get_uint16 (pTemp+16);
+                pTemp += 18;
+                iLen -= 18;
+              }
+              else
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              break;
+            }
+          case 5 :
+            {
+              if (iLen > 19)
+              {
+                iLeft     = mng_get_int32 (pTemp);
+                iRight    = mng_get_int32 (pTemp+4);
+                iTop      = mng_get_int32 (pTemp+8);
+                iBottom   = mng_get_int32 (pTemp+12);
+                iObjectid = mng_get_uint16 (pTemp+16);
+                iIndex    = *(pTemp+18);
+                pTemp += 19;
+                iLen -= 19;
+              }
+              else
+                MNG_ERROR (pData, MNG_INVALIDLENGTH)
+              break;
+            }
+        }
+
+        pNull = find_null (pTemp);   /* get the name length */
+
+        if ((pNull - pTemp) > (mng_int32)iLen)
+        {
+          iNamesize = iLen;          /* no null found; so end of evNT */
+          iLen      = 0;
+        }
+        else
+        {
+          iNamesize = pNull - pTemp; /* should be another entry */
+          iLen      = iLen - iNamesize - 1;
+
+          if (!iLen)                 /* must not end with a null ! */
+            MNG_ERROR (pData, MNG_ENDWITHNULL)
+        }
+
+        iRetcode = mng_create_event (pData, iEventtype, iMasktype, iLeft, iRight,
+                                            iTop, iBottom, iObjectid, iIndex,
+                                            iNamesize, (mng_pchar)pTemp);
+
+        if (iRetcode)                 /* on error bail out */
+          return iRetcode;
+
+        pTemp = pTemp + iNamesize + 1;
+      }
+    }
+  }
+#endif /* MNG_SUPPORT_DISPLAY && MNG_SUPPORT_DYNAMICMNG */
+
+#ifdef MNG_STORE_CHUNKS
+  if (pData->bStorechunks)
+  {                                    /* initialize storage */
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
+    if (iRawlen)                       /* not empty ? */
+    {
+      mng_uint32      iX;
+      mng_uint32      iCount = 0;
+      mng_uint8p      pTemp;
+      mng_uint8p      pNull;
+      mng_uint32      iLen;
+      mng_uint8       iEventtype;
+      mng_uint8       iMasktype;
+      mng_int32       iLeft;
+      mng_int32       iRight;
+      mng_int32       iTop;
+      mng_int32       iBottom;
+      mng_uint16      iObjectid;
+      mng_uint8       iIndex;
+      mng_uint32      iNamesize;
+      mng_evnt_entryp pEntry = MNG_NULL;
+
+      for (iX = 0; iX < 2; iX++)       /* do this twice to get the count first ! */
+      {
+        pTemp = pRawdata;
+        iLen  = iRawlen;
+
+        if (iX)                        /* second run ? */
+        {
+          MNG_ALLOC (pData, pEntry, (iCount * sizeof (mng_evnt_entry)))
+
+          ((mng_evntp)*ppChunk)->iCount   = iCount;
+          ((mng_evntp)*ppChunk)->pEntries = pEntry;
+        }
+
+        while (iLen)                   /* anything left ? */
+        {
+          iEventtype = *pTemp;         /* eventtype */
+          if (iEventtype > 5)
+            MNG_ERROR (pData, MNG_INVALIDEVENT);
+
+          pTemp++;
+
+          iMasktype  = *pTemp;         /* masktype */
+          if (iMasktype > 5)
+            MNG_ERROR (pData, MNG_INVALIDMASK);
+
+          pTemp++;
+          iLen -= 2;
+
+          iLeft     = 0;
+          iRight    = 0;
+          iTop      = 0;
+          iBottom   = 0;
+          iObjectid = 0;
+          iIndex    = 0;
+
+          switch (iMasktype)
+          {
+            case 1 :
+              {
+                if (iLen > 16)
+                {
+                  iLeft     = mng_get_int32 (pTemp);
+                  iRight    = mng_get_int32 (pTemp+4);
+                  iTop      = mng_get_int32 (pTemp+8);
+                  iBottom   = mng_get_int32 (pTemp+12);
+                  pTemp += 16;
+                  iLen -= 16;
+                }
+                else
+                  MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                break;
+              }
+            case 2 :
+              {
+                if (iLen > 2)
+                {
+                  iObjectid = mng_get_uint16 (pTemp);
+                  pTemp += 2;
+                  iLen -= 2;
+                }
+                else
+                  MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                break;
+              }
+            case 3 :
+              {
+                if (iLen > 3)
+                {
+                  iObjectid = mng_get_uint16 (pTemp);
+                  iIndex    = *(pTemp+2);
+                  pTemp += 3;
+                  iLen -= 3;
+                }
+                else
+                  MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                break;
+              }
+            case 4 :
+              {
+                if (iLen > 18)
+                {
+                  iLeft     = mng_get_int32 (pTemp);
+                  iRight    = mng_get_int32 (pTemp+4);
+                  iTop      = mng_get_int32 (pTemp+8);
+                  iBottom   = mng_get_int32 (pTemp+12);
+                  iObjectid = mng_get_uint16 (pTemp+16);
+                  pTemp += 18;
+                  iLen -= 18;
+                }
+                else
+                  MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                break;
+              }
+            case 5 :
+              {
+                if (iLen > 19)
+                {
+                  iLeft     = mng_get_int32 (pTemp);
+                  iRight    = mng_get_int32 (pTemp+4);
+                  iTop      = mng_get_int32 (pTemp+8);
+                  iBottom   = mng_get_int32 (pTemp+12);
+                  iObjectid = mng_get_uint16 (pTemp+16);
+                  iIndex    = *(pTemp+18);
+                  pTemp += 19;
+                  iLen -= 19;
+                }
+                else
+                  MNG_ERROR (pData, MNG_INVALIDLENGTH)
+                break;
+              }
+          }
+
+          pNull = find_null (pTemp);   /* get the name length */
+
+          if ((pNull - pTemp) > (mng_int32)iLen)
+          {
+            iNamesize = iLen;          /* no null found; so end of evNT */
+            iLen      = 0;
+          }
+          else
+          {
+            iNamesize = pNull - pTemp; /* should be another entry */
+            iLen     -= iNamesize;
+
+            if (!iLen)                 /* must not end with a null ! */
+              MNG_ERROR (pData, MNG_ENDWITHNULL)
+          }
+
+          if (!pEntry)
+          {
+            iCount++;
+          }
+          else
+          {
+            pEntry->iEventtype       = iEventtype;
+            pEntry->iMasktype        = iMasktype;
+            pEntry->iLeft            = iLeft;
+            pEntry->iRight           = iRight;
+            pEntry->iTop             = iTop;
+            pEntry->iBottom          = iBottom;
+            pEntry->iObjectid        = iObjectid;
+            pEntry->iIndex           = iIndex;
+            pEntry->iSegmentnamesize = iNamesize;
+
+            if (iNamesize)
+            {
+              MNG_ALLOC (pData, pEntry->zSegmentname, iNamesize+1)
+              MNG_COPY (pEntry->zSegmentname, pTemp, iNamesize)
+            }
+
+            pEntry++;
+          }
+
+          pTemp += iNamesize;
+        }
+      }
+    }
+  }
+#endif /* MNG_STORE_CHUNKS */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_EVNT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+
+/* ************************************************************************** */
+
+READ_CHUNK (mng_read_unknown)
 {
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_UNKNOWN, MNG_LC_START)
@@ -6265,7 +6812,7 @@ READ_CHUNK (read_unknown)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_ihdr)
+WRITE_CHUNK (mng_write_ihdr)
 {
   mng_ihdrp   pIHDR;
   mng_uint8p  pRawdata;
@@ -6300,7 +6847,7 @@ WRITE_CHUNK (write_ihdr)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_plte)
+WRITE_CHUNK (mng_write_plte)
 {
   mng_pltep   pPLTE;
   mng_uint8p  pRawdata;
@@ -6345,7 +6892,7 @@ WRITE_CHUNK (write_plte)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_idat)
+WRITE_CHUNK (mng_write_idat)
 {
   mng_idatp   pIDAT;
   mng_retcode iRetcode;
@@ -6371,7 +6918,7 @@ WRITE_CHUNK (write_idat)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_iend)
+WRITE_CHUNK (mng_write_iend)
 {
   mng_iendp   pIEND;
   mng_retcode iRetcode;
@@ -6393,7 +6940,7 @@ WRITE_CHUNK (write_iend)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_trns)
+WRITE_CHUNK (mng_write_trns)
 {
   mng_trnsp   pTRNS;
   mng_uint8p  pRawdata;
@@ -6422,16 +6969,16 @@ WRITE_CHUNK (write_trns)
     switch (pTRNS->iType)
     {
       case 0: {
-                iRawlen   = 1;         /* fill the size & output buffer */
-                *pRawdata = (mng_uint8)pTRNS->iGray;
+                iRawlen   = 2;         /* fill the size & output buffer */
+                mng_put_uint16 (pRawdata, pTRNS->iGray);
 
                 break;
               }
       case 2: {
-                iRawlen       = 3;     /* fill the size & output buffer */
-                *pRawdata     = (mng_uint8)pTRNS->iRed;
-                *(pRawdata+1) = (mng_uint8)pTRNS->iGreen;
-                *(pRawdata+2) = (mng_uint8)pTRNS->iBlue;
+                iRawlen       = 6;     /* fill the size & output buffer */
+                mng_put_uint16 (pRawdata,   pTRNS->iRed);
+                mng_put_uint16 (pRawdata+2, pTRNS->iGreen);
+                mng_put_uint16 (pRawdata+4, pTRNS->iBlue);
 
                 break;
               }
@@ -6463,7 +7010,7 @@ WRITE_CHUNK (write_trns)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_gama)
+WRITE_CHUNK (mng_write_gama)
 {
   mng_gamap   pGAMA;
   mng_uint8p  pRawdata;
@@ -6498,7 +7045,7 @@ WRITE_CHUNK (write_gama)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_chrm)
+WRITE_CHUNK (mng_write_chrm)
 {
   mng_chrmp   pCHRM;
   mng_uint8p  pRawdata;
@@ -6540,7 +7087,7 @@ WRITE_CHUNK (write_chrm)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_srgb)
+WRITE_CHUNK (mng_write_srgb)
 {
   mng_srgbp   pSRGB;
   mng_uint8p  pRawdata;
@@ -6575,7 +7122,7 @@ WRITE_CHUNK (write_srgb)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_iccp)
+WRITE_CHUNK (mng_write_iccp)
 {
   mng_iccpp   pICCP;
   mng_uint8p  pRawdata;
@@ -6642,7 +7189,7 @@ WRITE_CHUNK (write_iccp)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_text)
+WRITE_CHUNK (mng_write_text)
 {
   mng_textp   pTEXT;
   mng_uint8p  pRawdata;
@@ -6691,7 +7238,7 @@ WRITE_CHUNK (write_text)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_ztxt)
+WRITE_CHUNK (mng_write_ztxt)
 {
   mng_ztxtp   pZTXT;
   mng_uint8p  pRawdata;
@@ -6754,7 +7301,7 @@ WRITE_CHUNK (write_ztxt)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_itxt)
+WRITE_CHUNK (mng_write_itxt)
 {
   mng_itxtp   pITXT;
   mng_uint8p  pRawdata;
@@ -6857,7 +7404,7 @@ WRITE_CHUNK (write_itxt)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_bkgd)
+WRITE_CHUNK (mng_write_bkgd)
 {
   mng_bkgdp   pBKGD;
   mng_uint8p  pRawdata;
@@ -6880,16 +7427,16 @@ WRITE_CHUNK (write_bkgd)
     switch (pBKGD->iType)
     {
       case 0: {                        /* gray */
-                iRawlen   = 1;         /* fill the size & output buffer */
-                *pRawdata = (mng_uint8)pBKGD->iGray;
+                iRawlen = 2;           /* fill the size & output buffer */
+                mng_put_uint16 (pRawdata, pBKGD->iGray);
 
                 break;
               }
       case 2: {                        /* rgb */
-                iRawlen       = 3;     /* fill the size & output buffer */
-                *pRawdata     = (mng_uint8)pBKGD->iRed;
-                *(pRawdata+1) = (mng_uint8)pBKGD->iGreen;
-                *(pRawdata+2) = (mng_uint8)pBKGD->iBlue;
+                iRawlen = 6;           /* fill the size & output buffer */
+                mng_put_uint16 (pRawdata,   pBKGD->iRed);
+                mng_put_uint16 (pRawdata+2, pBKGD->iGreen);
+                mng_put_uint16 (pRawdata+4, pBKGD->iBlue);
 
                 break;
               }
@@ -6914,7 +7461,7 @@ WRITE_CHUNK (write_bkgd)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_phys)
+WRITE_CHUNK (mng_write_phys)
 {
   mng_physp   pPHYS;
   mng_uint8p  pRawdata;
@@ -6952,7 +7499,7 @@ WRITE_CHUNK (write_phys)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_sbit)
+WRITE_CHUNK (mng_write_sbit)
 {
   mng_sbitp   pSBIT;
   mng_uint8p  pRawdata;
@@ -7055,7 +7602,7 @@ WRITE_CHUNK (write_sbit)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_splt)
+WRITE_CHUNK (mng_write_splt)
 {
   mng_spltp   pSPLT;
   mng_uint8p  pRawdata;
@@ -7107,7 +7654,7 @@ WRITE_CHUNK (write_splt)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_hist)
+WRITE_CHUNK (mng_write_hist)
 {
   mng_histp   pHIST;
   mng_uint8p  pRawdata;
@@ -7145,7 +7692,7 @@ WRITE_CHUNK (write_hist)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_time)
+WRITE_CHUNK (mng_write_time)
 {
   mng_timep   pTIME;
   mng_uint8p  pRawdata;
@@ -7181,7 +7728,7 @@ WRITE_CHUNK (write_time)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_mhdr)
+WRITE_CHUNK (mng_write_mhdr)
 {
   mng_mhdrp   pMHDR;
   mng_uint8p  pRawdata;
@@ -7218,7 +7765,7 @@ WRITE_CHUNK (write_mhdr)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_mend)
+WRITE_CHUNK (mng_write_mend)
 {
   mng_mendp   pMEND;
   mng_retcode iRetcode;
@@ -7240,7 +7787,7 @@ WRITE_CHUNK (write_mend)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_loop)
+WRITE_CHUNK (mng_write_loop)
 {
   mng_loopp   pLOOP;
   mng_uint8p  pRawdata;
@@ -7305,7 +7852,7 @@ WRITE_CHUNK (write_loop)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_endl)
+WRITE_CHUNK (mng_write_endl)
 {
   mng_endlp   pENDL;
   mng_uint8p  pRawdata;
@@ -7335,7 +7882,7 @@ WRITE_CHUNK (write_endl)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_defi)
+WRITE_CHUNK (mng_write_defi)
 {
   mng_defip   pDEFI;
   mng_uint8p  pRawdata;
@@ -7395,7 +7942,7 @@ WRITE_CHUNK (write_defi)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_basi)
+WRITE_CHUNK (mng_write_basi)
 {
   mng_basip   pBASI;
   mng_uint8p  pRawdata;
@@ -7459,7 +8006,7 @@ WRITE_CHUNK (write_basi)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_clon)
+WRITE_CHUNK (mng_write_clon)
 {
   mng_clonp   pCLON;
   mng_uint8p  pRawdata;
@@ -7516,7 +8063,7 @@ WRITE_CHUNK (write_clon)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_past)
+WRITE_CHUNK (mng_write_past)
 {
   mng_pastp        pPAST;
   mng_uint8p       pRawdata;
@@ -7585,7 +8132,7 @@ WRITE_CHUNK (write_past)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_disc)
+WRITE_CHUNK (mng_write_disc)
 {
   mng_discp        pDISC;
   mng_uint8p       pRawdata;
@@ -7627,7 +8174,7 @@ WRITE_CHUNK (write_disc)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_back)
+WRITE_CHUNK (mng_write_back)
 {
   mng_backp   pBACK;
   mng_uint8p  pRawdata;
@@ -7677,7 +8224,7 @@ WRITE_CHUNK (write_back)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_fram)
+WRITE_CHUNK (mng_write_fram)
 {
   mng_framp   pFRAM;
   mng_uint8p  pRawdata;
@@ -7780,7 +8327,7 @@ WRITE_CHUNK (write_fram)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_move)
+WRITE_CHUNK (mng_write_move)
 {
   mng_movep   pMOVE;
   mng_uint8p  pRawdata;
@@ -7816,7 +8363,7 @@ WRITE_CHUNK (write_move)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_clip)
+WRITE_CHUNK (mng_write_clip)
 {
   mng_clipp   pCLIP;
   mng_uint8p  pRawdata;
@@ -7854,7 +8401,7 @@ WRITE_CHUNK (write_clip)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_show)
+WRITE_CHUNK (mng_write_show)
 {
   mng_showp   pSHOW;
   mng_uint8p  pRawdata;
@@ -7901,7 +8448,7 @@ WRITE_CHUNK (write_show)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_term)
+WRITE_CHUNK (mng_write_term)
 {
   mng_termp   pTERM;
   mng_uint8p  pRawdata;
@@ -7940,7 +8487,7 @@ WRITE_CHUNK (write_term)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_save)
+WRITE_CHUNK (mng_write_save)
 {
   mng_savep       pSAVE;
   mng_uint8p      pRawdata;
@@ -8029,7 +8576,7 @@ WRITE_CHUNK (write_save)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_seek)
+WRITE_CHUNK (mng_write_seek)
 {
   mng_seekp   pSEEK;
   mng_uint8p  pRawdata;
@@ -8060,7 +8607,7 @@ WRITE_CHUNK (write_seek)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_expi)
+WRITE_CHUNK (mng_write_expi)
 {
   mng_expip   pEXPI;
   mng_uint8p  pRawdata;
@@ -8093,7 +8640,7 @@ WRITE_CHUNK (write_expi)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_fpri)
+WRITE_CHUNK (mng_write_fpri)
 {
   mng_fprip   pFPRI;
   mng_uint8p  pRawdata;
@@ -8124,7 +8671,7 @@ WRITE_CHUNK (write_fpri)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_need)
+WRITE_CHUNK (mng_write_need)
 {
   mng_needp   pNEED;
   mng_uint8p  pRawdata;
@@ -8155,7 +8702,7 @@ WRITE_CHUNK (write_need)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_phyg)
+WRITE_CHUNK (mng_write_phyg)
 {
   mng_phygp   pPHYG;
   mng_uint8p  pRawdata;
@@ -8196,7 +8743,7 @@ WRITE_CHUNK (write_phyg)
 /* B004 */
 #ifdef MNG_INCLUDE_JNG
 /* B004 */
-WRITE_CHUNK (write_jhdr)
+WRITE_CHUNK (mng_write_jhdr)
 {
   mng_jhdrp   pJHDR;
   mng_uint8p  pRawdata;
@@ -8240,7 +8787,7 @@ WRITE_CHUNK (write_jhdr)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-WRITE_CHUNK (write_jdaa)
+WRITE_CHUNK (mng_write_jdaa)
 {
   mng_jdatp   pJDAA;
   mng_retcode iRetcode;
@@ -8272,7 +8819,7 @@ WRITE_CHUNK (write_jdaa)
 /* B004 */
 #ifdef MNG_INCLUDE_JNG
 /* B004 */
-WRITE_CHUNK (write_jdat)
+WRITE_CHUNK (mng_write_jdat)
 {
   mng_jdatp   pJDAT;
   mng_retcode iRetcode;
@@ -8306,7 +8853,7 @@ WRITE_CHUNK (write_jdat)
 /* B004 */
 #ifdef MNG_INCLUDE_JNG
 /* B004 */
-WRITE_CHUNK (write_jsep)
+WRITE_CHUNK (mng_write_jsep)
 {
   mng_jsepp   pJSEP;
   mng_retcode iRetcode;
@@ -8333,7 +8880,7 @@ WRITE_CHUNK (write_jsep)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_dhdr)
+WRITE_CHUNK (mng_write_dhdr)
 {
   mng_dhdrp   pDHDR;
   mng_uint8p  pRawdata;
@@ -8380,7 +8927,7 @@ WRITE_CHUNK (write_dhdr)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_prom)
+WRITE_CHUNK (mng_write_prom)
 {
   mng_promp   pPROM;
   mng_uint8p  pRawdata;
@@ -8412,7 +8959,7 @@ WRITE_CHUNK (write_prom)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_ipng)
+WRITE_CHUNK (mng_write_ipng)
 {
   mng_ipngp   pIPNG;
   mng_retcode iRetcode;
@@ -8434,7 +8981,7 @@ WRITE_CHUNK (write_ipng)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_pplt)
+WRITE_CHUNK (mng_write_pplt)
 {
   mng_ppltp       pPPLT;
   mng_uint8p      pRawdata;
@@ -8537,7 +9084,7 @@ WRITE_CHUNK (write_pplt)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_ijng)
+WRITE_CHUNK (mng_write_ijng)
 {
   mng_ijngp   pIJNG;
   mng_retcode iRetcode;
@@ -8559,7 +9106,7 @@ WRITE_CHUNK (write_ijng)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_drop)
+WRITE_CHUNK (mng_write_drop)
 {
   mng_dropp        pDROP;
   mng_uint8p       pRawdata;
@@ -8601,7 +9148,7 @@ WRITE_CHUNK (write_drop)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_dbyk)
+WRITE_CHUNK (mng_write_dbyk)
 {
   mng_dbykp   pDBYK;
   mng_uint8p  pRawdata;
@@ -8635,7 +9182,7 @@ WRITE_CHUNK (write_dbyk)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_ordr)
+WRITE_CHUNK (mng_write_ordr)
 {
   mng_ordrp       pORDR;
   mng_uint8p      pRawdata;
@@ -8677,7 +9224,7 @@ WRITE_CHUNK (write_ordr)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_magn)
+WRITE_CHUNK (mng_write_magn)
 {
   mng_magnp   pMAGN;
   mng_uint8p  pRawdata;
@@ -8691,22 +9238,22 @@ WRITE_CHUNK (write_magn)
   pMAGN    = (mng_magnp)pChunk;        /* address the proper chunk */
 
   pRawdata = pData->pWritebuf+8;       /* init output buffer & size */
-  iRawlen  = 20;
+  iRawlen  = 18;
                                        /* fill the output buffer */
   mng_put_uint16 (pRawdata,    pMAGN->iFirstid);
   mng_put_uint16 (pRawdata+2,  pMAGN->iLastid);
-  mng_put_uint16 (pRawdata+4,  pMAGN->iMethodX);
-  mng_put_uint16 (pRawdata+6,  pMAGN->iMX);
-  mng_put_uint16 (pRawdata+8,  pMAGN->iMY);
-  mng_put_uint16 (pRawdata+10, pMAGN->iML);
-  mng_put_uint16 (pRawdata+12, pMAGN->iMR);
-  mng_put_uint16 (pRawdata+14, pMAGN->iMT);
-  mng_put_uint16 (pRawdata+16, pMAGN->iMB);
-  mng_put_uint16 (pRawdata+18, pMAGN->iMethodY);
+  *(pRawdata+4) = pMAGN->iMethodX;
+  mng_put_uint16 (pRawdata+5,  pMAGN->iMX);
+  mng_put_uint16 (pRawdata+7,  pMAGN->iMY);
+  mng_put_uint16 (pRawdata+9,  pMAGN->iML);
+  mng_put_uint16 (pRawdata+11, pMAGN->iMR);
+  mng_put_uint16 (pRawdata+13, pMAGN->iMT);
+  mng_put_uint16 (pRawdata+15, pMAGN->iMB);
+  *(pRawdata+17) = pMAGN->iMethodY;
                                        /* optimize length */
   if (pMAGN->iMethodY == pMAGN->iMethodX)
   {
-    iRawlen -= 2;
+    iRawlen--;
 
     if (pMAGN->iMB == pMAGN->iMY)
     {
@@ -8734,7 +9281,7 @@ WRITE_CHUNK (write_magn)
 
                 if (pMAGN->iMethodX == 0)
                 {
-                  iRawlen -= 2;
+                  iRawlen--;
 
                   if (pMAGN->iLastid == pMAGN->iFirstid)
                   {
@@ -8765,7 +9312,124 @@ WRITE_CHUNK (write_magn)
 
 /* ************************************************************************** */
 
-WRITE_CHUNK (write_unknown)
+WRITE_CHUNK (mng_write_evnt)
+{
+  mng_evntp       pEVNT;
+  mng_uint8p      pRawdata;
+  mng_uint32      iRawlen;
+  mng_retcode     iRetcode;
+  mng_evnt_entryp pEntry;
+  mng_uint8p      pTemp;
+  mng_uint32      iX;
+  mng_uint32      iNamesize;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_EVNT, MNG_LC_START)
+#endif
+
+  pEVNT = (mng_evntp)pChunk;           /* address the proper chunk */
+
+  if (!pEVNT->iCount)                  /* empty ? */
+    iRetcode = write_raw_chunk (pData, pEVNT->sHeader.iChunkname, 0, 0);
+  else
+  {
+    pRawdata  = pData->pWritebuf+8;    /* init output buffer & size */
+    iRawlen   = 0;
+    pTemp     = pRawdata;
+    pEntry    = pEVNT->pEntries;
+
+    for (iX = 0; iX < pEVNT->iCount; iX++)
+    {
+      if (iX)                          /* put separator null-byte, except the first */
+      {
+        *pTemp = 0;
+        pTemp++;
+        iRawlen++;
+      }
+
+      *pTemp     = pEntry->iEventtype;
+      *(pTemp+1) = pEntry->iMasktype;
+      pTemp   += 2;
+      iRawlen += 2;
+
+      switch (pEntry->iMasktype)
+      {
+        case 1 :
+          {
+            mng_put_int32 (pTemp, pEntry->iLeft);
+            mng_put_int32 (pTemp+4, pEntry->iRight);
+            mng_put_int32 (pTemp+8, pEntry->iTop);
+            mng_put_int32 (pTemp+12, pEntry->iBottom);
+            pTemp   += 16;
+            iRawlen += 16;
+            break;
+          }
+        case 2 :
+          {
+            mng_put_uint16 (pTemp, pEntry->iObjectid);
+            pTemp   += 2;
+            iRawlen += 2;
+            break;
+          }
+        case 3 :
+          {
+            mng_put_uint16 (pTemp, pEntry->iObjectid);
+            *(pTemp+2) = pEntry->iIndex;
+            pTemp   += 3;
+            iRawlen += 3;
+            break;
+          }
+        case 4 :
+          {
+            mng_put_int32 (pTemp, pEntry->iLeft);
+            mng_put_int32 (pTemp+4, pEntry->iRight);
+            mng_put_int32 (pTemp+8, pEntry->iTop);
+            mng_put_int32 (pTemp+12, pEntry->iBottom);
+            mng_put_uint16 (pTemp+16, pEntry->iObjectid);
+            pTemp   += 18;
+            iRawlen += 18;
+            break;
+          }
+        case 5 :
+          {
+            mng_put_int32 (pTemp, pEntry->iLeft);
+            mng_put_int32 (pTemp+4, pEntry->iRight);
+            mng_put_int32 (pTemp+8, pEntry->iTop);
+            mng_put_int32 (pTemp+12, pEntry->iBottom);
+            mng_put_uint16 (pTemp+16, pEntry->iObjectid);
+            *(pTemp+18) = pEntry->iIndex;
+            pTemp   += 19;
+            iRawlen += 19;
+            break;
+          }
+      }
+
+      iNamesize = pEntry->iSegmentnamesize;
+
+      if (iNamesize)
+      {
+        MNG_COPY (pTemp, pEntry->zSegmentname, iNamesize);
+        pTemp   += iNamesize;
+        iRawlen += iNamesize;
+      }
+
+      pEntry++;  
+    }
+                                       /* and write it */
+    iRetcode = write_raw_chunk (pData, pEVNT->sHeader.iChunkname,
+                                iRawlen, pRawdata);
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_EVNT, MNG_LC_END)
+#endif
+
+  return iRetcode;
+}
+
+/* ************************************************************************** */
+
+WRITE_CHUNK (mng_write_unknown)
 {
   mng_unknown_chunkp pUnknown;
   mng_retcode        iRetcode;

@@ -3,6 +3,9 @@
 
 PKGNAME="mngplay"
 
+# GRR 20010708:  added this; just want to create configure script, not run it:
+NOCONFIGURE="true"
+
 am_opt="--foreign"
 
 DIE=0
@@ -30,9 +33,9 @@ test -z "$srcdir" && srcdir=.
 # check for automake
 (automake --version) < /dev/null > /dev/null 2>&1 || {
   echo
-  echo "**Error**: You must have \`automake' installed to compile UClient."
+  echo "**Error**: You must have \`automake' installed to compile $PKGNAME."
   echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.3.tar.gz"
-  echo "(or a newer version if it is available)"
+  echo "(or a newer version if it is available)."
   DIE=1
   NO_AUTOMAKE=yes
 }
@@ -44,7 +47,7 @@ test -n "$NO_AUTOMAKE" || (aclocal --version) < /dev/null > /dev/null 2>&1 || {
   echo "**Error**: Missing \`aclocal'.  The version of \`automake'"
   echo "installed doesn't appear recent enough."
   echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.3.tar.gz"
-  echo "(or a newer version if it is available)"
+  echo "(or a newer version if it is available)."
   DIE=1
 }
 

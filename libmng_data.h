@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_data.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_data.h             copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -95,6 +95,28 @@
 /* *             - implemented delayed delta-processing                     * */
 /* *             0.9.4 - 12/16/2000 - G.Juyn                                * */
 /* *             - fixed mixup of data- & function-pointers (thanks Dimitri)* */
+/* *                                                                        * */
+/* *             1.0.1 - 02/08/2001 - G.Juyn                                * */
+/* *             - added MEND processing callback                           * */
+/* *             1.0.1 - 02/13/2001 - G.Juyn                                * */
+/* *             - fixed first FRAM_MODE=4 timing problem                   * */
+/* *                                                                        * */
+/* *             1.0.2 - 06/23/2001 - G.Juyn                                * */
+/* *             - added optimization option for MNG-video playback         * */
+/* *             - added processterm callback                               * */
+/* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
+/* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.5 - 07/08/2002 - G.Juyn                                * */
+/* *             - B578572 - removed eMNGma hack (thanks Dimitri!)          * */
+/* *             1.0.5 - 07/16/2002 - G.Juyn                                * */
+/* *             - B581625 - large chunks fail with suspension reads        * */
+/* *             1.0.5 - 08/15/2002 - G.Juyn                                * */
+/* *             - completed PROM support                                   * */
+/* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
+/* *             - fixed LOOP iteration=0 special case                      * */
+/* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
+/* *             - finished support for BACK image & tiling                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -244,6 +266,8 @@ typedef struct mng_data_struct {
 
            mng_bool          bStorechunks;       /* switch for storing chunkdata */
            mng_bool          bSectionbreaks;     /* indicate NEEDSECTIONWAIT breaks */
+           mng_bool          bCacheplayback;     /* switch to cache playback info */
+           mng_bool          bDoProgressive;     /* progressive refresh for large images */ 
 
            mng_speedtype     iSpeed;             /* speed-modifier for animations */
 
@@ -269,7 +293,9 @@ typedef struct mng_data_struct {
            mng_processsave   fProcesssave;
            mng_processseek   fProcessseek;
            mng_processneed   fProcessneed;
+           mng_processmend   fProcessmend;
            mng_processunknown fProcessunknown;
+           mng_processterm   fProcessterm;
            mng_getcanvasline fGetcanvasline;
            mng_getbkgdline   fGetbkgdline;
            mng_getalphaline  fGetalphaline;
@@ -334,8 +360,6 @@ typedef struct mng_data_struct {
 
            mng_uint32        iPLTEcount;         /* PLTE fields */
 
-           mng_bool          bEMNGMAhack;        /* TODO: to be removed in 1.0.0 !!! */
-
 #ifdef MNG_INCLUDE_JNG
            mng_uint8         iJHDRcolortype;     /* JHDR fields */
            mng_uint8         iJHDRimgbitdepth;   /* valid if inside JHDR-IEND */
@@ -373,6 +397,7 @@ typedef struct mng_data_struct {
            mng_uint32        iSuspendbufleft;
            mng_uint32        iChunklen;          /* chunk length */
            mng_uint8p        pReadbufnext;       /* 32K+ suspension-processing */
+           mng_uint8p        pLargebufnext;
 #endif /* MNG_SUPPORT_READ */
 
 #ifdef MNG_SUPPORT_WRITE
@@ -385,9 +410,21 @@ typedef struct mng_data_struct {
 
 #ifdef MNG_SUPPORT_DISPLAY
            mng_bool          bDisplaying;        /* display-state variables */
+           mng_bool          bFramedone;
            mng_uint32        iFrameseq;
            mng_uint32        iLayerseq;
            mng_uint32        iFrametime;         /* millisecs */
+
+           mng_bool          bSkipping;          /* LOOP iteration=0 */
+           
+#ifdef MNG_SUPPORT_DYNAMICMNG
+           mng_bool          bDynamic;           /* MNG is dynamic (eg. has events) */
+           mng_bool          bRunningevent;      /* currently processing an event */
+           mng_bool          bStopafterseek;     /* stop after next SEEK */
+           mng_int32         iEventx;            /* X/Y of current event */
+           mng_int32         iEventy;
+           mng_objectp       pLastmousemove;     /* last event triggered */
+#endif
 
            mng_uint32        iRequestframe;      /* go_xxxx variables */
            mng_uint32        iRequestlayer;
@@ -414,6 +451,7 @@ typedef struct mng_data_struct {
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */
            mng_objectp       pTermaniobj;        /* TERM animation object */
+           mng_uint32        iIterations;        /* TERM/MEND iteration count */
            mng_objectp       pObjzero;           /* "on-the-fly" image (object = 0) */
            mng_objectp       pLastclone;         /* last clone */
            mng_objectp       pStoreobj;          /* current store object for row routines */
@@ -464,6 +502,10 @@ typedef struct mng_data_struct {
            mng_objectp       pLastimgobj;        /* image-object structures */
            mng_objectp       pFirstaniobj;       /* double-linked list of */
            mng_objectp       pLastaniobj;        /* animation-object structures */
+#ifdef MNG_SUPPORT_DYNAMICMNG
+           mng_objectp       pFirstevent;        /* double-linked list of */
+           mng_objectp       pLastevent;         /* event-object structures */
+#endif
 
 #if defined(MNG_GAMMA_ONLY) || defined(MNG_FULL_CMS)
            mng_uint8         aGammatab[256];     /* precomputed gamma lookup table */
@@ -490,6 +532,10 @@ typedef struct mng_data_struct {
                                                     delta-row to the bitdepth of its target */
            mng_fptr          fDeltarow;          /* internal callback to execute a
                                                     delta-row onto a target */
+           mng_fptr          fFliprow;           /* internal callback to flip a row of pixels
+                                                    left<->right for a PAST operation */
+           mng_fptr          fTilerow;           /* internal callback to tile a row of pixels
+                                                    during a PAST operation */
            mng_fptr          fInitrowproc;       /* internal callback to initialize
                                                     the row processing */
 
@@ -513,6 +559,11 @@ typedef struct mng_data_struct {
            mng_uint8         iBACKmandatory;
            mng_uint16        iBACKimageid;
            mng_uint8         iBACKtile;
+
+           mng_int32         iBackimgoffsx;      /* temp variables for restore_bkgd */
+           mng_int32         iBackimgoffsy;
+           mng_uint32        iBackimgwidth;
+           mng_uint32        iBackimgheight;
 
            mng_uint8         iFRAMmode;          /* FRAM fields (global) */
            mng_uint32        iFRAMdelay;
@@ -568,7 +619,9 @@ typedef struct mng_data_struct {
 
            mng_ptr           pDeltaImage;        /* delta-image fields */
            mng_uint8         iDeltaImagetype;
-           mng_uint8         iDeltatype;
+#endif /* MNG_SUPPORT_DISPLAY */
+           mng_uint8         iDeltatype;         /* need this one in read processing !! */
+#ifdef MNG_SUPPORT_DISPLAY
            mng_uint32        iDeltaBlockwidth;
            mng_uint32        iDeltaBlockheight;
            mng_uint32        iDeltaBlockx;
@@ -580,8 +633,23 @@ typedef struct mng_data_struct {
            mng_fptr          fDeltareplacerow;
            mng_fptr          fDeltaputrow;
 
+           mng_fptr          fPromoterow;        /* internal PROM fields */
+           mng_fptr          fPromBitdepth;
+           mng_ptr           pPromBuf;
+           mng_uint8         iPromColortype;
+           mng_uint8         iPromBitdepth;
+           mng_uint8         iPromFilltype;
+           mng_uint32        iPromWidth;
+           mng_ptr           pPromSrc;
+           mng_ptr           pPromDst;
+
            mng_uint16        iMAGNfromid;
            mng_uint16        iMAGNtoid;
+
+           mng_int32         iPastx;             /* target x/y of last PAST */
+           mng_int32         iPasty;
+
+           mng_objectp       pLastseek;          /* last processed ani_seek object */  
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -639,13 +707,13 @@ typedef struct mng_data_struct {
 
            mng_bool          bJPEGcompress;      /* indicates "compress" initialized */
 
-           mng_bool          bJPEGdecompress;    /* indicates "decompress" ininitialized (JDAT) */
+           mng_bool          bJPEGdecompress;    /* indicates "decompress" initialized (JDAT) */
            mng_bool          bJPEGhasheader;     /* indicates "readheader" succeeded (JDAT) */
            mng_bool          bJPEGdecostarted;   /* indicates "decompress" started (JDAT) */
            mng_bool          bJPEGscanstarted;   /* indicates "first scan" started (JDAT) */
            mng_bool          bJPEGprogressive;   /* indicates a progressive image (JDAT) */
 
-           mng_bool          bJPEGdecompress2;   /* indicates "decompress" ininitialized (JDAA) */
+           mng_bool          bJPEGdecompress2;   /* indicates "decompress" initialized (JDAA) */
            mng_bool          bJPEGhasheader2;    /* indicates "readheader" succeeded (JDAA) */
            mng_bool          bJPEGdecostarted2;  /* indicates "decompress" started (JDAA) */
            mng_bool          bJPEGscanstarted2;  /* indicates "first scan" started (JDAA) */
@@ -691,6 +759,12 @@ typedef mng_retcode(*mng_initrowproc) (mng_datap  pData);
 typedef mng_retcode(*mng_differrow)   (mng_datap  pData);
 typedef mng_retcode(*mng_scalerow)    (mng_datap  pData);
 typedef mng_retcode(*mng_deltarow)    (mng_datap  pData);
+typedef mng_retcode(*mng_promoterow)  (mng_datap  pData);
+typedef mng_retcode(*mng_fliprow)     (mng_datap  pData);
+typedef mng_retcode(*mng_tilerow)     (mng_datap  pData);
+
+typedef mng_uint8  (*mng_bitdepth_8)  (mng_uint8  iB);
+typedef mng_uint16 (*mng_bitdepth_16) (mng_uint8  iB);
 
 typedef mng_retcode(*mng_magnify_x)   (mng_datap  pData,
                                        mng_uint16 iMX,

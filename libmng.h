@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000,2001 Gerard Juyn (gerard@libmng.com)                * */
+/* * Copyright (c) 2000-2002 Gerard Juyn (gerard@libmng.com)                * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
@@ -99,8 +99,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng.h                  copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng.h                  copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -211,6 +211,42 @@
 /* *                                                                        * */
 /* *             1.0.0 - 02/05/2001 - G.Juyn                                * */
 /* *             - version numbers (obviously)                              * */
+/* *                                                                        * */
+/* *             1.0.1 - 02/08/2001 - G.Juyn                                * */
+/* *             - added MEND processing callback                           * */
+/* *             1.0.1 - 04/21/2001 - G.Juyn (code by G.Kelly)              * */
+/* *             - added BGRA8 canvas with premultiplied alpha              * */
+/* *             1.0.1 - 05/02/2001 - G.Juyn                                * */
+/* *             - added "default" sRGB generation (Thanks Marti!)          * */
+/* *                                                                        * */
+/* *             1.0.2 - 06/23/2001 - G.Juyn                                * */
+/* *             - added optimization option for MNG-video playback         * */
+/* *             - added processterm callback                               * */
+/* *             1.0.2 - 06/25/2001 - G.Juyn                                * */
+/* *             - added late binding errorcode (not used internally)       * */
+/* *             - added option to turn off progressive refresh             * */
+/* *                                                                        * */
+/* *             1.0.3 - 08/06/2001 - G.Juyn                                * */
+/* *             - added get function for last processed BACK chunk         * */
+/* *                                                                        * */
+/* *             1.0.5 - 07/04/2002 - G.Juyn                                * */
+/* *             - added errorcode for extreme chunk-sizes                  * */
+/* *             1.0.5 - 08/07/2002 - G.Juyn                                * */
+/* *             - added test-option for PNG filter method 193 (=no filter) * */
+/* *             1.0.5 - 08/15/2002 - G.Juyn                                * */
+/* *             - completed PROM support                                   * */
+/* *             - completed delta-image support                            * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - added HLAPI function to copy chunks                      * */
+/* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
+/* *             - added event handling for dynamic MNG                     * */
+/* *             - added 'supports' call to check function availability     * */
+/* *             1.0.5 - 09/15/2002 - G.Juyn                                * */
+/* *             - fixed LOOP iteration=0 special case                      * */
+/* *             1.0.5 - 09/20/2002 - G.Juyn                                * */
+/* *             - added support for PAST                                   * */
+/* *             1.0.5 - 09/22/2002 - G.Juyn                                * */
+/* *             - added bgrx8 canvas (filler byte)                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -350,19 +386,32 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.0"
+#define MNG_VERSION_TEXT    "1.0.5"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
-#define MNG_VERSION_RELEASE 0
+#define MNG_VERSION_RELEASE 5
 
-MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
-MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
-MNG_EXT mng_uint8 MNG_DECL mng_version_dll     (void);
-MNG_EXT mng_uint8 MNG_DECL mng_version_major   (void);
-MNG_EXT mng_uint8 MNG_DECL mng_version_minor   (void);
-MNG_EXT mng_uint8 MNG_DECL mng_version_release (void);
+MNG_EXT mng_pchar MNG_DECL mng_version_text      (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_so        (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_dll       (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_major     (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_minor     (void);
+MNG_EXT mng_uint8 MNG_DECL mng_version_release   (void);
+
+/* use the following call to check wether the version of libmng your app
+   is using supports the given function; this is useful in apps that dynamically
+   load the library to make sure a certain function will work; the result will
+   be MNG_TRUE if the given function is implemented in this version of the library;
+   Major/Minor/Version indicate the version the function became available;
+   (if these fields are zero the function is not yet implemented!) */
+#ifdef MNG_SUPPORT_FUNCQUERY
+MNG_EXT mng_bool  MNG_DECL mng_supports_func     (mng_pchar  zFunction,
+                                                  mng_uint8* iMajor,
+                                                  mng_uint8* iMinor,
+                                                  mng_uint8* iRelease);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -377,7 +426,8 @@ MNG_EXT mng_uint8 MNG_DECL mng_version_release (void);
 #define MNG_MNG_VERSION     "1.0"
 #define MNG_MNG_VERSION_MAJ 1
 #define MNG_MNG_VERSION_MIN 0
-#define MNG_MNG_DRAFT       99
+#define MNG_MNG_DRAFT       99         /* deprecated;
+                                          only used for nEED "MNG DRAFT nn" */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -451,6 +501,16 @@ MNG_EXT mng_retcode MNG_DECL mng_display_golayer (mng_handle    hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_display_gotime  (mng_handle    hHandle,
                                                   mng_uint32    iPlaytime);
 #endif /* MNG_SUPPORT_DISPLAY */
+
+/* event processing function */
+/* this needs to be called by the app when dynamic MNG is enabled and
+   a specific event occurs in the user-interface */
+#if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_SUPPORT_DYNAMICMNG)
+MNG_EXT mng_retcode MNG_DECL mng_trapevent       (mng_handle    hHandle,
+                                                  mng_uint8     iEventtype,
+                                                  mng_int32     iX,
+                                                  mng_int32     iY);
+#endif
 
 /* error reporting function */
 /* use this if you need more detailed info on the last error */
@@ -539,8 +599,12 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processseek   (mng_handle        hHandle,
                                                       mng_processseek   fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processneed   (mng_handle        hHandle,
                                                       mng_processneed   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processmend   (mng_handle        hHandle,
+                                                      mng_processmend   fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_processunknown(mng_handle        hHandle,
                                                       mng_processunknown fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_processterm   (mng_handle        hHandle,
+                                                      mng_processterm   fProc);
 #endif
 
 /* callbacks for display processing */
@@ -643,6 +707,7 @@ MNG_EXT mng_processsave   MNG_DECL mng_getcb_processsave   (mng_handle hHandle);
 MNG_EXT mng_processseek   MNG_DECL mng_getcb_processseek   (mng_handle hHandle);
 MNG_EXT mng_processneed   MNG_DECL mng_getcb_processneed   (mng_handle hHandle);
 MNG_EXT mng_processunknown MNG_DECL mng_getcb_processunknown (mng_handle hHandle);
+MNG_EXT mng_processterm   MNG_DECL mng_getcb_processterm   (mng_handle hHandle);
 #endif
 
 /* see _setcb_ */
@@ -709,31 +774,87 @@ MNG_EXT mng_retcode MNG_DECL mng_set_storechunks     (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_sectionbreaks   (mng_handle        hHandle,
                                                       mng_bool          bSectionbreaks);
 
-/* Color-management necessaties */
-/* if you've defined MNG_FULL_CMS, you must specify the profile of the
-   output-device and the sRGB conditions */
-/* if you're on a sRGB system (Linux (intel), Windows, etc.), you can
-   tell the CMS with mng_set_srgb and specify a default sRGB profile for
-   the output-device; otherwise you'll need to specify the correct profile
-   for your output-device and a default sRGB profile for input-images tagged
-   with the sRGB chunk only */
-/* NOTE: either call set_srgb with MNG_TRUE & call set_outputprofile(2)
-         or call set_srgb with MNG_FALSE & call set_outputprofile(2) &
-         set_srgbprofile(2) */
-/* BTW: the default for set_srgb is MNG_TRUE */
+/* Indicates storage of playback info (ON by default!) */
+/* can be used to turn off caching of playback info; this is useful to
+   specifically optimize MNG-video playback; note that if caching is turned off
+   LOOP chunks will be flagged as errors! TERM chunks will be ignored and only
+   passed to the processterm() callback if it is defined by the app; also, this
+   feature can only be used with mng_readdisplay(); mng_read(),
+   mng_display_reset() and mng_display_goxxxx() will return an error;
+   once this option is turned off it can't be turned on for the same stream!!! */
+MNG_EXT mng_retcode MNG_DECL mng_set_cacheplayback   (mng_handle        hHandle,
+                                                      mng_bool          bCacheplayback);
+
+/* Indicates automatic progressive refreshes for large images (ON by default!) */
+/* turn this off if you do not want intermittent painting while a large image
+   is being read. useful if the input-stream comes from a fast medium, such
+   as a local harddisk */
+MNG_EXT mng_retcode MNG_DECL mng_set_doprogressive   (mng_handle        hHandle,
+                                                      mng_bool          bDoProgressive);
+
+/* Color-management necessaries */
+/*
+    *************************************************************************
+                  !!!!!!!! THIS BIT IS IMPORTANT !!!!!!!!!
+    *************************************************************************
+
+    If you have defined MNG_FULL_CMS (and are using lcms), you will have to
+    think hard about the following routines.
+
+    lcms requires 2 profiles to work off the differences in the input-image
+    and the output-device. The ICC profile for the input-image will be
+    embedded within it to reflect its color-characteristics, but the output
+    profile depends on the output-device, which is something only *YOU* know
+    about. sRGB (standard RGB) is common for x86 compatible environments
+    (eg. Windows, Linux and some others)
+
+    If you are compiling for a sRGB compliant system you probably won't have
+    to do anything special. (unless you want to ofcourse)
+
+    If you are compiling for a non-sRGB compliant system
+    (eg. SGI, Mac, Next, others...)
+    you *MUST* define a proper ICC profile for the generic output-device
+    associated with that platform.
+
+    In either event, you may also want to offer an option to your users to
+    set the profile manually, or, if you know how, set it from a
+    system-defined default.
+
+    TO RECAP: for sRGB systems (Windows, Linux) no action required!
+              for non-sRGB systems (SGI, Mac, Next) ACTION REQUIRED!
+
+    Please visit http://www.srgb.com, http://www.color.org and
+    http://www.littlecms.com for more info.
+
+    *************************************************************************
+                  !!!!!!!! THIS BIT IS IMPORTANT !!!!!!!!!
+    *************************************************************************
+*/
+/* mng_set_srgb tells libmng if it's running on a sRGB compliant system or not
+   the default is already set to MNG_TRUE */
+/* mng_set_outputprofile, mng_set_outputprofile2, mng_set_outputsrgb
+   are used to set the default profile describing the output-device
+   by default it is already initialized with an sRGB profile */
+/* mng_set_srgbprofile, mng_set_srgbprofile2, mng_set_srgbimplicit
+   are used to set the default profile describing a standard sRGB device
+   this is used when the input-image is tagged only as being sRGB, but the
+   output-device is defined as not being sRGB compliant
+   by default it is already initialized with a standard sRGB profile */
 #if defined(MNG_SUPPORT_DISPLAY)
 MNG_EXT mng_retcode MNG_DECL mng_set_srgb            (mng_handle        hHandle,
                                                       mng_bool          bIssRGB);
 MNG_EXT mng_retcode MNG_DECL mng_set_outputprofile   (mng_handle        hHandle,
                                                       mng_pchar         zFilename);
-MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile     (mng_handle        hHandle,
-                                                      mng_pchar         zFilename);
 MNG_EXT mng_retcode MNG_DECL mng_set_outputprofile2  (mng_handle        hHandle,
                                                       mng_uint32        iProfilesize,
                                                       mng_ptr           pProfile);
+MNG_EXT mng_retcode MNG_DECL mng_set_outputsrgb      (mng_handle        hHandle);
+MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile     (mng_handle        hHandle,
+                                                      mng_pchar         zFilename);
 MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile2    (mng_handle        hHandle,
                                                       mng_uint32        iProfilesize,
                                                       mng_ptr           pProfile);
+MNG_EXT mng_retcode MNG_DECL mng_set_srgbimplicit    (mng_handle        hHandle);
 #endif
 
 /* Gamma settings */
@@ -883,7 +1004,9 @@ MNG_EXT mng_uint8   MNG_DECL mng_get_alphadepth      (mng_handle        hHandle)
    returns 0 in all other cases */
 /* only useful if the image_type = mng_it_png or mng_it_jng and if the image
    is actually interlaced (PNG) or progressive (JNG) */
+#ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_uint8   MNG_DECL mng_get_refreshpass     (mng_handle        hHandle);
+#endif
 
 /* see _set_ */
 MNG_EXT mng_uint32  MNG_DECL mng_get_canvasstyle     (mng_handle        hHandle);
@@ -903,6 +1026,12 @@ MNG_EXT mng_bool    MNG_DECL mng_get_storechunks     (mng_handle        hHandle)
 
 /* see _set_ */
 MNG_EXT mng_bool    MNG_DECL mng_get_sectionbreaks   (mng_handle        hHandle);
+
+/* see _set_ */
+MNG_EXT mng_bool    MNG_DECL mng_get_cacheplayback   (mng_handle        hHandle);
+
+/* see _set_ */
+MNG_EXT mng_bool    MNG_DECL mng_get_doprogressive   (mng_handle        hHandle);
 
 /* see _set_ */
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_FULL_CMS)
@@ -963,6 +1092,27 @@ MNG_EXT mng_speedtype
    texts, and the value 2 for a text inside an embedded image inside a MNG */
 MNG_EXT mng_uint32  MNG_DECL mng_get_imagelevel      (mng_handle        hHandle);
 
+/* BACK info */
+/* can be used to retrieve the color & mandatory values for the last processed
+   BACK chunk of a MNG (will fail for other image-types);
+   if no BACK chunk was processed yet, it will return all zeroes */
+#ifdef MNG_SUPPORT_DISPLAY
+MNG_EXT mng_retcode MNG_DECL mng_get_lastbackchunk   (mng_handle        hHandle,
+                                                      mng_uint16*       iRed,
+                                                      mng_uint16*       iGreen,
+                                                      mng_uint16*       iBlue,
+                                                      mng_uint8*        iMandatory);
+#endif
+
+/* SEEK info */
+/* can be used to retrieve the segmentname of the last processed SEEK chunk;
+   if no SEEK chunk was processed or it's segmentname was empty, the function
+   will return an empty string; the provided buffer must be at least 80 bytes!! */
+#ifdef MNG_SUPPORT_DISPLAY
+MNG_EXT mng_retcode MNG_DECL mng_get_lastseekname    (mng_handle        hHandle,
+                                                      mng_pchar         zSegmentname);
+#endif
+
 /* Display status variables */
 /* these get filled & updated during display processing */
 /* starttime is the tickcount at the start of displaying the animation */
@@ -970,7 +1120,7 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_imagelevel      (mng_handle        hHandle)
 /* currentframe, currentlayer & currentplaytime indicate the current
    frame/layer/playtime(msecs) in the animation (these keep increasing;
    even after the animation loops back to the TERM chunk) */
-#if defined(MNG_SUPPORT_DISPLAY)
+#ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_uint32  MNG_DECL mng_get_starttime       (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_runtime         (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentframe    (mng_handle        hHandle);
@@ -980,15 +1130,17 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_currentplaytime (mng_handle        hHandle)
 
 /* Status variables */
 /* these indicate the internal state of the library */
-/* most indicate exactly what you would expect:
-   status_error returns MNG_TRUE if the last function call returned an errorcode
-   status_reading returns MNG_TRUE if the library is (still) reading an image
-   status_suspendbreak returns MNG_TRUE if the library has suspended for "I/O"
-   status_creating returns MNG_TRUE if the library is in the middle of creating an image
-   status_writing returns MNG_TRUE if the library is in the middle of writing an image
-   status_displaying returns MNG_TRUE if the library is displaying an image
-   status_running returns MNG_TRUE if display processing is active (eg. not frozen or reset)
-   status_timerbreak returns MNG_TRUE if the library has suspended for a "timer-break" */
+/* most indicate exactly what you would expect -
+   status_error:        true if the last function call returned an errorcode
+   status_reading:      true if the library is (still) reading an image
+   status_suspendbreak: true if the library has suspended for "I/O"
+   status_creating:     true if the library is in the middle of creating an image
+   status_writing:      true if the library is in the middle of writing an image
+   status_displaying:   true if the library is displaying an image
+   status_running:      true if display processing is active (eg. not frozen or reset)
+   status_timerbreak:   true if the library has suspended for a "timer-break"
+   status_dynamic:      true if the library encountered an evNT chunk in the MNG
+   status_runningevent: true if the library is processing an external event */
 /* eg. mng_readdisplay() will turn the reading, displaying and running status on;
    when EOF is reached the reading status will be turned off */   
 MNG_EXT mng_bool    MNG_DECL mng_status_error        (mng_handle        hHandle);
@@ -1004,6 +1156,10 @@ MNG_EXT mng_bool    MNG_DECL mng_status_writing      (mng_handle        hHandle)
 MNG_EXT mng_bool    MNG_DECL mng_status_displaying   (mng_handle        hHandle);
 MNG_EXT mng_bool    MNG_DECL mng_status_running      (mng_handle        hHandle);
 MNG_EXT mng_bool    MNG_DECL mng_status_timerbreak   (mng_handle        hHandle);
+#endif
+#ifdef MNG_SUPPORT_DYNAMICMNG
+MNG_EXT mng_bool    MNG_DECL mng_status_dynamic      (mng_handle        hHandle);
+MNG_EXT mng_bool    MNG_DECL mng_status_runningevent (mng_handle        hHandle);
 #endif
 
 /* ************************************************************************** */
@@ -1022,6 +1178,15 @@ MNG_EXT mng_bool    MNG_DECL mng_status_timerbreak   (mng_handle        hHandle)
 MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks      (mng_handle       hHandle,
                                                       mng_uint32       iChunkseq,
                                                       mng_iteratechunk fProc);
+
+/* use the next function inside your 'iteratechunk' callback to copy
+   the given chunk to a new mng you are creating */
+/* the 'out' handle should be in 'create' status! */
+#ifdef MNG_SUPPORT_WRITE
+MNG_EXT mng_retcode MNG_DECL mng_copy_chunk          (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_handle       hHandleOut);
+#endif
 
 /* ************************************************************************** */
 
@@ -1451,6 +1616,24 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_magn       (mng_handle       hHandle,
                                                       mng_uint16       *iMB,
                                                       mng_uint16       *iMethodY);
 
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_evnt       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_evnt_entry (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint8        *iEventtype,
+                                                      mng_uint8        *iMasktype,
+                                                      mng_int32        *iLeft,
+                                                      mng_int32        *iRight,
+                                                      mng_int32        *iTop,
+                                                      mng_int32        *iBottom,
+                                                      mng_uint16       *iObjectid,
+                                                      mng_uint8        *iIndex,
+                                                      mng_uint32       *iSegmentnamesize,
+                                                      mng_pchar        *zSegmentname);
+
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_unknown    (mng_handle       hHandle,
                                                       mng_handle       hChunk,
                                                       mng_chunkid      *iChunkname,
@@ -1847,6 +2030,22 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_magn       (mng_handle       hHandle,
                                                       mng_uint16       iMB,
                                                       mng_uint16       iMethodY);
 
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_evnt       (mng_handle       hHandle,
+                                                      mng_uint32       iCount);
+
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_evnt_entry (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint8        iEventtype,
+                                                      mng_uint8        iMasktype,
+                                                      mng_int32        iLeft,
+                                                      mng_int32        iRight,
+                                                      mng_int32        iTop,
+                                                      mng_int32        iBottom,
+                                                      mng_uint16       iObjectid,
+                                                      mng_uint8        iIndex,
+                                                      mng_uint32       iSegmentnamesize,
+                                                      mng_pchar        zSegmentname);
+
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_unknown    (mng_handle       hHandle,
                                                       mng_chunkid      iChunkname,
                                                       mng_uint32       iRawlen,
@@ -1986,6 +2185,9 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_NEEDMOREDATA     (mng_retcode)14   /* I'm hungry, give me more    */
 #define MNG_NEEDTIMERWAIT    (mng_retcode)15   /* Sleep a while then wake me  */
 #define MNG_NEEDSECTIONWAIT  (mng_retcode)16   /* just processed a SEEK       */
+#define MNG_LOOPWITHCACHEOFF (mng_retcode)17   /* LOOP when playback info off */
+
+#define MNG_DLLNOTLOADED     (mng_retcode)99   /* late binding failed         */
 
 #define MNG_APPIOERROR       (mng_retcode)901  /* application I/O error       */
 #define MNG_APPTIMERERROR    (mng_retcode)902  /* application timing error    */
@@ -2034,6 +2236,13 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UNSUPPORTEDNEED  (mng_retcode)1062 /* nEED requirement unsupported*/
 #define MNG_INVALIDDELTA     (mng_retcode)1063 /* Delta operation illegal     */
 #define MNG_INVALIDMETHOD    (mng_retcode)1064 /* invalid MAGN method         */
+#define MNG_IMPROBABLELENGTH (mng_retcode)1065 /* impropable chunk length     */
+#define MNG_INVALIDBLOCK     (mng_retcode)1066 /* invalid delta block         */
+#define MNG_INVALIDEVENT     (mng_retcode)1067 /* invalid event_type          */
+#define MNG_INVALIDMASK      (mng_retcode)1068 /* invalid mask_type           */
+#define MNG_NOMATCHINGLOOP   (mng_retcode)1069 /* ENDL without matching LOOP  */
+#define MNG_SEEKNOTFOUND     (mng_retcode)1070 /* EvNT points to unknown SEEK */
+#define MNG_OBJNOTABSTRACT   (mng_retcode)1071 /* object must be abstract     */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */
@@ -2073,7 +2282,9 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_ARGB8     0x00003000L
 #define MNG_CANVAS_RGB8_A8   0x00005000L
 #define MNG_CANVAS_BGR8      0x00000001L
+#define MNG_CANVAS_BGRX8     0x00010001L
 #define MNG_CANVAS_BGRA8     0x00001001L
+#define MNG_CANVAS_BGRA8PM   0x00009001L
 #define MNG_CANVAS_ABGR8     0x00003001L
 #define MNG_CANVAS_RGB16     0x00000100L         /* not supported yet */
 #define MNG_CANVAS_RGBA16    0x00001100L         /* not supported yet */
@@ -2095,6 +2306,8 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_HASALPHA(C)   (C & 0x00001000L)
 #define MNG_CANVAS_ALPHAFIRST(C) (C & 0x00002000L)
 #define MNG_CANVAS_ALPHASEPD(C)  (C & 0x00004000L)
+#define MNG_CANVAS_ALPHAPM(C)    (C & 0x00008000L)
+#define MNG_CANVAS_HASFILLER(C)  (C & 0x00010000L)
 
 #define MNG_CANVAS_RGB(C)        (MNG_CANVAS_PIXELTYPE (C) == 0)
 #define MNG_CANVAS_BGR(C)        (MNG_CANVAS_PIXELTYPE (C) == 1)
@@ -2170,6 +2383,8 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UINT_tRNS 0x74524e53L
 #define MNG_UINT_zTXt 0x7a545874L
 
+#define MNG_UINT_evNT 0x65764e54L
+
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  Chunk property values                                                 * */
@@ -2192,10 +2407,16 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
                                                     BASI, JHDR */
 
 #define MNG_FILTER_ADAPTIVE              0       /* IHDR, BASI, JHDR */
-/* #define MNG_FILTER_NO_ADAPTIVE           1 */
+/* #define MNG_FILTER_NO_ADAPTIVE           1
 #define MNG_FILTER_NO_DIFFERING          0
 #define MNG_FILTER_DIFFERING             0x40
-/* #define MNG_FILTER_MASK                  (MNG_FILTER_NO_ADAPTIVE | MNG_FILTER_DIFFERING) */
+#define MNG_FILTER_MASK                  (MNG_FILTER_NO_ADAPTIVE | MNG_FILTER_DIFFERING) */
+#ifdef FILTER192
+#define MNG_FILTER_DIFFERING             0xC0
+#endif
+#ifdef FILTER193
+#define MNG_FILTER_NOFILTER              0xC1
+#endif
 
 #define MNG_INTERLACE_NONE               0       /* IHDR, BASI, JHDR */
 #define MNG_INTERLACE_ADAM7              1
@@ -2390,6 +2611,20 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 
 #define MNG_POLARITY_ONLY                0       /* DBYK */
 #define MNG_POLARITY_ALLBUT              1
+
+#define MNG_EVENT_NONE                   0       /* EvNT */
+#define MNG_EVENT_MOUSEENTER             1
+#define MNG_EVENT_MOUSEMOVE              2
+#define MNG_EVENT_MOUSEEXIT              3
+#define MNG_EVENT_MOUSEDOWN              4
+#define MNG_EVENT_MOUSEUP                5
+
+#define MNG_MASK_NONE                    0       /* EvNT */
+#define MNG_MASK_BOX                     1
+#define MNG_MASK_OBJECT                  2
+#define MNG_MASK_OBJECTIX                3
+#define MNG_MASK_BOXOBJECT               4
+#define MNG_MASK_BOXOBJECTIX             5
 
 /* ************************************************************************** */
 /* *                                                                        * */

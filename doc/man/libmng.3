@@ -1,6 +1,6 @@
-.TH LIBMNG 3 "February 6th, 2001"
+.TH LIBMNG 3 "September 24th, 2002"
 .SH NAME
-libmng \- Multiple-image Network Graphics (MNG) Reference Library 1.0.0
+libmng \- Multiple-image Network Graphics (MNG) Reference Library 1.0.5
 .SH SYNOPSIS
 \fI\fB
 
@@ -23,7 +23,7 @@ by Marti Maria Saguer.
 
 This file describes how to use and modify the MNG reference library
 (known as libmng) for your own use.  There are seven sections to this
-file: introduction, callbacks, housekeeping, reading, displaying, 
+file: introduction, callbacks, housekeeping, reading, displaying,
 writing, and modification and configuration notes for various special
 platforms. We assume that libmng is already installed; see the
 INSTALL.README file for instructions on how to install libmng.
@@ -31,12 +31,12 @@ INSTALL.README file for instructions on how to install libmng.
 Libmng was written to support and promote the MNG specification.
 
 The MNG-1.0 specification should be shortly available at
-<http://www.libpng.org/pub/mng>.
+<http://www.libpng.org/pub/mng/>.
 
 Other information about MNG can be found at the MNG home page,
-<http://www.libpng.org/pub/mng>.
+<http://www.libpng.org/pub/mng/>.
 The latest version of libmng can be found at its own homepage at
-<http://www.libmng.com>.
+<http://www.libmng.com/>.
 
 In most cases the library will not need to be changed.
 For standardization purposes the library contains both a Windows DLL
@@ -50,7 +50,7 @@ to use.
 
 Libmng uses zlib for its compression and decompression of MNG files.
 Further information about zlib, and the latest version of zlib, can be
-found at the zlib home page, <http://www.info-zip.org/pub/infozip/zlib/>.
+found at the zlib home page, <http://www.zlib.org/>.
 The zlib compression utility is a general purpose utility that is
 useful for more than MNG/PNG files, and can be used without libmng.
 See the documentation delivered with zlib for more details.
@@ -60,7 +60,7 @@ Libmng optionally uses the JPEG library by the Independant JPEG Group
 the MNG specification, and allows for inclusion of JPEG decoded and
 thus highly compressed (photographic) images.
 Further information about the IJG JPEG library and the latest sources
-can be found at <http://www.ijg.org>.
+can be found at <http://www.ijg.org/>.
 
 Libmng can also optionally use the lcms (little CMS) library by
 Marti Maria Saguer. This library provides an excellent color-management
@@ -920,7 +920,7 @@ the library to advance the animation to the next frame.
 \- mng_display_reset (mng_handle hHandle)
 
 This function will "reset" the animation into its pristine state.
-Calling mng_display_resume() afterwards will restart the animation
+Calling mng_display() afterwards will re-display the animation
 from the first frame.
 
 \- mng_display_golayer (mng_handle hHandle,

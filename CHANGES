@@ -1,5 +1,234 @@
 -----------------------------------------------------------
 
+1.0.5-b1 (sep 24th 2002)
+------------------------
+
+in short:
+
+First beta of a large maintenance release. This completes support of the MNG
+specification to nearly 100% (PAST, PROM, delta-images, BACK image+tile).
+It adds "dynamic" MNG and a few other neat routines as well as fixes several
+bugs reported through SourceForge or to me directly.
+
+-------------------
+
+bugfixes:
+- B575832 - library has wrong patch version number
+- B578572 - remove in 1.0.0!
+- B578940 - some functions not implemented
+- B581625 - large chunks fail with suspension reads
+- B597134 - libmng pollutes the linker namespace
+
+core:
+- added sanity check for improbable chunklengths
+- removed eMNGma hack (thanks Dimitri!)
+- unimplemented functions return an errorcode now
+- added test-option for PNG filter method 192 (= levelling)
+- added test-option for PNG filter method 193 (= no filtering)
+  (both are conditional and only for testing purposes!!!)
+- completed PROM support
+- completed delta-image support
+- completed MAGN support (16-bit functions)
+- added HLAPI function to copy a chunk from a read MNG to a newly created MNG
+- added option for soft-handling of errors (only for repair software!!!)
+- fixed some routine inclusion/exclusion for undefined conditionals 
+- pre-fixed all internal routines with mng_
+- added symbol MNG_LOCAL (= static) to really local functions
+- fixed reading of FRAM with just frame_mode and name
+- fixed read/write of MAGN chunk
+- added event handling for dynamic MNG
+- added 'supports' call to check function availability
+- fixed copyright notice in the headers of all libmng modules
+- fixed LOOP iteration=0 special case
+- re-compiled standard Windows dll with lcms-1.0.9
+- added warning for too much IDAT data
+- warnings are ignored by default now
+- misplaced TERM is now treated as warning
+- fixed color-correction for restore-background handling
+- optimized restore-background for bKGD cases
+- cleaned up some old stuff
+- completed support for BACK image & tiling
+- completed support for PAST
+- added bgrx8 canvas (filler byte)
+- fixed reset_object_detail to clear old buffer
+- added in-memory color-correction of abstract images
+- added compose over/under routines for PAST processing
+- added flip & tile routines for PAST processing
+
+samples:
+- Added new BCB sample for fixing invalid JASC Animation Shop files
+  (shows new copy_chunks function; use of MNG_SOFTERRORS & static linking)
+
+contrib:
+- added xmngview by Winfried Szukalski (Vielen dank!)
+- Updated the Delphi mngview sample to handle dynamic MNGs 
+- Added Kylix example (simplified port of the Delphi mngview sample)
+
+doc:
+- added diff to add MNG&JNG to a systems 'magic' file (Thanks Winfried)
+- fixed docs about using mng_display_resume after display_reset
+  (should read to use mng_display!)
+
+makefiles:
+- added makefile to build a libmng.dll for MingW
+  (makefile.mingwdll - thanks to Frank Richter!)
+
+autoconf:
+- fixing libtool version-number to be in line with what it should be
+
+-----------------------------------------------------------
+
+1.0.4 (Jun 23rd 2002)
+---------------------
+
+in short:
+
+Just some small fixes
+Standard dll now compiled with zlib 1.1.4 and lcms 1.0.8
+
+-------------------
+
+bugfixes:
+- B495442 - invalid returnvalue in mng_get_suspensionmode
+- B495443 - incorrect suspend check in read_databuffer
+- B526138 - returned IJGSRC6B calling convention to default for MSVC
+- B558212 - off by one error
+- B557677 - can't find lcms.h
+
+core:
+- fixed possible compile-problem in cleanup_rowproc
+- MNG subimage alpha composite wrong for rgba8 images
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+- fixed check for lcms.h in configure.in
+
+autoconf:
+
+-----------------------------------------------------------
+
+1.0.3 (Sep 18th 2001)
+---------------------
+
+in short:
+
+Small cosmetic changes. Cleaning up the contributions.
+New makefile for mingw32, and new fbcon example.
+Major thanks to Greg for helping out with the *nix stuff!
+Note that there's also a separate download for ASM programmers now.
+Check http://www.libmng.com for details (download/ports&packages page).
+
+It may be a while for the next release. I'm "off duty" for the next 8 or
+so months...
+
+Gerard
+
+-------------------
+
+bugfixes:
+- B459058 - wrong include for lcms headers
+
+core:
+- changed inclusion of lcms.h header for Linux platforms (suggested by Greg)
+- added get function for last processed BACK chunk
+
+samples:
+- replaced the gtk & sdl viewer apps with updates by Greg Roelofs
+
+contrib:
+
+doc:
+
+makefiles:
+- changed makefile.linux & makefile.unix as suggested by Greg Roelofs
+  (makefile.linux now compiles with lcms by default)
+- added makefile.mingw for mingw32 by Benoit Blanchon (thanks Mate!)
+
+autoconf:
+
+-----------------------------------------------------------
+
+1.0.2 (Jul 7th 2001)
+--------------------
+
+in short:
+
+Another maintenance release with a few added extra's.
+
+-------------------
+
+bugfixes:
+- B421427 - writes wrong format in bKGD and tRNS
+- B434583 - compiler-warning if MNG_STORE_CHUNKS undefined
+
+core:
+- added optimization option for MNG-video playback
+- added processterm callback
+- added late binding errorcode (not used internally)
+- fixed memory-leak with delta-images (Thanks Michael!)
+- added option to turn off progressive refresh for large images
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
+1.0.1 (May 2nd 2001)
+--------------------
+
+in short:
+
+Maintenance release.
+Fixed several memory-leaks with the help of Gregg Kelly, added/fixed some CMS
+handling, exported JPEG functions from standard DLL, and some other minor fixes.
+
+The CMS fix now makes libmng automagically work in MNG_FULL_CMS mode as a
+sRGB compliant system. YOU WILL NEED TO CHANGE THIS IF YOU ARE NOT ON AN sRGB
+COMPLIANT SYSTEM AND WANT TO USE CMS!!!!
+(look in libmng.h for the proper function-calls)
+
+-------------------
+
+bugfixes:
+
+core:
+- added MEND processing callback
+- fixed first FRAM_MODE=4 timing problem
+- added handle status-copy function (use with care)
+- exported JPEG functions from standard DLL
+- added BGRA8 canvas with premultiplied alpha (contrib by Gregg Kelly)
+- fixed problem with display_reset/display_resume (Thanks Gregg!)
+- fixed several memory-leaks (Thanks Gregg!)
+- fixed reset_rundata to drop all objects (Thanks again, Gregg!)
+- fixed problem with cms profile being created multiple times when both
+  iCCP & cHRM/gAMA are present (And again... Gregg)
+- moved mng_clear_cms to libmng_cms                   
+- added "default" sRGB generation (Thanks Marti!)
+
+samples:
+
+contrib:
+
+doc:
+
+makefiles:
+
+autoconf:
+
+-----------------------------------------------------------
+
 1.0.0 (Feb 6th 2001)
 --------------------
 

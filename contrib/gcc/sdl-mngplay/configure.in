@@ -23,7 +23,11 @@ if test "x$HAS_SDL" != "xyes"; then
     You can get a copy at <http://libsdl.org/>])
 fi
 CFLAGS="$CFLAGS `sdl-config --cflags`"
-LDFLAGS="$LDFLAGS `sdl-config --libs`"
+
+mngplay_LDADD="`sdl-config --libs`"
+mngplay_static_LDADD="`sdl-config --static-libs`"
+AC_SUBST(mngplay_LDADD)
+AC_SUBST(mngplay_static_LDADD)
 
 dnl check for libmng - macro in acinclude.m4
 LIBMNG_CHECK()

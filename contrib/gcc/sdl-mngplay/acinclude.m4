@@ -4,19 +4,20 @@ dnl
 dnl (c) 2000 Ralph Giles <giles@ashlu.bc.ca>
 dnl
 
-dnl A basic check: looks for libmng and it's dependencies
+dnl A basic check: looks for libmng and its dependencies
 dnl and adds the required bits to CFLAGS and LIBS
 
 # check for libmng
 AC_DEFUN(LIBMNG_CHECK, [
   dnl prerequisites first
   AC_CHECK_LIB(jpeg, jpeg_set_defaults)
+  AC_CHECK_LIB(z, inflate)
   dnl now the library
   AC_CHECK_LIB(mng, mng_readdisplay, [_libmng_present=1])
   AC_CHECK_HEADER(libmng.h)
   dnl see if we need the optional link dependency
   AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
-	AC_CHECK_HEADER(lcms/lcms.h)
+	AC_CHECK_HEADER(lcms.h)
 	AC_CHECK_LIB(mng, mnglcms_initlibrary, [
 		LIBS="$LIBS -llcms"
 		AC_DEFINE(HAVE_LIBLCMS)
@@ -24,7 +25,7 @@ AC_DEFUN(LIBMNG_CHECK, [
 	])
   ])
   if test $_libmng_present -eq 1; then
-	LIBS="$LIBS -lmng"
+	LIBS="-lmng $LIBS"
 	AC_DEFINE(HAVE_LIBMNG)
   fi
   _libmng_present=

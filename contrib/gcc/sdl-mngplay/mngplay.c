@@ -1,7 +1,7 @@
 /*
 	mngplay
 
-	$Date: 2000/11/16 10:12:04 $
+	$Date: 2002/09/26 18:09:37 $
 
 	Ralph Giles <giles@ashlu.bc.ca>
 
@@ -14,6 +14,10 @@
 
 	this is an SDL based mng player. the code is very rough;
 	patches welcome.
+
+
+	GRR 20010708:  added SDL/libmng/zlib/libjpeg version info, mouse-click
+			handling (alternate quit mode); improved automake setup
 */
 
 #include <stdio.h>
@@ -271,6 +275,10 @@ int checkevents(mng_handle mng)
 		case SDL_QUIT:
 			mymngquit(mng);	/* quit */ 
 			break;
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			mymngquit(mng);
+			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
 				case SDLK_ESCAPE:
@@ -278,9 +286,12 @@ int checkevents(mng_handle mng)
 					mymngquit(mng);
 					break;
 			}
+			/* FALL THROUGH */
 		default:
 			return 1;
 	}
+
+	return 0;   /* GRR ADDED:  non-void function */
 }
 
 int main(int argc, char *argv[])
@@ -290,7 +301,34 @@ int main(int argc, char *argv[])
 	SDL_Rect	updaterect;
 
 	if (argc < 2) {
-		fprintf(stderr, "usage: %s <mngfile>\n", argv[0]);
+		const SDL_version *pSDLver = SDL_Linked_Version();
+
+		fprintf(stderr, "Usage:  %s <mngfile>\n\n", argv[0]);
+		fprintf(stderr,
+			"  Compiled with SDL %d.%d.%d; using SDL %d.%d.%d.\n",
+			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
+			pSDLver->major, pSDLver->minor, pSDLver->patch);
+		fprintf(stderr, "  Compiled with libmng %s; using libmng %s.\n",
+			MNG_VERSION_TEXT, mng_version_text());
+		fprintf(stderr, "  Compiled with zlib %s; using zlib %s.\n",
+			ZLIB_VERSION, zlib_version);
+#ifdef JPEG_LIB_VERSION
+		{
+			int major = JPEG_LIB_VERSION / 10;
+			int minor = JPEG_LIB_VERSION % 10;
+			char minoralpha[2];
+
+			if (minor) {
+				minoralpha[0] = (char)(minor - 1 + 'a');
+				minoralpha[1] = '\0';
+			} else
+				minoralpha[0] = '\0';
+			fprintf(stderr, "  Compiled with libjpeg %d%s.\n",
+				major, minoralpha);
+		}
+#endif
+		fprintf(stderr,
+			"\nPress Esc or Q, or click mouse button, to quit.\n");
 		exit(1);
 	}
 
@@ -335,8 +373,8 @@ int main(int argc, char *argv[])
 	/* restrict event handling to the relevant bits */
 	SDL_EventState(SDL_KEYDOWN, SDL_IGNORE); /* keyup only */
 	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+//	SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+//	SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
 
 //	fprintf(stderr, "playing mng...maybe.\n");
 

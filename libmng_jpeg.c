@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_jpeg.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_jpeg.c             copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : JPEG library interface (implementation)                    * */
 /* *                                                                        * */
@@ -34,6 +34,15 @@
 /* *             0.9.3 - 10/16/2000 - G.Juyn                                * */
 /* *             - added support for JDAA                                   * */
 /* *                                                                        * */
+/* *             1.0.1 - 04/19/2001 - G.Juyn                                * */
+/* *             - added export of JPEG functions for DLL                   * */
+/* *             1.0.1 - 04/22/2001 - G.Juyn                                * */
+/* *             - fixed memory-leaks (Thanks Gregg!)                       * */
+/* *                                                                        * */
+/* *             1.0.4 - 06/22/2002 - G.Juyn                                * */
+/* *             - B526138 - returned IJGSRC6B calling convention to        * */
+/* *               default for MSVC                                         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -53,7 +62,7 @@
 
 /* ************************************************************************** */
 
-#ifdef MNG_INCLUDE_JNG
+#if defined(MNG_INCLUDE_JNG) && defined(MNG_INCLUDE_DISPLAY_PROCS)
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -66,7 +75,11 @@
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG_READ
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_init_source (j_decompress_ptr cinfo)
+#else
 void mng_init_source (j_decompress_ptr cinfo)
+#endif
 {
   return;                              /* nothing needed */
 }
@@ -75,7 +88,11 @@ void mng_init_source (j_decompress_ptr cinfo)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG_READ
+#ifdef MNG_DEFINE_JPEG_STDCALL
+boolean MNG_DECL mng_fill_input_buffer (j_decompress_ptr cinfo)
+#else
 boolean mng_fill_input_buffer (j_decompress_ptr cinfo)
+#endif
 {
   return FALSE;                        /* force IJG routine to return to caller */
 }
@@ -84,7 +101,11 @@ boolean mng_fill_input_buffer (j_decompress_ptr cinfo)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG_READ
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
+#else
 void mng_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
+#endif
 {
   if (num_bytes > 0)                   /* ignore fony calls */
   {                                    /* address my generic structure */
@@ -113,7 +134,11 @@ void mng_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG_READ
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_skip_input_data2 (j_decompress_ptr cinfo, long num_bytes)
+#else
 void mng_skip_input_data2 (j_decompress_ptr cinfo, long num_bytes)
+#endif
 {
   if (num_bytes > 0)                   /* ignore fony calls */
   {                                    /* address my generic structure */
@@ -142,7 +167,11 @@ void mng_skip_input_data2 (j_decompress_ptr cinfo, long num_bytes)
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG_READ
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_term_source (j_decompress_ptr cinfo)
+#else
 void mng_term_source (j_decompress_ptr cinfo)
+#endif
 {
   return;                              /* nothing needed */
 }
@@ -151,7 +180,11 @@ void mng_term_source (j_decompress_ptr cinfo)
 /* ************************************************************************** */
 
 #ifdef MNG_USE_SETJMP
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_error_exit (j_common_ptr cinfo)
+#else
 void mng_error_exit (j_common_ptr cinfo)
+#endif
 {                                      /* address my generic structure */
   mng_datap pData = (mng_datap)cinfo->client_data;
 
@@ -166,7 +199,11 @@ void mng_error_exit (j_common_ptr cinfo)
 /* ************************************************************************** */
 
 #ifdef MNG_USE_SETJMP
+#ifdef MNG_DEFINE_JPEG_STDCALL
+void MNG_DECL mng_output_message (j_common_ptr cinfo)
+#else
 void mng_output_message (j_common_ptr cinfo)
+#endif
 {
   return;                              /* just do nothing ! */
 }
@@ -216,12 +253,18 @@ mng_retcode mngjpeg_initialize (mng_datap pData)
                                        /* enable reverse addressing */
   pData->pJPEGcinfo->client_data = pData;
 #endif
-                                       /* initialize temporary buffers */
-  pData->iJPEGbufmax       = MNG_JPEG_MAXBUF;
-  MNG_ALLOC (pData, pData->pJPEGbuf, pData->iJPEGbufmax)
 
-  pData->iJPEGbufmax2      = MNG_JPEG_MAXBUF;
-  MNG_ALLOC (pData, pData->pJPEGbuf2, pData->iJPEGbufmax2)
+  if (pData->pJPEGbuf   == MNG_NULL)   /* initialize temporary buffers */
+  {
+    pData->iJPEGbufmax     = MNG_JPEG_MAXBUF;
+    MNG_ALLOC (pData, pData->pJPEGbuf, pData->iJPEGbufmax)
+  }
+
+  if (pData->pJPEGbuf2  == MNG_NULL) 
+  {
+    pData->iJPEGbufmax2    = MNG_JPEG_MAXBUF;
+    MNG_ALLOC (pData, pData->pJPEGbuf2, pData->iJPEGbufmax2)
+  }
 
   pData->pJPEGcurrent      = pData->pJPEGbuf;
   pData->iJPEGbufremain    = 0;
@@ -292,9 +335,14 @@ mng_retcode mngjpeg_cleanup (mng_datap pData)
 
 #endif /* MNG_INCLUDE_IJG6B */
                                        /* cleanup temporary buffers */
-  MNG_FREE (pData, pData->pJPEGbuf,  pData->iJPEGbufmax)
   MNG_FREE (pData, pData->pJPEGbuf2, pData->iJPEGbufmax2)
+  MNG_FREE (pData, pData->pJPEGbuf,  pData->iJPEGbufmax)
                                        /* cleanup space for JPEG structures */
+#ifdef MNG_INCLUDE_JNG_WRITE
+  MNG_FREE (pData, pData->pJPEGcinfo,  sizeof (mngjpeg_comp  ))
+  MNG_FREE (pData, pData->pJPEGcerr,   sizeof (mngjpeg_error ))
+#endif
+
 #ifdef MNG_INCLUDE_JNG_READ
   MNG_FREE (pData, pData->pJPEGdinfo,  sizeof (mngjpeg_decomp))
   MNG_FREE (pData, pData->pJPEGdsrc,   sizeof (mngjpeg_source))
@@ -304,13 +352,8 @@ mng_retcode mngjpeg_cleanup (mng_datap pData)
   MNG_FREE (pData, pData->pJPEGderr2,  sizeof (mngjpeg_error ))
 #endif
 
-#ifdef MNG_INCLUDE_JNG_WRITE
-  MNG_FREE (pData, pData->pJPEGcinfo,  sizeof (mngjpeg_comp  ))
-  MNG_FREE (pData, pData->pJPEGcerr,   sizeof (mngjpeg_error ))
-#endif
-
-  MNG_FREE (pData, pData->pJPEGrow,  pData->iJPEGrowlen)
   MNG_FREE (pData, pData->pJPEGrow2, pData->iJPEGrowlen2)
+  MNG_FREE (pData, pData->pJPEGrow,  pData->iJPEGrowlen)
                                        /* whatever we were doing ... */
                                        /* we don't anymore ... */
   pData->bJPEGcompress     = MNG_FALSE;
@@ -656,6 +699,8 @@ mng_retcode mngjpeg_decompressfree (mng_datap pData)
   if (iRetcode != 0)                   /* got here from longjmp ? */
     MNG_ERRORJ (pData, iRetcode)       /* then IJG-lib issued an error */
 #endif
+                                       /* free the row of JPEG-samples*/
+  MNG_FREE (pData, pData->pJPEGrow, pData->iJPEGrowlen)
 
   /* release the JPEG decompression object */
 #ifdef MNG_SUPPORT_TRACE
@@ -990,6 +1035,8 @@ mng_retcode mngjpeg_decompressfree2 (mng_datap pData)
   if (iRetcode != 0)                   /* got here from longjmp ? */
     MNG_ERRORJ (pData, iRetcode)       /* then IJG-lib issued an error */
 #endif
+                                       /* free the row of JPEG-samples*/
+  MNG_FREE (pData, pData->pJPEGrow2, pData->iJPEGrowlen2)
 
   /* release the JPEG decompression object */
 #ifdef MNG_SUPPORT_TRACE
@@ -1011,7 +1058,7 @@ mng_retcode mngjpeg_decompressfree2 (mng_datap pData)
 
 /* ************************************************************************** */
 
-#endif /* MNG_INCLUDE_JNG */
+#endif /* MNG_INCLUDE_JNG && MNG_INCLUDE_DISPLAY_PROCS */
 
 /* ************************************************************************** */
 /* * end of file                                                            * */

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_xs.c         copyright (c) 2000 G. Juyn       * */
-/* * version   : 1.0.0                                                      * */
+/* * file      : libmng_chunk_xs.c         copyright (c) 2000-2002 G.Juyn   * */
+/* * version   : 1.0.5                                                      * */
 /* *                                                                        * */
 /* * purpose   : chunk access functions (implementation)                    * */
 /* *                                                                        * */
@@ -49,8 +49,16 @@
 /* *             0.9.3 - 10/20/2000 - G.Juyn                                * */
 /* *             - fixed putchunk_plte() to set bEmpty parameter            * */
 /* *                                                                        * */
-/* *             0.9.5 -  1/25/2001 - G.Juyn                                * */
+/* *             0.9.5 - 01/25/2001 - G.Juyn                                * */
 /* *             - fixed some small compiler warnings (thanks Nikki)        * */
+/* *                                                                        * */
+/* *             1.0.5 - 09/07/2002 - G.Juyn                                * */
+/* *             - B578940 - unimplemented functions return errorcode       * */
+/* *             1.0.5 - 08/19/2002 - G.Juyn                                * */
+/* *             - B597134 - libmng pollutes the linker namespace           * */
+/* *             - added HLAPI function to copy chunks                      * */
+/* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
+/* *             - added event handling for dynamic MNG                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -115,6 +123,65 @@ mng_retcode MNG_DECL mng_iterate_chunks (mng_handle       hHandle,
 
   return MNG_NOERROR;
 }
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_WRITE
+mng_retcode MNG_DECL mng_copy_chunk (mng_handle hHandle,
+                                     mng_handle hChunk,
+                                     mng_handle hHandleOut)
+{
+  mng_datap   pDataOut;
+  mng_chunkp  pChunk;
+  mng_chunkp  pChunkOut;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_COPY_CHUNK, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handles */
+  MNG_VALIDHANDLE (hHandleOut)
+
+  pDataOut = (mng_datap)hHandleOut;    /* make outhandle addressable */
+  pChunk   = (mng_chunkp)hChunk;       /* address the chunk */
+
+  if (!pDataOut->bCreating)            /* aren't we creating a new file ? */
+    MNG_ERROR (pDataOut, MNG_FUNCTIONINVALID)
+                                       /* create a new chunk */
+  iRetcode = ((mng_createchunk)((mng_chunk_headerp)pChunk)->fCreate)
+                        (pDataOut, ((mng_chunk_headerp)pChunk), &pChunkOut);
+  if (!iRetcode)                       /* assign the chunk-specific data */
+    iRetcode = ((mng_assignchunk)((mng_chunk_headerp)pChunk)->fAssign)
+                          (pDataOut, pChunkOut, pChunk);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode; 
+
+  mng_add_chunk (pDataOut, pChunkOut); /* and put it in the output-stream */
+
+                                       /* could it be the end of the chain ? */
+  if (((mng_chunk_headerp)pChunkOut)->iChunkname == MNG_UINT_IEND)
+  {
+#ifdef MNG_INCLUDE_JNG
+    if ((pDataOut->iFirstchunkadded == MNG_UINT_IHDR) ||
+        (pDataOut->iFirstchunkadded == MNG_UINT_JHDR)    )
+#else
+    if (pDataOut->iFirstchunkadded == MNG_UINT_IHDR)
+#endif
+      pDataOut->bCreating = MNG_FALSE; /* right; this should be the last chunk !!! */
+  }
+
+  if (((mng_chunk_headerp)pChunkOut)->iChunkname == MNG_UINT_MEND)
+    pDataOut->bCreating = MNG_FALSE;   /* definitely this should be the last !!! */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_COPY_CHUNK, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_WRITE */
 
 /* ************************************************************************** */
 
@@ -1630,9 +1697,9 @@ mng_retcode MNG_DECL mng_getchunk_phyg (mng_handle hHandle,
 }
 
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_JNG
-/* B004 */
+
 mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iWidth,
@@ -1677,13 +1744,13 @@ mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-/* B004 */
+
 #endif /* MNG_INCLUDE_JNG */
-/* B004 */
+
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_JNG
-/* B004 */
+
 mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
                                         mng_handle hChunk,
                                         mng_uint32 *iRawlen,
@@ -1712,9 +1779,9 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-/* B004 */
+
 #endif /* MNG_INCLUDE_JNG */
-/* B004 */
+
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
@@ -2044,6 +2111,89 @@ mng_retcode MNG_DECL mng_getchunk_magn (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+mng_retcode MNG_DECL mng_getchunk_evnt (mng_handle hHandle,
+                                        mng_handle hChunk,
+                                        mng_uint32 *iCount)
+{
+  mng_datap pData;
+  mng_evntp pChunk;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EVNT, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData  = (mng_datap)hHandle;         /* and make it addressable */
+  pChunk = (mng_evntp)hChunk;          /* address the chunk */
+
+  if (pChunk->sHeader.iChunkname != MNG_UINT_evNT)
+    MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
+
+  *iCount = pChunk->iCount;            /* fill the fields */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EVNT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_getchunk_evnt_entry (mng_handle hHandle,
+                                              mng_handle hChunk,
+                                              mng_uint32 iEntry,
+                                              mng_uint8  *iEventtype,
+                                              mng_uint8  *iMasktype,
+                                              mng_int32  *iLeft,
+                                              mng_int32  *iRight,
+                                              mng_int32  *iTop,
+                                              mng_int32  *iBottom,
+                                              mng_uint16 *iObjectid,
+                                              mng_uint8  *iIndex,
+                                              mng_uint32 *iSegmentnamesize,
+                                              mng_pchar  *zSegmentname)
+{
+  mng_datap       pData;
+  mng_evntp       pChunk;
+  mng_evnt_entryp pEntry;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EVNT_ENTRY, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData  = (mng_datap)hHandle;         /* and make it addressable */
+  pChunk = (mng_evntp)hChunk;          /* address the chunk */
+
+  if (pChunk->sHeader.iChunkname != MNG_UINT_evNT)
+    MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
+
+  if (iEntry >= pChunk->iCount)        /* valid index ? */
+    MNG_ERROR (pData, MNG_INVALIDENTRYIX)
+
+  pEntry  = pChunk->pEntries + iEntry; /* address the entry */
+                                       /* fill the fields */
+  *iEventtype       = pEntry->iEventtype;
+  *iMasktype        = pEntry->iMasktype;
+  *iLeft            = pEntry->iLeft;    
+  *iRight           = pEntry->iRight;
+  *iTop             = pEntry->iTop;
+  *iBottom          = pEntry->iBottom;
+  *iObjectid        = pEntry->iObjectid;
+  *iIndex           = pEntry->iIndex;
+  *iSegmentnamesize = pEntry->iSegmentnamesize;
+  *zSegmentname     = pEntry->zSegmentname;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EVNT_ENTRY, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
 mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
                                            mng_handle  hChunk,
                                            mng_chunkid *iChunkname,
@@ -2061,7 +2211,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
   pData  = (mng_datap)hHandle;         /* and make it addressable */
   pChunk = (mng_unknown_chunkp)hChunk; /* address the chunk */
 
-  if (pChunk->sHeader.fCreate != init_unknown)
+  if (pChunk->sHeader.fCreate != mng_init_unknown)
     MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
                                        /* fill the fields */
   *iChunkname = pChunk->sHeader.iChunkname;
@@ -2077,9 +2227,9 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
 
 /* ************************************************************************** */
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_WRITE_PROCS
-/* B004 */
+
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
@@ -2095,7 +2245,7 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_IHDR, init_ihdr, free_ihdr, read_ihdr, write_ihdr, 0, 0};
+          {MNG_UINT_IHDR, mng_init_ihdr, mng_free_ihdr, mng_read_ihdr, mng_write_ihdr, mng_assign_ihdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_START)
@@ -2107,7 +2257,7 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
                                        /* create the chunk */
-  iRetcode = init_ihdr (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_ihdr (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2120,7 +2270,7 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   ((mng_ihdrp)pChunk)->iFilter      = iFilter;
   ((mng_ihdrp)pChunk)->iInterlace   = iInterlace;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_END)
@@ -2139,7 +2289,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_PLTE, init_plte, free_plte, read_plte, write_plte, 0, 0};
+          {MNG_UINT_PLTE, mng_init_plte, mng_free_plte, mng_read_plte, mng_write_plte, mng_assign_plte, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_START)
@@ -2154,7 +2304,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_plte (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_plte (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2164,7 +2314,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
 
   MNG_COPY (((mng_pltep)pChunk)->aEntries, aPalette, sizeof (mng_palette8))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_END)
@@ -2183,7 +2333,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_IDAT, init_idat, free_idat, read_idat, write_idat, 0, 0};
+          {MNG_UINT_IDAT, mng_init_idat, mng_free_idat, mng_read_idat, mng_write_idat, mng_assign_idat, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_START)
@@ -2198,7 +2348,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_idat (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_idat (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2212,7 +2362,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
     MNG_COPY (((mng_idatp)pChunk)->pData, pRawdata, iRawlen)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_END)
@@ -2229,7 +2379,7 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_IEND, init_iend, free_iend, read_iend, write_iend, 0, 0};
+          {MNG_UINT_IEND, mng_init_iend, mng_free_iend, mng_read_iend, mng_write_iend, mng_assign_iend, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_START)
@@ -2244,12 +2394,12 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_iend (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_iend (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_INCLUDE_JNG
   if ((pData->iFirstchunkadded == MNG_UINT_IHDR) ||
@@ -2285,7 +2435,7 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_tRNS, init_trns, free_trns, read_trns, write_trns, 0, 0};
+          {MNG_UINT_tRNS, mng_init_trns, mng_free_trns, mng_read_trns, mng_write_trns, mng_assign_trns, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_START)
@@ -2300,7 +2450,7 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_trns (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_trns (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2318,7 +2468,7 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   MNG_COPY (((mng_trnsp)pChunk)->aEntries, aAlphas,  sizeof (mng_uint8arr))
   MNG_COPY (((mng_trnsp)pChunk)->aRawdata, aRawdata, sizeof (mng_uint8arr))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_END)
@@ -2337,7 +2487,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_gAMA, init_gama, free_gama, read_gama, write_gama, 0, 0};
+          {MNG_UINT_gAMA, mng_init_gama, mng_free_gama, mng_read_gama, mng_write_gama, mng_assign_gama, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_START)
@@ -2352,7 +2502,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_gama (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_gama (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2360,7 +2510,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   ((mng_gamap)pChunk)->bEmpty = bEmpty;
   ((mng_gamap)pChunk)->iGamma = iGamma;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_END)
@@ -2386,7 +2536,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_cHRM, init_chrm, free_chrm, read_chrm, write_chrm, 0, 0};
+          {MNG_UINT_cHRM, mng_init_chrm, mng_free_chrm, mng_read_chrm, mng_write_chrm, mng_assign_chrm, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_START)
@@ -2401,7 +2551,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_chrm (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_chrm (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2416,7 +2566,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   ((mng_chrmp)pChunk)->iBluex       = iBluex;
   ((mng_chrmp)pChunk)->iBluey       = iBluey;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_END)
@@ -2435,7 +2585,7 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_sRGB, init_srgb, free_srgb, read_srgb, write_srgb, 0, 0};
+          {MNG_UINT_sRGB, mng_init_srgb, mng_free_srgb, mng_read_srgb, mng_write_srgb, mng_assign_srgb, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_START)
@@ -2450,7 +2600,7 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_srgb (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_srgb (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2458,7 +2608,7 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   ((mng_srgbp)pChunk)->bEmpty           = bEmpty;
   ((mng_srgbp)pChunk)->iRenderingintent = iRenderingintent;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_END)
@@ -2481,7 +2631,7 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_iCCP, init_iccp, free_iccp, read_iccp, write_iccp, 0, 0};
+          {MNG_UINT_iCCP, mng_init_iccp, mng_free_iccp, mng_read_iccp, mng_write_iccp, mng_assign_iccp, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_START)
@@ -2496,7 +2646,7 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_iccp (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_iccp (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2518,7 +2668,7 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
     MNG_COPY (((mng_iccpp)pChunk)->pProfile, pProfile, iProfilesize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_END)
@@ -2539,7 +2689,7 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_tEXt, init_text, free_text, read_text, write_text, 0, 0};
+          {MNG_UINT_tEXt, mng_init_text, mng_free_text, mng_read_text, mng_write_text, mng_assign_text, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_START)
@@ -2554,7 +2704,7 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_text (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_text (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2574,7 +2724,7 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
     MNG_COPY (((mng_textp)pChunk)->zText, zText, iTextsize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_END)
@@ -2596,7 +2746,7 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_zTXt, init_ztxt, free_ztxt, read_ztxt, write_ztxt, 0, 0};
+          {MNG_UINT_zTXt, mng_init_ztxt, mng_free_ztxt, mng_read_ztxt, mng_write_ztxt, mng_assign_ztxt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_START)
@@ -2611,7 +2761,7 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_ztxt (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_ztxt (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2632,7 +2782,7 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
     MNG_COPY  (((mng_ztxtp)pChunk)->zText, zText, iTextsize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_END)
@@ -2659,7 +2809,7 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_iTXt, init_itxt, free_itxt, read_itxt, write_itxt, 0, 0};
+          {MNG_UINT_iTXt, mng_init_itxt, mng_free_itxt, mng_read_itxt, mng_write_itxt, mng_assign_itxt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_START)
@@ -2674,7 +2824,7 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_itxt (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_itxt (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2710,7 +2860,7 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
     MNG_COPY (((mng_itxtp)pChunk)->zText, zText, iTextsize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_END)
@@ -2734,7 +2884,7 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_bKGD, init_bkgd, free_bkgd, read_bkgd, write_bkgd, 0, 0};
+          {MNG_UINT_bKGD, mng_init_bkgd, mng_free_bkgd, mng_read_bkgd, mng_write_bkgd, mng_assign_bkgd, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_START)
@@ -2749,7 +2899,7 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_bkgd (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_bkgd (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2762,7 +2912,7 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   ((mng_bkgdp)pChunk)->iGreen = iGreen;
   ((mng_bkgdp)pChunk)->iBlue  = iBlue;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_END)
@@ -2783,7 +2933,7 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_pHYs, init_phys, free_phys, read_phys, write_phys, 0, 0};
+          {MNG_UINT_pHYs, mng_init_phys, mng_free_phys, mng_read_phys, mng_write_phys, mng_assign_phys, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_START)
@@ -2798,7 +2948,7 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_phys (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_phys (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2808,7 +2958,7 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   ((mng_physp)pChunk)->iSizey = iSizey;
   ((mng_physp)pChunk)->iUnit  = iUnit;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_END)
@@ -2828,7 +2978,7 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_sBIT, init_sbit, free_sbit, read_sbit, write_sbit, 0, 0};
+          {MNG_UINT_sBIT, mng_init_sbit, mng_free_sbit, mng_read_sbit, mng_write_sbit, mng_assign_sbit, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_START)
@@ -2843,7 +2993,7 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_sbit (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_sbit (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2855,7 +3005,7 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   ((mng_sbitp)pChunk)->aBits[2] = aBits[2];
   ((mng_sbitp)pChunk)->aBits[3] = aBits[3];
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_END)
@@ -2878,7 +3028,7 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_sPLT, init_splt, free_splt, read_splt, write_splt, 0, 0};
+          {MNG_UINT_sPLT, mng_init_splt, mng_free_splt, mng_read_splt, mng_write_splt, mng_assign_splt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_START)
@@ -2893,7 +3043,7 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_splt (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_splt (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2917,7 +3067,7 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
     MNG_COPY  (((mng_spltp)pChunk)->pEntries, pEntries, iSize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_END)
@@ -2936,7 +3086,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_hIST, init_hist, free_hist, read_hist, write_hist, 0, 0};
+          {MNG_UINT_hIST, mng_init_hist, mng_free_hist, mng_read_hist, mng_write_hist, mng_assign_hist, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_START)
@@ -2951,7 +3101,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_hist (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_hist (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -2960,7 +3110,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
 
   MNG_COPY (((mng_histp)pChunk)->aEntries, aEntries, sizeof (mng_uint16arr))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_END)
@@ -2983,7 +3133,7 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_tIME, init_time, free_time, read_time, write_time, 0, 0};
+          {MNG_UINT_tIME, mng_init_time, mng_free_time, mng_read_time, mng_write_time, mng_assign_time, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_START)
@@ -2998,7 +3148,7 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_time (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_time (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3010,7 +3160,7 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   ((mng_timep)pChunk)->iMinute = iMinute;
   ((mng_timep)pChunk)->iSecond = iSecond;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_END)
@@ -3034,7 +3184,7 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_MHDR, init_mhdr, free_mhdr, read_mhdr, write_mhdr, 0, 0};
+          {MNG_UINT_MHDR, mng_init_mhdr, mng_free_mhdr, mng_read_mhdr, mng_write_mhdr, mng_assign_mhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_START)
@@ -3046,7 +3196,7 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
                                        /* create the chunk */
-  iRetcode = init_mhdr (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_mhdr (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3059,7 +3209,7 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   ((mng_mhdrp)pChunk)->iPlaytime   = iPlaytime;
   ((mng_mhdrp)pChunk)->iSimplicity = iSimplicity;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_END)
@@ -3076,7 +3226,7 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_MEND, init_mend, free_mend, read_mend, write_mend, 0, 0};
+          {MNG_UINT_MEND, mng_init_mend, mng_free_mend, mng_read_mend, mng_write_mend, mng_assign_mend, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_START)
@@ -3091,12 +3241,12 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_mend (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_mend (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
   pData->bCreating = MNG_FALSE;        /* should be last chunk !!! */
 
@@ -3122,7 +3272,7 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_LOOP, init_loop, free_loop, read_loop, write_loop, 0, 0};
+          {MNG_UINT_LOOP, mng_init_loop, mng_free_loop, mng_read_loop, mng_write_loop, mng_assign_loop, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_START)
@@ -3137,7 +3287,7 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_loop (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_loop (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3150,7 +3300,7 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   ((mng_loopp)pChunk)->iCount       = iCount;
   ((mng_loopp)pChunk)->pSignals     = pSignals;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_END)
@@ -3168,7 +3318,7 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_ENDL, init_endl, free_endl, read_endl, write_endl, 0, 0};
+          {MNG_UINT_ENDL, mng_init_endl, mng_free_endl, mng_read_endl, mng_write_endl, mng_assign_endl, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_START)
@@ -3183,14 +3333,14 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_endl (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_endl (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* fill the chunk */
   ((mng_endlp)pChunk)->iLevel = iLevel;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_END)
@@ -3218,7 +3368,7 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_DEFI, init_defi, free_defi, read_defi, write_defi, 0, 0};
+          {MNG_UINT_DEFI, mng_init_defi, mng_free_defi, mng_read_defi, mng_write_defi, mng_assign_defi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_START)
@@ -3233,7 +3383,7 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_defi (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_defi (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3250,7 +3400,7 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   ((mng_defip)pChunk)->iTopcb     = iTopcb;
   ((mng_defip)pChunk)->iBottomcb  = iBottomcb;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_END)
@@ -3279,7 +3429,7 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_BASI, init_basi, free_basi, read_basi, write_basi, 0, 0};
+          {MNG_UINT_BASI, mng_init_basi, mng_free_basi, mng_read_basi, mng_write_basi, mng_assign_basi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_START)
@@ -3294,7 +3444,7 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_basi (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_basi (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3312,7 +3462,7 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   ((mng_basip)pChunk)->iAlpha       = iAlpha;
   ((mng_basip)pChunk)->iViewable    = iViewable;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_END)
@@ -3338,7 +3488,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_CLON, init_clon, free_clon, read_clon, write_clon, 0, 0};
+          {MNG_UINT_CLON, mng_init_clon, mng_free_clon, mng_read_clon, mng_write_clon, mng_assign_clon, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_START)
@@ -3353,7 +3503,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_clon (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_clon (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3368,7 +3518,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   ((mng_clonp)pChunk)->iLocationx    = iLocationx;
   ((mng_clonp)pChunk)->iLocationy    = iLocationy;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_END)
@@ -3390,7 +3540,7 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_PAST, init_past, free_past, read_past, write_past, 0, 0};
+          {MNG_UINT_PAST, mng_init_past, mng_free_past, mng_read_past, mng_write_past, mng_assign_past, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_START)
@@ -3405,7 +3555,7 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_past (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_past (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3419,7 +3569,7 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   if (iCount)
     MNG_ALLOC (pData, ((mng_pastp)pChunk)->pSources, iCount * sizeof (mng_past_source))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_END)
@@ -3500,7 +3650,7 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_DISC, init_disc, free_disc, read_disc, write_disc, 0, 0};
+          {MNG_UINT_DISC, mng_init_disc, mng_free_disc, mng_read_disc, mng_write_disc, mng_assign_disc, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_START)
@@ -3515,7 +3665,7 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_disc (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_disc (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3530,7 +3680,7 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
     MNG_COPY (((mng_discp)pChunk)->pObjectids, pObjectids, iSize);
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_END)
@@ -3553,7 +3703,7 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_BACK, init_back, free_back, read_back, write_back, 0, 0};
+          {MNG_UINT_BACK, mng_init_back, mng_free_back, mng_read_back, mng_write_back, mng_assign_back, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_START)
@@ -3568,7 +3718,7 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_back (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_back (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3580,7 +3730,7 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   ((mng_backp)pChunk)->iImageid   = iImageid;
   ((mng_backp)pChunk)->iTile      = iTile;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_END)
@@ -3614,7 +3764,7 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_FRAM, init_fram, free_fram, read_fram, write_fram, 0, 0};
+          {MNG_UINT_FRAM, mng_init_fram, mng_free_fram, mng_read_fram, mng_write_fram, mng_assign_fram, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_START)
@@ -3629,7 +3779,7 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_fram (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_fram (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3664,7 +3814,7 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
     MNG_COPY (((mng_framp)pChunk)->pSyncids, pSyncids, iSize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_END)
@@ -3686,7 +3836,7 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_MOVE, init_move, free_move, read_move, write_move, 0, 0};
+          {MNG_UINT_MOVE, mng_init_move, mng_free_move, mng_read_move, mng_write_move, mng_assign_move, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_START)
@@ -3701,7 +3851,7 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_move (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_move (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3712,7 +3862,7 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   ((mng_movep)pChunk)->iMovex    = iMovex;
   ((mng_movep)pChunk)->iMovey    = iMovey;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_END)
@@ -3736,7 +3886,7 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_CLIP, init_clip, free_clip, read_clip, write_clip, 0, 0};
+          {MNG_UINT_CLIP, mng_init_clip, mng_free_clip, mng_read_clip, mng_write_clip, mng_assign_clip, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_START)
@@ -3751,7 +3901,7 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_clip (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_clip (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3764,7 +3914,7 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   ((mng_clipp)pChunk)->iClipt    = iClipt;
   ((mng_clipp)pChunk)->iClipb    = iClipb;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_END)
@@ -3785,7 +3935,7 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_SHOW, init_show, free_show, read_show, write_show, 0, 0};
+          {MNG_UINT_SHOW, mng_init_show, mng_free_show, mng_read_show, mng_write_show, mng_assign_show, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_START)
@@ -3800,7 +3950,7 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_show (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_show (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3810,7 +3960,7 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   ((mng_showp)pChunk)->iLastid  = iLastid;
   ((mng_showp)pChunk)->iMode    = iMode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_END)
@@ -3831,7 +3981,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_TERM, init_term, free_term, read_term, write_term, 0, 0};
+          {MNG_UINT_TERM, mng_init_term, mng_free_term, mng_read_term, mng_write_term, mng_assign_term, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_START)
@@ -3846,7 +3996,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_term (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_term (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3856,7 +4006,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   ((mng_termp)pChunk)->iDelay      = iDelay;
   ((mng_termp)pChunk)->iItermax    = iItermax;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_END)
@@ -3876,7 +4026,7 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_SAVE, init_save, free_save, read_save, write_save, 0, 0};
+          {MNG_UINT_SAVE, mng_init_save, mng_free_save, mng_read_save, mng_write_save, mng_assign_save, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_START)
@@ -3891,7 +4041,7 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_save (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -3903,7 +4053,7 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   if (iCount)
     MNG_ALLOC (pData, ((mng_savep)pChunk)->pEntries, iCount * sizeof (mng_save_entry))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_END)
@@ -3964,7 +4114,7 @@ mng_retcode MNG_DECL mng_putchunk_save_entry (mng_handle     hHandle,
   {
     MNG_ALLOC (pData, pEntry->zName, iNamesize + 1)
     MNG_COPY (pEntry->zName, zName, iNamesize)
-  }  
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE_ENTRY, MNG_LC_END)
@@ -3983,7 +4133,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_SEEK, init_seek, free_seek, read_seek, write_seek, 0, 0};
+          {MNG_UINT_SEEK, mng_init_seek, mng_free_seek, mng_read_seek, mng_write_seek, mng_assign_seek, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_START)
@@ -3998,7 +4148,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_seek (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_seek (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4011,7 +4161,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
     MNG_COPY (((mng_seekp)pChunk)->zName, zName, iNamesize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_END)
@@ -4031,7 +4181,7 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_eXPI, init_expi, free_expi, read_expi, write_expi, 0, 0};
+          {MNG_UINT_eXPI, mng_init_expi, mng_free_expi, mng_read_expi, mng_write_expi, mng_assign_expi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_START)
@@ -4046,7 +4196,7 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_expi (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_expi (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4060,7 +4210,7 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
     MNG_COPY (((mng_expip)pChunk)->zName, zName, iNamesize)
   }  
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_END)
@@ -4079,7 +4229,7 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_fPRI, init_fpri, free_fpri, read_fpri, write_fpri, 0, 0};
+          {MNG_UINT_fPRI, mng_init_fpri, mng_free_fpri, mng_read_fpri, mng_write_fpri, mng_assign_fpri, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_START)
@@ -4094,7 +4244,7 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_fpri (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_fpri (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4102,7 +4252,7 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   ((mng_fprip)pChunk)->iDeltatype = iDeltatype;
   ((mng_fprip)pChunk)->iPriority  = iPriority;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_END)
@@ -4121,7 +4271,7 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_nEED, init_need, free_need, read_need, write_need, 0, 0};
+          {MNG_UINT_nEED, mng_init_need, mng_free_need, mng_read_need, mng_write_need, mng_assign_need, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_START)
@@ -4136,7 +4286,7 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_need (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_need (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4149,7 +4299,7 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
     MNG_COPY (((mng_needp)pChunk)->zKeywords, zKeywords, iKeywordssize)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_END)
@@ -4170,7 +4320,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_pHYg, init_phyg, free_phyg, read_phyg, write_phyg, 0, 0};
+          {MNG_UINT_pHYg, mng_init_phyg, mng_free_phyg, mng_read_phyg, mng_write_phyg, mng_assign_phyg, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_START)
@@ -4185,7 +4335,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_phyg (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_phyg (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4195,7 +4345,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   ((mng_phygp)pChunk)->iSizey = iSizey;
   ((mng_phygp)pChunk)->iUnit  = iUnit;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_END)
@@ -4205,9 +4355,9 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
 }
 
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_JNG
-/* B004 */
+
 mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
                                         mng_uint32 iWidth,
                                         mng_uint32 iHeight,
@@ -4224,7 +4374,7 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_JHDR, init_jhdr, free_jhdr, read_jhdr, write_jhdr, 0, 0};
+          {MNG_UINT_JHDR, mng_init_jhdr, mng_free_jhdr, mng_read_jhdr, mng_write_jhdr, mng_assign_jhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_START)
@@ -4236,7 +4386,7 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
                                        /* create the chunk */
-  iRetcode = init_jhdr (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_jhdr (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4252,7 +4402,7 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   ((mng_jhdrp)pChunk)->iAlphafilter      = iAlphafilter;
   ((mng_jhdrp)pChunk)->iAlphainterlace   = iAlphainterlace;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_END)
@@ -4260,13 +4410,13 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-/* B004 */
+
 #endif /* MNG_INCLUDE_JNG */
-/* B004 */
+
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_JNG
-/* B004 */
+
 mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
                                         mng_uint32 iRawlen,
                                         mng_ptr    pRawdata)
@@ -4275,7 +4425,7 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_JDAT, init_jdat, free_jdat, read_jdat, write_jdat, 0, 0};
+          {MNG_UINT_JDAT, mng_init_jdat, mng_free_jdat, mng_read_jdat, mng_write_jdat, mng_assign_jdat, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_START)
@@ -4291,7 +4441,7 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
       (pData->iFirstchunkadded != MNG_UINT_JHDR)    )
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_jdat (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_jdat (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4304,7 +4454,7 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
     MNG_COPY (((mng_jdatp)pChunk)->pData, pRawdata, iRawlen)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_END)
@@ -4312,20 +4462,20 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
-/* B004 */
+
 #endif /*  MNG_INCLUDE_JNG */
-/* B004 */
+
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_JNG
-/* B004 */
+
 mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 {
   mng_datap        pData;
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_JSEP, init_jsep, free_jsep, read_jsep, write_jsep, 0, 0};
+          {MNG_UINT_JSEP, mng_init_jsep, mng_free_jsep, mng_read_jsep, mng_write_jsep, mng_assign_jsep, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_START)
@@ -4341,12 +4491,12 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
       (pData->iFirstchunkadded != MNG_UINT_JHDR)    )
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_jsep (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_jsep (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_END)
@@ -4354,9 +4504,9 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
 
   return MNG_NOERROR;
 }
-/* B004 */
+
 #endif /* MNG_INCLUDE_JNG */
-/* B004 */
+
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
@@ -4372,7 +4522,7 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_DHDR, init_dhdr, free_dhdr, read_dhdr, write_dhdr, 0, 0};
+          {MNG_UINT_DHDR, mng_init_dhdr, mng_free_dhdr, mng_read_dhdr, mng_write_dhdr, mng_assign_dhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_START)
@@ -4387,7 +4537,7 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_dhdr (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_dhdr (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4400,7 +4550,7 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   ((mng_dhdrp)pChunk)->iBlockx      = iBlockx;
   ((mng_dhdrp)pChunk)->iBlocky      = iBlocky;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_END)
@@ -4420,7 +4570,7 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_PROM, init_prom, free_prom, read_prom, write_prom, 0, 0};
+          {MNG_UINT_PROM, mng_init_prom, mng_free_prom, mng_read_prom, mng_write_prom, mng_assign_prom, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_START)
@@ -4435,7 +4585,7 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_prom (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_prom (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4444,7 +4594,7 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   ((mng_promp)pChunk)->iSampledepth = iSampledepth;
   ((mng_promp)pChunk)->iFilltype    = iFilltype;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_END)
@@ -4461,7 +4611,7 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_IPNG, init_ipng, free_ipng, read_ipng, write_ipng, 0, 0};
+          {MNG_UINT_IPNG, mng_init_ipng, mng_free_ipng, mng_read_ipng, mng_write_ipng, mng_assign_ipng, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_START)
@@ -4476,12 +4626,12 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_ipng (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_ipng (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_END)
@@ -4499,7 +4649,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_PPLT, init_pplt, free_pplt, read_pplt, write_pplt, 0, 0};
+          {MNG_UINT_PPLT, mng_init_pplt, mng_free_pplt, mng_read_pplt, mng_write_pplt, mng_assign_pplt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_START)
@@ -4514,14 +4664,14 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_pplt (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_pplt (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* fill the chunk */
   ((mng_ppltp)pChunk)->iCount = iCount;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_END)
@@ -4589,7 +4739,7 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_IJNG, init_ijng, free_ijng, read_ijng, write_ijng, 0, 0};
+          {MNG_UINT_IJNG, mng_init_ijng, mng_free_ijng, mng_read_ijng, mng_write_ijng, mng_assign_ijng, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_START)
@@ -4604,12 +4754,12 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_ijng (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_ijng (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_END)
@@ -4628,7 +4778,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_DROP, init_drop, free_drop, read_drop, write_drop, 0, 0};
+          {MNG_UINT_DROP, mng_init_drop, mng_free_drop, mng_read_drop, mng_write_drop, mng_assign_drop, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_START)
@@ -4643,7 +4793,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_drop (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_drop (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4658,7 +4808,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
     MNG_COPY (((mng_dropp)pChunk)->pChunknames, pChunknames, iSize)
   }  
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_END)
@@ -4679,7 +4829,7 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_DBYK, init_dbyk, free_dbyk, read_dbyk, write_dbyk, 0, 0};
+          {MNG_UINT_DBYK, mng_init_dbyk, mng_free_dbyk, mng_read_dbyk, mng_write_dbyk, mng_assign_dbyk, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_START)
@@ -4694,7 +4844,7 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_dbyk (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_dbyk (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4707,9 +4857,9 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   {
     MNG_ALLOC (pData, ((mng_dbykp)pChunk)->zKeywords, iKeywordssize + 1)
     MNG_COPY (((mng_dbykp)pChunk)->zKeywords, zKeywords, iKeywordssize)
-  }  
+  }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_END)
@@ -4727,7 +4877,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_ORDR, init_ordr, free_ordr, read_ordr, write_ordr, 0, 0};
+          {MNG_UINT_ORDR, mng_init_ordr, mng_free_ordr, mng_read_ordr, mng_write_ordr, mng_assign_ordr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_START)
@@ -4742,7 +4892,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_ordr (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_ordr (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4752,7 +4902,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   if (iCount)
     MNG_ALLOC (pData, ((mng_ordrp)pChunk)->pEntries, iCount * sizeof (mng_ordr_entry))
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_END)
@@ -4823,7 +4973,7 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_MAGN, init_magn, free_magn, read_magn, write_magn, 0, 0};
+          {MNG_UINT_MAGN, mng_init_magn, mng_free_magn, mng_read_magn, mng_write_magn, mng_assign_magn, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MAGN, MNG_LC_START)
@@ -4838,7 +4988,7 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
   if (pData->iFirstchunkadded != MNG_UINT_MHDR)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_magn (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_magn (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4854,10 +5004,118 @@ mng_retcode MNG_DECL mng_putchunk_magn (mng_handle hHandle,
   ((mng_magnp)pChunk)->iMB      = iMB;
   ((mng_magnp)pChunk)->iMethodY = iMethodY;
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MAGN, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_putchunk_evnt (mng_handle hHandle,
+                                        mng_uint32 iCount)
+{
+  mng_datap        pData;
+  mng_chunkp       pChunk;
+  mng_retcode      iRetcode;
+  mng_chunk_header sChunkheader =
+          {MNG_UINT_evNT, mng_init_evnt, mng_free_evnt, mng_read_evnt, mng_write_evnt, mng_assign_evnt, 0, 0};
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EVNT, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = (mng_datap)hHandle;          /* and make it addressable */
+
+  if (!pData->bCreating)               /* aren't we creating a new file ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* must have had a MHDR first! */
+  if (pData->iFirstchunkadded != MNG_UINT_MHDR)
+    MNG_ERROR (pData, MNG_NOHEADER)
+                                       /* create the chunk */
+  iRetcode = mng_init_save (pData, &sChunkheader, &pChunk);
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
+                                       /* fill the chunk */
+  ((mng_evntp)pChunk)->iCount = iCount;
+
+  if (iCount)
+    MNG_ALLOC (pData, ((mng_evntp)pChunk)->pEntries, iCount * sizeof (mng_evnt_entry))
+
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EVNT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_putchunk_evnt_entry (mng_handle hHandle,
+                                              mng_uint32 iEntry,
+                                              mng_uint8  iEventtype,
+                                              mng_uint8  iMasktype,
+                                              mng_int32  iLeft,
+                                              mng_int32  iRight,
+                                              mng_int32  iTop,
+                                              mng_int32  iBottom,
+                                              mng_uint16 iObjectid,
+                                              mng_uint8  iIndex,
+                                              mng_uint32 iSegmentnamesize,
+                                              mng_pchar  zSegmentname)
+{
+  mng_datap       pData;
+  mng_chunkp      pChunk;
+  mng_evnt_entryp pEntry;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EVNT_ENTRY, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = (mng_datap)hHandle;          /* and make it addressable */
+
+  if (!pData->bCreating)               /* aren't we creating a new file ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* must have had a MHDR first! */
+  if (pData->iFirstchunkadded != MNG_UINT_MHDR)
+    MNG_ERROR (pData, MNG_NOHEADER)
+
+  pChunk = pData->pLastchunk;          /* last one must have been evNT ! */
+
+  if (((mng_chunk_headerp)pChunk)->iChunkname != MNG_UINT_evNT)
+    MNG_ERROR (pData, MNG_NOCORRCHUNK)
+                                       /* index out of bounds ? */
+  if (iEntry >= ((mng_evntp)pChunk)->iCount)
+    MNG_ERROR (pData, MNG_INVALIDENTRYIX)
+                                       /* address proper entry */
+  pEntry = ((mng_evntp)pChunk)->pEntries + iEntry;
+                                       /* fill entry */
+  pEntry->iEventtype       = iEventtype;
+  pEntry->iMasktype        = iMasktype;
+  pEntry->iLeft            = iLeft;
+  pEntry->iRight           = iRight;
+  pEntry->iTop             = iTop;
+  pEntry->iBottom          = iBottom;
+  pEntry->iObjectid        = iObjectid;
+  pEntry->iIndex           = iIndex;
+  pEntry->iSegmentnamesize = iSegmentnamesize;
+
+  if (iSegmentnamesize)
+  {
+    MNG_ALLOC (pData, pEntry->zSegmentname, iSegmentnamesize + 1)
+    MNG_COPY (pEntry->zSegmentname, zSegmentname, iSegmentnamesize)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EVNT_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4874,7 +5132,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   mng_chunkp       pChunk;
   mng_retcode      iRetcode;
   mng_chunk_header sChunkheader =
-          {MNG_UINT_HUH, init_unknown, free_unknown, read_unknown, write_unknown, 0, 0};
+          {MNG_UINT_HUH, mng_init_unknown, mng_free_unknown, mng_read_unknown, mng_write_unknown, mng_assign_unknown, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_START)
@@ -4889,7 +5147,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   if (pData->iFirstchunkadded == 0)
     MNG_ERROR (pData, MNG_NOHEADER)
                                        /* create the chunk */
-  iRetcode = init_unknown (pData, &sChunkheader, &pChunk);
+  iRetcode = mng_init_unknown (pData, &sChunkheader, &pChunk);
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4903,7 +5161,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
     MNG_COPY (((mng_unknown_chunkp)pChunk)->pData, pRawdata, iRawlen)
   }
 
-  add_chunk (pData, pChunk);           /* add it to the list */
+  mng_add_chunk (pData, pChunk);       /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_END)
@@ -4913,9 +5171,9 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
 }
 
 /* ************************************************************************** */
-/* B004 */
+
 #endif /* MNG_INCLUDE_WRITE_PROCS */
-/* B004 */
+
 /* ************************************************************************** */
 /* ************************************************************************** */
 
@@ -4934,7 +5192,7 @@ mng_retcode MNG_DECL mng_getimgdata_seq (mng_handle        hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_SEQ, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return MNG_FNNOTIMPLEMENTED;
 }
 
 /* ************************************************************************** */
@@ -4954,7 +5212,7 @@ mng_retcode MNG_DECL mng_getimgdata_chunkseq (mng_handle        hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNKSEQ, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return MNG_FNNOTIMPLEMENTED;
 }
 
 /* ************************************************************************** */
@@ -4974,14 +5232,14 @@ mng_retcode MNG_DECL mng_getimgdata_chunk (mng_handle        hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNK, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return MNG_FNNOTIMPLEMENTED;
 }
 
 /* ************************************************************************** */
 /* ************************************************************************** */
-/* B004 */
+
 #ifdef MNG_INCLUDE_WRITE_PROCS
-/* B004 */
+
 /* ************************************************************************** */
 
 mng_retcode MNG_DECL mng_putimgdata_ihdr (mng_handle        hHandle,
@@ -5005,7 +5263,7 @@ mng_retcode MNG_DECL mng_putimgdata_ihdr (mng_handle        hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_IHDR, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return MNG_FNNOTIMPLEMENTED;
 }
 
 /* ************************************************************************** */
@@ -5034,7 +5292,7 @@ mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return MNG_FNNOTIMPLEMENTED;
 }
 
 /* ************************************************************************** */
@@ -5106,9 +5364,9 @@ mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle hHandle,
 }
 
 /* ************************************************************************** */
-/* B004 */
+
 #endif /* MNG_INCLUDE_WRITE_PROCS */
-/* B004 */
+
 /* ************************************************************************** */
 
 #endif /* MNG_ACCESS_CHUNKS */

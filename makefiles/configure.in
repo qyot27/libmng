@@ -4,7 +4,7 @@ AC_INIT(libmng.h)
 
 dnl this call will define PACKAGE and VERSION
 dnl please use this as the primary reference for the version number
-AM_INIT_AUTOMAKE(libmng, 1.0.0)
+AM_INIT_AUTOMAKE(libmng, 1.0.5)
 
 dnl pass the version string on the the makefiles
 AC_SUBST(PACKAGE)
@@ -36,7 +36,7 @@ AC_CHECK_FUNC(pow, , AC_CHECK_LIB(m, pow, LIBS="$LIBS -lm"))
 dnl what functionality we want to add (read, write, display).
 dnl all on by default. see libmng_conf.h for full descriptions
 
-dnl we only support the full mng spec for not (no LC or VLC)
+dnl we only support the full mng spec for now (no LC or VLC)
 AC_DEFINE(MNG_SUPPORT_FULL)
 
 dnl remove support in library to read images?
@@ -153,7 +153,7 @@ AC_ARG_WITH(lcms,
   fi
 
   if test "x$with_lcms" != "xno"; then
-    AC_CHECK_HEADER(lcms/lcms.h, [
+    AC_CHECK_HEADER(lcms.h, [
       have_lcms=yes
       AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
         LIBS="$LIBS -llcms"
