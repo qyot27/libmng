@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_pixels.c           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -64,6 +64,9 @@
 /* *             - B110547 - fixed bug in interlace code                    * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/20/2000 - G.Juyn                                * */
+/* *             - fixed app-supplied background restore                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1548,7 +1551,7 @@ mng_retcode restore_bkgd_rgb8 (mng_datap pData)
   if (pData->fGetbkgdline)             /* can we access the background ? */
   {                                    /* point to the right pixel then */
     pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData, pData->iRow) +
-            (4 * pData->iDestl);
+            (3 * pData->iDestl);
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
     {
@@ -1584,7 +1587,7 @@ mng_retcode restore_bkgd_bgr8 (mng_datap pData)
   if (pData->fGetbkgdline)             /* can we access the background ? */
   {                                    /* point to the right pixel then */
     pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData, pData->iRow) +
-            (4 * pData->iDestl);
+            (3 * pData->iDestl);
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
     {

@@ -18,12 +18,14 @@ core:
 - fixed compiler-warnings from Mozilla               
 - added check for simplicity-bits in MHDR                 
 - added workaround for faulty PhotoShop iCCP chunk      
+- fixed app-supplied background restore                   
 
 samples:
 
 contrib:
 
 doc:
+- updated RPM spec-file by MATSUURA Takanori
 
 makefiles:
 
