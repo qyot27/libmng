@@ -86,6 +86,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/08/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -132,12 +134,134 @@ mng_retcode mng_process_eof (mng_datap pData)
 
 /* ************************************************************************** */
 
+mng_retcode mng_release_pushdata (mng_datap pData)
+{
+  mng_pushdatap pFirst  = pData->pFirstpushdata;
+  mng_pushdatap pNext   = pFirst->pNext;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_START)
+#endif
+
+  pData->pFirstpushdata = pNext;       /* next becomes the first */
+
+  if (!pNext)                          /* no next? => no last! */
+    pData->pLastpushdata = MNG_NULL;
+                                       /* buffer owned and release callback defined? */
+  if ((pFirst->bOwned) && (pData->fReleasedata))
+    pData->fReleasedata ((mng_handle)pData, pFirst->pData, pFirst->iLength);
+  else                                 /* otherwise use internal free mechanism */
+    MNG_FREEX (pData, pFirst->pData, pFirst->iLength)
+                                       /* and free it */
+  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHDATA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode mng_release_pushchunk (mng_datap pData)
+{
+  mng_pushdatap pFirst  = pData->pFirstpushchunk;
+  mng_pushdatap pNext   = pFirst->pNext;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_START)
+#endif
+
+  pData->pFirstpushchunk = pNext;      /* next becomes the first */
+
+  if (!pNext)                          /* no next? => no last! */
+    pData->pLastpushchunk = MNG_NULL;
+                                       /* buffer owned and release callback defined? */
+  if ((pFirst->bOwned) && (pData->fReleasedata))
+    pData->fReleasedata ((mng_handle)pData, pFirst->pData, pFirst->iLength);
+  else                                 /* otherwise use internal free mechanism */
+    MNG_FREEX (pData, pFirst->pData, pFirst->iLength)
+                                       /* and free it */
+  MNG_FREEX (pData, pFirst, sizeof(mng_pushdata))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_RELEASE_PUSHCHUNK, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+MNG_LOCAL mng_retcode read_data (mng_datap    pData,
+                                 mng_uint8p   pBuf,
+                                 mng_uint32   iSize,
+                                 mng_uint32 * iRead)
+{
+  mng_retcode iRetcode;
+  mng_uint32  iTempsize = iSize;
+  mng_uint8p  pTempbuf  = pBuf;
+  *iRead                = 0;           /* nothing yet */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_START)
+#endif
+                                       /* got any pushed data? */
+  while ((iTempsize) && (pData->pFirstpushdata))
+  {
+    mng_pushdatap pPush = pData->pFirstpushdata;
+                                       /* enough data remaining? */
+    if (pPush->iRemaining <= iTempsize)
+    {                                  /* no: then copy what we've got */
+      MNG_COPY (pTempbuf, pPush->pDatanext, pPush->iRemaining)
+
+      iTempsize -= pPush->iRemaining;  /* move pointers & lengths */
+      pTempbuf  += pPush->iRemaining;
+      *iRead    += pPush->iRemaining;
+                                       /* release the depleted buffer */
+      iRetcode = mng_release_pushdata (pData);
+      if (iRetcode)
+        return iRetcode;
+    }
+    else
+    {                                  /* copy the needed bytes */
+      MNG_COPY (pTempbuf, pPush->pDatanext, iTempsize)
+
+      pPush->iRemaining -= iTempsize;  /* move pointers & lengths */
+      pPush->pDatanext  += iTempsize;
+      *iRead            += iTempsize;
+      iTempsize         = 0;           /* all done!!! */
+    }
+  }
+
+  if (iTempsize)                       /* need more still? */
+  {
+    mng_uint32 iTempread = 0;
+                                       /* get it from the app then */
+    if (!pData->fReaddata (((mng_handle)pData), pTempbuf, iTempsize, &iTempread))
+      MNG_ERROR (pData, MNG_APPIOERROR);
+
+    *iRead += iTempread;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_DATA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
 MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
                                        mng_uint8p   pBuf,
                                        mng_uint8p * pBufnext,
                                        mng_uint32   iSize,
                                        mng_uint32 * iRead)
 {
+  mng_retcode iRetcode;
+  
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_DATABUFFER, MNG_LC_START)
 #endif
@@ -181,13 +305,13 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
                                        /* calculate how much to get */
       iRemain = iSize - (mng_uint32)(*pBufnext - pBuf);
                                        /* let's go get it */
-      if (!pData->fReaddata (((mng_handle)pData), *pBufnext, iRemain, &iTemp))
-        MNG_ERROR (pData, MNG_APPIOERROR);
+      iRetcode = read_data (pData, *pBufnext, iRemain, &iTemp);
+      if (iRetcode)
+        return iRetcode;
                                        /* first read after suspension return 0 means EOF */
       if ((pData->iSuspendpoint) && (iTemp == 0))
       {                                /* that makes it final */
         mng_retcode iRetcode = mng_process_eof (pData);
-
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
                                        /* indicate the source is depleted */
@@ -225,15 +349,15 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
                                        /* now read some more data */
         pTemp = pData->pSuspendbufnext + pData->iSuspendbufleft;
 
-        if (!pData->fReaddata (((mng_handle)pData), pTemp, MNG_SUSPENDREQUESTSIZE, &iTemp))
-          MNG_ERROR (pData, MNG_APPIOERROR);
+        iRetcode = read_data (pData, pTemp, MNG_SUSPENDREQUESTSIZE, &iTemp);
+        if (iRetcode)
+          return iRetcode;
                                        /* adjust fill-counter */
         pData->iSuspendbufleft += iTemp;
                                        /* first read after suspension returning 0 means EOF */
         if ((pData->iSuspendpoint) && (iTemp == 0))
         {                              /* that makes it final */
           mng_retcode iRetcode = mng_process_eof (pData);
-
           if (iRetcode)                /* on error bail out */
             return iRetcode;
 
@@ -251,7 +375,7 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
 
         }
 
-        pData->iSuspendpoint = 0;      /* reset it here in case we loop back */ 
+        pData->iSuspendpoint = 0;      /* reset it here in case we loop back */
       }
 
       if ((!pData->bSuspended) && (!pData->bEOF))
@@ -267,13 +391,11 @@ MNG_LOCAL mng_retcode read_databuffer (mng_datap    pData,
   }
   else
   {
-    if (!pData->fReaddata (((mng_handle)pData), (mng_ptr)pBuf, iSize, iRead))
-    {
-      if (*iRead == 0)                 /* suspension required ? */
-        pData->bSuspended = MNG_TRUE;
-      else
-        MNG_ERROR (pData, MNG_APPIOERROR);
-    }
+    iRetcode = read_data (pData, (mng_ptr)pBuf, iSize, iRead);
+    if (iRetcode)
+      return iRetcode;
+    if (*iRead == 0)                   /* suspension required ? */
+      pData->bSuspended = MNG_TRUE;
   }
 
   pData->iSuspendpoint = 0;            /* safely reset it here ! */
@@ -539,13 +661,81 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 
 /* ************************************************************************** */
 
+MNG_LOCAL mng_retcode check_chunk_crc (mng_datap  pData,
+                                       mng_uint8p pBuf,
+                                       mng_uint32 iBuflen)
+{
+  mng_uint32  iCrc;                    /* calculated CRC */
+  mng_bool    bDiscard = MNG_FALSE;
+  mng_retcode iRetcode = MNG_NOERROR;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_START)
+#endif
+
+  if (pData->iCrcmode & MNG_CRC_INPUT) /* crc included ? */
+  {
+    mng_bool bCritical = (mng_bool)((*pBuf & 0x20) == 0);
+    mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
+
+    if (((bCritical ) && (pData->iCrcmode & MNG_CRC_CRITICAL )) ||
+        ((!bCritical) && (pData->iCrcmode & MNG_CRC_ANCILLARY)))
+    {                                  /* calculate the crc */
+      iCrc = mng_crc (pData, pBuf, iL);
+                                       /* and check it */
+      if (!(iCrc == mng_get_uint32 (pBuf + iL)))
+      {
+        mng_bool bWarning = MNG_FALSE;
+        mng_bool bError   = MNG_FALSE;
+
+        if (bCritical)
+        {
+          switch (pData->iCrcmode & MNG_CRC_CRITICAL)
+          {
+            case MNG_CRC_CRITICAL_WARNING  : { bWarning = MNG_TRUE; break; }
+            case MNG_CRC_CRITICAL_ERROR    : { bError   = MNG_TRUE; break; }
+          }
+        }
+        else
+        {
+          switch (pData->iCrcmode & MNG_CRC_ANCILLARY)
+          {
+            case MNG_CRC_ANCILLARY_DISCARD : { bDiscard = MNG_TRUE; break; }
+            case MNG_CRC_ANCILLARY_WARNING : { bWarning = MNG_TRUE; break; }
+            case MNG_CRC_ANCILLARY_ERROR   : { bError   = MNG_TRUE; break; }
+          }
+        }
+
+        if (bWarning)
+          MNG_WARNING (pData, MNG_INVALIDCRC)
+        if (bError)
+          MNG_ERROR (pData, MNG_INVALIDCRC)
+      }
+    }
+
+    if (!bDiscard)                     /* still processing ? */
+      iRetcode = process_raw_chunk (pData, pBuf, iL);
+  }
+  else
+  {                                    /* no crc => straight onto processing */
+    iRetcode = process_raw_chunk (pData, pBuf, iBuflen);
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK_CRC, MNG_LC_END)
+#endif
+
+  return iRetcode;
+}
+
+/* ************************************************************************** */
+
 MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 {
   mng_uint32  iBufmax   = pData->iReadbufsize;
   mng_uint8p  pBuf      = pData->pReadbuf;
   mng_uint32  iBuflen   = 0;           /* number of bytes requested */
   mng_uint32  iRead     = 0;           /* number of bytes read */
-  mng_uint32  iCrc;                    /* calculated CRC */
   mng_retcode iRetcode  = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -646,159 +836,77 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
     if (!pData->bSuspended)            /* still going ? */
     {                                  /* previously suspended or not eof ? */
       if ((pData->iSuspendpoint > 2) || (iRead == iBuflen))
-      {                                /* determine length chunkname + data + crc */
+      {                                /* determine length chunkname + data (+ crc) */
         if (pData->iCrcmode & MNG_CRC_INPUT)
-          iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid) + sizeof (iCrc));
+          iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid) + sizeof (mng_uint32));
         else
           iBuflen = pData->iChunklen + (mng_uint32)(sizeof (mng_chunkid));
 
-        if (iBuflen < iBufmax)         /* does it fit in default buffer ? */
-        {                              /* note that we don't use the full size
-                                          so there's always a zero-byte at the
-                                          very end !!! */
-          iRetcode = read_databuffer (pData, pBuf, &pData->pReadbufnext, iBuflen, &iRead);
+                                       /* do we have enough data in the current push buffer ? */
+        if ((pData->pFirstpushdata) && (iBuflen <= pData->pFirstpushdata->iRemaining))
+        {
+          mng_pushdatap pPush = pData->pFirstpushdata;
+          pBuf                = pPush->pDatanext;
+          pPush->pDatanext   += iBuflen;
+          pPush->iRemaining  -= iBuflen;
 
-          if (iRetcode)                /* bail on errors */
-            return iRetcode;
-
-          if (pData->bSuspended)       /* suspended ? */
-            pData->iSuspendpoint = 3;
-          else
+          if (!pPush->iRemaining)      /* nothing left; then release this buffer */
           {
-            if (iRead != iBuflen)      /* did we get all the data ? */
-              iRetcode = MNG_UNEXPECTEDEOF;
-            else
-            {
-              mng_bool bDiscard = MNG_FALSE;
-
-              if (pData->iCrcmode & MNG_CRC_INPUT)
-              {
-                mng_bool bCritical = (mng_bool)((*pBuf & 0x20) == 0);
-                mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
-
-                if (((bCritical ) && (pData->iCrcmode & MNG_CRC_CRITICAL )) ||
-                    ((!bCritical) && (pData->iCrcmode & MNG_CRC_ANCILLARY)))
-                {                      /* calculate the crc */
-                  iCrc = mng_crc (pData, pBuf, iL);
-                                       /* and check it */
-                  if (!(iCrc == mng_get_uint32 (pBuf + iL)))
-                  {
-                    mng_bool bWarning = MNG_FALSE;
-                    mng_bool bError   = MNG_FALSE;
-
-                    if (bCritical)
-                    {
-                      switch (pData->iCrcmode & MNG_CRC_CRITICAL)
-                      {
-                        case MNG_CRC_CRITICAL_WARNING  : { bWarning = MNG_TRUE; break; }
-                        case MNG_CRC_CRITICAL_ERROR    : { bError   = MNG_TRUE; break; }
-                      }
-                    }
-                    else
-                    {
-                      switch (pData->iCrcmode & MNG_CRC_ANCILLARY)
-                      {
-                        case MNG_CRC_ANCILLARY_DISCARD : { bDiscard = MNG_TRUE; break; }
-                        case MNG_CRC_ANCILLARY_WARNING : { bWarning = MNG_TRUE; break; }
-                        case MNG_CRC_ANCILLARY_ERROR   : { bError   = MNG_TRUE; break; }
-                      }
-                    }
-
-                    if (bWarning)
-                      MNG_WARNING (pData, MNG_INVALIDCRC)
-                    if (bError)
-                      MNG_ERROR (pData, MNG_INVALIDCRC)
-                  }
-                }
-
-                if (!bDiscard)
-                  iRetcode = process_raw_chunk (pData, pBuf, iL);
-              }
-              else
-              {
-                iRetcode = process_raw_chunk (pData, pBuf, iBuflen);
-              }
-            }
+            iRetcode = mng_release_pushdata (pData);
+            if (iRetcode)              /* on error bail out */
+              return iRetcode;
           }
+
+          iRetcode = check_chunk_crc (pData, pBuf, iBuflen);
         }
         else
         {
-          if (iBuflen > 16777216)      /* is the length incredible? */
-            MNG_ERROR (pData, MNG_IMPROBABLELENGTH);
+          if (iBuflen < iBufmax)       /* does it fit in default buffer ? */
+          {                            /* note that we don't use the full size
+                                          so there's always a zero-byte at the
+                                          very end !!! */
+            iRetcode = read_databuffer (pData, pBuf, &pData->pReadbufnext, iBuflen, &iRead);
+            if (iRetcode)              /* bail on errors */
+              return iRetcode;
 
-          if (!pData->iSuspendpoint)   /* create additional large buffer ? */
-          {                            /* again reserve space for the last zero-byte */
-            pData->iLargebufsize = iBuflen + 1;
-            pData->pLargebufnext = MNG_NULL;
-            MNG_ALLOC (pData, pData->pLargebuf, pData->iLargebufsize)
-          }
-
-          iRetcode = read_databuffer (pData, pData->pLargebuf, &pData->pLargebufnext, iBuflen, &iRead);
-
-          if (iRetcode)
-            return iRetcode;
-
-          if (pData->bSuspended)       /* suspended ? */
-            pData->iSuspendpoint = 4;
-          else
-          {
-            if (iRead != iBuflen)      /* did we get all the data ? */
-              iRetcode = MNG_UNEXPECTEDEOF;
+            if (pData->bSuspended)     /* suspended ? */
+              pData->iSuspendpoint = 3;
             else
             {
-              mng_bool bDiscard = MNG_FALSE;
-
-              if (pData->iCrcmode & MNG_CRC_INPUT)
-              {
-                mng_bool bCritical = (mng_bool)((*(pData->pLargebuf) & 0x20) == 0);
-                mng_uint32 iL = iBuflen - (mng_uint32)(sizeof (iCrc));
-
-                if (((bCritical ) && (pData->iCrcmode & MNG_CRC_CRITICAL )) ||
-                    ((!bCritical) && (pData->iCrcmode & MNG_CRC_ANCILLARY)))
-                {                      /* calculate the crc */
-                  iCrc = mng_crc (pData, pData->pLargebuf, iL);
-                                       /* and check it */
-                  if (!(iCrc == mng_get_uint32 (pData->pLargebuf + iL)))
-                  {
-                    mng_bool bWarning = MNG_FALSE;
-                    mng_bool bError   = MNG_FALSE;
-
-                    if (bCritical)
-                    {
-                      switch (pData->iCrcmode & MNG_CRC_CRITICAL)
-                      {
-                        case MNG_CRC_CRITICAL_WARNING  : { bWarning = MNG_TRUE; break; }
-                        case MNG_CRC_CRITICAL_ERROR    : { bError   = MNG_TRUE; break; }
-                      }
-                    }
-                    else
-                    {
-                      switch (pData->iCrcmode & MNG_CRC_ANCILLARY)
-                      {
-                        case MNG_CRC_ANCILLARY_DISCARD : { bDiscard = MNG_TRUE; break; }
-                        case MNG_CRC_ANCILLARY_WARNING : { bWarning = MNG_TRUE; break; }
-                        case MNG_CRC_ANCILLARY_ERROR   : { bError   = MNG_TRUE; break; }
-                      }
-                    }
-
-                    if (bWarning)
-                      MNG_WARNING (pData, MNG_INVALIDCRC)
-                    if (bError)
-                      MNG_ERROR (pData, MNG_INVALIDCRC)
-                  }
-                }
-
-                if (!bDiscard)
-                  iRetcode = process_raw_chunk (pData, pData->pLargebuf, iL);
-              }
+              if (iRead != iBuflen)    /* did we get all the data ? */
+                MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
               else
-              {
-                iRetcode = process_raw_chunk (pData, pData->pLargebuf, iBuflen);
-              }
+                iRetcode = check_chunk_crc (pData, pBuf, iBuflen);
             }
+          }
+          else
+          {
+            if (iBuflen > 16777216)    /* is the length incredible? */
+              MNG_ERROR (pData, MNG_IMPROBABLELENGTH)
+
+            if (!pData->iSuspendpoint) /* create additional large buffer ? */
+            {                          /* again reserve space for the last zero-byte */
+              pData->iLargebufsize = iBuflen + 1;
+              pData->pLargebufnext = MNG_NULL;
+              MNG_ALLOC (pData, pData->pLargebuf, pData->iLargebufsize)
+            }
+
+            iRetcode = read_databuffer (pData, pData->pLargebuf, &pData->pLargebufnext, iBuflen, &iRead);
+            if (iRetcode)
+              return iRetcode;
+
+            if (pData->bSuspended)     /* suspended ? */
+              pData->iSuspendpoint = 4;
+            else
+            {
+              if (iRead != iBuflen)    /* did we get all the data ? */
+                MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
+              else
+                iRetcode = check_chunk_crc (pData, pData->pLargebuf, iBuflen);
                                        /* cleanup additional large buffer */
-            MNG_FREE (pData, pData->pLargebuf, pData->iLargebufsize)
-          }  
+              MNG_FREE (pData, pData->pLargebuf, pData->iLargebufsize)
+            }
+          }
         }
 
         if (iRetcode)                  /* on error bail out */
@@ -818,7 +926,7 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 #else
             (pData->bHasIHDR || pData->bHasMHDR))
 #endif
-          MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
+          MNG_ERROR (pData, MNG_UNEXPECTEDEOF)
       } 
     }
   }
@@ -838,6 +946,20 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 #endif
 
   return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+MNG_LOCAL mng_retcode process_pushedchunk (mng_datap pData)
+{
+  mng_retcode   iRetcode;
+  mng_pushdatap pPush = pData->pFirstpushchunk;
+
+  iRetcode = process_raw_chunk (pData, pPush->pData, pPush->iLength);
+  if (iRetcode)
+    return iRetcode;
+
+  return mng_release_pushchunk (pData);
 }
 
 /* ************************************************************************** */
@@ -901,7 +1023,10 @@ mng_retcode mng_read_graphic (mng_datap pData)
       if ((pData->bReading) && (!pData->bDisplaying))
         pData->bTimerset = MNG_FALSE;
 
-      iRetcode = read_chunk (pData);   /* process a chunk */
+      if (pData->pFirstpushchunk)      /* chunks pushed ? */
+        iRetcode = process_pushedchunk (pData); /* process the pushed chunk */
+      else
+        iRetcode = read_chunk (pData); /* read & process a chunk */
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;

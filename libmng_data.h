@@ -142,6 +142,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 04/10/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -238,6 +240,22 @@ typedef mng_savedata * mng_savedatap;
 
 /* ************************************************************************** */
 /* *                                                                        * */
+/* * Internal buffer structure for data push mechanisms                     * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+typedef struct {
+           mng_ptr           pNext;              /* for linked list */
+           mng_ptr           pData;              /* used for chunks & data */
+           mng_uint32        iLength;
+           mng_bool          bOwned;
+           mng_uint8p        pDatanext;          /* only used for data */
+           mng_uint32        iRemaining;
+        } mng_pushdata;
+typedef mng_pushdata * mng_pushdatap;
+
+/* ************************************************************************** */
+/* *                                                                        * */
 /* * The main libmng data structure                                         * */
 /* *                                                                        * */
 /* * The handle used in all functions points to this structure which        * */
@@ -262,7 +280,7 @@ typedef struct mng_data_struct {
            mng_uint32        iSimplicity;
            mng_uint8         iAlphadepth;        /* indicates expected alpha-depth */
 
-           mng_uint32        iImagelevel;        /* level an image inside a stream */
+           mng_uint32        iImagelevel;        /* level of image inside a stream */
 
            mng_uint32        iCanvasstyle;       /* layout of the drawing-canvas */
            mng_uint32        iBkgdstyle;         /* layout of the background-canvas */
@@ -310,6 +328,7 @@ typedef struct mng_data_struct {
 
            mng_memalloc      fMemalloc;          /* callback pointers */
            mng_memfree       fMemfree;           /* initially nulled */
+           mng_releasedata   fReleasedata;
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
            mng_openstream    fOpenstream;
            mng_closestream   fClosestream;
@@ -430,12 +449,17 @@ typedef struct mng_data_struct {
            mng_uint32        iChunklen;          /* chunk length */
            mng_uint8p        pReadbufnext;       /* 32K+ suspension-processing */
            mng_uint8p        pLargebufnext;
+
+           mng_pushdatap     pFirstpushchunk;    /* variables for push mechanisms */
+           mng_pushdatap     pLastpushchunk;
+           mng_pushdatap     pFirstpushdata;
+           mng_pushdatap     pLastpushdata;
 #endif /* MNG_SUPPORT_READ */
 
 #ifdef MNG_SUPPORT_WRITE
            mng_bool          bCreating;          /* create/write processing variables */
            mng_bool          bWriting;
-           mng_chunkid       iFirstchunkadded;           
+           mng_chunkid       iFirstchunkadded;
            mng_uint32        iWritebufsize;
            mng_uint8p        pWritebuf;
 #endif

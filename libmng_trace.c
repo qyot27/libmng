@@ -140,6 +140,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -183,6 +185,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GETLASTERROR,              "getlasterror"},
     {MNG_FN_READ_RESUME,               "read_resume"},
     {MNG_FN_TRAPEVENT,                 "trapevent"},
+    {MNG_FN_READ_PUSHDATA,             "read_pushdata"},
+    {MNG_FN_READ_PUSHSIG,              "read_pushsig"},
+    {MNG_FN_READ_PUSHCHUNK,            "read_pushchunk"},
 
     {MNG_FN_SETCB_MEMALLOC,            "setcb_memalloc"},
     {MNG_FN_SETCB_MEMFREE,             "setcb_memfree"},
@@ -213,6 +218,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SETCB_PROCESSUNKNOWN,      "setcb_processunknown"},
     {MNG_FN_SETCB_PROCESSMEND,         "setcb_processmend"},
     {MNG_FN_SETCB_PROCESSTERM,         "setcb_processterm"},
+    {MNG_FN_SETCB_RELEASEDATA,         "setcb_releasedata"},
 
     {MNG_FN_GETCB_MEMALLOC,            "getcb_memalloc"},
     {MNG_FN_GETCB_MEMFREE,             "getcb_memfree"},
@@ -243,6 +249,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GETCB_PROCESSUNKNOWN,      "getcb_processunknown"},
     {MNG_FN_GETCB_PROCESSMEND,         "getcb_processmend"},
     {MNG_FN_GETCB_PROCESSTERM,         "getcb_processterm"},
+    {MNG_FN_GETCB_RELEASEDATA,         "getcb_releasedata"},
 
     {MNG_FN_SET_USERDATA,              "set_userdata"},
     {MNG_FN_SET_CANVASSTYLE,           "set_canvasstyle"},
@@ -679,6 +686,10 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_READ_DATABUFFER,           "read_databuffer"},
     {MNG_FN_STORE_ERROR,               "store_error"},
     {MNG_FN_DROP_INVALID_OBJECTS,      "drop_invalid_objects"},
+    {MNG_FN_RELEASE_PUSHDATA,          "release_pushdata"},
+    {MNG_FN_READ_DATA,                 "read_data"},
+    {MNG_FN_READ_CHUNK_CRC,            "read_chunk_crc"},
+    {MNG_FN_RELEASE_PUSHCHUNK,         "release_pushchunk"},
 
     {MNG_FN_DISPLAY_RGB8,              "display_rgb8"},
     {MNG_FN_DISPLAY_RGBA8,             "display_rgba8"},
@@ -706,7 +717,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RGB8_A8,           "display_rgb8_a8"},
     {MNG_FN_DISPLAY_BGRA8PM,           "display_bgra8_pm"},
     {MNG_FN_DISPLAY_BGRX8,             "display_bgrx8"},
-    (MNG_FN_DISPLAY_RGB565,            "display_rgb565"},
+    {MNG_FN_DISPLAY_RGB565,            "display_rgb565"},
     {MNG_FN_DISPLAY_RGBA565,           "display_rgba565"},
     {MNG_FN_DISPLAY_BGR565,            "display_bgr565"},
     {MNG_FN_DISPLAY_BGRA565,           "display_bgra565"},

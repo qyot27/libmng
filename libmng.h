@@ -496,6 +496,51 @@ MNG_EXT mng_retcode MNG_DECL mng_read            (mng_handle    hHandle);
 MNG_EXT mng_retcode MNG_DECL mng_read_resume     (mng_handle    hHandle);
 #endif
 
+/* high-level "data push" functions */
+/* these functions can be used in situations where data is streaming into the
+   application and needs to be buffered by libmng before it is actually
+   requested by libmng itself. the pushing complements the normal reading
+   mechanism, but applications can decide to always return "0 bytes read" to
+   make libmng go into suspension mode with the returncode MNG_NEEDMOREDATA */
+/* mng_read_pushdata can be used to push blobs of data of arbitrary size;
+   mng_read_pushsig and mng_read_pushchunk can be used if the application
+   has already done some low-level decoding (eg. at the chunk level) */
+/* the data being pushed into libmng with mng_read_pushdata *must* contain
+   the regular 4-byte chunklength, but *must not* contain it with
+   mng_read_pushchunk!!! */
+/* mng_read_pushsig is used to prevent libmng from trying to parse the regular
+   PNG/JNG/MNG signature bytes; the application must have done this itself
+   and *must* indicate the proper type in the function call or things will
+   go amiss!!
+   also you *must* call this first, so pretty much right after mng_initialize
+   and certainly before any call to mng_read or mng_readdisplay !!!! */
+/* IMPORTANT!!! data can only be safely pushed when libmng is in a
+   "wait" state; eg. during MNG_NEEDTIMERWAIT, MNG_NEEDSECTIONWAIT or
+   MNG_NEEDMOREDATA !!! this just means you can't have one thread displaying
+   and another thread pushing data !!! */
+/* if bOwnership = MNG_TRUE, libmng will retain the supplied pointer and
+   *will* expect the buffer to remain available until libmng is finished
+   with it; what happens then depends on whether or not you have set the
+   releasedata() callback; if this is set than the supplied buffer will
+   be returned through this callback and your application can take care of
+   cleaning it up, otherwise libmng will use its internal freeing mechanism
+   (which, depending on compile-options, will be the standard C free() call,
+   or the memfree() callback */
+/* if bOwnership = MNG_FALSE, libmng will just copy the data into its own
+   buffers and dispose of it in the normal way */
+#ifdef MNG_SUPPORT_READ
+MNG_EXT mng_retcode MNG_DECL mng_read_pushdata   (mng_handle    hHandle,
+                                                  mng_ptr       pData,
+                                                  mng_size_t    iLength,
+                                                  mng_bool      bTakeownership);
+MNG_EXT mng_retcode MNG_DECL mng_read_pushsig    (mng_handle    hHandle,
+                                                  mng_imgtype   eSigtype);
+MNG_EXT mng_retcode MNG_DECL mng_read_pushchunk  (mng_handle    hHandle,
+                                                  mng_ptr       pChunk,
+                                                  mng_size_t    iLength,
+                                                  mng_bool      bTakeownership);
+#endif
+
 /* high-level write & create functions */
 /* use this if you want to write a previously read Network Graphic or
    if you want to create a new graphic and write it */
@@ -706,6 +751,15 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processarow   (mng_handle        hHandle,
 #endif /* MNG_APP_CMS */
 #endif /* MNG_SUPPORT_DISPLAY */
 
+/* release push data callback */
+/* used when the app pushes data into libmng (as opposed to libmng pulling it)
+   and relinquishes ownership of the pushed data-buffer, but *does* want to
+   release (free) the buffer itself once libmng has finished processing it */
+#ifdef MNG_SUPPORT_READ
+MNG_EXT mng_retcode MNG_DECL mng_setcb_releasedata   (mng_handle        hHandle,
+                                                      mng_releasedata   fProc);
+#endif
+
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  Callback get functions                                                * */
@@ -716,6 +770,11 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processarow   (mng_handle        hHandle,
 #ifndef MNG_INTERNAL_MEMMNGMT
 MNG_EXT mng_memalloc      MNG_DECL mng_getcb_memalloc      (mng_handle hHandle);
 MNG_EXT mng_memfree       MNG_DECL mng_getcb_memfree       (mng_handle hHandle);
+#endif
+
+/* see _setcb_ */
+#ifdef MNG_SUPPORT_READ
+MNG_EXT mng_releasedata   MNG_DECL mng_getcb_releasedata   (mng_handle hHandle);
 #endif
 
 /* see _setcb_ */

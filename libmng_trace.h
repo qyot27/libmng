@@ -143,6 +143,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -213,6 +215,9 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETLASTERROR            15
 #define MNG_FN_READ_RESUME             16
 #define MNG_FN_TRAPEVENT               17
+#define MNG_FN_READ_PUSHDATA           18
+#define MNG_FN_READ_PUSHSIG            19
+#define MNG_FN_READ_PUSHCHUNK          20
 
 #define MNG_FN_SETCB_MEMALLOC         101
 #define MNG_FN_SETCB_MEMFREE          102
@@ -243,6 +248,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_PROCESSUNKNOWN   125
 #define MNG_FN_SETCB_PROCESSMEND      126
 #define MNG_FN_SETCB_PROCESSTERM      127
+#define MNG_FN_SETCB_RELEASEDATA      128
 
 #define MNG_FN_GETCB_MEMALLOC         201
 #define MNG_FN_GETCB_MEMFREE          202
@@ -273,6 +279,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_PROCESSUNKNOWN   225
 #define MNG_FN_GETCB_PROCESSMEND      226
 #define MNG_FN_GETCB_PROCESSTERM      227
+#define MNG_FN_GETCB_RELEASEDATA      228
 
 #define MNG_FN_SET_USERDATA           301
 #define MNG_FN_SET_CANVASSTYLE        302
@@ -555,6 +562,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_READ_DATABUFFER       1025
 #define MNG_FN_STORE_ERROR           1026
 #define MNG_FN_DROP_INVALID_OBJECTS  1027
+#define MNG_FN_RELEASE_PUSHDATA      1028
+#define MNG_FN_READ_DATA             1029
+#define MNG_FN_READ_CHUNK_CRC        1030
+#define MNG_FN_RELEASE_PUSHCHUNK     1031
 
 /* ************************************************************************** */
 

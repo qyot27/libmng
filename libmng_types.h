@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_types.h            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : type specifications                                        * */
 /* *                                                                        * */
@@ -110,6 +110,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 03/10/2004 - G.R-P                                 * */
 /* *             - added conditionals around openstream/closestream         * */
+/* *             1.0.8 - 04/11/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -429,6 +431,10 @@ typedef enum png_imgtypes png_imgtype;
 typedef mng_ptr    (MNG_DECL *mng_memalloc)      (mng_size_t  iLen);
 typedef void       (MNG_DECL *mng_memfree)       (mng_ptr     iPtr,
                                                   mng_size_t  iLen);
+
+typedef void       (MNG_DECL *mng_releasedata)   (mng_ptr     pUserdata,
+                                                  mng_ptr     pData,
+                                                  mng_size_t  iLength);
 
                                        /* I/O management callbacks */
 #ifndef MNG_NO_OPEN_CLOSE_STREAM

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_callback_xs.c      copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.7                                                      * */
+/* * version   : 1.0.8                                                      * */
 /* *                                                                        * */
 /* * purpose   : callback get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -48,6 +48,9 @@
 /* *             - added conditionals around openstream/closestream         * */
 /* *             1.0.7 - 03/19/2004 - G.R-P                                 * */
 /* *             - fixed typo (MNG_SKIPCHUNK_SAVE -> MNG_SKIPCHUNK_nEED     * */
+/* *                                                                        * */
+/* *             1.0.8 - 04/10/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -108,6 +111,27 @@ mng_retcode MNG_DECL mng_setcb_memfree (mng_handle  hHandle,
   return MNG_NOERROR;
 }
 #endif /* MNG_INTERNAL_MEMMNGMT */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_setcb_releasedata (mng_handle      hHandle,
+                                            mng_releasedata fProc)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_RELEASEDATA, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)
+  ((mng_datap)hHandle)->fReleasedata = fProc;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_SETCB_RELEASEDATA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 
@@ -689,6 +713,25 @@ mng_memfree MNG_DECL mng_getcb_memfree (mng_handle hHandle)
   return ((mng_datap)hHandle)->fMemfree;
 }
 #endif /* MNG_INTERNAL_MEMMNGMT */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_releasedata MNG_DECL mng_getcb_releasedata (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_RELEASEDATA, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLEX (hHandle)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GETCB_RELEASEDATA, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->fReleasedata;
+}
+#endif /* MNG_SUPPORT_READ */
 
 /* ************************************************************************** */
 

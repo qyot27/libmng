@@ -172,6 +172,8 @@
 /* *                                                                        * */
 /* *             1.0.8 - 04/02/2004 - G.Juyn                                * */
 /* *             - added CRC existence & checking flags                     * */
+/* *             1.0.8 - 04/10/2004 - G.Juyn                                * */
+/* *             - added data-push mechanisms for specialized decoders      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -525,6 +527,48 @@ MNG_LOCAL void cleanup_errors (mng_datap pData)
   return;
 }
 
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+MNG_LOCAL mng_retcode make_pushbuffer (mng_datap       pData,
+                                       mng_ptr         pPushdata,
+                                       mng_size_t      iLength,
+                                       mng_bool        bTakeownership,
+                                       mng_pushdatap * pPush)
+{
+  mng_pushdatap pTemp;
+
+  MNG_ALLOC (pData, pTemp, sizeof(mng_pushdata))
+
+  pTemp->pNext      = MNG_NULL;
+
+  if (bTakeownership)                  /* are we going to own the buffer? */
+  {                                    /* then just copy the pointer */
+    pTemp->pData    = (mng_uint8p)pPushdata;
+  }
+  else
+  {                                    /* otherwise create new buffer */
+    MNG_ALLOCX (pData, pTemp->pData, iLength)
+    if (!pTemp->pData)                 /* succeeded? */
+    {
+      MNG_FREEX (pData, pTemp, sizeof(mng_pushdata))
+      MNG_ERROR (pData, MNG_OUTOFMEMORY)
+    }
+                                       /* and copy the bytes across */
+    MNG_COPY (pTemp->pData, pPushdata, iLength)
+  }
+
+  pTemp->iLength    = iLength;
+  pTemp->bOwned     = bTakeownership;
+  pTemp->pDatanext  = pTemp->pData;
+  pTemp->iRemaining = iLength;
+
+  *pPush            = pTemp;           /* return it */
+
+  return MNG_NOERROR;                  /* and all's well */
+}
+#endif
+
 #ifdef MNG_VERSION_QUERY_SUPPORT
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -714,6 +758,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getcb_processunknown",   1, 0, 0},
     {"mng_getcb_readdata",         1, 0, 0},
     {"mng_getcb_refresh",          1, 0, 0},
+    {"mng_getcb_releasedata",      1, 0, 8},
     {"mng_getcb_settimer",         1, 0, 0},
     {"mng_getcb_traceproc",        1, 0, 0},
     {"mng_getcb_writedata",        1, 0, 0},
@@ -957,6 +1002,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_putimgdata_jhdr",        0, 0, 0},
     {"mng_reset",                  1, 0, 0},
     {"mng_read",                   1, 0, 0},
+    {"mng_read_pushchunk",         1, 0, 8},
+    {"mng_read_pushdata",          1, 0, 8},
+    {"mng_read_pushsig",           1, 0, 8},
     {"mng_read_resume",            1, 0, 0},
     {"mng_readdisplay",            1, 0, 0},
     {"mng_set_bgcolor",            1, 0, 0},
@@ -1036,6 +1084,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_setcb_processunknown",   1, 0, 0},
     {"mng_setcb_readdata",         1, 0, 0},
     {"mng_setcb_refresh",          1, 0, 0},
+    {"mng_setcb_releasedata",      1, 0, 8},
     {"mng_setcb_settimer",         1, 0, 0},
     {"mng_setcb_traceproc",        1, 0, 0},
     {"mng_setcb_writedata",        1, 0, 0},
@@ -1198,6 +1247,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->fMemfree              = fMemfree;
 #endif
                                        /* no value (yet) */
+  pData->fReleasedata          = MNG_NULL;    
 #ifndef MNG_NO_OPEN_CLOSE_STREAM
   pData->fOpenstream           = MNG_NULL;
   pData->fClosestream          = MNG_NULL;
@@ -1244,7 +1294,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 #endif
 
 #if defined(MNG_SUPPORT_DISPLAY) && defined(MNG_INCLUDE_LCMS)
-  mnglcms_initlibrary ();              /* init lcms particulairs */
+  mnglcms_initlibrary ();              /* init lcms particulars */
 #endif
 
 #ifdef MNG_SUPPORT_READ
@@ -1256,6 +1306,11 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   pData->iChunklen             = 0;
   pData->pReadbufnext          = MNG_NULL;
   pData->pLargebufnext         = MNG_NULL;
+
+  pData->pFirstpushchunk       = MNG_NULL;
+  pData->pLastpushchunk        = MNG_NULL;
+  pData->pFirstpushdata        = MNG_NULL;
+  pData->pLastpushdata         = MNG_NULL;
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -1337,6 +1392,11 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
   MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
   MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
+
+  while (pData->pFirstpushdata)        /* release any pushed data & chunks */
+    mng_release_pushdata (pData);
+  while (pData->pFirstpushchunk)
+    mng_release_pushchunk (pData);
 #endif
 
 #ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffer */
@@ -1846,6 +1906,111 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
 #endif
 
   return iRetcode;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_read_pushdata (mng_handle hHandle,
+                                        mng_ptr    pData,
+                                        mng_size_t iLength,
+                                        mng_bool   bTakeownership)
+{
+  mng_datap     pMyData;               /* local vars */
+  mng_pushdatap pPush;
+  mng_retcode   iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pMyData = ((mng_datap)hHandle);      /* and make it addressable */
+                                       /* create a containing buffer */
+  iRetcode = make_pushbuffer (pMyData, pData, iLength, bTakeownership, &pPush);
+  if (iRetcode)
+    return iRetcode;
+
+  if (pMyData->pLastpushdata)          /* and update the buffer chain */
+    pMyData->pLastpushdata->pNext = pPush;
+  else
+    pMyData->pFirstpushdata = pPush;
+
+  pMyData->pLastpushdata = pPush;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHDATA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_read_pushsig (mng_handle  hHandle,
+                                       mng_imgtype eSigtype)
+{
+  mng_datap pData;                     /* local vars */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = ((mng_datap)hHandle);        /* and make it addressable */
+
+  if (pData->bHavesig)                 /* can we expect this call ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+
+  pData->eSigtype = eSigtype;
+  pData->bHavesig = MNG_TRUE;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHSIG, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+#endif /* MNG_SUPPORT_READ */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_READ
+mng_retcode MNG_DECL mng_read_pushchunk (mng_handle hHandle,
+                                         mng_ptr    pChunk,
+                                         mng_size_t iLength,
+                                         mng_bool   bTakeownership)
+{
+  mng_datap     pMyData;               /* local vars */
+  mng_pushdatap pPush;
+  mng_retcode   iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pMyData = ((mng_datap)hHandle);      /* and make it addressable */
+                                       /* create a containing buffer */
+  iRetcode = make_pushbuffer (pMyData, pChunk, iLength, bTakeownership, &pPush);
+  if (iRetcode)
+    return iRetcode;
+
+  if (pMyData->pLastpushchunk)         /* and update the buffer chain */
+    pMyData->pLastpushchunk->pNext = pPush;
+  else
+    pMyData->pFirstpushchunk = pPush;
+
+  pMyData->pLastpushchunk = pPush;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_PUSHCHUNK, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_READ */
 
