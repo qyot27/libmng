@@ -1,11 +1,11 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>
-Version 0.3.0  June 2000
+Version 0.4.0  June 2000
 Web site: <http://pobox.com/~jason1/imaging/mngplg/>
 
 
-LICENSE AND COPYRIGHT NOTICE
+COPYRIGHT NOTICE
 
 Copyright (c) 2000 by Jason Summers <jason1@pobox.com>
 
@@ -15,17 +15,7 @@ FITNESS FOR A PARTICULAR PURPOSE.
 
 Permission is granted to anyone to use this software for any purpose, 
 including commercial applications, and to alter it and redistribute it 
-freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product or documentation would
-     be appreciated, but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution,
-     except that you may add a copyright notice for yourself if you modify
-     the source.
+freely.
 
 
 This software uses several third-party libraries (listed below), some of 
@@ -122,10 +112,20 @@ most browsers.
 Right-click on an MNG image as it is being displayed to get a menu with some 
 of the usual features.
 
-Transparency is not supported, and probably never will be. However, you can supply a background color to use in transparent areas by using the BGCOLOR attribute in the EMBED tab, i.e.
-<embed src="foo.mng" bgcolor="#ff0000"  ...>
-You cannot use color names like "red"; you must use the hexadecimal format as in the example.
+Transparency is not supported, and probably never will be. However, you can 
+supply a background color to use in transparent areas by using the BGCOLOR 
+attribute in the EMBED tag, i.e.:
 
+<embed src="foo.mng" bgcolor="#ff0000"  ...>
+
+You cannot use color names like "red"; you must use the hexadecimal format 
+as in the example.
+
+An image can be made into a "hotlink" by including an HREF and optionally a 
+TARGET attribute in the EMBED tag. For example:
+
+<embed src="foo.mng" href="http://www.libpng.org/pub/mng/" target="_blank" 
+...>
 
 
 SOURCE CODE
