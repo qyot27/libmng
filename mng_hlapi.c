@@ -87,6 +87,8 @@
 /* *             - fixed small bugs in display processing                   * */
 /* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
 /* *             - fixed wrapping of suspension parameters                  * */
+/* *             0.9.2 - 08/04/2000 - G.Juyn                                * */
+/* *             - B111096 - fixed large-buffer read-suspension             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -515,8 +517,10 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   }
 #endif /* MNG_INCLUDE_ZLIB */
 
-#ifdef MNG_SUPPORT_READ                /* cleanup default read buffer */
-  MNG_FREE (pData, pData->pReadbuf, pData->iReadbufsize)
+#ifdef MNG_SUPPORT_READ                /* cleanup default read buffers */
+  MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
+  MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
+  MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
 #endif
 
 #ifdef MNG_SUPPORT_WRITE               /* cleanup default write buffer */
@@ -625,6 +629,9 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bEOF                  = MNG_FALSE;
   pData->iReadbufsize          = 0;
   pData->pReadbuf              = MNG_NULL;
+
+  pData->iLargebufsize         = 0;
+  pData->pLargebuf             = MNG_NULL;
 
   pData->iSuspendtime          = 0;
   pData->bSuspended            = MNG_FALSE;
@@ -850,7 +857,8 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
   pData = ((mng_datap)(*hHandle));     /* and address main structure */
 
 #ifdef MNG_SUPPORT_READ
-  MNG_FREE (pData, pData->pReadbuf, pData->iReadbufsize)
+  MNG_FREE (pData, pData->pReadbuf,    pData->iReadbufsize)
+  MNG_FREE (pData, pData->pLargebuf,   pData->iLargebufsize)
   MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
 #endif
 
@@ -971,11 +979,17 @@ mng_retcode MNG_DECL mng_read (mng_handle hHandle)
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
+  if (pData->bSuspended)               /* read suspension ? */
+  {
+     iRetcode            = MNG_NEEDMOREDATA;
+     pData->iSuspendtime = pData->fGettickcount ((mng_handle)pData);
+  }
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 #endif /* MNG_SUPPORT_READ */
 
@@ -1015,11 +1029,17 @@ mng_retcode MNG_DECL mng_read_resume (mng_handle hHandle)
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
+  if (pData->bSuspended)               /* read suspension ? */
+  {
+     iRetcode            = MNG_NEEDMOREDATA;
+     pData->iSuspendtime = pData->fGettickcount ((mng_handle)pData);
+  }
+
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READ_RESUME, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 #endif /* MNG_SUPPORT_READ */
 
@@ -1178,19 +1198,25 @@ mng_retcode MNG_DECL mng_readdisplay (mng_handle hHandle)
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
+  if (pData->bSuspended)               /* read suspension ? */
+  {
+     iRetcode            = MNG_NEEDMOREDATA;
+     pData->iSuspendtime = pData->fGettickcount ((mng_handle)pData);
+  }
+  else
   if (pData->bTimerset)                /* indicate timer break ? */
-    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
+    iRetcode = MNG_NEEDTIMERWAIT;
   else
   if (pData->bSectionwait)             /* indicate section break ? */
-    MNG_RETURN (pData, MNG_NEEDSECTIONWAIT)
-
-  pData->bRunning = MNG_FALSE;         /* no breaks = end of run */
+    iRetcode = MNG_NEEDSECTIONWAIT;
+  else
+    pData->bRunning = MNG_FALSE;       /* no breaks = end of run */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_READDISPLAY, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 #endif /* MNG_SUPPORT_DISPLAY && MNG_SUPPORT_READ */
 
@@ -1257,15 +1283,15 @@ mng_retcode MNG_DECL mng_display (mng_handle hHandle)
     return iRetcode;
 
   if (pData->bTimerset)                /* indicate timer break ? */
-    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
-
-  pData->bRunning        = MNG_FALSE;  /* no breaks = end of run */
+    iRetcode = MNG_NEEDTIMERWAIT;
+  else
+    pData->bRunning = MNG_FALSE;       /* no breaks = end of run */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -1336,50 +1362,58 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
 
+  if (pData->bSuspended)               /* read suspension ? */
+  {
+     iRetcode            = MNG_NEEDMOREDATA;
+     pData->iSuspendtime = pData->fGettickcount ((mng_handle)pData);
+  }
+  else
   if (pData->bTimerset)                /* indicate timer break ? */
-    MNG_RETURN (pData, MNG_NEEDTIMERWAIT)
+    iRetcode = MNG_NEEDTIMERWAIT;
   else
   if (pData->bSectionwait)             /* indicate section break ? */
-    MNG_RETURN (pData, MNG_NEEDSECTIONWAIT)
+    iRetcode = MNG_NEEDSECTIONWAIT;
+  else
+  {                                    /* no breaks = end of run */
+    pData->bRunning        = MNG_FALSE;
 
-  pData->bRunning        = MNG_FALSE;  /* no breaks = end of run */
+    if (pData->bFreezing)              /* trying to freeze ? */
+    {                                  /* then we're there ! */
+      pData->bFreezing     = MNG_FALSE;
+    }
 
-  if (pData->bFreezing)                /* trying to freeze ? */
-  {
-    pData->bFreezing     = MNG_FALSE;  /* then we're there ! */
-  }
-
-  if (pData->bResetting)               /* trying to reset as well ? */
-  {
-    pData->bDisplaying   = MNG_FALSE;  /* full stop!!! */
-    pData->bTimerset     = MNG_FALSE;
-    pData->iBreakpoint   = 0;
-    pData->bSectionwait  = MNG_FALSE;
-    pData->bFreezing     = MNG_FALSE;
-    pData->bResetting    = MNG_FALSE;
-    pData->pCurraniobj   = MNG_NULL;
-    pData->iFrameseq     = 0;          /* reset all display-state variables */
-    pData->iLayerseq     = 0;
-    pData->iFrametime    = 0;
-    pData->iRequestframe = 0;
-    pData->iRequestlayer = 0;
-    pData->iRequesttime  = 0;
-    pData->bSearching    = MNG_FALSE;
+    if (pData->bResetting)             /* trying to reset as well ? */
+    {                                  /* full stop!!! */
+      pData->bDisplaying   = MNG_FALSE;
+      pData->bTimerset     = MNG_FALSE;
+      pData->iBreakpoint   = 0;
+      pData->bSectionwait  = MNG_FALSE;
+      pData->bFreezing     = MNG_FALSE;
+      pData->bResetting    = MNG_FALSE;
+      pData->pCurraniobj   = MNG_NULL;
+      pData->iFrameseq     = 0;        /* reset all display-state variables */
+      pData->iLayerseq     = 0;
+      pData->iFrametime    = 0;
+      pData->iRequestframe = 0;
+      pData->iRequestlayer = 0;
+      pData->iRequesttime  = 0;
+      pData->bSearching    = MNG_FALSE;
                                        /* drop all display objects */
-    iRetcode = mng_drop_objects (pData, MNG_FALSE);
+      iRetcode = mng_drop_objects (pData, MNG_FALSE);
 
-    if (!iRetcode)                     /* drop the savebuffer */
-      iRetcode = mng_drop_savedata (pData);
+      if (!iRetcode)                   /* drop the savebuffer */
+        iRetcode = mng_drop_savedata (pData);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
-
+  
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_RESUME, MNG_LC_END)
 #endif
 
-  return MNG_NOERROR;
+  return iRetcode;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
 

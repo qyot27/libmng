@@ -70,6 +70,8 @@
 /* *             - removed Nextbackxxx fields (no longer used)              * */
 /* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
 /* *             - fixed wrapping of suspension parameters                  * */
+/* *             0.9.2 - 08/04/2000 - G.Juyn                                * */
+/* *             - B111096 - fixed large-buffer read-suspension             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -337,6 +339,9 @@ typedef struct mng_data_struct {
            mng_bool          bEOF;
            mng_uint32        iReadbufsize;
            mng_uint8p        pReadbuf;
+
+           mng_uint32        iLargebufsize;      /* temp for very large chunks */
+           mng_uint8p        pLargebuf;
 
            mng_uint32        iSuspendtime;       /* tickcount at last suspension */
            mng_bool          bSuspended;         /* input-reading has been suspended;
