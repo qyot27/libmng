@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_object_prc.c       copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_object_prc.c       copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
@@ -111,6 +111,8 @@
 /* *             - fixed problem with infinite loops during readdisplay()   * */
 /* *             1.0.6 - 05/25/2003 - G.R-P                                 * */
 /* *             - added MNG_SKIPCHUNK_cHNK footprint optimizations         * */
+/* *             1.0.6 - 06/09/2003 - G. R-P                                * */
+/* *             - added conditionals around 8-bit magn routines            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1559,7 +1561,19 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
       return iRetcode;
   }
 
-#ifdef MNG_MAGNIFY_8BIT_ONLY
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+  if (pBuf->iBitdepth <= 8)
+  {                                  /* promote everything to 16-bit */
+    mng_uint8 iNewColortype=pBuf->iColortype;
+    if (iNewColortype >= 8)          /* promote all JNG to RGB */
+      iNewColortype -= 8;
+    if (iNewColortype & 0x02)        /* promote all G or GA to RGB or RGBA */
+      iNewColortype += 2;
+    iRetcode = mng_promote_imageobject (pData, pImage, 16,
+        iNewColortype, 0);           /* using fill method 0 (LBR) */
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 #endif
 
   if (pImage->iMAGN_MethodX)           /* determine new width */
@@ -1609,6 +1623,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 
   switch (pBuf->iColortype)            /* determine magnification routines */
   {
+#ifndef MNG_OPTIMIZE_FOOTPRINT
     case  0 : ;
     case  8 : {
                 if (pBuf->iBitdepth <= 8)
@@ -1654,9 +1669,11 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 
                 break;
               }
+#endif
 
     case  2 : ;
     case 10 : {
+#ifndef MNG_OPTIMIZE_FOOTPRINT
                 if (pBuf->iBitdepth <= 8)
                 {
                   switch (pImage->iMAGN_MethodX)
@@ -1678,6 +1695,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
                   }
                 }
                 else
+#endif
                 {
                   switch (pImage->iMAGN_MethodX)
                   {
@@ -1701,6 +1719,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
                 break;
               }
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
     case  4 : ;
     case 12 : {
                 if (pBuf->iBitdepth <= 8)
@@ -1746,9 +1765,11 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
 
                 break;
               }
+#endif
 
     case  6 : ;
     case 14 : {
+#ifndef MNG_OPTIMIZE_FOOTPRINT
                 if (pBuf->iBitdepth <= 8)
                 {
                   switch (pImage->iMAGN_MethodX)
@@ -1770,6 +1791,7 @@ mng_retcode mng_magnify_imageobject (mng_datap  pData,
                   }
                 }
                 else
+#endif
                 {
                   switch (pImage->iMAGN_MethodX)
                   {
@@ -4272,7 +4294,6 @@ mng_retcode mng_process_ani_ipng (mng_datap   pData,
   return MNG_NOERROR;
 }
 
-/* ************************************************************************** */
 /* ************************************************************************** */
 
 mng_retcode mng_create_ani_ijng (mng_datap pData)

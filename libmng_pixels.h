@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_pixels.h           copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_pixels.h           copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (definition)                 * */
@@ -63,6 +63,8 @@
 /* *             - hiding 12-bit JPEG stuff                                 * */
 /* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
 /* *             - added conditionals around canvas update routines         * */
+/* *             1.0.6 - 06/09/2003 - G. R-P                                * */
+/* *             - added conditionals around 8-bit magn routines            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -481,6 +483,7 @@ mng_retcode mng_cleanup_rowproc        (mng_datap  pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_g8_x1          (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
@@ -730,6 +733,7 @@ mng_retcode mng_magnify_g16_x3         (mng_datap  pData,
                                         mng_uint32 iWidth,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
+#endif
 mng_retcode mng_magnify_rgb16_x1       (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
@@ -758,6 +762,7 @@ mng_retcode mng_magnify_ga16_x1        (mng_datap  pData,
                                         mng_uint32 iWidth,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_x2        (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
@@ -786,6 +791,7 @@ mng_retcode mng_magnify_ga16_x5        (mng_datap  pData,
                                         mng_uint32 iWidth,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
+#endif
 mng_retcode mng_magnify_rgba16_x1      (mng_datap  pData,
                                         mng_uint16 iMX,
                                         mng_uint16 iML,
@@ -822,6 +828,7 @@ mng_retcode mng_magnify_rgba16_x5      (mng_datap  pData,
                                         mng_uint8p pSrcline,
                                         mng_uint8p pDstline);
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_g16_y1         (mng_datap  pData,
                                         mng_int32  iS,
                                         mng_int32  iM,
@@ -843,6 +850,7 @@ mng_retcode mng_magnify_g16_y3         (mng_datap  pData,
                                         mng_uint8p pSrcline1,
                                         mng_uint8p pSrcline2,
                                         mng_uint8p pDstline);
+#endif
 mng_retcode mng_magnify_rgb16_y1       (mng_datap  pData,
                                         mng_int32  iS,
                                         mng_int32  iM,
@@ -864,6 +872,7 @@ mng_retcode mng_magnify_rgb16_y3       (mng_datap  pData,
                                         mng_uint8p pSrcline1,
                                         mng_uint8p pSrcline2,
                                         mng_uint8p pDstline);
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_y1        (mng_datap  pData,
                                         mng_int32  iS,
                                         mng_int32  iM,
@@ -899,6 +908,7 @@ mng_retcode mng_magnify_ga16_y5        (mng_datap  pData,
                                         mng_uint8p pSrcline1,
                                         mng_uint8p pSrcline2,
                                         mng_uint8p pDstline);
+#endif
 mng_retcode mng_magnify_rgba16_y1      (mng_datap  pData,
                                         mng_int32  iS,
                                         mng_int32  iM,

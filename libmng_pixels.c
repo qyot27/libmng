@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_pixels.c           copyright (c) 2000-2002 G.Juyn   * */
+/* * file      : libmng_pixels.c           copyright (c) 2000-2003 G.Juyn   * */
 /* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
@@ -135,6 +135,8 @@
 /* *             - added conditionals around canvas update routines         * */
 /* *             1.0.6 - 05/25/2003 - Glenn RP                              * */
 /* *             - added size-optimization DIV255B8 routine usage           * */
+/* *             1.0.6 - 06/09/2003 - G. R-P                                * */
+/* *             - added conditionals around 8-bit magn routines            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 #include "libmng.h"
@@ -1232,7 +1234,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
                                        /* now compose */
               MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
                                        /* and return the composed values */
-              *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+              *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
               }
 #else
               iFGr16 = mng_get_uint16 (pDataline  );
@@ -1403,7 +1405,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
                                        /* now compose */
               MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
                                        /* and return the composed values */
-              *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+              *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
               }
 #else
               iFGr16 = mng_get_uint16 (pDataline  );
@@ -1582,7 +1584,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                                        /* now compose */
                 MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
                                        /* and return the composed values */
-                *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+                *(pScanline+2-i) = (mng_uint8)(iFGg16 >> 8);
                                        /* alpha remains fully opaque !!! */
               }
 #else
@@ -1990,7 +1992,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                 MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
                                        /* and return the composed values */
                                        /* alpha itself remains fully opaque !!! */
-                *(pScanline+i+1) = (mng_uint8)(iFGg16 >> 8);
+                *(pScanline+3-i) = (mng_uint8)(iFGg16 >> 8);
               }
 #else
                 iFGr16 = mng_get_uint16 (pDataline  );
@@ -10970,6 +10972,7 @@ mng_retcode mng_next_jpeg_row (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_g8_x1 (mng_datap  pData,
                                mng_uint16 iMX,
                                mng_uint16 iML,
@@ -13520,6 +13523,7 @@ mng_retcode mng_magnify_g16_x3 (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_OPTIMIZE_FOOTPRINT */
 
 /* ************************************************************************** */
 
@@ -13784,6 +13788,7 @@ mng_retcode mng_magnify_rgb16_x3 (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_x1 (mng_datap  pData,
                                  mng_uint16 iMX,
                                  mng_uint16 iML,
@@ -14232,6 +14237,7 @@ mng_retcode mng_magnify_ga16_x5 (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_OPTIMIZE_FOOTPRINT */
 
 /* ************************************************************************** */
 
@@ -14790,6 +14796,7 @@ mng_retcode mng_magnify_rgba16_x5 (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_g16_y1 (mng_datap  pData,
                                 mng_int32  iS,
                                 mng_int32  iM,
@@ -14895,6 +14902,7 @@ mng_retcode mng_magnify_g16_y3 (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_OPTIMIZE_FOOTPRINT
 
 /* ************************************************************************** */
 
@@ -15030,6 +15038,7 @@ mng_retcode mng_magnify_rgb16_y3 (mng_datap  pData,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_FOOTPRINT
 mng_retcode mng_magnify_ga16_y1 (mng_datap  pData,
                                  mng_int32  iS,
                                  mng_int32  iM,
@@ -15307,6 +15316,7 @@ mng_retcode mng_magnify_ga16_y5 (mng_datap  pData,
 
   return MNG_NOERROR;
 }
+#endif /* MNG_OPTIMIZE_FOOTPRINT */
 
 /* ************************************************************************** */
 
