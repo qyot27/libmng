@@ -554,7 +554,7 @@ mng_retcode display_image (mng_datap  pData,
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
 
-//  if (!bLayeradvanced)                 /* need to advance the layer ? */
+  if (!bLayeradvanced)                 /* need to advance the layer ? */
   {
     mng_imagep pSave    = pData->pCurrentobj;
     pData->pCurrentobj  = pImage;
