@@ -33,6 +33,14 @@
 /* *             - added fields for JNG support (IJG-based)                 * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - changed global tRNS definition                           * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added delta-image fields                                 * */
+/* *             0.5.2 - 06/01/2000 - G.Juyn                                * */
+/* *             - added internal delta-image processing callbacks          * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - changed SWAP_ENDIAN to BIGENDIAN_SUPPORTED               * */
+/* *               (contributed by Tim Rowley)                              * */
+/* *             - added getalphaline callback for RGB8_A8 canvasstyle      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -211,6 +219,7 @@ typedef struct mng_data_struct {
            mng_processtext   fProcesstext;
            mng_getcanvasline fGetcanvasline;
            mng_getbkgdline   fGetbkgdline;
+           mng_getalphaline  fGetalphaline;
            mng_refresh       fRefresh;
            mng_gettickcount  fGettickcount;
            mng_settimer      fSettimer;
@@ -460,6 +469,20 @@ typedef struct mng_data_struct {
            mng_uint16        iGlobalBKGDred;     /* global bKGD fields */
            mng_uint16        iGlobalBKGDgreen;
            mng_uint16        iGlobalBKGDblue;
+
+           mng_ptr           pDeltaImage;        /* delta-image fields */
+           mng_uint8         iDeltaImagetype;
+           mng_uint8         iDeltatype;
+           mng_uint32        iDeltaBlockwidth;
+           mng_uint32        iDeltaBlockheight;
+           mng_uint32        iDeltaBlockx;
+           mng_uint32        iDeltaBlocky;
+
+           mng_ptr           fDeltagetrow;       /* internal delta-proc callbacks */
+           mng_ptr           fDeltaaddrow;
+           mng_ptr           fDeltareplacerow;
+           mng_ptr           fDeltaputrow;
+
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -550,7 +573,7 @@ typedef mng_retcode(*mng_initrowproc) (mng_datap pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef MNG_SWAP_ENDIAN
+#ifndef MNG_BIGENDIAN_SUPPORTED
 mng_uint32 mng_get_uint32 (mng_uint8p pBuf);
 mng_int32  mng_get_int32  (mng_uint8p pBuf);
 mng_uint16 mng_get_uint16 (mng_uint8p pBuf);
@@ -560,14 +583,14 @@ void       mng_put_int32  (mng_uint8p pBuf,
                            mng_int32  i);
 void       mng_put_uint16 (mng_uint8p pBuf,
                            mng_uint16 i);
-#else /* MNG_SWAP_ENDIAN */
+#else /* MNG_BIGENDIAN_SUPPORTED */
 #define mng_get_uint32(P)   *(mng_uint32p)(P)
 #define mng_get_int32(P)    *(mng_int32p)(P)
 #define mng_get_uint16(P)   *(mng_uint16p)(P)
 #define mng_put_uint32(P,I) *(mng_uint32p)(P) = (I)
 #define mng_put_int32(P,I)  *(mng_int32p)(P) = (I)
 #define mng_put_uint16(P,I) *(mng_uint16p)(P) = (I)
-#endif /* MNG_SWAP_ENDIAN */
+#endif /* MNG_BIGENDIAN_SUPPORTED */
 
 /* ************************************************************************** */
 /* *                                                                        * */

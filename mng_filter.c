@@ -46,7 +46,7 @@ mng_retcode filter_a_row (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_START)
 #endif
 
   switch (pData->pWorkrow[0])
@@ -72,7 +72,7 @@ mng_retcode filter_a_row (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_A_ROW, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -88,7 +88,7 @@ mng_retcode filter_sub (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_START)
 #endif
 
   iBpp       = pData->iFilterbpp;
@@ -103,7 +103,7 @@ mng_retcode filter_sub (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_SUB, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -118,7 +118,7 @@ mng_retcode filter_up (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_START)
 #endif
 
   pRawx   = pData->pWorkrow + 1;
@@ -132,7 +132,7 @@ mng_retcode filter_up (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_UP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -149,7 +149,7 @@ mng_retcode filter_average (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_START)
 #endif
 
   iBpp       = pData->iFilterbpp;
@@ -173,7 +173,7 @@ mng_retcode filter_average (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_AVERAGE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -194,7 +194,7 @@ mng_retcode filter_paeth (mng_datap pData)
   mng_uint32 iPa, iPb, iPc;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_START)
 #endif
 
   iBpp         = pData->iFilterbpp;
@@ -236,7 +236,7 @@ mng_retcode filter_paeth (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_FILTER_PAETH, MNG_LC_END)
 #endif
 
   return MNG_NOERROR; 

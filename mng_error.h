@@ -28,6 +28,8 @@
 /* *             - added JNG errorcodes                                     * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - added error tell-tale definition                         * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added errorcodes for delta-image processing              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -105,6 +107,9 @@
 #define MNG_INVALIDINDEX     (mng_retcode)1054 /* index-value invalid         */
 #define MNG_TOOMUCHJDAT      (mng_retcode)1055 /* got too much compressed data*/
 #define MNG_JPEGPARMSERR     (mng_retcode)1056 /* JHDR/JPEG parms do not match*/
+#define MNG_INVFILLMETHOD    (mng_retcode)1057 /* invalid fill_method         */
+#define MNG_OBJNOTCONCRETE   (mng_retcode)1058 /* object must be concrete     */
+#define MNG_TARGETNOALPHA    (mng_retcode)1059 /* object has no alpha-channel */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */

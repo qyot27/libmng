@@ -9,8 +9,8 @@
 /* * For the purposes of this copyright and license, "Contributing Authors" * */
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
-/* *    Gerard Juyn                                                         * */
-/* *    (hopefully some more to come...)                                    * */
+/* *    Gerard Juyn (gerard@libmng.com)                                     * */
+/* *    Tim Rowley                                                          * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
@@ -135,6 +135,11 @@
 /* *             - fixed MNG_UINT_pHYg value                                * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added support for get/set default zlib/IJG parms         * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - added MNG_BIGENDIAN_SUPPORT (contributed by Tim Rowley)  * */
+/* *             - separated configuration-options into "mng_conf.h"        * */
+/* *             - added RGB8_A8 canvasstyle                                * */
+/* *             - added getalphaline callback for RGB8_A8 canvasstyle      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -146,133 +151,12 @@
 #define _libmng_h_
 
 /* ************************************************************************** */
-/* *                                                                        * */
-/* *  User-selectable compile-time options                                  * */
-/* *                                                                        * */
-/* ************************************************************************** */
 
-/* enable exactly one of the MNG-(sub)set selectors */
-/* use this to select which (sub)set of the MNG specification you wish
-   to support */
-/* generally you'll want full support as the library provides it automatically
-   for you! if you're really strung on memory-requirements you can opt
-   to enable less support (but it's just NOT a good idea!) */
-
-#if !defined(MNG_SUPPORT_FULL) && !defined(MNG_SUPPORT_LC) && !defined(MNG_SUPPORT_VLC)
-#define MNG_SUPPORT_FULL
-/* #define MNG_SUPPORT_LC */
-/* #define MNG_SUPPORT_VLC */
-#endif
+#include "mng_conf.h"                  /* user-specific configuration options */
 
 /* ************************************************************************** */
 
-/* enable JPEG support if required */
-/* use this to enable the JNG support routines */
-/* (this requires an external jpeg package;
-   currently only IJG's jpgsrc6b is supported!) */
-/* note also that the IJG code can be either 8- or 12-bit (eg. not both);
-   so choose the one you've defined in jconfig.h; if you don't know what
-   the heck I'm talking about, just leave it at 8-bit support (thank you!) */
-
-/* #define MNG_SUPPORT_IJG6B */
-#if defined(MNG_SUPPORT_IJG6B) && !defined(MNG_SUPPORT_JPEG8) && !defined(MNG_SUPPORT_JPEG12)
-#define MNG_SUPPORT_JPEG8
-/* #define MNG_SUPPORT_JPEG12 */
-#endif
-
-/* ************************************************************************** */
-
-/* enable required high-level functions */
-/* use this to select the high-level functions you require */
-/* if you only need to display a MNG, disable write support! */
-/* if you only need to examine a MNG, disable write & display support! */
-/* if you only need to copy a MNG, disable display support! */
-/* if you only need to create a MNG, disable read & display support! */
-/* (Note: turning all options off will be very unuseful!) */
-
-#if !defined(MNG_SUPPORT_READ) && !defined(MNG_SUPPORT_WRITE) && !defined(MNG_SUPPORT_DISPLAY)
-#define MNG_SUPPORT_READ
-/* #define MNG_SUPPORT_WRITE */
-#define MNG_SUPPORT_DISPLAY
-#endif
-
-/* ************************************************************************** */
-
-/* enable chunk access functions */
-/* use this to select whether you need access to the individual chunks */
-/* useful if you want to examine a read MNG (you'll also need MNG_STORE_CHUNKS !)*/
-/* required if you need to create & write a new MNG! */
-
-/* #define MNG_ACCESS_CHUNKS */
-
-/* ************************************************************************** */
-
-/* enable exactly one of the color-management-functionality selectors */
-/* use this to select the level of automatic color support */
-/* MNG_FULL_CMS requires the lcms (little cms) external package ! */
-/* if you want your own app (or the OS) to handle color-management
-   select MNG_APP_CMS */
-
-#if !defined(MNG_FULL_CMS) && !defined(MNG_GAMMA_ONLY) && !defined(MNG_NO_CMS) && !defined(MNG_APP_CMS)
-#define MNG_FULL_CMS
-/* #define MNG_GAMMA_ONLY */
-/* #define MNG_NO_CMS */
-/* #define MNG_APP_CMS */
-#endif
-
-/* ************************************************************************** */
-
-/* enable automatic dithering */
-/* use this if you need dithering support to convert high-resolution
-   images to a low-resolution output-device */
-/* PS: not supported yet */
-
-/* #define MNG_AUTO_DITHER */
-
-/* ************************************************************************** */
-
-/* enable whether chunks should be stored for reference later */
-/* use this if you need to examine the chunks of a MNG you have read,
-   or (re-)write a MNG you have read */
-/* turn this off if you want to reduce memory-consumption */
-
-#ifdef MNG_ACCESS_CHUNKS
-#define MNG_STORE_CHUNKS
-#endif
-
-/* ************************************************************************** */
-
-/* enable internal memory management (if your compiler supports it) */
-/* use this if your compiler supports the 'standard' memory functions
-   (calloc & free), and you want the library to use these functions and not
-   bother your app with memory-callbacks */
-
-/* #define MNG_INTERNAL_MEMMNGMT */
-
-/* ************************************************************************** */
-
-/* enable internal tracing-functionality (manual debugging purposes) */
-/* use this if you have trouble location bugs or problems */
-/* NOTE: you'll need to specify the trace callback function! */
-
-/* #define MNG_SUPPORT_TRACE */
-
-/* ************************************************************************** */
-
-/* enable extended error- and trace-telltaling */
-/* use this if you need explanatory messages with errors and/or tracing */
-/* PS: not supported yet */
-
-/* #define MNG_ERROR_TELLTALE */
-/* #define MNG_TRACE_TELLTALE */
-
-/* ************************************************************************** */
-/* *                                                                        * */
-/* *  End of user-selectable compile-time options                           * */
-/* *                                                                        * */
-/* ************************************************************************** */
-
-#ifdef MNG_SUPPORT_READ
+#ifdef MNG_SUPPORT_READ                /* dependencies based on user-configuration */
 #define MNG_INCLUDE_READ_PROCS
 #endif
 
@@ -320,7 +204,8 @@
 
 /* ************************************************************************** */
 
-#include "mng_types.h"
+#include "mng_types.h"                 /* platform-specific definitions
+                                          and other assorted stuff */
 
 /* ************************************************************************** */
 
@@ -550,6 +435,8 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_getcanvasline (mng_handle        hHandle,
                                                       mng_getcanvasline fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_getbkgdline   (mng_handle        hHandle,
                                                       mng_getbkgdline   fProc);
+MNG_EXT mng_retcode MNG_DECL mng_setcb_getalphaline  (mng_handle        hHandle,
+                                                      mng_getalphaline  fProc);
 MNG_EXT mng_retcode MNG_DECL mng_setcb_refresh       (mng_handle        hHandle,
                                                       mng_refresh       fProc);
 
@@ -626,6 +513,7 @@ MNG_EXT mng_processtext   MNG_DECL mng_getcb_processtext   (mng_handle hHandle);
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_getcanvasline MNG_DECL mng_getcb_getcanvasline (mng_handle hHandle);
 MNG_EXT mng_getbkgdline   MNG_DECL mng_getcb_getbkgdline   (mng_handle hHandle);
+MNG_EXT mng_getalphaline  MNG_DECL mng_getcb_getalphaline  (mng_handle hHandle);
 MNG_EXT mng_refresh       MNG_DECL mng_getcb_refresh       (mng_handle hHandle);
 
 /* see _setcb_ */
@@ -720,9 +608,10 @@ MNG_EXT mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle        hHandle,
 
 /* Ultimate clipping size */
 /* used to limit extreme graphics from overloading the system */
-/* if a graphic exceeds these limits an error is issued, which can
+/* if a graphic exceeds these limits a warning is issued, which can
    be ignored by the app (using the errorproc callback). in that case
-   the library will use these settings to clip the input graphic */
+   the library will use these settings to clip the input graphic, and
+   the app's canvas must account for this */
 MNG_EXT mng_retcode MNG_DECL mng_set_maxcanvaswidth  (mng_handle        hHandle,
                                                       mng_uint32        iMaxwidth);
 MNG_EXT mng_retcode MNG_DECL mng_set_maxcanvasheight (mng_handle        hHandle,
@@ -864,6 +753,7 @@ MNG_EXT mng_uint32  MNG_DECL mng_get_jpeg_maxjdat    (mng_handle        hHandle)
 
 /* use this to iterate the stored chunks */
 /* requires MNG_ACCESS_CHUNKS & MNG_STORE_CHUNKS */
+/* starts from the supplied chunk-index-nr; the first chunk has index 0!! */
 MNG_EXT mng_retcode MNG_DECL mng_iterate_chunks      (mng_handle       hHandle,
                                                       mng_uint32       iChunkseq,
                                                       mng_iteratechunk fProc);
@@ -1750,11 +1640,16 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 /* *  Note that the intentions are pretty darn good, but that the focus     * */
 /* *  is currently on 8-bit color support                                   * */
 /* *                                                                        * */
+/* *  The RGB8_A8 style is defined for apps that require a separate         * */
+/* *  canvas for the color-planes and the alpha-plane (eg. mozilla)         * */
+/* *  This requires for the app to supply the "getalphaline" callback!!!    * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #define MNG_CANVAS_RGB8      0x00000000L
 #define MNG_CANVAS_RGBA8     0x00001000L
 #define MNG_CANVAS_ARGB8     0x00003000L
+#define MNG_CANVAS_RGB8_A8   0x00005000L
 #define MNG_CANVAS_BGR8      0x00000001L
 #define MNG_CANVAS_BGRA8     0x00001001L
 #define MNG_CANVAS_ABGR8     0x00003001L
@@ -1777,6 +1672,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)
 #define MNG_CANVAS_HASALPHA(C)   (C & 0x00001000L)
 #define MNG_CANVAS_ALPHAFIRST(C) (C & 0x00002000L)
+#define MNG_CANVAS_ALPHASEPD(C)  (C & 0x00004000L)
 
 #define MNG_CANVAS_RGB(C)        (MNG_CANVAS_PIXELTYPE (C) == 0)
 #define MNG_CANVAS_BGR(C)        (MNG_CANVAS_PIXELTYPE (C) == 1)
@@ -1855,13 +1751,13 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_BITDEPTH_1                   1       /* IHDR, BASI, JHDR */
+#define MNG_BITDEPTH_1                   1       /* IHDR, BASI, JHDR, PROM */
 #define MNG_BITDEPTH_2                   2
 #define MNG_BITDEPTH_4                   4
 #define MNG_BITDEPTH_8                   8       /* sPLT */
 #define MNG_BITDEPTH_16                 16
 
-#define MNG_COLORTYPE_GRAY               0       /* IHDR, BASI */
+#define MNG_COLORTYPE_GRAY               0       /* IHDR, BASI, PROM */
 #define MNG_COLORTYPE_RGB                2
 #define MNG_COLORTYPE_INDEXED            3
 #define MNG_COLORTYPE_GRAYA              4
@@ -2042,7 +1938,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 
 #define MNG_IMAGETYPE_UNKNOWN            0       /* DHDR */
 #define MNG_IMAGETYPE_PNG                1
-#define MNG_IMAGETYPE_JNG                1
+#define MNG_IMAGETYPE_JNG                2
 
 #define MNG_DELTATYPE_REPLACE            0       /* DHDR */
 #define MNG_DELTATYPE_BLOCKPIXELADD      1

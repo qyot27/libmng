@@ -26,6 +26,11 @@
 /* *             - added tracestrings for global animation color-chunks     * */
 /* *             - added tracestrings for get/set of default ZLIB/IJG parms * */
 /* *             - added tracestrings for global PLTE,tRNS,bKGD             * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added tracestrings for image-object promotion            * */
+/* *             - added tracestrings for delta-image processing            * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - added tracestrings for getalphaline callback             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -86,6 +91,7 @@
     {MNG_FN_SETCB_PROCESSAROW,         "setcb_processarow"},
     {MNG_FN_SETCB_OPENSTREAM,          "setcb_openstream"},
     {MNG_FN_SETCB_CLOSESTREAM,         "setcb_closestream"},
+    {MNG_FN_SETCB_GETALPHALINE,        "setcb_getalphaline"},
 
     {MNG_FN_GETCB_MEMALLOC,            "getcb_memalloc"},
     {MNG_FN_GETCB_MEMFREE,             "getcb_memfree"},
@@ -107,6 +113,7 @@
     {MNG_FN_GETCB_PROCESSAROW,         "getcb_processarow"},
     {MNG_FN_GETCB_OPENSTREAM,          "getcb_openstream"},
     {MNG_FN_GETCB_CLOSESTREAM,         "getcb_closestream"},
+    {MNG_FN_GETCB_GETALPHALINE,        "getcb_getalphaline"},
 
     {MNG_FN_SET_USERDATA,              "set_userdata"},
     {MNG_FN_SET_CANVASSTYLE,           "set_canvasstyle"},
@@ -415,6 +422,7 @@
     {MNG_FN_CLONE_IMGOBJECT,           "clone_imgobject"},
     {MNG_FN_RESET_OBJECTDETAILS,       "reset_objectdetails"},
     {MNG_FN_RENUM_IMGOBJECT,           "renum_imgobject"},
+    {MNG_FN_PROMOTE_IMGOBJECT,         "promote_imgobject"},
 
     {MNG_FN_STORE_G1,                  "store_g1"},
     {MNG_FN_STORE_G2,                  "store_g2"},
@@ -442,6 +450,22 @@
     {MNG_FN_RETRIEVE_RGBA8,            "retrieve_rgba8"},
     {MNG_FN_RETRIEVE_RGBA16,           "retrieve_rgba16"},
 
+    {MNG_FN_DELTA_G1,                  "delta_g1"},
+    {MNG_FN_DELTA_G2,                  "delta_g2"},
+    {MNG_FN_DELTA_G4,                  "delta_g4"},
+    {MNG_FN_DELTA_G8,                  "delta_g8"},
+    {MNG_FN_DELTA_G16,                 "delta_g16"},
+    {MNG_FN_DELTA_RGB8,                "delta_rgb8"},
+    {MNG_FN_DELTA_RGB16,               "delta_rgb16"},
+    {MNG_FN_DELTA_IDX1,                "delta_idx1"},
+    {MNG_FN_DELTA_IDX2,                "delta_idx2"},
+    {MNG_FN_DELTA_IDX4,                "delta_idx4"},
+    {MNG_FN_DELTA_IDX8,                "delta_idx8"},
+    {MNG_FN_DELTA_GA8,                 "delta_ga8"},
+    {MNG_FN_DELTA_GA16,                "delta_ga16"},
+    {MNG_FN_DELTA_RGBA8,               "delta_rgba8"},
+    {MNG_FN_DELTA_RGBA16,              "delta_rgba16"},
+
     {MNG_FN_CREATE_ANI_LOOP,           "create_ani_loop"},
     {MNG_FN_CREATE_ANI_ENDL,           "create_ani_endl"},
     {MNG_FN_CREATE_ANI_DEFI,           "create_ani_defi"},
@@ -464,6 +488,10 @@
     {MNG_FN_CREATE_ANI_PLTE,           "create_ani_plte"},
     {MNG_FN_CREATE_ANI_TRNS,           "create_ani_trns"},
     {MNG_FN_CREATE_ANI_BKGD,           "create_ani_bkgd"},
+    {MNG_FN_CREATE_ANI_DHDR,           "create_ani_dhdr"},
+    {MNG_FN_CREATE_ANI_PROM,           "create_ani_prom"},
+    {MNG_FN_CREATE_ANI_IPNG,           "create_ani_ipng"},
+    {MNG_FN_CREATE_ANI_IJNG,           "create_ani_ijng"},
 
     {MNG_FN_CREATE_ANI_IMAGE,          "create_ani_image"},
 
@@ -489,6 +517,10 @@
     {MNG_FN_FREE_ANI_PLTE,             "free_ani_plte"},
     {MNG_FN_FREE_ANI_TRNS,             "free_ani_trns"},
     {MNG_FN_FREE_ANI_BKGD,             "free_ani_bkgd"},
+    {MNG_FN_FREE_ANI_DHDR,             "free_ani_dhdr"},
+    {MNG_FN_FREE_ANI_PROM,             "free_ani_prom"},
+    {MNG_FN_FREE_ANI_IPNG,             "free_ani_ipng"},
+    {MNG_FN_FREE_ANI_IJNG,             "free_ani_ijng"},
 
     {MNG_FN_FREE_ANI_IMAGE,            "free_ani_image"},
 
@@ -514,6 +546,10 @@
     {MNG_FN_PROCESS_ANI_PLTE,          "process_ani_plte"},
     {MNG_FN_PROCESS_ANI_TRNS,          "process_ani_trns"},
     {MNG_FN_PROCESS_ANI_BKGD,          "process_ani_bkgd"},
+    {MNG_FN_PROCESS_ANI_DHDR,          "process_ani_dhdr"},
+    {MNG_FN_PROCESS_ANI_PROM,          "process_ani_prom"},
+    {MNG_FN_PROCESS_ANI_IPNG,          "process_ani_ipng"},
+    {MNG_FN_PROCESS_ANI_IJNG,          "process_ani_ijng"},
 
     {MNG_FN_PROCESS_ANI_IMAGE,         "process_ani_image"},
 

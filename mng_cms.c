@@ -117,7 +117,7 @@ mng_retcode init_full_cms (mng_datap pData)
   mng_imagedatap pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS, MNG_LC_START)
 #endif
 
   if ((pBuf->bHasICCP) || (pData->bHasglobalICCP))
@@ -275,7 +275,7 @@ mng_retcode init_full_cms (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS, MNG_LC_END)
 #endif
 
   return init_gamma_only (pData);      /* if we get here, we'll only do gamma */
@@ -293,7 +293,7 @@ mng_retcode init_full_cms_object (mng_datap pData)
   mng_imagedatap pBuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS_OBJ, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS_OBJ, MNG_LC_START)
 #endif
                                        /* address the object-buffer */
   pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
@@ -427,7 +427,7 @@ mng_retcode init_full_cms_object (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS_OBJ, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_FULL_CMS_OBJ, MNG_LC_END)
 #endif
                                        /* if we get here, we'll only do gamma */
   return init_gamma_only_object (pData);
@@ -440,13 +440,13 @@ mng_retcode init_full_cms_object (mng_datap pData)
 mng_retcode correct_full_cms (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_FULL_CMS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CORRECT_FULL_CMS, MNG_LC_START)
 #endif
 
   cmsDoTransform (pData->hTrans, pData->pRGBArow, pData->pRGBArow, pData->iRowsamples);
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_FULL_CMS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CORRECT_FULL_CMS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -462,7 +462,7 @@ mng_retcode init_gamma_only (mng_datap pData)
   mng_imagedatap pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY, MNG_LC_START)
 #endif
 
   if (pBuf->bHasGAMA)                  /* get the gamma value */
@@ -491,7 +491,7 @@ mng_retcode init_gamma_only (mng_datap pData)
   pData->fCorrectrow = (mng_ptr)correct_gamma_only;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -507,7 +507,7 @@ mng_retcode init_gamma_only_object (mng_datap pData)
   mng_imagedatap pBuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY_OBJ, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY_OBJ, MNG_LC_START)
 #endif
                                        /* address the object-buffer */
   pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
@@ -535,7 +535,7 @@ mng_retcode init_gamma_only_object (mng_datap pData)
   pData->fCorrectrow = (mng_ptr)correct_gamma_only;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY_OBJ, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GAMMA_ONLY_OBJ, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -551,7 +551,7 @@ mng_retcode correct_gamma_only (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_GAMMA_ONLY, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CORRECT_GAMMA_ONLY, MNG_LC_START)
 #endif
 
   pWork = pData->pRGBArow;             /* address intermediate row */
@@ -587,7 +587,7 @@ mng_retcode correct_gamma_only (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_GAMMA_ONLY, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CORRECT_GAMMA_ONLY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -602,7 +602,7 @@ mng_retcode init_app_cms (mng_datap pData)
   mng_imagedatap pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS, MNG_LC_START)
 #endif
 
   if ( (pData->fProcessiccp) &&
@@ -701,7 +701,7 @@ mng_retcode init_app_cms (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -716,7 +716,7 @@ mng_retcode init_app_cms_object (mng_datap pData)
   mng_imagedatap pBuf = ((mng_imagep)pData->pCurrentobj)->pImgbuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS_OBJ, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS_OBJ, MNG_LC_START)
 #endif
 
   if ((pData->fProcessiccp) && (pBuf->bHasICCP))
@@ -755,7 +755,7 @@ mng_retcode init_app_cms_object (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS_OBJ, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_APP_CMS_OBJ, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -768,7 +768,7 @@ mng_retcode init_app_cms_object (mng_datap pData)
 mng_retcode correct_app_cms (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_APP_CMS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CORRECT_APP_CMS, MNG_LC_START)
 #endif
 
   if (pData->fProcessarow)             /* let the app do something with our row */
@@ -777,7 +777,7 @@ mng_retcode correct_app_cms (mng_datap pData)
       MNG_ERROR (pData, MNG_APPCMSERROR)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CORRECT_APP_CMS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CORRECT_APP_CMS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

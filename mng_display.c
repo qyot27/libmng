@@ -37,6 +37,10 @@
 /* *             - added JNG support (JHDR/JDAT)                            * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - fixed problem with DEFI clipping                         * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added delta-image support (DHDR,PROM,IPNG,IJNG)          * */
+/* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
+/* *             - fixed pointer confusion (contributed by Tim Rowley)      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -84,7 +88,7 @@ mng_retcode interframe_delay (mng_datap pData)
 #endif    
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
 #endif
 
   if (pData->iFramedelay > 0)          /* let the app refresh first */
@@ -142,7 +146,7 @@ mng_retcode interframe_delay (mng_datap pData)
      only necessary during read-processing! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -190,7 +194,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_START)
 #endif
 
   pData->iDestl   = 0;                 /* determine clipping region */
@@ -225,7 +229,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
 
     set_display_routine (pData);       /* determine display routine */
                                        /* default restore using preset BG color */
-    pData->fRestbkgdrow = restore_bkgd_bgcolor;
+    pData->fRestbkgdrow = (mng_ptr)restore_bkgd_bgcolor;
 
     if (pData->fGetbkgdline)           /* background-canvas-access callback set ? */
     {
@@ -246,10 +250,10 @@ mng_retcode load_bkgdlayer (mng_datap pData)
     if (pData->bHasBACK)
     {                                  /* background image ? */
       if ((pData->iBACKmandatory & 0x02) && (pData->iBACKimageid))
-        pData->fRestbkgdrow = restore_bkgd_backimage;
+        pData->fRestbkgdrow = (mng_ptr)restore_bkgd_backimage;
       else                             /* background color ? */
       if (pData->iBACKmandatory & 0x01)
-        pData->fRestbkgdrow = restore_bkgd_backcolor;
+        pData->fRestbkgdrow = (mng_ptr)restore_bkgd_backcolor;
 
     }
 
@@ -291,7 +295,7 @@ mng_retcode load_bkgdlayer (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_LOAD_BKGDLAYER, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -315,7 +319,7 @@ mng_retcode next_frame (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_START)
 #endif
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
@@ -432,7 +436,7 @@ mng_retcode next_frame (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_FRAME, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -446,7 +450,7 @@ mng_retcode next_layer (mng_datap pData)
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_START)
 #endif
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
@@ -532,7 +536,7 @@ mng_retcode next_layer (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_LAYER, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -545,7 +549,7 @@ mng_retcode display_image (mng_datap  pData,
                            mng_bool   bLayeradvanced)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START)
 #endif
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
@@ -674,7 +678,7 @@ mng_retcode display_image (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;                  /* whehehe, this is good ! */
@@ -688,7 +692,7 @@ mng_retcode save_state (mng_datap pData)
   mng_imagep    pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_START)
 #endif
 
   if (pData->pSavedata)                /* sanity check */
@@ -780,7 +784,7 @@ mng_retcode save_state (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_SAVE_STATE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -794,7 +798,7 @@ mng_retcode restore_state (mng_datap pData)
   mng_imagep    pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_START)
 #endif
 
   if (pData->pSavedata)                /* do we have a saved state ? */
@@ -1013,7 +1017,7 @@ mng_retcode restore_state (mng_datap pData)
   }                                    /* TODO: remove line in 1.0.0 !!! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_STATE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1030,57 +1034,77 @@ mng_retcode process_display_ihdr (mng_datap pData)
   mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_START)
 #endif
-                                       /* sequence checks */
-  pData->fInitrowproc = 0;             /* do nothing by default */
-  pData->fDisplayrow  = 0;
-  pData->fCorrectrow  = 0;
-  pData->fStorerow    = 0;
-  pData->fProcessrow  = 0;
-  pData->pStoreobj    = 0;
+
+  if (!pData->bHasDHDR)
+  {
+    pData->fInitrowproc = 0;           /* do nothing by default */
+    pData->fDisplayrow  = 0;
+    pData->fCorrectrow  = 0;
+    pData->fStorerow    = 0;
+    pData->fProcessrow  = 0;
+    pData->pStoreobj    = 0;
+  }
 
   if (!pData->iBreakpoint)             /* not previously broken ? */
   {
     mng_retcode iRetcode = MNG_NOERROR;
 
-    if (pImage)                        /* update object buffer ? */
-      iRetcode = reset_object_details (pData, pImage,
-                                       pData->iDatawidth, pData->iDataheight,
-                                       pData->iBitdepth, pData->iColortype,
-                                       MNG_TRUE);
-    else                               /* update object 0 ? */
-    if (pData->eImagetype != mng_it_png)
-      iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                                       pData->iDatawidth, pData->iDataheight,
-                                       pData->iBitdepth, pData->iColortype,
-                                       MNG_TRUE);
+    if (pData->bHasDHDR)               /* is a delta-image ? */
+    {
+      if (pData->iDeltatype == MNG_DELTATYPE_REPLACE)
+        iRetcode = reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iBitdepth, pData->iColortype,
+                                         pData->iCompression, pData->iFilter,
+                                         pData->iInterlace, MNG_TRUE);
+    }
+    else
+    {
+      if (pImage)                      /* update object buffer ? */
+        iRetcode = reset_object_details (pData, pImage,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iBitdepth, pData->iColortype,
+                                         pData->iCompression, pData->iFilter,
+                                         pData->iInterlace, MNG_TRUE);
+      else                             /* update object 0 ? */
+      if (pData->eImagetype != mng_it_png)
+        iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iBitdepth, pData->iColortype,
+                                         pData->iCompression, pData->iFilter,
+                                         pData->iInterlace, MNG_TRUE);
+    }
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
-                                       /* do we need to store it ? */
-  if (pData->eImagetype != mng_it_png)
-  {
-    if (pImage)                        /* real object ? */
-      pData->pStoreobj = pImage;       /* tell the row routines */
-    else                               /* otherwise use object 0 */
-      pData->pStoreobj = pData->pObjzero;
-  }
-                                       /* display "on-the-fly" ? */
-  if ( (pData->eImagetype == mng_it_png         ) ||
-       (((mng_imagep)pData->pStoreobj)->bVisible)    )
-  {
-    next_layer (pData);                /* that's a new layer then ! */
 
-    if (pData->bTimerset)              /* timer break ? */
-      pData->iBreakpoint = 2;
-    else
+  if (!pData->bHasDHDR)
+  {                                    /* do we need to store it ? */
+    if (pData->eImagetype != mng_it_png)
     {
-      pData->iBreakpoint = 0;
+      if (pImage)                      /* real object ? */
+        pData->pStoreobj = pImage;     /* tell the row routines */
+      else                             /* otherwise use object 0 */
+        pData->pStoreobj = pData->pObjzero;
+    }
+                                       /* display "on-the-fly" ? */
+    if ( (pData->eImagetype == mng_it_png         ) ||
+         (((mng_imagep)pData->pStoreobj)->bVisible)    )
+    {
+      next_layer (pData);              /* that's a new layer then ! */
+
+      if (pData->bTimerset)            /* timer break ? */
+        pData->iBreakpoint = 2;
+      else
+      {
+        pData->iBreakpoint = 0;
                                        /* anything to display ? */
-      if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
-        set_display_routine (pData);   /* then determine display routine */
+        if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+          set_display_routine (pData); /* then determine display routine */
+      }
     }
   }
 
@@ -1247,7 +1271,7 @@ mng_retcode process_display_ihdr (mng_datap pData)
   }  
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1262,7 +1286,7 @@ mng_retcode process_display_idat (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START)
 #endif
 
   if (!pData->bInflating)              /* if we're not inflating already */
@@ -1277,7 +1301,7 @@ mng_retcode process_display_idat (mng_datap  pData,
     iRetcode = mngzlib_inflaterows (pData, iRawlen, pRawdata);
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -1291,7 +1315,7 @@ mng_retcode process_display_iend (mng_datap pData)
   mng_bool bDodisplay = MNG_FALSE;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_START)
 #endif
 
 #ifdef MNG_INCLUDE_JNG                 /* progressive+alpha JNG can be displayed now */
@@ -1328,7 +1352,8 @@ mng_retcode process_display_iend (mng_datap pData)
   {
     pData->iBreakpoint = 0;            /* clear this flag now ! */
                                        /* cleanup object 0 */
-    reset_object_details (pData, (mng_imagep)pData->pObjzero, 0, 0, 0, 0, MNG_TRUE);
+    reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                          0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
 
     if (pData->bInflating)             /* if we've been inflating */
     {                                  /* cleanup row-processing, */
@@ -1365,7 +1390,7 @@ mng_retcode process_display_iend (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IEND, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1376,7 +1401,7 @@ mng_retcode process_display_iend (mng_datap pData)
 mng_retcode process_display_mend (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_START)
 #endif
 
   if (pData->bHasTERM)                 /* TERM processed ? */
@@ -1454,7 +1479,7 @@ mng_retcode process_display_mend (mng_datap pData)
       MNG_ERROR (pData, MNG_APPMISCERROR)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MEND, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1467,7 +1492,7 @@ mng_retcode process_display_defi (mng_datap pData)
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_START)
 #endif
 
   if (!pData->iDEFIobjectid)           /* object id=0 ? */
@@ -1497,7 +1522,7 @@ mng_retcode process_display_defi (mng_datap pData)
       mng_retcode iRetcode = create_imageobject (pData, pData->iDEFIobjectid,
                                                  (mng_bool)(pData->iDEFIconcrete == 1),
                                                  (mng_bool)(pData->iDEFIdonotshow == 0),
-                                                 MNG_FALSE, 0, 0, 0, 0,
+                                                 MNG_FALSE, 0, 0, 0, 0, 0, 0, 0,
                                                  pData->iDEFIlocax, pData->iDEFIlocay,
                                                  pData->bDEFIhasclip,
                                                  pData->iDEFIclipl, pData->iDEFIclipr,
@@ -1526,7 +1551,7 @@ mng_retcode process_display_defi (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1549,7 +1574,7 @@ mng_retcode process_display_basi (mng_datap  pData,
   mng_retcode    iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_START)
 #endif
 
   if (!pImage)                         /* or is it an "on-the-fly" image ? */
@@ -1562,7 +1587,8 @@ mng_retcode process_display_basi (mng_datap  pData,
                                        /* set parms now that they're known */
   iRetcode = reset_object_details (pData, pImage, pData->iDatawidth,
                                    pData->iDataheight, pData->iBitdepth,
-                                   pData->iColortype, MNG_FALSE);
+                                   pData->iColortype, pData->iCompression,
+                                   pData->iFilter, pData->iInterlace, MNG_FALSE);
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* save the viewable flag */
@@ -1879,7 +1905,7 @@ mng_retcode process_display_basi (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_BASI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1904,7 +1930,7 @@ mng_retcode process_display_clon (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START)
 #endif
                                        /* locate the source object first */
   pSource = find_imageobject (pData, iSourceid);
@@ -1967,7 +1993,7 @@ mng_retcode process_display_clon (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1978,14 +2004,14 @@ mng_retcode process_display_clon (mng_datap  pData,
 mng_retcode process_display_clon2 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_START)
 #endif
                                        /* only called after timer break ! */
   display_image (pData, (mng_imagep)pData->pLastclone, MNG_FALSE);
   pData->iBreakpoint = 0;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLON, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2001,7 +2027,7 @@ mng_retcode process_display_disc (mng_datap   pData,
   mng_imagep pImage;
   mng_uint32 iRetcode;
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_START)
 #endif
 
   if (iCount)                          /* specific list ? */
@@ -2041,7 +2067,7 @@ mng_retcode process_display_disc (mng_datap   pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DISC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2065,7 +2091,7 @@ mng_retcode process_display_fram (mng_datap  pData,
   mng_uint32 iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START)
 #endif
                                        /* advance a frame then */
   iRetcode = next_frame (pData, iFramemode, iChangedelay, iDelay,
@@ -2076,7 +2102,7 @@ mng_retcode process_display_fram (mng_datap  pData,
     pData->iBreakpoint = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -2089,14 +2115,14 @@ mng_retcode process_display_fram2 (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_START)
 #endif
                                        /* again; after the break */
   iRetcode = next_frame (pData, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   pData->iBreakpoint = 0;              /* not again! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_FRAM, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -2115,7 +2141,7 @@ mng_retcode process_display_move (mng_datap  pData,
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_START)
 #endif
                                        /* iterate the list */
   for (iX = iFromid; iX <= iToid; iX++)
@@ -2144,7 +2170,7 @@ mng_retcode process_display_move (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MOVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2165,7 +2191,7 @@ mng_retcode process_display_clip (mng_datap  pData,
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_START)
 #endif
                                        /* iterate the list */
   for (iX = iFromid; iX <= iToid; iX++)
@@ -2200,7 +2226,7 @@ mng_retcode process_display_clip (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_CLIP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2214,7 +2240,7 @@ mng_retcode process_display_show (mng_datap pData)
   mng_imagep pImage;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_START)
 #endif
 
   /* TODO: optimization for the cases where "abs (iTo - iFrom)" is rather high;
@@ -2405,7 +2431,7 @@ mng_retcode process_display_show (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SHOW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2418,7 +2444,7 @@ mng_retcode process_display_save (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_START)
 #endif
 
   iRetcode = save_state (pData);       /* save the current state */
@@ -2427,7 +2453,7 @@ mng_retcode process_display_save (mng_datap pData)
     return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SAVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2440,7 +2466,7 @@ mng_retcode process_display_seek (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_START)
 #endif
 
   iRetcode = restore_state (pData);    /* restore the initial or SAVE state */
@@ -2449,7 +2475,7 @@ mng_retcode process_display_seek (mng_datap pData)
     return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_SEEK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2460,132 +2486,183 @@ mng_retcode process_display_seek (mng_datap pData)
 #ifdef MNG_INCLUDE_JNG
 mng_retcode process_display_jhdr (mng_datap pData)
 {                                      /* address the current "object" if any */
-  mng_imagep  pImage = (mng_imagep)pData->pCurrentobj;
-  mng_retcode iRetcode;
+  mng_imagep  pImage   = (mng_imagep)pData->pCurrentobj;
+  mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_START)
 #endif
 
-  pData->fInitrowproc  = 0;            /* do nothing by default */
-  pData->fDisplayrow   = 0;
-  pData->fCorrectrow   = 0;
-  pData->fStorerow     = 0;
-  pData->fProcessrow   = 0;
-  pData->fStorerow2    = 0;
+  if (!pData->bHasDHDR)
+  {
+    pData->fInitrowproc  = 0;          /* do nothing by default */
+    pData->fDisplayrow   = 0;
+    pData->fCorrectrow   = 0;
+    pData->fStorerow     = 0;
+    pData->fProcessrow   = 0;
+    pData->fStorerow2    = 0;
 
-  pData->pStoreobj     = MNG_NULL;     /* initialize important work-parms */
-  pData->iJPEGrow      = 0;
-  pData->iJPEGalpharow = 0;
-  pData->iJPEGrgbrow   = 0;
-  pData->iRowmax       = 0;            /* so init_rowproc does the right thing ! */
+    pData->pStoreobj     = MNG_NULL;   /* initialize important work-parms */
+
+    pData->iJPEGrow      = 0;
+    pData->iJPEGalpharow = 0;
+    pData->iJPEGrgbrow   = 0;
+    pData->iRowmax       = 0;          /* so init_rowproc does the right thing ! */
+  }
 
   if (!pData->iBreakpoint)             /* not previously broken ? */
   {
-    if (pImage)                        /* update object buffer ? */
-      iRetcode = reset_object_details (pData, pImage,
-                                       pData->iDatawidth, pData->iDataheight,
-                                       pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
-                                       MNG_TRUE);
-    else                               /* update object 0 ? */
-      iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                                       pData->iDatawidth, pData->iDataheight,
-                                       pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
-                                       MNG_TRUE);
+    if (pData->bHasDHDR)               /* delta-image ? */
+    {
+      if (pData->iDeltatype == MNG_DELTATYPE_REPLACE)
+      {
+        iRetcode = reset_object_details (pData, (mng_imagep)pData->pDeltaImage,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                         pData->iJHDRalphainterlace, MNG_TRUE);
+
+        ((mng_imagep)pData->pDeltaImage)->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+      }
+    }
+    else
+    {
+      if (pImage)                      /* update object buffer ? */
+      {
+        iRetcode = reset_object_details (pData, pImage,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                         pData->iJHDRalphainterlace, MNG_TRUE);
+
+        pImage->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+      }
+      else                             /* update object 0 */
+      {
+        iRetcode = reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                         pData->iDatawidth, pData->iDataheight,
+                                         pData->iJHDRimgbitdepth, pData->iJHDRcolortype,
+                                         pData->iJHDRalphacompression, pData->iJHDRalphafilter,
+                                         pData->iJHDRalphainterlace, MNG_TRUE);
+
+        ((mng_imagep)pData->pObjzero)->pImgbuf->iAlphabitdepth = pData->iJHDRalphabitdepth;
+      }
+    }
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
-                                       /* we're always storing a JPEG */
-  if (pImage)                          /* real object ? */
-    pData->pStoreobj = pImage;         /* tell the row routines */
-  else                                 /* otherwise use object 0 */
-    pData->pStoreobj = pData->pObjzero;
-                                       /* display "on-the-fly" ? */
-  if ( (pData->eImagetype == mng_it_jng         ) ||
-       (((mng_imagep)pData->pStoreobj)->bVisible)    )
-  {
-    next_layer (pData);                /* that's a new layer then ! */
 
-    if (pData->bTimerset)              /* timer break ? */
-      pData->iBreakpoint = 7;
-    else
+  if (!pData->bHasDHDR)
+  {                                    /* we're always storing a JPEG */
+    if (pImage)                        /* real object ? */
+      pData->pStoreobj = pImage;       /* tell the row routines */
+    else                               /* otherwise use object 0 */
+      pData->pStoreobj = pData->pObjzero;
+                                       /* display "on-the-fly" ? */
+    if ( (pData->eImagetype == mng_it_jng         ) ||
+         (((mng_imagep)pData->pStoreobj)->bVisible)    )
     {
-      pData->iBreakpoint = 0;
-                                       /* anything to display ? */
-      if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+      next_layer (pData);              /* that's a new layer then ! */
+
+      if (pData->bTimerset)            /* timer break ? */
+        pData->iBreakpoint = 7;
+      else
       {
-        set_display_routine (pData);   /* then determine display routine */
+        pData->iBreakpoint = 0;
+                                       /* anything to display ? */
+        if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+        {
+          set_display_routine (pData); /* then determine display routine */
                                        /* display from the object we store in */
-        pData->pRetrieveobj = pData->pStoreobj;
+          pData->pRetrieveobj = pData->pStoreobj;
+        }
       }
-    }  
+    }
   }
 
   if (!pData->bTimerset)               /* no timer break ? */
   {
-    if (pData->iJHDRimgbitdepth == 8)  /* 8-bit JPEG ? */
-    {
-      pData->bIsRGBA16 = MNG_FALSE;    /* intermediate row is 8-bit deep */
-
-      switch (pData->iJHDRcolortype)   /* determine pixel processing routines */
+    if ((!pData->bHasDHDR) || (pData->iDeltatype == MNG_DELTATYPE_REPLACE))
+    {                                  /* 8-bit JPEG ? */
+      if (pData->iJHDRimgbitdepth == 8)
       {
-        case MNG_COLORTYPE_JPEGGRAY :
-             {
-               pData->fStorerow2   = (mng_ptr)store_jpeg_g8;
-               pData->fRetrieverow = (mng_ptr)retrieve_g8;
-               pData->bIsOpaque    = MNG_TRUE;
-               break;
-             }
-        case MNG_COLORTYPE_JPEGCOLOR :
-             {
-               pData->fStorerow2   = (mng_ptr)store_jpeg_rgb8;
-               pData->fRetrieverow = (mng_ptr)retrieve_rgb8;
-               pData->bIsOpaque    = MNG_TRUE;
-               break;
-             }
-        case MNG_COLORTYPE_JPEGGRAYA :
-             {
-               pData->fStorerow2   = (mng_ptr)store_jpeg_ga8;
-               pData->fRetrieverow = (mng_ptr)retrieve_ga8;
-               pData->bIsOpaque    = MNG_FALSE;
-               break;
-             }
-        case MNG_COLORTYPE_JPEGCOLORA :
-             {
-               pData->fStorerow2   = (mng_ptr)store_jpeg_rgba8;
-               pData->fRetrieverow = (mng_ptr)retrieve_rgba8;
-               pData->bIsOpaque    = MNG_FALSE;
-               break;
-             }
+        pData->bIsRGBA16 = MNG_FALSE;  /* intermediate row is 8-bit deep */
+
+        switch (pData->iJHDRcolortype) /* determine pixel processing routines */
+        {
+          case MNG_COLORTYPE_JPEGGRAY :
+               {
+                 pData->fStorerow2   = (mng_ptr)store_jpeg_g8;
+                 pData->fRetrieverow = (mng_ptr)retrieve_g8;
+                 pData->bIsOpaque    = MNG_TRUE;
+                 break;
+               }
+          case MNG_COLORTYPE_JPEGCOLOR :
+               {
+                 pData->fStorerow2   = (mng_ptr)store_jpeg_rgb8;
+                 pData->fRetrieverow = (mng_ptr)retrieve_rgb8;
+                 pData->bIsOpaque    = MNG_TRUE;
+                 break;
+               }
+          case MNG_COLORTYPE_JPEGGRAYA :
+               {
+                 pData->fStorerow2   = (mng_ptr)store_jpeg_ga8;
+                 pData->fRetrieverow = (mng_ptr)retrieve_ga8;
+                 pData->bIsOpaque    = MNG_FALSE;
+                 break;
+               }
+          case MNG_COLORTYPE_JPEGCOLORA :
+               {
+                 pData->fStorerow2   = (mng_ptr)store_jpeg_rgba8;
+                 pData->fRetrieverow = (mng_ptr)retrieve_rgba8;
+                 pData->bIsOpaque    = MNG_FALSE;
+                 break;
+               }
+        }
       }
+      else
+      {
+        pData->bIsRGBA16 = MNG_TRUE;   /* intermediate row is 16-bit deep */
+
+        /* TODO: 12-bit JPEG */
+        /* TODO: 8- + 12-bit JPEG (eg. type=20) */
+
+      }
+                                       /* determine alpha processing routine */
+      switch (pData->iJHDRalphabitdepth)
+      {
+        case  1 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a1_ni;  break; }
+        case  2 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a2_ni;  break; }
+        case  4 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a4_ni;  break; }
+        case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
+        case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
+      }
+                                       /* initialize JPEG library */
+      iRetcode = mngjpeg_initialize (pData);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
     }
     else
-    {
-      pData->bIsRGBA16 = MNG_TRUE;     /* intermediate row is 16-bit deep */
-
-      /* TODO: 12-bit JPEG */
-      /* TODO: 8- + 12-bit JPEG (eg. type=20) */
-
+    {                                  /* must be alpha add/replace !! */
+      if ((pData->iDeltatype != MNG_DELTATYPE_BLOCKALPHAADD    ) &&
+          (pData->iDeltatype != MNG_DELTATYPE_BLOCKALPHAREPLACE)    )
+        MNG_ERROR (pData, MNG_INVDELTATYPE)
+                                       /* determine alpha processing routine */
+      switch (pData->iJHDRalphabitdepth)
+      {
+        case  1 : { pData->fInitrowproc = (mng_ptr)init_g1_ni;  break; }
+        case  2 : { pData->fInitrowproc = (mng_ptr)init_g2_ni;  break; }
+        case  4 : { pData->fInitrowproc = (mng_ptr)init_g4_ni;  break; }
+        case  8 : { pData->fInitrowproc = (mng_ptr)init_g8_ni;  break; }
+        case 16 : { pData->fInitrowproc = (mng_ptr)init_g16_ni; break; }
+      }
     }
-
-    switch (pData->iJHDRalphabitdepth) /* determine alpha processing routine */
-    {
-      case  1 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a1_ni;  break; }
-      case  2 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a2_ni;  break; }
-      case  4 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a4_ni;  break; }
-      case  8 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a8_ni;  break; }
-      case 16 : { pData->fInitrowproc = (mng_ptr)init_jpeg_a16_ni; break; }
-    }
-                                       /* initialize JPEG library */
-    iRetcode = mngjpeg_initialize (pData);
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2602,7 +2679,7 @@ mng_retcode process_display_jdat (mng_datap  pData,
   mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_START)
 #endif
 
   if (!pData->bJPEGdecompress)         /* if we're not decompressing already */
@@ -2620,12 +2697,345 @@ mng_retcode process_display_jdat (mng_datap  pData,
     iRetcode = mngjpeg_decompressdata (pData, iRawlen, pRawdata);
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_JDAT, MNG_LC_END)
 #endif
 
   return iRetcode;
 }
 #endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+mng_retcode process_display_dhdr (mng_datap  pData,
+                                  mng_uint16 iObjectid,
+                                  mng_uint8  iImagetype,
+                                  mng_uint8  iDeltatype,
+                                  mng_uint32 iBlockwidth,
+                                  mng_uint32 iBlockheight,
+                                  mng_uint32 iBlockx,
+                                  mng_uint32 iBlocky)
+{
+  mng_imagep pImage;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DHDR, MNG_LC_START)
+#endif
+
+  pData->fInitrowproc     = 0;         /* do nothing by default */
+  pData->fDisplayrow      = 0;
+  pData->fCorrectrow      = 0;
+  pData->fStorerow        = 0;
+  pData->fProcessrow      = 0;
+  pData->pStoreobj        = 0;
+
+  pData->fDeltagetrow     = 0;
+  pData->fDeltaaddrow     = 0;
+  pData->fDeltareplacerow = 0;
+  pData->fDeltaputrow     = 0;
+
+  pImage = find_imageobject (pData, iObjectid);
+
+  if (pImage)                          /* object exists ? */
+  {
+    if (pImage->pImgbuf->bConcrete)    /* is it concrete ? */
+    {                                  /* save delta fields */
+      pData->pDeltaImage       = (mng_ptr)pImage;
+      pData->iDeltaImagetype   = iImagetype;
+      pData->iDeltatype        = iDeltatype;
+      pData->iDeltaBlockwidth  = iBlockwidth;
+      pData->iDeltaBlockheight = iBlockheight;
+      pData->iDeltaBlockx      = iBlockx;
+      pData->iDeltaBlocky      = iBlocky;
+                                       /* restore target-object fields */
+      pData->iDatawidth        = pImage->pImgbuf->iWidth;
+      pData->iDataheight       = pImage->pImgbuf->iHeight;
+      pData->iBitdepth         = pImage->pImgbuf->iBitdepth;
+      pData->iColortype        = pImage->pImgbuf->iColortype;
+      pData->iCompression      = pImage->pImgbuf->iCompression;
+      pData->iFilter           = pImage->pImgbuf->iFilter;
+      pData->iInterlace        = pImage->pImgbuf->iInterlace;
+                                       /* block size specified ? */
+      if (iDeltatype != MNG_DELTATYPE_NOCHANGE)
+      {
+        pData->iDatawidth      = iBlockwidth;
+        pData->iDataheight     = iBlockheight;
+      }
+                                       /* full image replace ? */
+      if (iDeltatype == MNG_DELTATYPE_REPLACE)
+      {
+        mng_retcode iRetcode = reset_object_details (pData, pImage,
+                                                     pData->iDatawidth, pData->iDataheight,
+                                                     pData->iBitdepth, pData->iColortype,
+                                                     pData->iCompression, pData->iFilter,
+                                                     pData->iInterlace, MNG_TRUE);
+
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;     
+      }
+
+      switch (iDeltatype)              /* determine nr of delta-channels */
+      {
+         case MNG_DELTATYPE_BLOCKALPHAADD : ;
+         case MNG_DELTATYPE_BLOCKALPHAREPLACE :
+              {
+                if (pData->iColortype == MNG_COLORTYPE_GRAYA)
+                  pData->iColortype = MNG_COLORTYPE_GRAY;
+                else
+                if (pData->iColortype == MNG_COLORTYPE_RGBA)
+                  pData->iColortype = MNG_COLORTYPE_GRAY;
+                else                   /* target has no alpha; that sucks! */
+                  MNG_ERROR (pData, MNG_TARGETNOALPHA)
+
+                break;
+              }
+
+         case MNG_DELTATYPE_BLOCKCOLORADD : ;
+         case MNG_DELTATYPE_BLOCKCOLORREPLACE :
+              {
+                if (pData->iColortype == MNG_COLORTYPE_GRAYA)
+                  pData->iColortype = MNG_COLORTYPE_GRAY;
+                else
+                if (pData->iColortype == MNG_COLORTYPE_RGBA)
+                  pData->iColortype = MNG_COLORTYPE_RGB;
+                else                   /* target has no alpha; that sucks! */
+                  MNG_ERROR (pData, MNG_TARGETNOALPHA)
+
+                break;
+              }
+
+      }
+
+      pData->pStoreobj = pImage;       /* this is our target */
+
+      switch (pData->iColortype)       /* determine row initialization routine */
+      {
+        case 0 : {                     /* gray */
+                   switch (pData->iBitdepth)
+                   {
+                     case  1 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_g1_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_g1_i;
+
+                                 break;
+                               }
+                     case  2 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_g2_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_g2_i;
+
+                                 break;
+                               }
+                     case  4 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_g4_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_g4_i;
+
+                                 break;
+                               }
+                     case  8 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_g8_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_g8_i;
+
+                                 break;
+                               }
+                     case 16 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_g16_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_g16_i;
+
+                                 break;
+                               }
+                   }
+
+                   break;
+                 }
+        case 2 : {                     /* rgb */
+                   switch (pData->iBitdepth)
+                   {
+                     case  8 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_rgb8_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_rgb8_i;
+
+                                 break;
+                               }
+                     case 16 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_rgb16_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_rgb16_i;
+
+                                 break;
+                               }
+                   }
+
+                   break;
+                 }
+        case 3 : {                     /* indexed */
+                   switch (pData->iBitdepth)
+                   {
+                     case  1 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_idx1_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_idx1_i;
+
+                                 break;
+                               }
+                     case  2 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_idx2_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_idx2_i;
+
+                                 break;
+                               }
+                     case  4 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_idx4_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_idx4_i;
+
+                                 break;
+                               }
+                     case  8 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_idx8_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_idx8_i;
+
+                                 break;
+                               }
+                   }
+
+                   break;
+                 }
+        case 4 : {                     /* gray+alpha */
+                   switch (pData->iBitdepth)
+                   {
+                     case  8 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_ga8_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_ga8_i;
+
+                                 break;
+                               }
+                     case 16 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_ga16_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_ga16_i;
+
+                                 break;
+                               }
+                   }
+
+                   break;
+                 }
+        case 6 : {                     /* rgb+alpha */
+                   switch (pData->iBitdepth)
+                   {
+                     case  8 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_rgba8_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_rgba8_i;
+
+                                 break;
+                               }
+                     case 16 : {
+                                 if (!pData->iInterlace)
+                                   pData->fInitrowproc = (mng_ptr)init_rgba16_ni;
+                                 else
+                                   pData->fInitrowproc = (mng_ptr)init_rgba16_i;
+
+                                 break;
+                               }
+                   }
+
+                   break;
+                 }
+      }
+    }
+    else
+      MNG_ERROR (pData, MNG_OBJNOTCONCRETE)
+
+  }
+  else
+    MNG_ERROR (pData, MNG_OBJECTUNKNOWN)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_DHDR, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_prom (mng_datap  pData,
+                                  mng_uint8  iBitdepth,
+                                  mng_uint8  iColortype,
+                                  mng_uint8  iFilltype)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PROM, MNG_LC_START)
+#endif
+
+
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PROM, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_ipng (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IPNG, MNG_LC_START)
+#endif
+                                       /* indicate it for what it is now */
+  pData->iDeltaImagetype = MNG_IMAGETYPE_PNG;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IPNG, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_ijng (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IJNG, MNG_LC_START)
+#endif
+                                       /* indicate it for what it is now */
+  pData->iDeltaImagetype = MNG_IMAGETYPE_JNG;
+                                       /* get the alpha-bitdepth!!! */
+  pData->iBitdepth       = ((mng_imagep)pData->pDeltaImage)->pImgbuf->iAlphabitdepth;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IJNG, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
 
 /* ************************************************************************** */
 

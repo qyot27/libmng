@@ -48,9 +48,7 @@ mng_retcode process_display_idat  (mng_datap  pData,
                                    mng_uint8p pRawdata);
 
 mng_retcode process_display_iend  (mng_datap  pData);
-
 mng_retcode process_display_mend  (mng_datap  pData);
-
 mng_retcode process_display_defi  (mng_datap  pData);
 
 mng_retcode process_display_basi  (mng_datap  pData,
@@ -109,16 +107,30 @@ mng_retcode process_display_clip  (mng_datap  pData,
                                    mng_int32  iClipb);
 
 mng_retcode process_display_show  (mng_datap  pData);
-
 mng_retcode process_display_save  (mng_datap  pData);
-
 mng_retcode process_display_seek  (mng_datap  pData);
-
 mng_retcode process_display_jhdr  (mng_datap  pData);
 
 mng_retcode process_display_jdat  (mng_datap  pData,
                                    mng_uint32 iRawlen,
                                    mng_uint8p pRawdata);
+
+mng_retcode process_display_dhdr  (mng_datap  pData,
+                                   mng_uint16 iObjectid,
+                                   mng_uint8  iImagetype,
+                                   mng_uint8  iDeltatype,
+                                   mng_uint32 iBlockwidth,
+                                   mng_uint32 iBlockheight,
+                                   mng_uint32 iBlockx,
+                                   mng_uint32 iBlocky);
+
+mng_retcode process_display_prom  (mng_datap  pData,
+                                   mng_uint8  iBitdepth,
+                                   mng_uint8  iColortype,
+                                   mng_uint8  iFilltype);
+
+mng_retcode process_display_ipng  (mng_datap  pData);
+mng_retcode process_display_ijng  (mng_datap  pData);
 
 /* ************************************************************************** */
 

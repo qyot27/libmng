@@ -26,6 +26,8 @@
 /* *             - cleaned up some code regarding mixed support             * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - added support for JNG                                    * */
+/* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
+/* *             - fixed up punctuation (contribution by Tim Rowley)        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -136,7 +138,7 @@ mng_retcode process_raw_chunk (mng_datap  pData,
   mng_retcode       iRetcode;          /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START)
 #endif
                                        /* get the chunkname */
   iChunkname = (mng_chunkid)(mng_get_uint32 (pBuf));
@@ -163,7 +165,7 @@ mng_retcode process_raw_chunk (mng_datap  pData,
       {
         pEntry = &chunk_table [iMiddle];
         break;
-      };
+      }
 
       iMiddle = (iLower + iUpper) >> 1;
     }
@@ -191,7 +193,7 @@ mng_retcode process_raw_chunk (mng_datap  pData,
     add_chunk (pData, pChunk);         /* do it */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -211,7 +213,7 @@ mng_retcode read_chunk (mng_datap  pData)
   mng_retcode iRetcode  = MNG_NOERROR; 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_START)
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY
@@ -335,7 +337,7 @@ mng_retcode read_chunk (mng_datap  pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_READ_CHUNK, MNG_LC_END)
 #endif
 
   return iRetcode;
@@ -351,7 +353,7 @@ mng_retcode read_graphic (mng_datap pData)
   mng_retcode iRetcode;                /* temporary error-code */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_START)
 #endif
 
   if (!pData->pReadbuf)                /* buffer allocated ? */
@@ -406,7 +408,7 @@ mng_retcode read_graphic (mng_datap pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_READ_GRAPHIC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

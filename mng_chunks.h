@@ -25,6 +25,9 @@
 /* *             0.5.1 - 05/11/2000 - G.Juyn                                * */
 /* *             - fixed layout for PPLT again (missed deltatype ?!?)       * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
+/* *             - removed useless definition (contributed by Tim Rowley)   * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -50,18 +53,6 @@
 #define MNG_SIG 0x8a4d4e47L
 #define POST_SIG 0x0d0a1a0aL
 #endif
-
-/* ************************************************************************** */
-
-#if defined(MNG_SWAP_ENDIAN)
-mng_int32  mng_get_int32  (mng_uint8p pBuf);
-mng_uint32 mng_get_uint32 (mng_uint8p pBuf);
-mng_uint16 mng_get_uint16 (mng_uint8p pBuf);
-#else
-#  define mng_get_int32(buf) ( *((mng_int32p) (buf)))
-#  define mng_get_uint32(buf) ( *((mng_uint32p) (buf)))
-#  define mng_get_uint16(buf) ( *((mng_uint16p) (buf)))
-#endif /* PNG_READ_BIG_ENDIAN_SUPPORTED */
 
 /* ************************************************************************** */
 

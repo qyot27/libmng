@@ -38,6 +38,12 @@
 /* *             - fixed support for IJGSRC6B                               * */
 /* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
 /* *             - added default IJG compression parameters and such        * */
+/* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
+/* *             - fixed inclusion for memcpy (contributed by Tim Rowley)   * */
+/* *             - added mng_int32p (contributed by Tim Rowley)             * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - removed SWAP_ENDIAN reference (contributed by Tim Rowley)* */
+/* *             - added getalphaline callback for RGB8_A8 canvasstyle      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -91,13 +97,21 @@
 #include <stdlib.h>                    /* "calloc" & "free" */
 #endif
 
+#ifdef WIN32
 /* B003 */
 #if defined __BORLANDC__
 #include <mem.h>                       /* defines "memcpy" for BCB */
 #else
-#include <memory.h>                    /* defines "memcpy" for other platforms */
+#include <memory.h>                    /* defines "memcpy" for other win32 platforms */
 #endif
 /* B003 */
+#else
+#ifdef BSD
+#include <strings.h>                   /* defines "memcpy" for BSD (?) */
+#else
+#include <string.h>                    /* defines "memcpy" for all others (???) */
+#endif
+#endif
 
 #if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY)
 #include <math.h>                      /* fp gamma-calculation */
@@ -135,10 +149,6 @@
 #define MNG_EXT
 #endif /* MNG_DLL && WIN32 */
 
-#if !defined(MNG_SWAP_ENDIAN) && defined(WIN32)
-#define MNG_SWAP_ENDIAN
-#endif
-
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
 #pragma option -A                      /* now force ANSI-C from here on */
 #endif
@@ -163,9 +173,10 @@ typedef void *         mng_ptr;                  /* generic pointer */
 /* *                                                                        * */
 /* ************************************************************************** */
 
-typedef mng_uint32 *   mng_uint32p;              /* pointer to longs */
-typedef mng_uint16 *   mng_uint16p;              /* pointer to words */
-typedef mng_uint8 *    mng_uint8p;               /* pointer to bytes */
+typedef mng_uint32 *   mng_uint32p;              /* pointer to unsigned longs */
+typedef mng_int32 *    mng_int32p;               /* pointer to longs */
+typedef mng_uint16 *   mng_uint16p;              /* pointer to unsigned words */
+typedef mng_uint8 *    mng_uint8p;               /* pointer to unsigned bytes */
 
 typedef mng_int8       mng_bool;                 /* booleans */
 
@@ -187,7 +198,7 @@ typedef mng_palette8e mng_palette8[256];         /* 8-bit palette */
 typedef mng_uint8     mng_uint8arr[256];         /* generic arrays */
 typedef mng_uint8     mng_uint8arr4[4];
 typedef mng_uint16    mng_uint16arr[256];
-typedef mng_uint32    mng_uint32arr2[2];         
+typedef mng_uint32    mng_uint32arr2[2];
 
 /* ************************************************************************** */
 
@@ -307,6 +318,8 @@ typedef mng_bool   MNG_DECL (*mng_processtext)   (mng_handle  hHandle,
 typedef mng_ptr    MNG_DECL (*mng_getcanvasline) (mng_handle  hHandle,
                                                   mng_uint32  iLinenr);
 typedef mng_ptr    MNG_DECL (*mng_getbkgdline)   (mng_handle  hHandle,
+                                                  mng_uint32  iLinenr);
+typedef mng_ptr    MNG_DECL (*mng_getalphaline)  (mng_handle  hHandle,
                                                   mng_uint32  iLinenr);
 typedef mng_bool   MNG_DECL (*mng_refresh)       (mng_handle  hHandle,
                                                   mng_uint32  iTop,

@@ -135,7 +135,7 @@ void mng_output_message (j_common_ptr cinfo)
 mng_retcode mngjpeg_initialize (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_INITIALIZE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_JPEG_INITIALIZE, MNG_LC_START)
 #endif
                                        /* allocate space for JPEG structures if necessary */
 #if defined(MNG_SUPPORT_WRITE) || defined(MNG_ACCESS_CHUNKS)
@@ -179,7 +179,7 @@ mng_retcode mngjpeg_initialize (mng_datap pData)
   pData->iJPEGdisprow     = 0;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_INITIALIZE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_JPEG_INITIALIZE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -194,7 +194,7 @@ mng_retcode mngjpeg_cleanup (mng_datap pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_CLEANUP, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_JPEG_CLEANUP, MNG_LC_START)
 #endif
 
 #ifdef MNG_INCLUDE_IJG6B
@@ -234,7 +234,7 @@ mng_retcode mngjpeg_cleanup (mng_datap pData)
   pData->bJPEGscanstarted = MNG_FALSE;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_CLEANUP, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_JPEG_CLEANUP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -249,7 +249,7 @@ mng_retcode mngjpeg_decompressinit (mng_datap pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSINIT, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSINIT, MNG_LC_START)
 #endif
 
 #ifdef MNG_INCLUDE_IJG6B
@@ -286,7 +286,7 @@ mng_retcode mngjpeg_decompressinit (mng_datap pData)
 #endif /* MNG_INCLUDE_IJG6B */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSINIT, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSINIT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -303,7 +303,7 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
   mng_uint8p  pWork;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_START)
 #endif
 
 #if defined (MNG_INCLUDE_IJG6B) && defined(MNG_USE_SETJMP)
@@ -507,7 +507,7 @@ mng_retcode mngjpeg_decompressdata (mng_datap  pData,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSDATA, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -522,7 +522,7 @@ mng_retcode mngjpeg_decompressfree (mng_datap pData)
 #endif
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSFREE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSFREE, MNG_LC_START)
 #endif
 
 #ifdef MNG_INCLUDE_IJG6B
@@ -540,7 +540,7 @@ mng_retcode mngjpeg_decompressfree (mng_datap pData)
 #endif /* MNG_INCLUDE_IJG6B */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSFREE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_JPEG_DECOMPRESSFREE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

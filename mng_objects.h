@@ -26,6 +26,12 @@
 /* *             - added global color-chunks for animations                 * */
 /* *             - added global PLTE,tRNS,bKGD chunks for animation         * */
 /* *             - added SAVE & SEEK animation objects                      * */
+/* *             0.5.2 - 05/29/2000 - G.Juyn                                * */
+/* *             - added framenr/layernr/playtime to object header          * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added ani-objects for delta-image processing             * */
+/* *             - added compression/filter/interlace fields to             * */
+/* *               object-buffer for delta-image processing                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -55,6 +61,9 @@ typedef struct {
            mng_processobject fProcess;
            mng_objectp       pNext;              /* for double-linked list */
            mng_objectp       pPrev;
+           mng_uint32        iFramenr;
+           mng_uint32        iLayernr;
+           mng_uint32        iPlaytime;
         } mng_object_header;
 typedef mng_object_header * mng_object_headerp;
 
@@ -70,6 +79,10 @@ typedef struct {                                 /* MNG specification "object-bu
            mng_uint32        iHeight;
            mng_uint8         iBitdepth;
            mng_uint8         iColortype;
+           mng_uint8         iCompression;
+           mng_uint8         iFilter;
+           mng_uint8         iInterlace;
+           mng_uint8         iAlphabitdepth;     /* used only for JNG images */
 
            mng_bool          bHasPLTE;           /* PLTE chunk present */
            mng_bool          bHasTRNS;           /* tRNS chunk present */
@@ -381,6 +394,44 @@ typedef struct {                                 /* SEEK object */
            mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
         } mng_ani_seek;
 typedef mng_ani_seek * mng_ani_seekp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* DHDR object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint16        iObjectid;
+           mng_uint8         iImagetype;
+           mng_uint8         iDeltatype;
+           mng_uint32        iBlockwidth;
+           mng_uint32        iBlockheight;
+           mng_uint32        iBlockx;
+           mng_uint32        iBlocky;
+        } mng_ani_dhdr;
+typedef mng_ani_dhdr * mng_ani_dhdrp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* PROM object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint8         iBitdepth;
+           mng_uint8         iColortype;
+           mng_uint8         iFilltype;
+        } mng_ani_prom;
+typedef mng_ani_prom * mng_ani_promp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* IPNG object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+        } mng_ani_ipng;
+typedef mng_ani_ipng * mng_ani_ipngp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* IJNG object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+        } mng_ani_ijng;
+typedef mng_ani_ijng * mng_ani_ijngp;
 
 /* ************************************************************************** */
 

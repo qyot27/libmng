@@ -33,6 +33,11 @@
 /* *             - added tracecodes for global animation color-chunks       * */
 /* *             - added tracecodes for get/set of default ZLIB/IJG parms   * */
 /* *             - added tracecodes for global PLTE,tRNS,bKGD               * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added tracecodes for image-object promotion              * */
+/* *             - added tracecodes for delta-image processing              * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - added tracecodes for getalphaline callback               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -109,6 +114,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SETCB_PROCESSAROW      118
 #define MNG_FN_SETCB_OPENSTREAM       119
 #define MNG_FN_SETCB_CLOSESTREAM      120
+#define MNG_FN_SETCB_GETALPHALINE     121
 
 #define MNG_FN_GETCB_MEMALLOC         201
 #define MNG_FN_GETCB_MEMFREE          202
@@ -130,6 +136,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCB_PROCESSAROW      218
 #define MNG_FN_GETCB_OPENSTREAM       219
 #define MNG_FN_GETCB_CLOSESTREAM      220
+#define MNG_FN_GETCB_GETALPHALINE     221
 
 #define MNG_FN_SET_USERDATA           301
 #define MNG_FN_SET_CANVASSTYLE        302
@@ -456,6 +463,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CLONE_IMGOBJECT       1607
 #define MNG_FN_RESET_OBJECTDETAILS   1608
 #define MNG_FN_RENUM_IMGOBJECT       1609
+#define MNG_FN_PROMOTE_IMGOBJECT     1610
 
 /* ************************************************************************** */
 
@@ -485,6 +493,22 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_RETRIEVE_RGBA8        1758
 #define MNG_FN_RETRIEVE_RGBA16       1759
 
+#define MNG_FN_DELTA_G1              1771
+#define MNG_FN_DELTA_G2              1772
+#define MNG_FN_DELTA_G4              1773
+#define MNG_FN_DELTA_G8              1774
+#define MNG_FN_DELTA_G16             1775
+#define MNG_FN_DELTA_RGB8            1776
+#define MNG_FN_DELTA_RGB16           1777
+#define MNG_FN_DELTA_IDX1            1778
+#define MNG_FN_DELTA_IDX2            1779
+#define MNG_FN_DELTA_IDX4            1780
+#define MNG_FN_DELTA_IDX8            1781
+#define MNG_FN_DELTA_GA8             1782
+#define MNG_FN_DELTA_GA16            1783
+#define MNG_FN_DELTA_RGBA8           1784
+#define MNG_FN_DELTA_RGBA16          1785
+
 /* ************************************************************************** */
 
 #define MNG_FN_CREATE_ANI_LOOP       1801
@@ -509,6 +533,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_PLTE       1820
 #define MNG_FN_CREATE_ANI_TRNS       1821
 #define MNG_FN_CREATE_ANI_BKGD       1822
+#define MNG_FN_CREATE_ANI_DHDR       1823
+#define MNG_FN_CREATE_ANI_PROM       1824
+#define MNG_FN_CREATE_ANI_IPNG       1825
+#define MNG_FN_CREATE_ANI_IJNG       1826
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 
@@ -536,6 +564,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_PLTE         1920
 #define MNG_FN_FREE_ANI_TRNS         1921
 #define MNG_FN_FREE_ANI_BKGD         1922
+#define MNG_FN_FREE_ANI_DHDR         1923
+#define MNG_FN_FREE_ANI_PROM         1924
+#define MNG_FN_FREE_ANI_IPNG         1925
+#define MNG_FN_FREE_ANI_IJNG         1926
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 
@@ -563,6 +595,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_PLTE      2020
 #define MNG_FN_PROCESS_ANI_TRNS      2021
 #define MNG_FN_PROCESS_ANI_BKGD      2022
+#define MNG_FN_PROCESS_ANI_DHDR      2023
+#define MNG_FN_PROCESS_ANI_PROM      2024
+#define MNG_FN_PROCESS_ANI_IPNG      2025
+#define MNG_FN_PROCESS_ANI_IJNG      2026
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 

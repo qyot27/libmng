@@ -20,6 +20,7 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/22/2000 - G.Juyn                                * */
 /* *             - added some JNG definitions                               * */
+/* *             - added delta-image row-processing routines                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -140,6 +141,29 @@ mng_retcode store_jpeg_rgb12_a2  (mng_datap pData);
 mng_retcode store_jpeg_rgb12_a4  (mng_datap pData);
 mng_retcode store_jpeg_rgb12_a8  (mng_datap pData);
 mng_retcode store_jpeg_rgb12_a16 (mng_datap pData);
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - apply the processed & uncompressed row-data * */
+/* * onto the target "object"                                               * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode delta_g1           (mng_datap pData);
+mng_retcode delta_g2           (mng_datap pData);
+mng_retcode delta_g4           (mng_datap pData);
+mng_retcode delta_g8           (mng_datap pData);
+mng_retcode delta_g16          (mng_datap pData);
+mng_retcode delta_rgb8         (mng_datap pData);
+mng_retcode delta_rgb16        (mng_datap pData);
+mng_retcode delta_idx1         (mng_datap pData);
+mng_retcode delta_idx2         (mng_datap pData);
+mng_retcode delta_idx4         (mng_datap pData);
+mng_retcode delta_idx8         (mng_datap pData);
+mng_retcode delta_ga8          (mng_datap pData);
+mng_retcode delta_ga16         (mng_datap pData);
+mng_retcode delta_rgba8        (mng_datap pData);
+mng_retcode delta_rgba16       (mng_datap pData);
 
 /* ************************************************************************** */
 /* *                                                                        * */

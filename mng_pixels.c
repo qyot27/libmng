@@ -24,6 +24,9 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/22/2000 - G.Juyn                                * */
 /* *             - added JNG support                                        * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - fixed minor bugs 16-bit pixel-handling                   * */
+/* *             - added delta-image row-processing routines                * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -102,7 +105,7 @@ mng_retcode display_rgb8 (mng_datap pData)
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_START)
 #endif
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
@@ -227,7 +230,7 @@ mng_retcode display_rgb8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -238,7 +241,7 @@ mng_retcode display_rgb8 (mng_datap pData)
 mng_retcode display_rgba8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_START)
 #endif
 
 
@@ -246,7 +249,7 @@ mng_retcode display_rgba8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -257,7 +260,7 @@ mng_retcode display_rgba8 (mng_datap pData)
 mng_retcode display_argb8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_START)
 #endif
 
 
@@ -265,7 +268,7 @@ mng_retcode display_argb8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -284,7 +287,7 @@ mng_retcode display_bgr8 (mng_datap pData)
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_START)
 #endif
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
@@ -426,7 +429,7 @@ mng_retcode display_bgr8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -437,7 +440,7 @@ mng_retcode display_bgr8 (mng_datap pData)
 mng_retcode display_bgra8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_START)
 #endif
 
 
@@ -445,7 +448,7 @@ mng_retcode display_bgra8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -456,7 +459,7 @@ mng_retcode display_bgra8 (mng_datap pData)
 mng_retcode display_abgr8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_START)
 #endif
 
 
@@ -464,7 +467,7 @@ mng_retcode display_abgr8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -482,7 +485,7 @@ mng_retcode restore_bkgd_backimage (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BACKIMAGE, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BACKIMAGE, MNG_LC_START)
 #endif
                                        /* make it easy on yourself */
   iRetcode = restore_bkgd_backcolor (pData);
@@ -495,7 +498,7 @@ mng_retcode restore_bkgd_backimage (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BACKIMAGE, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BACKIMAGE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -509,7 +512,7 @@ mng_retcode restore_bkgd_backcolor (mng_datap pData)
   mng_uint8p pWork = pData->pRGBArow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_START)
 #endif
 
   for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
@@ -523,7 +526,7 @@ mng_retcode restore_bkgd_backcolor (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BACKCOLOR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -537,7 +540,7 @@ mng_retcode restore_bkgd_bgcolor (mng_datap pData)
   mng_uint8p pWork = pData->pRGBArow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_START)
 #endif
 
   for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
@@ -551,7 +554,7 @@ mng_retcode restore_bkgd_bgcolor (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGCOLOR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -562,7 +565,7 @@ mng_retcode restore_bkgd_bgcolor (mng_datap pData)
 mng_retcode restore_bkgd_rgb8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_RGB8, MNG_LC_START)
 #endif
 
 
@@ -570,7 +573,7 @@ mng_retcode restore_bkgd_rgb8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_RGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -581,7 +584,7 @@ mng_retcode restore_bkgd_rgb8 (mng_datap pData)
 mng_retcode restore_bkgd_bgr8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BGR8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGR8, MNG_LC_START)
 #endif
 
 
@@ -589,7 +592,7 @@ mng_retcode restore_bkgd_bgr8 (mng_datap pData)
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RESTORE_BGR8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RESTORE_BGR8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -618,7 +621,7 @@ mng_retcode retrieve_g8 (mng_datap pData)
   mng_uint8      iG;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_G8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_G8, MNG_LC_START)
 #endif
 
   pRGBArow = pData->pRGBArow;          /* temporary work pointers */
@@ -665,7 +668,7 @@ mng_retcode retrieve_g8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_G8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_G8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -682,7 +685,7 @@ mng_retcode retrieve_g16 (mng_datap pData)
   mng_uint16     iG;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_G16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_G16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pRGBArow = (mng_uint16p)pData->pRGBArow;
@@ -729,7 +732,7 @@ mng_retcode retrieve_g16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_G16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_G16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -746,7 +749,7 @@ mng_retcode retrieve_rgb8 (mng_datap pData)
   mng_uint8      iR, iG, iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB8, MNG_LC_START)
 #endif
 
   pRGBArow = pData->pRGBArow;          /* temporary work pointers */
@@ -796,7 +799,7 @@ mng_retcode retrieve_rgb8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -813,7 +816,7 @@ mng_retcode retrieve_rgb16 (mng_datap pData)
   mng_uint16     iR, iG, iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pRGBArow = (mng_uint16p)pData->pRGBArow;
@@ -855,7 +858,7 @@ mng_retcode retrieve_rgb16 (mng_datap pData)
       *pRGBArow     = *pWorkrow;       /* just copy the pixel */
       *(pRGBArow+1) = *(pWorkrow+1);
       *(pRGBArow+2) = *(pWorkrow+2);
-      *(pRGBArow+3) = 0xFF;
+      *(pRGBArow+3) = 0xFFFF;
 
       pWorkrow += 3;                   /* next pixel */
       pRGBArow += 4;
@@ -863,7 +866,7 @@ mng_retcode retrieve_rgb16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -880,7 +883,7 @@ mng_retcode retrieve_idx8 (mng_datap pData)
   mng_uint8      iQ;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_IDX8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_IDX8, MNG_LC_START)
 #endif
 
   pRGBArow = pData->pRGBArow;          /* temporary work pointers */
@@ -932,7 +935,7 @@ mng_retcode retrieve_idx8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_IDX8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_IDX8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -949,7 +952,7 @@ mng_retcode retrieve_ga8 (mng_datap pData)
   mng_uint8      iG;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA8, MNG_LC_START)
 #endif
 
   pRGBArow = pData->pRGBArow;          /* temporary work pointers */
@@ -968,7 +971,7 @@ mng_retcode retrieve_ga8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -985,11 +988,11 @@ mng_retcode retrieve_ga16 (mng_datap pData)
   mng_uint16     iG;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
+  pWorkrow = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize));
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
@@ -1004,7 +1007,7 @@ mng_retcode retrieve_ga16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_GA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1019,7 +1022,7 @@ mng_retcode retrieve_rgba8 (mng_datap pData)
   mng_uint8p     pRGBArow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA8, MNG_LC_START)
 #endif
 
   pRGBArow = pData->pRGBArow;          /* temporary work pointers */
@@ -1028,7 +1031,7 @@ mng_retcode retrieve_rgba8 (mng_datap pData)
   MNG_COPY (pRGBArow, pWorkrow, pBuf->iRowsize)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1043,16 +1046,16 @@ mng_retcode retrieve_rgba16 (mng_datap pData)
   mng_uint16p    pRGBArow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
+  pWorkrow = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize));
                                        /* can't be easier than this ! */
   MNG_COPY (pRGBArow, pWorkrow, pBuf->iRowsize)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1075,7 +1078,7 @@ mng_retcode store_g1 (mng_datap pData)
   mng_uint8      iM;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_G1, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1106,7 +1109,7 @@ mng_retcode store_g1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_G1, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1125,7 +1128,7 @@ mng_retcode store_g2 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1162,7 +1165,7 @@ mng_retcode store_g2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_G2, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1182,7 +1185,7 @@ mng_retcode store_g4 (mng_datap pData)
   mng_uint8      iQ;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_G4, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1216,7 +1219,7 @@ mng_retcode store_g4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_G4, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1233,7 +1236,7 @@ mng_retcode store_g8 (mng_datap pData)
   mng_uint8      iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_G8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1255,7 +1258,7 @@ mng_retcode store_g8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_G8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1272,7 +1275,7 @@ mng_retcode store_g16 (mng_datap pData)
   mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_START)
 #endif
 
   pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
@@ -1294,7 +1297,7 @@ mng_retcode store_g16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1310,7 +1313,7 @@ mng_retcode store_rgb8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_RGB8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1328,7 +1331,7 @@ mng_retcode store_rgb8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_RGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1344,7 +1347,7 @@ mng_retcode store_rgb16 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
@@ -1362,7 +1365,7 @@ mng_retcode store_rgb16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1380,7 +1383,7 @@ mng_retcode store_idx1 (mng_datap pData)
   mng_uint8      iM;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX1, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1411,7 +1414,7 @@ mng_retcode store_idx1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX1, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1430,7 +1433,7 @@ mng_retcode store_idx2 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX2, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1461,7 +1464,7 @@ mng_retcode store_idx2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX2, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1480,7 +1483,7 @@ mng_retcode store_idx4 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX4, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1511,7 +1514,7 @@ mng_retcode store_idx4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX4, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1527,7 +1530,7 @@ mng_retcode store_idx8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1543,7 +1546,7 @@ mng_retcode store_idx8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_IDX8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_IDX8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1559,7 +1562,7 @@ mng_retcode store_ga8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_GA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_GA8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1576,7 +1579,7 @@ mng_retcode store_ga8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_GA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_GA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1592,7 +1595,7 @@ mng_retcode store_ga16 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
@@ -1609,7 +1612,7 @@ mng_retcode store_ga16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1625,7 +1628,7 @@ mng_retcode store_rgba8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGBA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_RGBA8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1644,7 +1647,7 @@ mng_retcode store_rgba8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGBA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_RGBA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1660,7 +1663,7 @@ mng_retcode store_rgba16 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
   pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
@@ -1679,7 +1682,7 @@ mng_retcode store_rgba16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1703,7 +1706,7 @@ mng_retcode store_jpeg_g8 (mng_datap pData)
   mng_uint8p     pOutrow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
@@ -1712,7 +1715,7 @@ mng_retcode store_jpeg_g8 (mng_datap pData)
   MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8, MNG_LC_END)
 #endif
 
   return next_jpeg_row (pData);        /* we've got one more row of gray-samples */
@@ -1727,7 +1730,7 @@ mng_retcode store_jpeg_rgb8 (mng_datap pData)
   mng_uint8p     pOutrow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
@@ -1736,7 +1739,7 @@ mng_retcode store_jpeg_rgb8 (mng_datap pData)
   MNG_COPY (pOutrow, pWorkrow, pData->iRowsamples * 3)
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8, MNG_LC_END)
 #endif
 
   return next_jpeg_row (pData);        /* we've got one more row of rgb-samples */
@@ -1752,7 +1755,7 @@ mng_retcode store_jpeg_ga8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
@@ -1767,7 +1770,7 @@ mng_retcode store_jpeg_ga8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_GA8, MNG_LC_END)
 #endif
 
   return next_jpeg_row (pData);        /* we've got one more row of gray-samples */
@@ -1783,7 +1786,7 @@ mng_retcode store_jpeg_rgba8 (mng_datap pData)
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pJPEGrow;          /* temporary work pointers */
@@ -1800,7 +1803,7 @@ mng_retcode store_jpeg_rgba8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGBA8, MNG_LC_END)
 #endif
 
   return next_jpeg_row (pData);        /* we've got one more row of rgb-samples */
@@ -1818,7 +1821,7 @@ mng_retcode store_jpeg_g8_a1 (mng_datap pData)
   mng_uint8      iM;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1849,7 +1852,7 @@ mng_retcode store_jpeg_g8_a1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A1, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -1868,7 +1871,7 @@ mng_retcode store_jpeg_g8_a2 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1905,7 +1908,7 @@ mng_retcode store_jpeg_g8_a2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A2, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -1925,7 +1928,7 @@ mng_retcode store_jpeg_g8_a4 (mng_datap pData)
   mng_uint8      iQ;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1959,7 +1962,7 @@ mng_retcode store_jpeg_g8_a4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A4, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -1976,7 +1979,7 @@ mng_retcode store_jpeg_g8_a8 (mng_datap pData)
   mng_uint8      iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -1998,7 +2001,7 @@ mng_retcode store_jpeg_g8_a8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A8, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2015,7 +2018,7 @@ mng_retcode store_jpeg_g8_a16 (mng_datap pData)
   mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;
@@ -2037,7 +2040,7 @@ mng_retcode store_jpeg_g8_a16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G8_A16, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2055,7 +2058,7 @@ mng_retcode store_jpeg_rgb8_a1 (mng_datap pData)
   mng_uint8      iM;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2086,7 +2089,7 @@ mng_retcode store_jpeg_rgb8_a1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A1, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2105,7 +2108,7 @@ mng_retcode store_jpeg_rgb8_a2 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2142,7 +2145,7 @@ mng_retcode store_jpeg_rgb8_a2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A2, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2162,7 +2165,7 @@ mng_retcode store_jpeg_rgb8_a4 (mng_datap pData)
   mng_uint8      iQ;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2196,7 +2199,7 @@ mng_retcode store_jpeg_rgb8_a4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A4, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2213,7 +2216,7 @@ mng_retcode store_jpeg_rgb8_a8 (mng_datap pData)
   mng_uint8      iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2235,7 +2238,7 @@ mng_retcode store_jpeg_rgb8_a8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A8, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2252,7 +2255,7 @@ mng_retcode store_jpeg_rgb8_a16 (mng_datap pData)
   mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;
@@ -2274,7 +2277,7 @@ mng_retcode store_jpeg_rgb8_a16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_RGB8_A16, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2292,7 +2295,7 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
   mng_uint8      iM;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2323,7 +2326,7 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A1, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2342,7 +2345,7 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
   mng_uint32     iS;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2379,7 +2382,7 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A2, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2399,7 +2402,7 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
   mng_uint16     iQ;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2434,7 +2437,7 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A4, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2451,7 +2454,7 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
   mng_uint16     iB;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
@@ -2475,7 +2478,7 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A8, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2492,7 +2495,7 @@ mng_retcode store_jpeg_g12_a16 (mng_datap pData)
   mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_START)
 #endif
 
   pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
@@ -2514,7 +2517,7 @@ mng_retcode store_jpeg_g12_a16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_END)
 #endif
 
   return next_jpeg_alpharow (pData);   /* we've got one more row of alpha-samples */
@@ -2523,6 +2526,251 @@ mng_retcode store_jpeg_g12_a16 (mng_datap pData)
 /* ************************************************************************** */
 
 #endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+/* *                                                                        * */
+/* * Delta-image row routines - apply the processed & uncompressed row-data * */
+/* * onto the target "object"                                               * */
+/* *                                                                        * */
+/* ************************************************************************** */
+
+mng_retcode delta_g1 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G1, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g2 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G2, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g4 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G4, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g8 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G8, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_g16 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G16, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_G16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgb8 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB8, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgb16 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB16, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGB16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_idx1 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX1, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_idx2 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX2, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_idx4 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX4, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_idx8 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX8, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_IDX8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga8 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_ga16 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_GA16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba8 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA8, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode delta_rgba16 (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16, MNG_LC_START)
+#endif
+
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_DELTA_RGBA16, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -2542,7 +2790,7 @@ mng_retcode process_g1 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G1, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -2635,7 +2883,7 @@ mng_retcode process_g1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G1, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2655,7 +2903,7 @@ mng_retcode process_g2 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G2, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -2748,7 +2996,7 @@ mng_retcode process_g2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G2, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2768,7 +3016,7 @@ mng_retcode process_g4 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G4, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -2850,7 +3098,7 @@ mng_retcode process_g4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G4, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2867,7 +3115,7 @@ mng_retcode process_g8 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G8, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -2927,7 +3175,7 @@ mng_retcode process_g8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2944,7 +3192,7 @@ mng_retcode process_g16 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G16, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3008,7 +3256,7 @@ mng_retcode process_g16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_G16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_G16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3025,7 +3273,7 @@ mng_retcode process_rgb8 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGB8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGB8, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3081,7 +3329,7 @@ mng_retcode process_rgb8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGB8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGB8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3098,7 +3346,7 @@ mng_retcode process_rgb16 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGB16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGB16, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3160,7 +3408,7 @@ mng_retcode process_rgb16 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGB16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGB16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3180,7 +3428,7 @@ mng_retcode process_idx1 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX1, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX1, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3264,7 +3512,7 @@ mng_retcode process_idx1 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX1, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX1, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3284,7 +3532,7 @@ mng_retcode process_idx2 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX2, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX2, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3368,7 +3616,7 @@ mng_retcode process_idx2 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX2, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX2, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3388,7 +3636,7 @@ mng_retcode process_idx4 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX4, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX4, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3472,7 +3720,7 @@ mng_retcode process_idx4 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX4, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX4, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3489,7 +3737,7 @@ mng_retcode process_idx8 (mng_datap pData)
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX8, MNG_LC_START)
 #endif
 
   if (!pBuf)                           /* no object? then use obj 0 */
@@ -3551,7 +3799,7 @@ mng_retcode process_idx8 (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_IDX8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_IDX8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3566,7 +3814,7 @@ mng_retcode process_ga8 (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_GA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_GA8, MNG_LC_START)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary workpointers */
@@ -3586,7 +3834,7 @@ mng_retcode process_ga8 (mng_datap pData)
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_GA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_GA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3601,7 +3849,7 @@ mng_retcode process_ga16 (mng_datap pData)
   mng_int32  iX;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_START)
 #endif
                                        /* temporary workpointers */
   pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
@@ -3621,7 +3869,7 @@ mng_retcode process_ga16 (mng_datap pData)
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3632,7 +3880,7 @@ mng_retcode process_ga16 (mng_datap pData)
 mng_retcode process_rgba8 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA8, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA8, MNG_LC_START)
 #endif
                                        /* this is the easiest transform */
   MNG_COPY (pData->pRGBArow, pData->pWorkrow + 1, pData->iRowsize)
@@ -3640,7 +3888,7 @@ mng_retcode process_rgba8 (mng_datap pData)
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA8, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA8, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3651,7 +3899,7 @@ mng_retcode process_rgba8 (mng_datap pData)
 mng_retcode process_rgba16 (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA16, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA16, MNG_LC_START)
 #endif
                                        /* this is the easiest transform */
   MNG_COPY (pData->pRGBArow, pData->pWorkrow + 1, pData->iRowsize)
@@ -3659,7 +3907,7 @@ mng_retcode process_rgba16 (mng_datap pData)
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA16, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_PROCESS_RGBA16, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3675,13 +3923,16 @@ mng_retcode process_rgba16 (mng_datap pData)
 mng_retcode init_g1_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G1_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G1_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g1;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g1;
+    else
+      pData->fStorerow = (mng_ptr)store_g1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3698,7 +3949,7 @@ mng_retcode init_g1_ni     (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G1_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G1_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3709,13 +3960,16 @@ mng_retcode init_g1_ni     (mng_datap pData)
 mng_retcode init_g1_i      (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G1_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G1_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g1;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g1;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g1;
+    else
+      pData->fStorerow = (mng_ptr)store_g1;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -3731,7 +3985,7 @@ mng_retcode init_g1_i      (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G1_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G1_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3742,13 +3996,16 @@ mng_retcode init_g1_i      (mng_datap pData)
 mng_retcode init_g2_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G2_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G2_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g2;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g2;
+    else
+      pData->fStorerow = (mng_ptr)store_g2;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3765,7 +4022,7 @@ mng_retcode init_g2_ni     (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G2_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G2_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3776,13 +4033,16 @@ mng_retcode init_g2_ni     (mng_datap pData)
 mng_retcode init_g2_i      (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G2_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G2_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g2;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g2;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g2;
+    else
+      pData->fStorerow = (mng_ptr)store_g2;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -3799,7 +4059,7 @@ mng_retcode init_g2_i      (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G2_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G2_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3810,13 +4070,16 @@ mng_retcode init_g2_i      (mng_datap pData)
 mng_retcode init_g4_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G4_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G4_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g4;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g4;
+    else
+      pData->fStorerow = (mng_ptr)store_g4;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3833,7 +4096,7 @@ mng_retcode init_g4_ni     (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G4_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G4_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3844,13 +4107,16 @@ mng_retcode init_g4_ni     (mng_datap pData)
 mng_retcode init_g4_i      (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G4_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G4_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g4;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g4;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g4;
+    else
+      pData->fStorerow = (mng_ptr)store_g4;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -3867,7 +4133,7 @@ mng_retcode init_g4_i      (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G4_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G4_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3878,13 +4144,16 @@ mng_retcode init_g4_i      (mng_datap pData)
 mng_retcode init_g8_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G8_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g8;
+    else
+      pData->fStorerow = (mng_ptr)store_g8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3901,7 +4170,7 @@ mng_retcode init_g8_ni     (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3912,13 +4181,16 @@ mng_retcode init_g8_ni     (mng_datap pData)
 mng_retcode init_g8_i      (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G8_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G8_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g8;
+    else
+      pData->fStorerow = (mng_ptr)store_g8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -3935,7 +4207,7 @@ mng_retcode init_g8_i      (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G8_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G8_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3946,13 +4218,16 @@ mng_retcode init_g8_i      (mng_datap pData)
 mng_retcode init_g16_ni    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G16_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G16_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g16;
+    else
+      pData->fStorerow = (mng_ptr)store_g16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -3969,7 +4244,7 @@ mng_retcode init_g16_ni    (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G16_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G16_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -3980,13 +4255,16 @@ mng_retcode init_g16_ni    (mng_datap pData)
 mng_retcode init_g16_i     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G16_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_G16_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_g16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_g16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_g16;
+    else
+      pData->fStorerow = (mng_ptr)store_g16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4003,7 +4281,7 @@ mng_retcode init_g16_i     (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_G16_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_G16_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4014,13 +4292,16 @@ mng_retcode init_g16_i     (mng_datap pData)
 mng_retcode init_rgb8_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB8_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgb8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgb8;
+    else
+      pData->fStorerow = (mng_ptr)store_rgb8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4037,7 +4318,7 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4048,13 +4329,16 @@ mng_retcode init_rgb8_ni   (mng_datap pData)
 mng_retcode init_rgb8_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB8_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB8_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgb8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgb8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgb8;
+    else
+      pData->fStorerow = (mng_ptr)store_rgb8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4071,7 +4355,7 @@ mng_retcode init_rgb8_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB8_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB8_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4082,13 +4366,16 @@ mng_retcode init_rgb8_i    (mng_datap pData)
 mng_retcode init_rgb16_ni  (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB16_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB16_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgb16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgb16;
+    else
+      pData->fStorerow = (mng_ptr)store_rgb16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4105,7 +4392,7 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB16_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB16_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4116,13 +4403,16 @@ mng_retcode init_rgb16_ni  (mng_datap pData)
 mng_retcode init_rgb16_i   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB16_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB16_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgb16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgb16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgb16;
+    else
+      pData->fStorerow = (mng_ptr)store_rgb16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4139,7 +4429,7 @@ mng_retcode init_rgb16_i   (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGB16_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGB16_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4150,13 +4440,16 @@ mng_retcode init_rgb16_i   (mng_datap pData)
 mng_retcode init_idx1_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX1_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX1_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx1;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx1;
+    else
+      pData->fStorerow = (mng_ptr)store_idx1;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4173,7 +4466,7 @@ mng_retcode init_idx1_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX1_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX1_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4184,13 +4477,16 @@ mng_retcode init_idx1_ni   (mng_datap pData)
 mng_retcode init_idx1_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX1_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX1_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx1;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx1;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx1;
+    else
+      pData->fStorerow = (mng_ptr)store_idx1;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4207,7 +4503,7 @@ mng_retcode init_idx1_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX1_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX1_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4218,13 +4514,16 @@ mng_retcode init_idx1_i    (mng_datap pData)
 mng_retcode init_idx2_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX2_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX2_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx2;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx2;
+    else
+      pData->fStorerow = (mng_ptr)store_idx2;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4241,7 +4540,7 @@ mng_retcode init_idx2_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX2_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX2_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4252,13 +4551,16 @@ mng_retcode init_idx2_ni   (mng_datap pData)
 mng_retcode init_idx2_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX2_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX2_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx2;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx2;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx2;
+    else
+      pData->fStorerow = (mng_ptr)store_idx2;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4275,7 +4577,7 @@ mng_retcode init_idx2_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX2_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX2_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4286,13 +4588,16 @@ mng_retcode init_idx2_i    (mng_datap pData)
 mng_retcode init_idx4_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX4_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX4_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx4;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx4;
+    else
+      pData->fStorerow = (mng_ptr)store_idx4;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4309,7 +4614,7 @@ mng_retcode init_idx4_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX4_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX4_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4320,13 +4625,16 @@ mng_retcode init_idx4_ni   (mng_datap pData)
 mng_retcode init_idx4_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX4_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX4_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx4;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx4;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx4;
+    else
+      pData->fStorerow = (mng_ptr)store_idx4;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4343,7 +4651,7 @@ mng_retcode init_idx4_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX4_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX4_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4354,13 +4662,16 @@ mng_retcode init_idx4_i    (mng_datap pData)
 mng_retcode init_idx8_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX8_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx8;
+    else
+      pData->fStorerow = (mng_ptr)store_idx8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4377,7 +4688,7 @@ mng_retcode init_idx8_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4388,13 +4699,16 @@ mng_retcode init_idx8_ni   (mng_datap pData)
 mng_retcode init_idx8_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX8_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX8_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_idx8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_idx8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_idx8;
+    else
+      pData->fStorerow = (mng_ptr)store_idx8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4411,7 +4725,7 @@ mng_retcode init_idx8_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_IDX8_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_IDX8_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4422,13 +4736,16 @@ mng_retcode init_idx8_i    (mng_datap pData)
 mng_retcode init_ga8_ni    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GA8_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_ga8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_ga8;
+    else
+      pData->fStorerow = (mng_ptr)store_ga8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4445,7 +4762,7 @@ mng_retcode init_ga8_ni    (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GA8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4456,13 +4773,16 @@ mng_retcode init_ga8_ni    (mng_datap pData)
 mng_retcode init_ga8_i     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA8_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GA8_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_ga8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_ga8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_ga8;
+    else
+      pData->fStorerow = (mng_ptr)store_ga8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4479,7 +4799,7 @@ mng_retcode init_ga8_i     (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA8_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GA8_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4490,13 +4810,16 @@ mng_retcode init_ga8_i     (mng_datap pData)
 mng_retcode init_ga16_ni   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA16_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GA16_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_ga16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_ga16;
+    else
+      pData->fStorerow = (mng_ptr)store_ga16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4513,7 +4836,7 @@ mng_retcode init_ga16_ni   (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA16_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GA16_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4524,13 +4847,16 @@ mng_retcode init_ga16_ni   (mng_datap pData)
 mng_retcode init_ga16_i    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA16_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_GA16_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_ga16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_ga16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_ga16;
+    else
+      pData->fStorerow = (mng_ptr)store_ga16;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4547,7 +4873,7 @@ mng_retcode init_ga16_i    (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_GA16_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_GA16_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4558,13 +4884,16 @@ mng_retcode init_ga16_i    (mng_datap pData)
 mng_retcode init_rgba8_ni  (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgba8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgba8;
+    else
+      pData->fStorerow = (mng_ptr)store_rgba8;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4581,7 +4910,7 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4592,13 +4921,16 @@ mng_retcode init_rgba8_ni  (mng_datap pData)
 mng_retcode init_rgba8_i   (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgba8;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgba8;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgba8;
+    else
+      pData->fStorerow = (mng_ptr)store_rgba8;
 
   pData->iPass       = 0;              /* from 0..6; is 1..7 in specifications */
   pData->iRow        = interlace_row     [0];
@@ -4615,7 +4947,7 @@ mng_retcode init_rgba8_i   (mng_datap pData)
   pData->bIsRGBA16   = MNG_FALSE;      /* intermediate row is 8-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA8_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4626,13 +4958,16 @@ mng_retcode init_rgba8_i   (mng_datap pData)
 mng_retcode init_rgba16_ni (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_NI, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgba16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgba16;
+    else
+      pData->fStorerow = (mng_ptr)store_rgba16;
 
   pData->iPass       = -1;
   pData->iRow        = 0;
@@ -4649,7 +4984,7 @@ mng_retcode init_rgba16_ni (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4660,13 +4995,16 @@ mng_retcode init_rgba16_ni (mng_datap pData)
 mng_retcode init_rgba16_i  (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_I, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_I, MNG_LC_START)
 #endif
 
   pData->fProcessrow = (mng_ptr)process_rgba16;
 
   if (pData->pStoreobj)                /* store in object too ? */
-    pData->fStorerow = (mng_ptr)store_rgba16;
+    if (pData->bHasDHDR)               /* delta ? */
+      pData->fStorerow = (mng_ptr)delta_rgba16;
+    else
+      pData->fStorerow = (mng_ptr)store_rgba16;
 
   pData->iPass       = 0;              /* from 0..6; (1..7 in specification) */
   pData->iRow        = interlace_row     [0];
@@ -4683,7 +5021,7 @@ mng_retcode init_rgba16_i  (mng_datap pData)
   pData->bIsRGBA16   = MNG_TRUE;       /* intermediate row is 16-bit deep */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_I, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_RGBA16_I, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4703,7 +5041,7 @@ mng_retcode init_rgba16_i  (mng_datap pData)
 mng_retcode init_jpeg_a1_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* store in object too ? */
@@ -4735,7 +5073,7 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A1_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4746,7 +5084,7 @@ mng_retcode init_jpeg_a1_ni     (mng_datap pData)
 mng_retcode init_jpeg_a2_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* store in object too ? */
@@ -4778,7 +5116,7 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A2_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4789,7 +5127,7 @@ mng_retcode init_jpeg_a2_ni     (mng_datap pData)
 mng_retcode init_jpeg_a4_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* store in object too ? */
@@ -4821,7 +5159,7 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A4_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4832,7 +5170,7 @@ mng_retcode init_jpeg_a4_ni     (mng_datap pData)
 mng_retcode init_jpeg_a8_ni     (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* store in object too ? */
@@ -4864,7 +5202,7 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
   pData->iFilterbpp  = 1;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A8_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4875,7 +5213,7 @@ mng_retcode init_jpeg_a8_ni     (mng_datap pData)
 mng_retcode init_jpeg_a16_ni    (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* store in object too ? */
@@ -4907,7 +5245,7 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
   pData->iFilterbpp  = 2;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_JPEG_A16_NI, MNG_LC_END)
 #endif
 
   return init_rowproc (pData);
@@ -4928,7 +5266,7 @@ mng_retcode init_jpeg_a16_ni    (mng_datap pData)
 mng_retcode init_rowproc (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_ROWPROC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_INIT_ROWPROC, MNG_LC_START)
 #endif
 
   if (pData->pStoreobj)                /* storage object selected ? */
@@ -4941,12 +5279,12 @@ mng_retcode init_rowproc (mng_datap pData)
 
   /* allocate the buffers; the individual init routines have already
      calculated the required maximum size; except in the case of a JNG
-     without alpha */
+     without alpha!!! */
   if (pData->iRowmax)
   {
     MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax)
     MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax)
-  }  
+  }
 
   /* allocate an RGBA16 row for intermediate processing */
   MNG_ALLOC (pData, pData->pRGBArow, (pData->iDatawidth << 3));
@@ -4954,7 +5292,7 @@ mng_retcode init_rowproc (mng_datap pData)
 #ifndef MNG_NO_CMS
   if (pData->fDisplayrow)              /* display "on-the-fly" ? */
   {
-#if defined(MNG_FULL_CMS)              /* determine color-management routine */
+#if defined(MNG_FULL_CMS)              /* determine color-management initialization */
     mng_retcode iRetcode = init_full_cms   (pData);
 #elif defined(MNG_GAMMA_ONLY)
     mng_retcode iRetcode = init_gamma_only (pData);
@@ -4967,7 +5305,7 @@ mng_retcode init_rowproc (mng_datap pData)
 #endif /* !MNG_NO_CMS */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_INIT_ROWPROC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_INIT_ROWPROC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4978,7 +5316,7 @@ mng_retcode init_rowproc (mng_datap pData)
 mng_retcode next_row (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_ROW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_ROW, MNG_LC_START)
 #endif
 
   pData->iRow += pData->iRowinc;       /* increase the row counter */
@@ -5013,7 +5351,7 @@ mng_retcode next_row (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_ROW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_ROW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -5024,7 +5362,7 @@ mng_retcode next_row (mng_datap pData)
 mng_retcode cleanup_rowproc (mng_datap pData)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CLEANUP_ROWPROC, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_CLEANUP_ROWPROC, MNG_LC_START)
 #endif
 
 #ifdef MNG_INCLUDE_LCMS
@@ -5053,7 +5391,7 @@ mng_retcode cleanup_rowproc (mng_datap pData)
   pData->pRGBArow = 0;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_CLEANUP_ROWPROC, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_CLEANUP_ROWPROC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;                  /* woohiii */
@@ -5074,7 +5412,7 @@ mng_retcode display_jpeg_rows (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_START)
 #endif
                                        /* any completed rows ? */
   if ((pData->iJPEGrow      > pData->iJPEGdisprow) &&
@@ -5109,7 +5447,7 @@ mng_retcode display_jpeg_rows (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_DISPLAY_JPEG_ROWS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -5122,7 +5460,7 @@ mng_retcode next_jpeg_alpharow (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_START)
 #endif
 
   pData->iJPEGalpharow++;              /* count the row */
@@ -5136,7 +5474,7 @@ mng_retcode next_jpeg_alpharow (mng_datap pData)
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ALPHAROW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR; 
@@ -5149,7 +5487,7 @@ mng_retcode next_jpeg_row (mng_datap pData)
   mng_retcode iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_START);
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_START)
 #endif
 
   pData->iJPEGrow++;                   /* increase the row-counter */
@@ -5184,7 +5522,7 @@ mng_retcode next_jpeg_row (mng_datap pData)
     pData->iJPEGrgbrow = pData->iJPEGrow;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_END);
+  MNG_TRACE (pData, MNG_FN_NEXT_JPEG_ROW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

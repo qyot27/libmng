@@ -69,7 +69,7 @@ mng_retcode MNG_DECL mng_iterate_chunks (mng_handle       hHandle,
   mng_bool    bCont;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_ITERATE_CHUNKS, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_ITERATE_CHUNKS, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -92,7 +92,7 @@ mng_retcode MNG_DECL mng_iterate_chunks (mng_handle       hHandle,
   }
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_ITERATE_CHUNKS, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_ITERATE_CHUNKS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -114,7 +114,7 @@ mng_retcode MNG_DECL mng_getchunk_ihdr (mng_handle hHandle,
   mng_ihdrp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -133,7 +133,7 @@ mng_retcode MNG_DECL mng_getchunk_ihdr (mng_handle hHandle,
   *iInterlace   = pChunk->iInterlace;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -150,7 +150,7 @@ mng_retcode MNG_DECL mng_getchunk_plte (mng_handle   hHandle,
   mng_pltep pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PLTE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PLTE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -165,7 +165,7 @@ mng_retcode MNG_DECL mng_getchunk_plte (mng_handle   hHandle,
   MNG_COPY (*aPalette, pChunk->aEntries, sizeof (mng_palette8))
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PLTE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PLTE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -182,7 +182,7 @@ mng_retcode MNG_DECL mng_getchunk_idat (mng_handle hHandle,
   mng_idatp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IDAT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IDAT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -196,7 +196,7 @@ mng_retcode MNG_DECL mng_getchunk_idat (mng_handle hHandle,
   *pRawdata = pChunk->pData;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IDAT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_IDAT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -222,7 +222,7 @@ mng_retcode MNG_DECL mng_getchunk_trns (mng_handle   hHandle,
   mng_trnsp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TRNS, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TRNS, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -246,7 +246,7 @@ mng_retcode MNG_DECL mng_getchunk_trns (mng_handle   hHandle,
   MNG_COPY (*aRawdata, pChunk->aRawdata, sizeof (mng_uint8arr))
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TRNS, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TRNS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -263,7 +263,7 @@ mng_retcode MNG_DECL mng_getchunk_gama (mng_handle hHandle,
   mng_gamap pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_GAMA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_GAMA, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -277,7 +277,7 @@ mng_retcode MNG_DECL mng_getchunk_gama (mng_handle hHandle,
   *iGamma = pChunk->iGamma;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_GAMA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_GAMA, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -301,7 +301,7 @@ mng_retcode MNG_DECL mng_getchunk_chrm (mng_handle hHandle,
   mng_chrmp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CHRM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CHRM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -322,7 +322,7 @@ mng_retcode MNG_DECL mng_getchunk_chrm (mng_handle hHandle,
   *iBluey       = pChunk->iBluey;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CHRM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CHRM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -339,7 +339,7 @@ mng_retcode MNG_DECL mng_getchunk_srgb (mng_handle hHandle,
   mng_srgbp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SRGB, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SRGB, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -353,7 +353,7 @@ mng_retcode MNG_DECL mng_getchunk_srgb (mng_handle hHandle,
   *iRenderingintent = pChunk->iRenderingintent;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SRGB, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SRGB, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -374,7 +374,7 @@ mng_retcode MNG_DECL mng_getchunk_iccp (mng_handle hHandle,
   mng_iccpp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ICCP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ICCP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -392,7 +392,7 @@ mng_retcode MNG_DECL mng_getchunk_iccp (mng_handle hHandle,
   *pProfile     = pChunk->pProfile;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ICCP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ICCP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -411,7 +411,7 @@ mng_retcode MNG_DECL mng_getchunk_text (mng_handle hHandle,
   mng_textp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TEXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TEXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -427,7 +427,7 @@ mng_retcode MNG_DECL mng_getchunk_text (mng_handle hHandle,
   *zText        = pChunk->zText;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TEXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TEXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -447,7 +447,7 @@ mng_retcode MNG_DECL mng_getchunk_ztxt (mng_handle hHandle,
   mng_ztxtp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ZTXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ZTXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -464,7 +464,7 @@ mng_retcode MNG_DECL mng_getchunk_ztxt (mng_handle hHandle,
   *zText        = pChunk->zText;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ZTXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ZTXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -489,7 +489,7 @@ mng_retcode MNG_DECL mng_getchunk_itxt (mng_handle hHandle,
   mng_itxtp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ITXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ITXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -511,7 +511,7 @@ mng_retcode MNG_DECL mng_getchunk_itxt (mng_handle hHandle,
   *zText              = pChunk->zText;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ITXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ITXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -533,7 +533,7 @@ mng_retcode MNG_DECL mng_getchunk_bkgd (mng_handle hHandle,
   mng_bkgdp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BKGD, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BKGD, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -552,7 +552,7 @@ mng_retcode MNG_DECL mng_getchunk_bkgd (mng_handle hHandle,
   *iBlue  = pChunk->iBlue;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BKGD, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BKGD, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -571,7 +571,7 @@ mng_retcode MNG_DECL mng_getchunk_phys (mng_handle hHandle,
   mng_physp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYS, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYS, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -587,7 +587,7 @@ mng_retcode MNG_DECL mng_getchunk_phys (mng_handle hHandle,
   *iUnit  = pChunk->iUnit;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYS, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -605,7 +605,7 @@ mng_retcode MNG_DECL mng_getchunk_sbit (mng_handle    hHandle,
   mng_sbitp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SBIT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SBIT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -623,7 +623,7 @@ mng_retcode MNG_DECL mng_getchunk_sbit (mng_handle    hHandle,
   (*aBits)[3] = pChunk->aBits[3];
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SBIT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SBIT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -644,7 +644,7 @@ mng_retcode MNG_DECL mng_getchunk_splt (mng_handle hHandle,
   mng_spltp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SPLT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SPLT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -662,7 +662,7 @@ mng_retcode MNG_DECL mng_getchunk_splt (mng_handle hHandle,
   *pEntries     = pChunk->pEntries;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SPLT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SPLT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -679,7 +679,7 @@ mng_retcode MNG_DECL mng_getchunk_hist (mng_handle    hHandle,
   mng_histp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_HIST, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_HIST, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -694,7 +694,7 @@ mng_retcode MNG_DECL mng_getchunk_hist (mng_handle    hHandle,
   MNG_COPY (*aEntries, pChunk->aEntries, sizeof (mng_uint16arr))
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_HIST, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_HIST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -715,7 +715,7 @@ mng_retcode MNG_DECL mng_getchunk_time (mng_handle hHandle,
   mng_timep pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TIME, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TIME, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -733,7 +733,7 @@ mng_retcode MNG_DECL mng_getchunk_time (mng_handle hHandle,
   *iSecond = pChunk->iSecond;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TIME, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TIME, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -755,7 +755,7 @@ mng_retcode MNG_DECL mng_getchunk_mhdr (mng_handle hHandle,
   mng_mhdrp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -774,7 +774,7 @@ mng_retcode MNG_DECL mng_getchunk_mhdr (mng_handle hHandle,
   *iSimplicity = pChunk->iSimplicity;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -796,7 +796,7 @@ mng_retcode MNG_DECL mng_getchunk_loop (mng_handle  hHandle,
   mng_loopp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_LOOP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_LOOP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -815,7 +815,7 @@ mng_retcode MNG_DECL mng_getchunk_loop (mng_handle  hHandle,
   *pSignals     = pChunk->pSignals;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_LOOP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_LOOP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -831,7 +831,7 @@ mng_retcode MNG_DECL mng_getchunk_endl (mng_handle hHandle,
   mng_endlp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ENDL, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ENDL, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -844,7 +844,7 @@ mng_retcode MNG_DECL mng_getchunk_endl (mng_handle hHandle,
   *iLevel = pChunk->iLevel;            /* fill the field */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ENDL, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ENDL, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -870,7 +870,7 @@ mng_retcode MNG_DECL mng_getchunk_defi (mng_handle hHandle,
   mng_defip pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DEFI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DEFI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -893,7 +893,7 @@ mng_retcode MNG_DECL mng_getchunk_defi (mng_handle hHandle,
   *iBottomcb  = pChunk->iBottomcb;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DEFI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -920,7 +920,7 @@ mng_retcode MNG_DECL mng_getchunk_basi (mng_handle hHandle,
   mng_basip pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BASI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BASI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -944,7 +944,7 @@ mng_retcode MNG_DECL mng_getchunk_basi (mng_handle hHandle,
   *iViewable    = pChunk->iViewable;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BASI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BASI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -968,7 +968,7 @@ mng_retcode MNG_DECL mng_getchunk_clon (mng_handle hHandle,
   mng_clonp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLON, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLON, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -989,7 +989,7 @@ mng_retcode MNG_DECL mng_getchunk_clon (mng_handle hHandle,
   *iLocationy    = pChunk->iLocationy;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLON, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLON, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1009,7 +1009,7 @@ mng_retcode MNG_DECL mng_getchunk_past (mng_handle hHandle,
   mng_pastp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1026,7 +1026,7 @@ mng_retcode MNG_DECL mng_getchunk_past (mng_handle hHandle,
   *iCount      = pChunk->iCount;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1054,7 +1054,7 @@ mng_retcode MNG_DECL mng_getchunk_past_src (mng_handle hHandle,
   mng_past_sourcep pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST_SRC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST_SRC, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1082,7 +1082,7 @@ mng_retcode MNG_DECL mng_getchunk_past_src (mng_handle hHandle,
   *iBoundaryb    = pEntry->iBoundaryb;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST_SRC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PAST_SRC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1099,7 +1099,7 @@ mng_retcode MNG_DECL mng_getchunk_disc (mng_handle  hHandle,
   mng_discp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DISC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DISC, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1113,7 +1113,7 @@ mng_retcode MNG_DECL mng_getchunk_disc (mng_handle  hHandle,
   *pObjectids = pChunk->pObjectids;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DISC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DISC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1134,7 +1134,7 @@ mng_retcode MNG_DECL mng_getchunk_back (mng_handle hHandle,
   mng_backp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BACK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BACK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1152,7 +1152,7 @@ mng_retcode MNG_DECL mng_getchunk_back (mng_handle hHandle,
   *iTile      = pChunk->iTile;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BACK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_BACK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1184,7 +1184,7 @@ mng_retcode MNG_DECL mng_getchunk_fram (mng_handle  hHandle,
   mng_framp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FRAM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FRAM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1213,7 +1213,7 @@ mng_retcode MNG_DECL mng_getchunk_fram (mng_handle  hHandle,
   *pSyncids        = pChunk->pSyncids;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FRAM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FRAM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1233,7 +1233,7 @@ mng_retcode MNG_DECL mng_getchunk_move (mng_handle hHandle,
   mng_movep pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MOVE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MOVE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1250,7 +1250,7 @@ mng_retcode MNG_DECL mng_getchunk_move (mng_handle hHandle,
   *iMovey    = pChunk->iMovey;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MOVE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_MOVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1272,7 +1272,7 @@ mng_retcode MNG_DECL mng_getchunk_clip (mng_handle hHandle,
   mng_clipp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLIP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLIP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1291,7 +1291,7 @@ mng_retcode MNG_DECL mng_getchunk_clip (mng_handle hHandle,
   *iClipb    = pChunk->iClipb;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLIP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_CLIP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1310,7 +1310,7 @@ mng_retcode MNG_DECL mng_getchunk_show (mng_handle hHandle,
   mng_showp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SHOW, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SHOW, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1326,7 +1326,7 @@ mng_retcode MNG_DECL mng_getchunk_show (mng_handle hHandle,
   *iMode    = pChunk->iMode;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SHOW, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SHOW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1345,7 +1345,7 @@ mng_retcode MNG_DECL mng_getchunk_term (mng_handle hHandle,
   mng_termp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TERM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TERM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1361,7 +1361,7 @@ mng_retcode MNG_DECL mng_getchunk_term (mng_handle hHandle,
   *iItermax    = pChunk->iItermax;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TERM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_TERM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1379,7 +1379,7 @@ mng_retcode MNG_DECL mng_getchunk_save (mng_handle hHandle,
   mng_savep pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1394,7 +1394,7 @@ mng_retcode MNG_DECL mng_getchunk_save (mng_handle hHandle,
   *iCount      = pChunk->iCount;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1418,7 +1418,7 @@ mng_retcode MNG_DECL mng_getchunk_save_entry (mng_handle     hHandle,
   mng_save_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1444,7 +1444,7 @@ mng_retcode MNG_DECL mng_getchunk_save_entry (mng_handle     hHandle,
   *zName           = pEntry->zName;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SAVE_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1461,7 +1461,7 @@ mng_retcode MNG_DECL mng_getchunk_seek (mng_handle hHandle,
   mng_seekp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SEEK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SEEK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1475,7 +1475,7 @@ mng_retcode MNG_DECL mng_getchunk_seek (mng_handle hHandle,
   *zName     = pChunk->zName;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SEEK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_SEEK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1493,7 +1493,7 @@ mng_retcode MNG_DECL mng_getchunk_expi (mng_handle hHandle,
   mng_expip pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EXPI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EXPI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1508,7 +1508,7 @@ mng_retcode MNG_DECL mng_getchunk_expi (mng_handle hHandle,
   *zName       = pChunk->zName;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EXPI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_EXPI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1525,7 +1525,7 @@ mng_retcode MNG_DECL mng_getchunk_fpri (mng_handle hHandle,
   mng_fprip pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FPRI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FPRI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1539,7 +1539,7 @@ mng_retcode MNG_DECL mng_getchunk_fpri (mng_handle hHandle,
   *iPriority  = pChunk->iPriority;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FPRI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_FPRI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1556,7 +1556,7 @@ mng_retcode MNG_DECL mng_getchunk_need (mng_handle hHandle,
   mng_needp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_NEED, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_NEED, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1570,7 +1570,7 @@ mng_retcode MNG_DECL mng_getchunk_need (mng_handle hHandle,
   *zKeywords     = pChunk->zKeywords;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_NEED, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_NEED, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1589,7 +1589,7 @@ mng_retcode MNG_DECL mng_getchunk_phyg (mng_handle hHandle,
   mng_phygp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYG, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYG, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1605,7 +1605,7 @@ mng_retcode MNG_DECL mng_getchunk_phyg (mng_handle hHandle,
   *iUnit  = pChunk->iUnit;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYG, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PHYG, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1632,7 +1632,7 @@ mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
   mng_jhdrp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1654,7 +1654,7 @@ mng_retcode MNG_DECL mng_getchunk_jhdr (mng_handle hHandle,
   *iAlphainterlace   = pChunk->iAlphainterlace;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1675,7 +1675,7 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
   mng_jdatp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JDAT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JDAT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1689,7 +1689,7 @@ mng_retcode MNG_DECL mng_getchunk_jdat (mng_handle hHandle,
   *pRawdata = pChunk->pData;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JDAT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_JDAT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1713,7 +1713,7 @@ mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
   mng_dhdrp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1732,7 +1732,7 @@ mng_retcode MNG_DECL mng_getchunk_dhdr (mng_handle hHandle,
   *iBlocky      = pChunk->iBlocky;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1750,7 +1750,7 @@ mng_retcode MNG_DECL mng_getchunk_prom (mng_handle hHandle,
   mng_promp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PROM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PROM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1765,7 +1765,7 @@ mng_retcode MNG_DECL mng_getchunk_prom (mng_handle hHandle,
   *iFilltype    = pChunk->iFilltype;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PROM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PROM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1781,7 +1781,7 @@ mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
   mng_ppltp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1794,7 +1794,7 @@ mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
   *iCount = pChunk->iCount;            /* fill the field */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1816,7 +1816,7 @@ mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle hHandle,
   mng_pplt_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1838,7 +1838,7 @@ mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle hHandle,
   *bUsed  = pEntry->bUsed;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1855,7 +1855,7 @@ mng_retcode MNG_DECL mng_getchunk_drop (mng_handle   hHandle,
   mng_dropp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DROP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DROP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1869,7 +1869,7 @@ mng_retcode MNG_DECL mng_getchunk_drop (mng_handle   hHandle,
   *pChunknames = pChunk->pChunknames;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DROP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DROP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1888,7 +1888,7 @@ mng_retcode MNG_DECL mng_getchunk_dbyk (mng_handle  hHandle,
   mng_dbykp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DBYK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DBYK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1904,7 +1904,7 @@ mng_retcode MNG_DECL mng_getchunk_dbyk (mng_handle  hHandle,
   *zKeywords     = pChunk->zKeywords;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DBYK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_DBYK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1920,7 +1920,7 @@ mng_retcode MNG_DECL mng_getchunk_ordr (mng_handle hHandle,
   mng_ordrp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1933,7 +1933,7 @@ mng_retcode MNG_DECL mng_getchunk_ordr (mng_handle hHandle,
   *iCount = pChunk->iCount;            /* fill the field */ 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1952,7 +1952,7 @@ mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle  hHandle,
   mng_ordr_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -1971,7 +1971,7 @@ mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle  hHandle,
   *iOrdertype = pEntry->iOrdertype;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_ORDR_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -1989,7 +1989,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
   mng_unknown_chunkp pChunk;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_UNKNOWN, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_UNKNOWN, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2004,7 +2004,7 @@ mng_retcode MNG_DECL mng_getchunk_unknown (mng_handle  hHandle,
   *pRawdata   = pChunk->pData;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_UNKNOWN, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_UNKNOWN, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2033,7 +2033,7 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
           {MNG_UINT_IHDR, init_ihdr, free_ihdr, read_ihdr, write_ihdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2061,7 +2061,7 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2080,7 +2080,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
           {MNG_UINT_PLTE, init_plte, free_plte, read_plte, write_plte, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2104,7 +2104,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PLTE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2123,7 +2123,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
           {MNG_UINT_IDAT, init_idat, free_idat, read_idat, write_idat, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2151,7 +2151,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IDAT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2168,7 +2168,7 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
           {MNG_UINT_IEND, init_iend, free_iend, read_iend, write_iend, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2196,7 +2196,7 @@ mng_retcode MNG_DECL mng_putchunk_iend (mng_handle hHandle)
     pData->bCreating = MNG_FALSE;      /* should be last chunk !!! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IEND, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2224,7 +2224,7 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
           {MNG_UINT_tRNS, init_trns, free_trns, read_trns, write_trns, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2257,7 +2257,7 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TRNS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2276,7 +2276,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
           {MNG_UINT_gAMA, init_gama, free_gama, read_gama, write_gama, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2299,7 +2299,7 @@ mng_retcode MNG_DECL mng_putchunk_gama (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_GAMA, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2325,7 +2325,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
           {MNG_UINT_cHRM, init_chrm, free_chrm, read_chrm, write_chrm, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2355,7 +2355,7 @@ mng_retcode MNG_DECL mng_putchunk_chrm (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CHRM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2374,7 +2374,7 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
           {MNG_UINT_sRGB, init_srgb, free_srgb, read_srgb, write_srgb, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2397,7 +2397,7 @@ mng_retcode MNG_DECL mng_putchunk_srgb (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SRGB, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2420,7 +2420,7 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
           {MNG_UINT_iCCP, init_iccp, free_iccp, read_iccp, write_iccp, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2457,7 +2457,7 @@ mng_retcode MNG_DECL mng_putchunk_iccp (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ICCP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2478,7 +2478,7 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
           {MNG_UINT_tEXt, init_text, free_text, read_text, write_text, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2513,7 +2513,7 @@ mng_retcode MNG_DECL mng_putchunk_text (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TEXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2535,7 +2535,7 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
           {MNG_UINT_zTXt, init_ztxt, free_ztxt, read_ztxt, write_ztxt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2571,7 +2571,7 @@ mng_retcode MNG_DECL mng_putchunk_ztxt (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ZTXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2598,7 +2598,7 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
           {MNG_UINT_iTXt, init_itxt, free_itxt, read_itxt, write_itxt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2649,7 +2649,7 @@ mng_retcode MNG_DECL mng_putchunk_itxt (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ITXT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2673,7 +2673,7 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
           {MNG_UINT_bKGD, init_bkgd, free_bkgd, read_bkgd, write_bkgd, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2701,7 +2701,7 @@ mng_retcode MNG_DECL mng_putchunk_bkgd (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BKGD, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2722,7 +2722,7 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
           {MNG_UINT_pHYs, init_phys, free_phys, read_phys, write_phys, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2747,7 +2747,7 @@ mng_retcode MNG_DECL mng_putchunk_phys (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYS, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2767,7 +2767,7 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
           {MNG_UINT_sBIT, init_sbit, free_sbit, read_sbit, write_sbit, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2794,7 +2794,7 @@ mng_retcode MNG_DECL mng_putchunk_sbit (mng_handle    hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SBIT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2817,7 +2817,7 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
           {MNG_UINT_sPLT, init_splt, free_splt, read_splt, write_splt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2856,7 +2856,7 @@ mng_retcode MNG_DECL mng_putchunk_splt (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SPLT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2875,7 +2875,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
           {MNG_UINT_hIST, init_hist, free_hist, read_hist, write_hist, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2899,7 +2899,7 @@ mng_retcode MNG_DECL mng_putchunk_hist (mng_handle    hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_HIST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2922,7 +2922,7 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
           {MNG_UINT_tIME, init_time, free_time, read_time, write_time, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -2949,7 +2949,7 @@ mng_retcode MNG_DECL mng_putchunk_time (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TIME, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -2973,7 +2973,7 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
           {MNG_UINT_MHDR, init_mhdr, free_mhdr, read_mhdr, write_mhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3001,7 +3001,7 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3018,7 +3018,7 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
           {MNG_UINT_MEND, init_mend, free_mend, read_mend, write_mend, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3040,7 +3040,7 @@ mng_retcode MNG_DECL mng_putchunk_mend (mng_handle hHandle)
   pData->bCreating = MNG_FALSE;        /* should be last chunk !!! */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MEND, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3064,7 +3064,7 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
           {MNG_UINT_LOOP, init_loop, free_loop, read_loop, write_loop, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3092,7 +3092,7 @@ mng_retcode MNG_DECL mng_putchunk_loop (mng_handle  hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_LOOP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3110,7 +3110,7 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
           {MNG_UINT_ENDL, init_endl, free_endl, read_endl, write_endl, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3132,7 +3132,7 @@ mng_retcode MNG_DECL mng_putchunk_endl (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ENDL, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3160,7 +3160,7 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
           {MNG_UINT_DEFI, init_defi, free_defi, read_defi, write_defi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3192,7 +3192,7 @@ mng_retcode MNG_DECL mng_putchunk_defi (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DEFI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3221,7 +3221,7 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
           {MNG_UINT_BASI, init_basi, free_basi, read_basi, write_basi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3254,7 +3254,7 @@ mng_retcode MNG_DECL mng_putchunk_basi (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BASI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3280,7 +3280,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
           {MNG_UINT_CLON, init_clon, free_clon, read_clon, write_clon, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3310,7 +3310,7 @@ mng_retcode MNG_DECL mng_putchunk_clon (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLON, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3332,7 +3332,7 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
           {MNG_UINT_PAST, init_past, free_past, read_past, write_past, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3361,7 +3361,7 @@ mng_retcode MNG_DECL mng_putchunk_past (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3388,7 +3388,7 @@ mng_retcode MNG_DECL mng_putchunk_past_src (mng_handle hHandle,
   mng_past_sourcep pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST_SRC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST_SRC, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3423,7 +3423,7 @@ mng_retcode MNG_DECL mng_putchunk_past_src (mng_handle hHandle,
   pEntry->iBoundaryb    = iBoundaryb;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST_SRC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PAST_SRC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3442,7 +3442,7 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
           {MNG_UINT_DISC, init_disc, free_disc, read_disc, write_disc, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3472,7 +3472,7 @@ mng_retcode MNG_DECL mng_putchunk_disc (mng_handle  hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DISC, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3495,7 +3495,7 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
           {MNG_UINT_BACK, init_back, free_back, read_back, write_back, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3522,7 +3522,7 @@ mng_retcode MNG_DECL mng_putchunk_back (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_BACK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3556,7 +3556,7 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
           {MNG_UINT_FRAM, init_fram, free_fram, read_fram, write_fram, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3606,7 +3606,7 @@ mng_retcode MNG_DECL mng_putchunk_fram (mng_handle  hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FRAM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3628,7 +3628,7 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
           {MNG_UINT_MOVE, init_move, free_move, read_move, write_move, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3654,7 +3654,7 @@ mng_retcode MNG_DECL mng_putchunk_move (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_MOVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3678,7 +3678,7 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
           {MNG_UINT_CLIP, init_clip, free_clip, read_clip, write_clip, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3706,7 +3706,7 @@ mng_retcode MNG_DECL mng_putchunk_clip (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_CLIP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3727,7 +3727,7 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
           {MNG_UINT_SHOW, init_show, free_show, read_show, write_show, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3752,7 +3752,7 @@ mng_retcode MNG_DECL mng_putchunk_show (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SHOW, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3773,7 +3773,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
           {MNG_UINT_TERM, init_term, free_term, read_term, write_term, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3798,7 +3798,7 @@ mng_retcode MNG_DECL mng_putchunk_term (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_TERM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3818,7 +3818,7 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
           {MNG_UINT_SAVE, init_save, free_save, read_save, write_save, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3845,7 +3845,7 @@ mng_retcode MNG_DECL mng_putchunk_save (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3868,7 +3868,7 @@ mng_retcode MNG_DECL mng_putchunk_save_entry (mng_handle     hHandle,
   mng_save_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3906,7 +3906,7 @@ mng_retcode MNG_DECL mng_putchunk_save_entry (mng_handle     hHandle,
   }  
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SAVE_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3925,7 +3925,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
           {MNG_UINT_SEEK, init_seek, free_seek, read_seek, write_seek, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -3953,7 +3953,7 @@ mng_retcode MNG_DECL mng_putchunk_seek (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_SEEK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -3973,7 +3973,7 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
           {MNG_UINT_eXPI, init_expi, free_expi, read_expi, write_expi, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4002,7 +4002,7 @@ mng_retcode MNG_DECL mng_putchunk_expi (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_EXPI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4021,7 +4021,7 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
           {MNG_UINT_fPRI, init_fpri, free_fpri, read_fpri, write_fpri, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4044,7 +4044,7 @@ mng_retcode MNG_DECL mng_putchunk_fpri (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_FPRI, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4063,7 +4063,7 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
           {MNG_UINT_nEED, init_need, free_need, read_need, write_need, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4091,7 +4091,7 @@ mng_retcode MNG_DECL mng_putchunk_need (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_NEED, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4112,7 +4112,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
           {MNG_UINT_pHYg, init_phyg, free_phyg, read_phyg, write_phyg, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4137,7 +4137,7 @@ mng_retcode MNG_DECL mng_putchunk_phyg (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PHYG, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4166,7 +4166,7 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
           {MNG_UINT_JHDR, init_jhdr, free_jhdr, read_jhdr, write_jhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4197,7 +4197,7 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4220,7 +4220,7 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
           {MNG_UINT_JDAT, init_jdat, free_jdat, read_jdat, write_jdat, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4249,7 +4249,7 @@ mng_retcode MNG_DECL mng_putchunk_jdat (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JDAT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4270,7 +4270,7 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
           {MNG_UINT_JSEP, init_jsep, free_jsep, read_jsep, write_jsep, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4291,7 +4291,7 @@ mng_retcode MNG_DECL mng_putchunk_jsep (mng_handle hHandle)
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_JSEP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4317,7 +4317,7 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
           {MNG_UINT_DHDR, init_dhdr, free_dhdr, read_dhdr, write_dhdr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4345,7 +4345,7 @@ mng_retcode MNG_DECL mng_putchunk_dhdr (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4365,7 +4365,7 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
           {MNG_UINT_PROM, init_prom, free_prom, read_prom, write_prom, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4389,7 +4389,7 @@ mng_retcode MNG_DECL mng_putchunk_prom (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PROM, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4406,7 +4406,7 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
           {MNG_UINT_IPNG, init_ipng, free_ipng, read_ipng, write_ipng, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4426,7 +4426,7 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IPNG, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4444,7 +4444,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
           {MNG_UINT_PPLT, init_pplt, free_pplt, read_pplt, write_pplt, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4466,7 +4466,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4487,7 +4487,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
   mng_pplt_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4517,7 +4517,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
   pEntry->bUsed  = bUsed;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4534,7 +4534,7 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
           {MNG_UINT_IJNG, init_ijng, free_ijng, read_ijng, write_ijng, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4554,7 +4554,7 @@ mng_retcode MNG_DECL mng_putchunk_ijng (mng_handle hHandle)
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_IJNG, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4573,7 +4573,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
           {MNG_UINT_DROP, init_drop, free_drop, read_drop, write_drop, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4603,7 +4603,7 @@ mng_retcode MNG_DECL mng_putchunk_drop (mng_handle   hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DROP, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4624,7 +4624,7 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
           {MNG_UINT_DBYK, init_dbyk, free_dbyk, read_dbyk, write_dbyk, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4654,7 +4654,7 @@ mng_retcode MNG_DECL mng_putchunk_dbyk (mng_handle  hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_DBYK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4672,7 +4672,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
           {MNG_UINT_ORDR, init_ordr, free_ordr, read_ordr, write_ordr, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4697,7 +4697,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr (mng_handle hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4715,7 +4715,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle  hHandle,
   mng_ordr_entryp pEntry;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR_ENTRY, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR_ENTRY, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4741,7 +4741,7 @@ mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle  hHandle,
   pEntry->iOrdertype = iOrdertype;
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR_ENTRY, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_ORDR_ENTRY, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4761,7 +4761,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
           {MNG_UINT_HUH, init_unknown, free_unknown, read_unknown, write_unknown, 0, 0};
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_START)
 #endif
 
   MNG_VALIDHANDLE (hHandle)            /* check validity handle */
@@ -4789,7 +4789,7 @@ mng_retcode MNG_DECL mng_putchunk_unknown (mng_handle  hHandle,
   add_chunk (pData, pChunk);           /* add it to the list */
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_UNKNOWN, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4808,13 +4808,13 @@ mng_retcode MNG_DECL mng_getimgdata_seq (mng_handle        hHandle,
                                          mng_getcanvasline fGetcanvasline)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_SEQ, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_SEQ, MNG_LC_START)
 #endif
 
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_SEQ, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_SEQ, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4828,13 +4828,13 @@ mng_retcode MNG_DECL mng_getimgdata_chunkseq (mng_handle        hHandle,
                                               mng_getcanvasline fGetcanvasline)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNKSEQ, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNKSEQ, MNG_LC_START)
 #endif
 
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNKSEQ, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNKSEQ, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4848,13 +4848,13 @@ mng_retcode MNG_DECL mng_getimgdata_chunk (mng_handle        hHandle,
                                            mng_getcanvasline fGetcanvasline)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNK, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNK, MNG_LC_START)
 #endif
 
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNK, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETIMGDATA_CHUNK, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4879,13 +4879,13 @@ mng_retcode MNG_DECL mng_putimgdata_ihdr (mng_handle        hHandle,
                                           mng_getcanvasline fGetcanvasline)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_IHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_IHDR, MNG_LC_START)
 #endif
 
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_IHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_IHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;
@@ -4908,13 +4908,13 @@ mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
                                           mng_getcanvasline fGetcanvasline)
 {
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_START);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_START)
 #endif
 
 
 
 #ifdef MNG_SUPPORT_TRACE
-  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_END);
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

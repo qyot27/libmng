@@ -20,6 +20,10 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - added error telltaling                                   * */
+/* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
+/* *             - added errorstrings for delta-image processing            * */
+/* *             0.5.2 - 05/31/2000 - G.Juyn                                * */
+/* *             - fixed up punctuation (contributed by Tim Rowley)         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -94,6 +98,9 @@
     {MNG_INVALIDINDEX,     "Index-value out of bounds"},
     {MNG_TOOMUCHJDAT,      "Too much data in JDAT chunk(s)"},
     {MNG_JPEGPARMSERR,     "JHDR parameters & JFIF-data do not match"},
+    {MNG_INVFILLMETHOD,    "The fill_method is invalid"},
+    {MNG_OBJNOTCONCRETE,   "Target object for DHDR must be concrete"},
+    {MNG_TARGETNOALPHA,    "Target object must have alpha-channel"},
 
     {MNG_INVALIDCNVSTYLE,  "Canvas_style is invalid"},
     {MNG_WRONGCHUNK,       "Attempt to access the wrong chunk"},
@@ -123,7 +130,7 @@ mng_bool mng_process_error (mng_datap   pData,
                             mng_retcode iExtra2)
 {
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ERROR, MNG_LC_START);
+  MNG_TRACEB (pData, MNG_FN_PROCESS_ERROR, MNG_LC_START)
 #endif
 
   if (pData != 0)
@@ -154,7 +161,7 @@ mng_bool mng_process_error (mng_datap   pData,
           {
             pEntry = &error_table [iMiddle];
             break;
-          };
+          }
 
           iMiddle = (iLower + iUpper) >> 1;
         }
@@ -177,27 +184,27 @@ mng_bool mng_process_error (mng_datap   pData,
     {
       switch (iError&0x3C00)           /* determine the severity */
       {
-        case 0x0800 : { pData->iSeverity = 5; break; };
-        case 0x1000 : { pData->iSeverity = 2; break; };
-        case 0x2000 : { pData->iSeverity = 1; break; };
+        case 0x0800 : { pData->iSeverity = 5; break; }
+        case 0x1000 : { pData->iSeverity = 2; break; }
+        case 0x2000 : { pData->iSeverity = 1; break; }
         default     : { pData->iSeverity = 9; }
-      };
-    };
+      }
+    }
 
     if (pData->fErrorproc)             /* callback defined ? */
     {
       return pData->fErrorproc (((mng_handle)pData), iError, pData->iSeverity,
                                 pData->iChunkname, pData->iChunkseq,
                                 pData->iErrorx1, pData->iErrorx2, pData->zErrortext);
-    };
-  };
+    }
+  }
 
 #ifdef MNG_SUPPORT_TRACE
-  mng_trace (pData, MNG_FN_PROCESS_ERROR, MNG_LC_END);
+  MNG_TRACEB (pData, MNG_FN_PROCESS_ERROR, MNG_LC_END)
 #endif
 
   return MNG_FALSE;                    /* automatic failure */
-};
+}
 
 /* ************************************************************************** */
 /* * end of file                                                            * */
