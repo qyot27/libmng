@@ -2823,7 +2823,7 @@ READ_CHUNK (read_loop)
               MNG_ALLOC (pData, ((mng_loopp)*ppChunk)->pSignals,
                                 ((mng_loopp)*ppChunk)->iCount << 2)
 
-#ifdef MNG_SWAP_ENDIAN
+#ifndef MNG_BIGENDIAN_SUPPORTED
               {
                 mng_uint32  iX;
                 mng_uint8p  pIn  = pRawdata + 14;
@@ -2838,7 +2838,7 @@ READ_CHUNK (read_loop)
 #else
               MNG_COPY (((mng_loopp)*ppChunk)->pSignals, pRawdata + 14,
                         ((mng_loopp)*ppChunk)->iCount << 2)
-#endif /* MNG_SWAP_ENDIAN */
+#endif /* !MNG_BIGENDIAN_SUPPORTED */
             }
           }
         }
@@ -3441,7 +3441,7 @@ READ_CHUNK (read_disc)
 
     MNG_ALLOC (pData, ((mng_discp)*ppChunk)->pObjectids, iRawlen)
 
-#ifdef MNG_SWAP_ENDIAN
+#ifndef MNG_BIGENDIAN_SUPPORTED
     {
       mng_uint32  iX;
       mng_uint8p  pIn  = pRawdata;
@@ -3451,11 +3451,11 @@ READ_CHUNK (read_disc)
       {
         *pOut++ = mng_get_uint16 (pIn);
         pIn += 2;
-      }  
+      }
     }
 #else
     MNG_COPY (((mng_discp)*ppChunk)->pObjectids, pRawdata, iRawlen)
-#endif /* MNG_SWAP_ENDIAN */
+#endif /* !MNG_BIGENDIAN_SUPPORTED */
   }
 #endif /* MNG_STORE_CHUNKS */
 
@@ -3776,7 +3776,7 @@ READ_CHUNK (read_fram)
             MNG_ALLOC (pData, ((mng_framp)*ppChunk)->pSyncids,
                               ((mng_framp)*ppChunk)->iCount * 4);
 
-#ifdef MNG_SWAP_ENDIAN
+#ifndef MNG_BIGENDIAN_SUPPORTED
             {
               mng_uint32 iX;
               mng_uint32p pOut = ((mng_framp)*ppChunk)->pSyncids;
@@ -3790,7 +3790,7 @@ READ_CHUNK (read_fram)
 #else
             MNG_COPY (((mng_framp)*ppChunk)->pSyncids, pTemp,
                       ((mng_framp)*ppChunk)->iCount * 4)
-#endif /* MNG_SWAP_ENDIAN */
+#endif /* !MNG_BIGENDIAN_SUPPORTED */
           }
         }
       }

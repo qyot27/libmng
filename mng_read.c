@@ -347,7 +347,6 @@ mng_retcode read_chunk (mng_datap  pData)
 
 mng_retcode read_graphic (mng_datap pData)
 {
-
   mng_uint32  iBuflen;                 /* number of bytes requested */
   mng_uint32  iRead;                   /* number of bytes read */
   mng_retcode iRetcode;                /* temporary error-code */
@@ -372,18 +371,18 @@ mng_retcode read_graphic (mng_datap pData)
     if (iRead != iBuflen)              /* full signature received ? */
       MNG_ERROR (pData, MNG_UNEXPECTEDEOF);
                                        /* is it a valid signature ? */
-    if (*((mng_uint32p)pData->pReadbuf) == PNG_SIG)
+    if (mng_get_uint32(pData->pReadbuf) == PNG_SIG)
       pData->eSigtype = mng_it_png;
     else
-    if (*((mng_uint32p)pData->pReadbuf) == JNG_SIG)
+    if (mng_get_uint32(pData->pReadbuf) == JNG_SIG)
       pData->eSigtype = mng_it_jng;
     else
-    if (*((mng_uint32p)pData->pReadbuf) == MNG_SIG)
+    if (mng_get_uint32(pData->pReadbuf) == MNG_SIG)
       pData->eSigtype = mng_it_mng;
     else
       MNG_ERROR (pData, MNG_INVALIDSIG);
                                        /* all of it ? */
-    if (*((mng_uint32p)(pData->pReadbuf+4)) != POST_SIG)
+    if (mng_get_uint32(pData->pReadbuf+4) != POST_SIG)
       MNG_ERROR (pData, MNG_INVALIDSIG);
 
     pData->bHavesig = MNG_TRUE;

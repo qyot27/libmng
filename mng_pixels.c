@@ -27,6 +27,8 @@
 /* *             0.5.2 - 05/30/2000 - G.Juyn                                * */
 /* *             - fixed minor bugs 16-bit pixel-handling                   * */
 /* *             - added delta-image row-processing routines                * */
+/* *             0.5.2 - 06/02/2000 - G.Juyn                                * */
+/* *             - fixed endian support (hopefully)                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -155,11 +157,8 @@ mng_retcode display_rgb8 (mng_datap pData)
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
         {
-#ifdef MNG_SWAP_ENDIAN                 /* get alpha value */
           iA16 = mng_get_uint16 (pDataline+6);
-#else
-          iA16 = *(mng_uint16p)(pDataline+6);
-#endif
+
           if (iA16)                    /* any opacity at all ? */
           {
             if (iA16 == 0xFFFF)        /* fully opaque ? */
@@ -169,16 +168,11 @@ mng_retcode display_rgb8 (mng_datap pData)
               *(pScanline+2) = *(pDataline+4);
             }
             else
-            {
-#ifdef MNG_SWAP_ENDIAN                 /* get the proper values */
+            {                          /* get the proper values */
               iFGr16 = mng_get_uint16 (pDataline  );
               iFGg16 = mng_get_uint16 (pDataline+2);
               iFGb16 = mng_get_uint16 (pDataline+4);
-#else
-              iFGr16 = *(mng_uint16p)(pDataline  );
-              iFGg16 = *(mng_uint16p)(pDataline+2);
-              iFGb16 = *(mng_uint16p)(pDataline+4);
-#endif                                 /* scale background up */
+                                       /* scale background up */
               iBGr16 = (mng_uint16)(*(pScanline+2));
               iBGg16 = (mng_uint16)(*(pScanline+1));
               iBGb16 = (mng_uint16)(*pScanline    );
@@ -339,12 +333,9 @@ mng_retcode display_bgr8 (mng_datap pData)
       if (pData->bIsRGBA16)            /* 16-bit input row ? */
       {
         for (iX = pData->iSourcel; iX < pData->iSourcer; iX += pData->iColinc)
-        {
-#ifdef MNG_SWAP_ENDIAN                 /* get alpha value */
+        {                              /* get alpha value */
           iA16 = mng_get_uint16 (pDataline+6);
-#else
-          iA16 = *(mng_uint16p)(pDataline+6);
-#endif
+
           if (iA16)                    /* any opacity at all ? */
           {
             if (iA16 == 0xFFFF)        /* fully opaque ? */
@@ -354,16 +345,11 @@ mng_retcode display_bgr8 (mng_datap pData)
               *(pScanline+2) = *pDataline;
             }
             else
-            {
-#ifdef MNG_SWAP_ENDIAN                 /* get the proper values */
+            {                          /* get the proper values */
               iFGr16 = mng_get_uint16 (pDataline  );
               iFGg16 = mng_get_uint16 (pDataline+2);
               iFGb16 = mng_get_uint16 (pDataline+4);
-#else
-              iFGr16 = *(mng_uint16p)(pDataline  );
-              iFGg16 = *(mng_uint16p)(pDataline+2);
-              iFGb16 = *(mng_uint16p)(pDataline+4);
-#endif                                 /* scale background up */
+                                       /* scale background up */
               iBGr16 = (mng_uint16)(*(pScanline+2));
               iBGg16 = (mng_uint16)(*(pScanline+1));
               iBGb16 = (mng_uint16)(*pScanline    );
@@ -679,8 +665,8 @@ mng_retcode retrieve_g8 (mng_datap pData)
 mng_retcode retrieve_g16 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint16     iG;
 
@@ -688,46 +674,47 @@ mng_retcode retrieve_g16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_RETRIEVE_G16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
+  pRGBArow = pData->pRGBArow;
+  pWorkrow = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
 
   if (pBuf->bHasTRNS)                  /* tRNS in buffer ? */
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
     {
-      iG = *pWorkrow;                  /* get the gray-value */
+      iG = mng_get_uint16 (pWorkrow);  /* get the gray-value */
                                        /* is it transparent ? */
       if (iG == pBuf->iTRNSgray)
-      {
-        *pRGBArow     = 0x0000;        /* nuttin to display */
-        *(pRGBArow+1) = 0x0000;
-        *(pRGBArow+2) = 0x0000;
-        *(pRGBArow+3) = 0x0000;
+      {                                /* nuttin to display */
+        mng_put_uint16 (pRGBArow,   0x0000);
+        mng_put_uint16 (pRGBArow+2, 0x0000);
+        mng_put_uint16 (pRGBArow+4, 0x0000);
+        mng_put_uint16 (pRGBArow+6, 0x0000);
       }
       else
-      {
-        *pRGBArow     = iG;            /* put in intermediate row */
-        *(pRGBArow+1) = iG;
-        *(pRGBArow+2) = iG;
-        *(pRGBArow+3) = 0xFFFF;
+      {                                /* put in intermediate row */
+        mng_put_uint16 (pRGBArow,   iG);
+        mng_put_uint16 (pRGBArow+2, iG);
+        mng_put_uint16 (pRGBArow+4, iG);
+        mng_put_uint16 (pRGBArow+6, 0xFFFF);
       }
 
-      pWorkrow++;                      /* next pixel */
-      pRGBArow += 4;
+      pWorkrow += 2;                   /* next pixel */
+      pRGBArow += 8;
     }
   }
   else
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
     {
-      iG = *pWorkrow;                  /* get the gray-value */
-      *pRGBArow     = iG;              /* put in intermediate row */
-      *(pRGBArow+1) = iG;
-      *(pRGBArow+2) = iG;
-      *(pRGBArow+3) = 0xFFFF;
+      iG = mng_get_uint16 (pWorkrow);  /* get the gray-value */
 
-      pWorkrow++;                      /* next pixel */
-      pRGBArow += 4;
+      mng_put_uint16 (pRGBArow,   iG); /* and put in intermediate row */
+      mng_put_uint16 (pRGBArow+2, iG);
+      mng_put_uint16 (pRGBArow+4, iG);
+      mng_put_uint16 (pRGBArow+6, 0xFFFF);
+
+      pWorkrow += 2;                  /* next pixel */
+      pRGBArow += 8;
     }
   }
 
@@ -810,8 +797,8 @@ mng_retcode retrieve_rgb8 (mng_datap pData)
 mng_retcode retrieve_rgb16 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint16     iR, iG, iB;
 
@@ -819,49 +806,49 @@ mng_retcode retrieve_rgb16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_RETRIEVE_RGB16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
+  pRGBArow = pData->pRGBArow;
+  pWorkrow = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
 
   if (pBuf->bHasTRNS)                  /* tRNS in buffer ? */
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
     {
-      iR = *pWorkrow;                  /* get the rgb-values */
-      iG = *(pWorkrow+1);
-      iB = *(pWorkrow+2);
+      iR = mng_get_uint16 (pWorkrow);  /* get the rgb-values */
+      iG = mng_get_uint16 (pWorkrow+2);
+      iB = mng_get_uint16 (pWorkrow+4);
                                        /* is it transparent ? */
       if ((iR == pBuf->iTRNSred  ) &&
           (iG == pBuf->iTRNSgreen) &&
           (iB == pBuf->iTRNSblue )    )
-      {
-        *pRGBArow     = 0x0000;        /* nothing to display */
-        *(pRGBArow+1) = 0x0000;
-        *(pRGBArow+2) = 0x0000;
-        *(pRGBArow+3) = 0x0000;
+      {                                /* nothing to display */
+        mng_put_uint16 (pRGBArow,   0x0000);
+        mng_put_uint16 (pRGBArow+2, 0x0000);
+        mng_put_uint16 (pRGBArow+4, 0x0000);
+        mng_put_uint16 (pRGBArow+6, 0x0000);
       }
       else
-      {
-        *pRGBArow     = iR;            /* put in intermediate row */
-        *(pRGBArow+1) = iG;
-        *(pRGBArow+2) = iB;
-        *(pRGBArow+3) = 0xFFFF;
+      {                                /* put in intermediate row */
+        mng_put_uint16 (pRGBArow,   iR);
+        mng_put_uint16 (pRGBArow+2, iG);
+        mng_put_uint16 (pRGBArow+4, iB);
+        mng_put_uint16 (pRGBArow+6, 0xFFFF);
       }
 
-      pWorkrow += 3;                   /* next pixel */
-      pRGBArow += 4;
+      pWorkrow += 6;                   /* next pixel */
+      pRGBArow += 8;
     }
   }
   else
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
-    {
-      *pRGBArow     = *pWorkrow;       /* just copy the pixel */
-      *(pRGBArow+1) = *(pWorkrow+1);
-      *(pRGBArow+2) = *(pWorkrow+2);
-      *(pRGBArow+3) = 0xFFFF;
+    {                                  /* just copy the pixel */
+      mng_put_uint16 (pRGBArow,   mng_get_uint16 (pWorkrow  ));
+      mng_put_uint16 (pRGBArow+2, mng_get_uint16 (pWorkrow+2));
+      mng_put_uint16 (pRGBArow+4, mng_get_uint16 (pWorkrow+4));
+      mng_put_uint16 (pRGBArow+6, 0xFFFF);
 
-      pWorkrow += 3;                   /* next pixel */
-      pRGBArow += 4;
+      pWorkrow += 6;                   /* next pixel */
+      pRGBArow += 8;
     }
   }
 
@@ -982,8 +969,8 @@ mng_retcode retrieve_ga8 (mng_datap pData)
 mng_retcode retrieve_ga16 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint16     iG;
 
@@ -991,19 +978,20 @@ mng_retcode retrieve_ga16 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_RETRIEVE_GA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize));
+  pRGBArow = pData->pRGBArow;
+  pWorkrow = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
-    iG = *pWorkrow;                    /* get the gray-value */
-    *pRGBArow     = iG;                /* put in intermediate row */
-    *(pRGBArow+1) = iG;
-    *(pRGBArow+2) = iG;
-    *(pRGBArow+3) = *(pWorkrow+1);
+    iG = mng_get_uint16 (pWorkrow);    /* get the gray-value */
 
-    pWorkrow += 2;                     /* next pixel */
-    pRGBArow += 4;
+    mng_put_uint16 (pRGBArow,   iG);   /* and put in intermediate row */
+    mng_put_uint16 (pRGBArow+2, iG);
+    mng_put_uint16 (pRGBArow+4, iG);
+    mng_put_uint16 (pRGBArow+6, mng_get_uint16 (pWorkrow+2));
+
+    pWorkrow += 4;                     /* next pixel */
+    pRGBArow += 8;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1042,15 +1030,15 @@ mng_retcode retrieve_rgba8 (mng_datap pData)
 mng_retcode retrieve_rgba16 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pRetrieveobj)->pImgbuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RETRIEVE_RGBA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
-  pWorkrow = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize));
+  pRGBArow = pData->pRGBArow;
+  pWorkrow = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize);
                                        /* can't be easier than this ! */
   MNG_COPY (pRGBArow, pWorkrow, pBuf->iRowsize)
 
@@ -1269,31 +1257,26 @@ mng_retcode store_g8 (mng_datap pData)
 mng_retcode store_g16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
-  mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_G16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize)   );
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
   iX       = 0;                        /* start at pixel 0 */
-  iW       = *pWorkrow;                /* and get first input 2-byte */
-  pWorkrow++;
 
   while (iX < pData->iRowsamples)
-  {
-    *pOutrow = iW;                     /* put in object buffer */
+  {                                    /* copy into object buffer */
+    mng_put_uint16 (pOutrow, mng_get_uint16 (pWorkrow));
 
-    pOutrow += pData->iColinc;         /* next pixel */
+    pOutrow  += (pData->iColinc << 1); /* next pixel */
+    pWorkrow += 2;
     iX++;
-
-    iW = *pWorkrow;                    /* get next input 2-byte */
-    pWorkrow++;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1342,26 +1325,24 @@ mng_retcode store_rgb8 (mng_datap pData)
 mng_retcode store_rgb16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_RGB16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize)   );
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
-    *pOutrow     = *pWorkrow;          /* copy the RGB bytes */
-    *(pOutrow+1) = *(pWorkrow+1);
-    *(pOutrow+2) = *(pWorkrow+2);
+    MNG_COPY (pOutrow, pWorkrow, 6)    /* copy the RGB bytes */
 
-    pWorkrow += 3;                     /* next pixel */
-    pOutrow  += (pData->iColinc * 3);
+    pWorkrow += 6;                     /* next pixel */
+    pOutrow  += (pData->iColinc * 6);
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1590,25 +1571,24 @@ mng_retcode store_ga8 (mng_datap pData)
 mng_retcode store_ga16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_GA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize)   );
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
-    *pOutrow     = *pWorkrow;          /* copy the GA bytes */
-    *(pOutrow+1) = *(pWorkrow+1);
+    MNG_COPY (pOutrow, pWorkrow, 4)    /* copy the GA bytes */
 
-    pWorkrow += 2;                     /* next pixel */
-    pOutrow  += (pData->iColinc << 1);
+    pWorkrow += 4;                     /* next pixel */
+    pOutrow  += (pData->iColinc << 2);
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1658,27 +1638,24 @@ mng_retcode store_rgba8 (mng_datap pData)
 mng_retcode store_rgba16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_RGBA16, MNG_LC_START)
 #endif
                                        /* temporary work pointers */
-  pWorkrow = (mng_uint16p)pData->pWorkrow + 1;
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize)   );
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize);
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
-    *pOutrow     = *pWorkrow;          /* copy the RGBA bytes */
-    *(pOutrow+1) = *(pWorkrow+1);
-    *(pOutrow+2) = *(pWorkrow+2);
-    *(pOutrow+3) = *(pWorkrow+3);
+    MNG_COPY (pOutrow, pWorkrow, 8)    /* copy the RGBA bytes */
 
-    pWorkrow += 4;                     /* next pixel */
-    pOutrow  += (pData->iColinc << 2);
+    pWorkrow += 8;                     /* next pixel */
+    pOutrow  += (pData->iColinc << 3);
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2289,7 +2266,7 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
   mng_uint8p     pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
   mng_uint8      iB;
   mng_uint8      iM;
@@ -2299,8 +2276,8 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 2;
   iX       = 0;                        /* start at pixel 0 */
   iB       = *pWorkrow;                /* and get first input byte */
   pWorkrow++;
@@ -2308,12 +2285,12 @@ mng_retcode store_jpeg_g12_a1 (mng_datap pData)
 
   while (iX < pData->iRowsamples)
   {
-    if (iB & iM)                       /* is it white ? */
-      *pOutrow = 0xFFFF;               /* white */
+    if (iB & iM)                       /* opaque ? */
+      mng_put_uint16 (pOutrow, 0xFFFF);/* opaque */
     else
-      *pOutrow = 0x0000;               /* black */
+      mng_put_uint16 (pOutrow, 0x0000);/* transparent */
 
-    pOutrow += 2;                      /* next pixel */
+    pOutrow += 4;                      /* next pixel */
     iX++;
     iM >>= 1;
 
@@ -2338,7 +2315,7 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
   mng_uint8p     pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
   mng_uint8      iB;
   mng_uint8      iM;
@@ -2349,8 +2326,8 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 2;
   iX       = 0;                        /* start at pixel 0 */
   iB       = *pWorkrow;                /* and get first input byte */
   pWorkrow++;
@@ -2361,13 +2338,13 @@ mng_retcode store_jpeg_g12_a2 (mng_datap pData)
   {
     switch ((iB & iM) >> iS)           /* determine the gray level */
     {
-      case 0x03 : { *pOutrow = 0xFFFF; break; }
-      case 0x02 : { *pOutrow = 0xAAAA; break; }
-      case 0x01 : { *pOutrow = 0x5555; break; }
-      default   : { *pOutrow = 0x0000; }
+      case 0x03 : { mng_put_uint16 (pOutrow, 0xFFFF); break; }
+      case 0x02 : { mng_put_uint16 (pOutrow, 0xAAAA); break; }
+      case 0x01 : { mng_put_uint16 (pOutrow, 0x5555); break; }
+      default   : { mng_put_uint16 (pOutrow, 0x0000); }
     }
 
-    pOutrow += 2;                      /* next pixel */
+    pOutrow += 4;                      /* next pixel */
     iX++;
     iM >>= 2;
     iS -= 2;
@@ -2394,7 +2371,7 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
   mng_uint8p     pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
   mng_uint8      iB;
   mng_uint8      iM;
@@ -2406,8 +2383,8 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 2;
   iX       = 0;                        /* start at pixel 0 */
   iB       = *pWorkrow;                /* and get first input byte */
   pWorkrow++;
@@ -2420,9 +2397,9 @@ mng_retcode store_jpeg_g12_a4 (mng_datap pData)
     iQ = (mng_uint16)(iQ + (iQ << 4)); /* expand to 16-bit by replication */
     iQ = (mng_uint16)(iQ + (iQ << 8));
                                        /* put in object buffer */
-    mng_put_uint16 ((mng_uint8p)pOutrow, iQ);
+    mng_put_uint16 (pOutrow, iQ);
 
-    pOutrow += 2;                      /* next pixel */
+    pOutrow += 4;                      /* next pixel */
     iX++;
     iM >>= 4;
     iS -= 4;
@@ -2449,7 +2426,7 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
   mng_uint8p     pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
   mng_uint16     iB;
 
@@ -2458,8 +2435,8 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
 #endif
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 2;
   iX       = 0;                        /* start at pixel 0 */
   iB       = (mng_uint16)(*pWorkrow);  /* and get first input byte */
   pWorkrow++;
@@ -2467,10 +2444,10 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
   while (iX < pData->iRowsamples)
   {
     iB = (mng_uint16)(iB + (iB << 8)); /* expand to 16-bit by replication */
-                                       /* put in object buffer */
-    mng_put_uint16 ((mng_uint8p)pOutrow, iB);
 
-    pOutrow += 2;                      /* next pixel */
+    mng_put_uint16 (pOutrow, iB);      /* put in object buffer */
+
+    pOutrow += 4;                      /* next pixel */
     iX++;
 
     iB = (mng_uint16)(*pWorkrow);      /* get next input-byte */
@@ -2489,31 +2466,26 @@ mng_retcode store_jpeg_g12_a8 (mng_datap pData)
 mng_retcode store_jpeg_g12_a16 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pOutrow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pOutrow;
   mng_int32      iX;
-  mng_uint16     iW;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_STORE_JPEG_G12_A16, MNG_LC_START)
 #endif
 
-  pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
-  pOutrow  = (mng_uint16p)(pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
-                                            (pData->iCol * pBuf->iSamplesize) + 2);
+  pWorkrow = pData->pWorkrow + 1;
+  pOutrow  = pBuf->pImgdata + (pData->iRow * pBuf->iRowsize   ) +
+                              (pData->iCol * pBuf->iSamplesize) + 2;
   iX = 0;                              /* start at pixel 0 */
-  iW = *pWorkrow;                      /* and get first input 2-byte */
-  pWorkrow++;
 
   while (iX < pData->iRowsamples)
-  {
-    *pOutrow = iW;                     /* only high-order byte! */
+  {                                    /* copy it */
+    mng_put_uint16 (pOutrow, mng_get_uint16 (pWorkrow));
 
-    pOutrow += 2;                      /* next pixel */
+    pOutrow  += 4;                     /* next pixel */
+    pWorkrow += 2;
     iX++;
-
-    iW = *pWorkrow;                    /* get next input 2-byte */
-    pWorkrow++;
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2783,7 +2755,7 @@ mng_retcode delta_rgba16 (mng_datap pData)
 mng_retcode process_g1 (mng_datap pData)
 {
   mng_uint8p     pWorkrow;
-  mng_uint32p    pRGBArow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint8      iB;
   mng_uint8      iM;
@@ -2797,7 +2769,7 @@ mng_retcode process_g1 (mng_datap pData)
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pRGBArow = (mng_uint32p)pData->pRGBArow;
+  pRGBArow = pData->pRGBArow;
   iX       = 0;                        /* start at pixel 0 */
   iB       = *pWorkrow;                /* and get first input byte */
   pWorkrow++;
@@ -2810,15 +2782,12 @@ mng_retcode process_g1 (mng_datap pData)
       while (iX < pData->iRowsamples)
       {
         if (iB & iM)                   /* is it white ? */
-          *pRGBArow = 0x00000000;      /* transparent ! */
-        else
-#ifdef MNG_SWAP_ENDIAN
-          *pRGBArow = 0xFF000000;      /* opaque black */
-#else
-          *pRGBArow = 0x000000FF;
-#endif
+                                       /* transparent ! */
+          mng_put_uint32 (pRGBArow, 0x00000000);
+        else                           /* opaque black */
+          mng_put_uint32 (pRGBArow, 0x000000FF);
 
-        pRGBArow++;                    /* next pixel */
+        pRGBArow += 4;                 /* next pixel */
         iX++;
         iM >>= 1;
 
@@ -2835,11 +2804,12 @@ mng_retcode process_g1 (mng_datap pData)
       while (iX < pData->iRowsamples)
       {
         if (iB & iM)                   /* is it white ? */
-          *pRGBArow = 0xFFFFFFFF;      /* opaque white */
-        else
-          *pRGBArow = 0x00000000;      /* transparent */
+                                       /* opaque white */
+          mng_put_uint32 (pRGBArow, 0xFFFFFFFF);
+        else                           /* transparent */
+          mng_put_uint32 (pRGBArow, 0x00000000);
 
-        pRGBArow++;                    /* next pixel */
+        pRGBArow += 4;                 /* next pixel */
         iX++;
         iM >>= 1;
 
@@ -2859,15 +2829,12 @@ mng_retcode process_g1 (mng_datap pData)
     while (iX < pData->iRowsamples)
     {
       if (iB & iM)                     /* is it white ? */
-        *pRGBArow = 0xFFFFFFFF;        /* opaque white */
-      else
-#ifdef MNG_SWAP_ENDIAN
-        *pRGBArow = 0xFF000000;        /* opaque black */
-#else
-        *pRGBArow = 0x000000FF;
-#endif
+                                       /* opaque white */
+        mng_put_uint32 (pRGBArow, 0xFFFFFFFF);
+      else                             /* opaque black */
+        mng_put_uint32 (pRGBArow, 0x000000FF);
 
-      pRGBArow++;                      /* next pixel */
+      pRGBArow += 4;                   /* next pixel */
       iX++;
       iM >>= 1;
 
@@ -2894,7 +2861,7 @@ mng_retcode process_g1 (mng_datap pData)
 mng_retcode process_g2 (mng_datap pData)
 {
   mng_uint8p     pWorkrow;
-  mng_uint32p    pRGBArow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint8      iB;
   mng_uint8      iM;
@@ -2910,7 +2877,7 @@ mng_retcode process_g2 (mng_datap pData)
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
   pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
-  pRGBArow = (mng_uint32p)pData->pRGBArow;
+  pRGBArow = pData->pRGBArow;
   iX       = 0;                        /* start at pixel 0 */
   iB       = *pWorkrow;                /* and get first input byte */
   pWorkrow++;
@@ -2924,26 +2891,19 @@ mng_retcode process_g2 (mng_datap pData)
       iQ = (mng_uint8)((iB & iM) >> iS);
 
       if (iQ == pBuf->iTRNSgray)       /* transparent ? */
-        *pRGBArow = 0x00000000;
+        mng_put_uint32 (pRGBArow, 0x00000000);
       else
       {
         switch (iQ)                    /* determine the gray level */
         {
-#ifdef MNG_SWAP_ENDIAN
-          case 0x03 : { *pRGBArow = 0xFFFFFFFF; break; }
-          case 0x02 : { *pRGBArow = 0xFFAAAAAA; break; }
-          case 0x01 : { *pRGBArow = 0xFF555555; break; }
-          default   : { *pRGBArow = 0xFF000000; }
-#else
-          case 0x03 : { *pRGBArow = 0xFFFFFFFF; break; }
-          case 0x02 : { *pRGBArow = 0xAAAAAAFF; break; }
-          case 0x01 : { *pRGBArow = 0x555555FF; break; }
-          default   : { *pRGBArow = 0x000000FF; }
-#endif
+          case 0x03 : { mng_put_uint32 (pRGBArow, 0xFFFFFFFF); break; }
+          case 0x02 : { mng_put_uint32 (pRGBArow, 0xAAAAAAFF); break; }
+          case 0x01 : { mng_put_uint32 (pRGBArow, 0x555555FF); break; }
+          default   : { mng_put_uint32 (pRGBArow, 0x000000FF); }
         }
       }
 
-      pRGBArow++;                      /* next pixel */
+      pRGBArow += 4;                   /* next pixel */
       iX++;
       iM >>= 2;
       iS -= 2;
@@ -2965,20 +2925,13 @@ mng_retcode process_g2 (mng_datap pData)
     {
       switch ((iB & iM) >> iS)         /* determine the gray level */
       {
-#ifdef MNG_SWAP_ENDIAN
-        case 0x03 : { *pRGBArow = 0xFFFFFFFF; break; }
-        case 0x02 : { *pRGBArow = 0xFFAAAAAA; break; }
-        case 0x01 : { *pRGBArow = 0xFF555555; break; }
-        default   : { *pRGBArow = 0xFF000000; }
-#else
-        case 0x03 : { *pRGBArow = 0xFFFFFFFF; break; }
-        case 0x02 : { *pRGBArow = 0xAAAAAAFF; break; }
-        case 0x01 : { *pRGBArow = 0x555555FF; break; }
-        default   : { *pRGBArow = 0x000000FF; }
-#endif
+        case 0x03 : { mng_put_uint32 (pRGBArow, 0xFFFFFFFF); break; }
+        case 0x02 : { mng_put_uint32 (pRGBArow, 0xAAAAAAFF); break; }
+        case 0x01 : { mng_put_uint32 (pRGBArow, 0x555555FF); break; }
+        default   : { mng_put_uint32 (pRGBArow, 0x000000FF); }
       }
 
-      pRGBArow++;                      /* next pixel */
+      pRGBArow += 4;                   /* next pixel */
       iX++;
       iM >>= 2;
       iS -= 2;
@@ -3185,8 +3138,8 @@ mng_retcode process_g8 (mng_datap pData)
 
 mng_retcode process_g16 (mng_datap pData)
 {
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint16     iW;
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -3197,41 +3150,35 @@ mng_retcode process_g16 (mng_datap pData)
 
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
-                                       /* temporary work pointers */
-  pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
+
+  pWorkrow = pData->pWorkrow + 1;      /* temporary work pointers */
+  pRGBArow = pData->pRGBArow;
   iX       = 0;                        /* start at pixel 0 */
-  iW       = *pWorkrow;                /* and get first input 2-byte */
-  pWorkrow++;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
   {
     while (iX < pData->iRowsamples)
     {
-#ifdef MNG_SWAP_ENDIAN                 /* transparent ? */
-      if (mng_get_uint16((mng_uint8p)pWorkrow) == pBuf->iTRNSgray)
-#else
-      if (iW == pBuf->iTRNSgray)
-#endif
-      {
-        *pRGBArow     = 0;             /* put in intermediate row */
-        *(pRGBArow+1) = 0;
-        *(pRGBArow+2) = 0;
-        *(pRGBArow+3) = 0;
+      iW = mng_get_uint16 (pWorkrow);  /* get input */
+
+      if (iW == pBuf->iTRNSgray)       /* transparent ? */
+      {                                /* put in intermediate row */
+        mng_put_uint16 (pRGBArow,   0);
+        mng_put_uint16 (pRGBArow+2, 0);
+        mng_put_uint16 (pRGBArow+4, 0);
+        mng_put_uint16 (pRGBArow+6, 0);
       }
       else
-      {
-        *pRGBArow     = iW;            /* put in intermediate row */
-        *(pRGBArow+1) = iW;
-        *(pRGBArow+2) = iW;
-        *(pRGBArow+3) = 0xFFFF;
+      {                                /* put in intermediate row */
+        mng_put_uint16 (pRGBArow,   iW);
+        mng_put_uint16 (pRGBArow+2, iW);
+        mng_put_uint16 (pRGBArow+4, iW);
+        mng_put_uint16 (pRGBArow+6, 0xFFFF);
       }
 
-      pRGBArow += 4;                   /* next pixel */
+      pRGBArow += 8;                   /* next pixel */
+      pWorkrow += 2;
       iX++;
-
-      iW = *pWorkrow;                  /* get next input 2-byte */
-      pWorkrow++;
     }
 
     pData->bIsOpaque = MNG_FALSE;      /* it's not fully opaque */
@@ -3240,16 +3187,16 @@ mng_retcode process_g16 (mng_datap pData)
   {
     while (iX < pData->iRowsamples)
     {
-      *pRGBArow     = iW;              /* put in intermediate row */
-      *(pRGBArow+1) = iW;
-      *(pRGBArow+2) = iW;
-      *(pRGBArow+3) = 0xFFFF;
+      iW = mng_get_uint16 (pWorkrow);  /* get input */
 
-      pRGBArow += 4;                   /* next pixel */
+      mng_put_uint16 (pRGBArow,   iW); /* and put in intermediate row */
+      mng_put_uint16 (pRGBArow+2, iW);
+      mng_put_uint16 (pRGBArow+4, iW);
+      mng_put_uint16 (pRGBArow+6, 0xFFFF);
+
+      pRGBArow += 8;                   /* next pixel */
+      pWorkrow += 2;
       iX++;
-
-      iW = *pWorkrow;                  /* get next input-byte */
-      pWorkrow++;
     }
 
     pData->bIsOpaque = MNG_TRUE;       /* it's fully opaque */
@@ -3339,8 +3286,8 @@ mng_retcode process_rgb8 (mng_datap pData)
 
 mng_retcode process_rgb16 (mng_datap pData)
 {
-  mng_uint16p    pWorkrow;
-  mng_uint16p    pRGBArow;
+  mng_uint8p     pWorkrow;
+  mng_uint8p     pRGBArow;
   mng_int32      iX;
   mng_uint16     iR, iG, iB;
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -3352,41 +3299,35 @@ mng_retcode process_rgb16 (mng_datap pData)
   if (!pBuf)                           /* no object? then use obj 0 */
     pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
 
-  pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
+  pWorkrow = pData->pWorkrow + 1;
+  pRGBArow = pData->pRGBArow;
 
   if (pBuf->bHasTRNS)                  /* tRNS encountered ? */
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
     {
-      iR = *pWorkrow;                  /* get the RGB values */
-      iG = *(pWorkrow+1);
-      iB = *(pWorkrow+2);
-
-#ifdef MNG_SWAP_ENDIAN                 /* transparent ? */
-      if ((mng_get_uint16((mng_uint8p)pWorkrow      ) == pBuf->iTRNSred  ) &&
-          (mng_get_uint16((mng_uint8p)(pWorkrow + 1)) == pBuf->iTRNSgreen) &&
-          (mng_get_uint16((mng_uint8p)(pWorkrow + 2)) == pBuf->iTRNSblue )    )
-#else
+      iR = mng_get_uint16 (pWorkrow);  /* get the RGB values */
+      iG = mng_get_uint16 (pWorkrow+2);
+      iB = mng_get_uint16 (pWorkrow+4);
+                                       /* transparent ? */
       if ((iR == pBuf->iTRNSred) && (iG == pBuf->iTRNSgreen) &&
           (iB == pBuf->iTRNSblue))
-#endif
-      {
-        *pRGBArow     = 0;             /* put in intermediate row */
-        *(pRGBArow+1) = 0;
-        *(pRGBArow+2) = 0;
-        *(pRGBArow+3) = 0;
+      {                                /* transparent then */
+        mng_put_uint16 (pRGBArow,   0);
+        mng_put_uint16 (pRGBArow+2, 0);
+        mng_put_uint16 (pRGBArow+4, 0);
+        mng_put_uint16 (pRGBArow+6, 0);
       }
       else
-      {
-        *pRGBArow     = iR;            /* put in intermediate row */
-        *(pRGBArow+1) = iG;
-        *(pRGBArow+2) = iB;
-        *(pRGBArow+3) = 0xFFFF;
+      {                                /* put in intermediate row */
+        mng_put_uint16 (pRGBArow,   iR);
+        mng_put_uint16 (pRGBArow+2, iG);
+        mng_put_uint16 (pRGBArow+4, iB);
+        mng_put_uint16 (pRGBArow+6, 0xFFFF);
       }
 
-      pWorkrow += 3;                   /* next pixel */
-      pRGBArow += 4;
+      pWorkrow += 6;                   /* next pixel */
+      pRGBArow += 8;
     }
 
     pData->bIsOpaque = MNG_FALSE;      /* it's not fully opaque */
@@ -3394,14 +3335,14 @@ mng_retcode process_rgb16 (mng_datap pData)
   else
   {
     for (iX = 0; iX < pData->iRowsamples; iX++)
-    {
-      *pRGBArow     = *pWorkrow;       /* copy the RGB values */
-      *(pRGBArow+1) = *(pWorkrow+1);
-      *(pRGBArow+2) = *(pWorkrow+2);
-      *(pRGBArow+3) = 0xFFFF;
+    {                                  /* copy the RGB values */
+      mng_put_uint16 (pRGBArow,   mng_get_uint16 (pWorkrow  ));
+      mng_put_uint16 (pRGBArow+2, mng_get_uint16 (pWorkrow+2));
+      mng_put_uint16 (pRGBArow+4, mng_get_uint16 (pWorkrow+4));
+      mng_put_uint16 (pRGBArow+6, 0xFFFF);
 
-      pWorkrow += 3;                   /* next pixel */
-      pRGBArow += 4;
+      pWorkrow += 6;                   /* next pixel */
+      pRGBArow += 8;
     }
 
     pData->bIsOpaque = MNG_TRUE;       /* it's fully opaque */
@@ -3844,26 +3785,29 @@ mng_retcode process_ga8 (mng_datap pData)
 
 mng_retcode process_ga16 (mng_datap pData)
 {
-  mng_uint16p pWorkrow;
-  mng_uint16p pRGBArow;
+  mng_uint8p  pWorkrow;
+  mng_uint8p  pRGBArow;
   mng_int32  iX;
+  mng_uint16 iW;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_GA16, MNG_LC_START)
 #endif
                                        /* temporary workpointers */
-  pWorkrow = (mng_uint16p)(pData->pWorkrow + 1);
-  pRGBArow = (mng_uint16p)pData->pRGBArow;
+  pWorkrow = pData->pWorkrow + 1;
+  pRGBArow = pData->pRGBArow;
 
   for (iX = 0; iX < pData->iRowsamples; iX++)
   {
-    *pRGBArow     = *pWorkrow;         /* copy the gray value */
-    *(pRGBArow+1) = *pWorkrow;
-    *(pRGBArow+2) = *pWorkrow;
-    *(pRGBArow+3) = *(pWorkrow+1);     /* copy the alpha value */
+    iW = mng_get_uint16 (pWorkrow);    /* copy the gray value */
+    mng_put_uint16 (pRGBArow,   iW);
+    mng_put_uint16 (pRGBArow+2, iW);
+    mng_put_uint16 (pRGBArow+4, iW);
+                                       /* copy the alpha value */
+    mng_put_uint16 (pRGBArow, mng_get_uint16 (pWorkrow+2));
 
-    pWorkrow += 2;                     /* next pixel */
-    pRGBArow += 4;
+    pWorkrow += 4;                     /* next pixel */
+    pRGBArow += 8;
   }
 
   pData->bIsOpaque = MNG_FALSE;        /* it's definitely not fully opaque */
