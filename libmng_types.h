@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_types.h            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.3                                                      * */
+/* * version   : 0.9.4                                                      * */
 /* *                                                                        * */
 /* * purpose   : type specifications                                        * */
 /* *                                                                        * */
@@ -84,6 +84,9 @@
 /* *             0.9.3 - 10/17/2000 - G.Juyn                                * */
 /* *             - added callback to process non-critical unknown chunks    * */
 /* *                                                                        * */
+/* *             0.9.4 - 11/20/2000 - R.Giles                               * */
+/* *             - fixed inclusion of lcms header for non-windows platforms * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #ifndef _libmng_types_h_
@@ -133,7 +136,7 @@
 #ifndef ZLIB_DLL
 #undef FAR
 #endif
-#ifdef WIN32				/* differnt header locations */
+#ifdef WIN32                           /* different header locations */
 #include "lcms.h"
 #else
 #include "lcms/lcms.h"
