@@ -62,6 +62,8 @@
 /* *             - added tracecodes for SAVE/SEEK callbacks                 * */
 /* *             - added tracecodes for get/set sectionbreaks               * */
 /* *             - added tracecode for special error routine                * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - added tracecode for updatemngheader                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -378,6 +380,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PUTIMGDATA_JHDR        952
 #define MNG_FN_PUTIMGDATA_BASI        953
 #define MNG_FN_PUTIMGDATA_DHDR        954
+
+#define MNG_FN_UPDATEMNGHEADER        981
 
 /* ************************************************************************** */
 

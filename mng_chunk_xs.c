@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_xs.c            copyright (c) 2000 G. Juyn       * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : chunk access functions (implementation)                    * */
 /* *                                                                        * */
@@ -33,6 +33,9 @@
 /* *             - B004 - fixed problem with MNG_SUPPORT_WRITE not defined  * */
 /* *               also for MNG_SUPPORT_WRITE without MNG_INCLUDE_JNG       * */
 /* *             - Cleaned up some code regarding mixed support             * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - fixed creation-code                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2041,9 +2044,6 @@ mng_retcode MNG_DECL mng_putchunk_ihdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-                                       /* first one in ? */
-  if (pData->iFirstchunkadded == 0)
-    pData->iFirstchunkadded = MNG_UINT_IHDR;
                                        /* create the chunk */
   iRetcode = init_ihdr (pData, &sChunkheader, &pChunk);
 
@@ -2099,7 +2099,7 @@ mng_retcode MNG_DECL mng_putchunk_plte (mng_handle   hHandle,
                                        /* fill the chunk */
   ((mng_pltep)pChunk)->iEntrycount = iCount;
   
-  MNG_COPY (&((mng_pltep)pChunk)->aEntries, &aPalette, sizeof (mng_palette8))
+  MNG_COPY (((mng_pltep)pChunk)->aEntries, aPalette, sizeof (mng_palette8))
 
   add_chunk (pData, pChunk);           /* add it to the list */
 
@@ -2140,6 +2140,7 @@ mng_retcode MNG_DECL mng_putchunk_idat (mng_handle hHandle,
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* fill the chunk */
+  ((mng_idatp)pChunk)->bEmpty    = (mng_bool)(iRawlen == 0);
   ((mng_idatp)pChunk)->iDatasize = iRawlen;
 
   if (iRawlen)
@@ -2251,8 +2252,8 @@ mng_retcode MNG_DECL mng_putchunk_trns (mng_handle   hHandle,
   ((mng_trnsp)pChunk)->iBlue    = iBlue;
   ((mng_trnsp)pChunk)->iRawlen  = iRawlen;
 
-  MNG_COPY (&((mng_trnsp)pChunk)->aEntries, &aAlphas,  sizeof (mng_uint8arr))
-  MNG_COPY (&((mng_trnsp)pChunk)->aRawdata, &aRawdata, sizeof (mng_uint8arr))
+  MNG_COPY (((mng_trnsp)pChunk)->aEntries, aAlphas,  sizeof (mng_uint8arr))
+  MNG_COPY (((mng_trnsp)pChunk)->aRawdata, aRawdata, sizeof (mng_uint8arr))
 
   add_chunk (pData, pChunk);           /* add it to the list */
 
@@ -2981,9 +2982,6 @@ mng_retcode MNG_DECL mng_putchunk_mhdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-                                       /* first one in ? */
-  if (pData->iFirstchunkadded == 0)
-    pData->iFirstchunkadded = MNG_UINT_MHDR;
                                        /* create the chunk */
   iRetcode = init_mhdr (pData, &sChunkheader, &pChunk);
 
@@ -4174,9 +4172,6 @@ mng_retcode MNG_DECL mng_putchunk_jhdr (mng_handle hHandle,
 
   if (!pData->bCreating)               /* aren't we creating a new file ? */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-                                       /* first one in ? */
-  if (pData->iFirstchunkadded == 0)
-    pData->iFirstchunkadded = MNG_UINT_JHDR;
                                        /* create the chunk */
   iRetcode = init_jhdr (pData, &sChunkheader, &pChunk);
 
@@ -4915,6 +4910,42 @@ mng_retcode MNG_DECL mng_putimgdata_jhdr (mng_handle        hHandle,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTIMGDATA_JHDR, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode MNG_DECL mng_updatemngheader (mng_handle hHandle,
+                                          mng_uint32 iFramecount,
+                                          mng_uint32 iLayercount,
+                                          mng_uint32 iPlaytime)
+{
+  mng_datap  pData;
+  mng_chunkp pChunk;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_UPDATEMNGHEADER, MNG_LC_START)
+#endif
+
+  MNG_VALIDHANDLE (hHandle)            /* check validity handle */
+  pData = (mng_datap)hHandle;          /* and make it addressable */
+
+  if (!pData->bCreating)               /* aren't we creating a new file ? */
+    MNG_ERROR (pData, MNG_FUNCTIONINVALID)
+                                       /* must be a MNG animation! */
+  if ((pData->eImagetype != mng_it_mng) || (pData->iFirstchunkadded != MNG_UINT_MHDR))
+    MNG_ERROR (pData, MNG_NOMHDR)
+
+  pChunk = pData->pFirstchunk;         /* get the first chunk */
+                                       /* and update the variables */
+  ((mng_mhdrp)pChunk)->iFramecount = iFramecount;
+  ((mng_mhdrp)pChunk)->iLayercount = iLayercount;
+  ((mng_mhdrp)pChunk)->iPlaytime   = iPlaytime;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (((mng_datap)hHandle), MNG_FN_UPDATEMNGHEADER, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

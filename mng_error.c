@@ -33,6 +33,8 @@
 /* *             - added NEEDSECTIONWAIT errorstring                        * */
 /* *             - added macro + routine to set returncode without          * */
 /* *               calling error callback                                   * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - added errorstring for updatemngheader if not a MNG       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -119,6 +121,7 @@
     {MNG_INVALIDENTRYIX,   "Attempt to access an non-existing entry"},
     {MNG_NOHEADER,         "No valid header-chunk"},
     {MNG_NOCORRCHUNK,      "Parent chunk not found"},
+    {MNG_NOMHDR,           "No MNG header (MHDR) found"},
 
     {MNG_IMAGETOOLARGE,    "Image is larger than defined maximum"},
     {MNG_NOTANANIMATION,   "Image is not an animation"},

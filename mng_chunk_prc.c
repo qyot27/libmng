@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_chunk_prc.c           copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (implementation)            * */
 /* *                                                                        * */
@@ -20,6 +20,9 @@
 /* *             - changed strict-ANSI stuff                                * */
 /* *             0.5.1 - 05/12/2000 - G.Juyn                                * */
 /* *             - changed trace to macro for callback error-reporting      * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - fixed creation-code                                      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -48,7 +51,22 @@ void add_chunk (mng_datap  pData,
                 mng_chunkp pChunk)
 {
   if (!pData->pFirstchunk)             /* list is still empty ? */
-    pData->pFirstchunk = pChunk;       /* then this becomes the first */
+  {
+    pData->pFirstchunk      = pChunk;  /* then this becomes the first */
+    pData->iFirstchunkadded = ((mng_chunk_headerp)pChunk)->iChunkname;
+
+    if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
+      pData->eImagetype     = mng_it_png;
+    else
+#ifdef MNG_INCLUDE_JNG
+    if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_JHDR)
+      pData->eImagetype     = mng_it_jng;
+    else
+#endif
+      pData->eImagetype     = mng_it_mng;
+
+    pData->eSigtype         = pData->eImagetype;
+  }
   else
   {                                    /* else we make appropriate links */
     ((mng_chunk_headerp)pChunk)->pPrev = pData->pLastchunk;

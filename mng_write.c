@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_write.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.0                                                      * */
+/* * version   : 0.9.1                                                      * */
 /* *                                                                        * */
 /* * purpose   : Write management (implementation)                          * */
 /* *                                                                        * */
@@ -22,6 +22,9 @@
 /* *             0.5.1 - 05/16/2000 - G.Juyn                                * */
 /* *             - moved the actual write_graphic functionality from        * */
 /* *               mng_hlapi to it's appropriate function here             * */
+/* *                                                                        * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - fixed writing of signature                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -71,14 +74,14 @@ mng_retcode write_graphic (mng_datap pData)
       MNG_ALLOC (pData, pData->pWritebuf, pData->iWritebufsize+12)
                                        /* write the signature */
       if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
-        *(mng_uint32p)pData->pWritebuf = PNG_SIG;
+        mng_put_uint32 (pData->pWritebuf, PNG_SIG);
       else
       if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_JHDR)
-        *(mng_uint32p)pData->pWritebuf = JNG_SIG;
+        mng_put_uint32 (pData->pWritebuf, JNG_SIG);
       else
-        *(mng_uint32p)pData->pWritebuf = MNG_SIG;
+        mng_put_uint32 (pData->pWritebuf, MNG_SIG);
 
-      *(mng_uint32p)(pData->pWritebuf+4) = POST_SIG;
+      mng_put_uint32 (pData->pWritebuf+4, POST_SIG);
 
       if (!pData->fWritedata ((mng_handle)pData, pData->pWritebuf, 8, &iWritten))
       {

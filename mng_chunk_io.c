@@ -90,6 +90,8 @@
 /* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
 /* *             - fixed storage of images during mng_read()                * */
 /* *             - fixed support for mng_display() after mng_read()         * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - fixed several chunk-writing routines                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -7365,7 +7367,7 @@ WRITE_CHUNK (write_clip)
   pCLIP = (mng_clipp)pChunk;           /* address the proper chunk */
 
   pRawdata = pData->pWritebuf+8;       /* init output buffer & size */
-  iRawlen  = 19;
+  iRawlen  = 21;
                                        /* fill the output buffer */
   mng_put_uint16 (pRawdata,    pCLIP->iFirstid);
   mng_put_uint16 (pRawdata+2,  pCLIP->iLastid);

@@ -169,6 +169,9 @@
 /* *             - added callbacks for SAVE/SEEK processing                 * */
 /* *             - added get/set routines for sectionbreak variable         * */
 /* *             - added NEEDSECTIONWAIT errorcode                          * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - added function to set frame-/layer-count & playtime      * */
+/* *             - added errorcode for updatemngheader if not a MNG         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1298,6 +1301,8 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_unknown    (mng_handle       hHandle,
 
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_WRITE_PROCS
+
 /* use these to create new chunks at the end of the chunk-list */
 /* requires at least MNG_ACCESS_CHUNKS (MNG_SUPPORT_WRITE may be nice too) */
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_ihdr       (mng_handle       hHandle,
@@ -1673,7 +1678,10 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_unknown    (mng_handle       hHandle,
                                                       mng_uint32       iRawlen,
                                                       mng_ptr          pRawdata);
 
+#endif /* MNG_INCLUDE_WRITE_PROCS */
+
 /* ************************************************************************** */
+
 /* use these functions to access the actual image-data in stored chunks,
    as opposed to the IDAT/JDAT data */
 /* to get accurate pixel-data the canvasstyle should seriously reflect the
@@ -1716,6 +1724,9 @@ MNG_EXT mng_retcode MNG_DECL mng_getimgdata_chunk    (mng_handle        hHandle,
                                                       mng_getcanvasline fGetcanvasline);
 
 /* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_WRITE_PROCS
+
 /* use the following functions to add image-data to the list of stored chunks */
 /* note that this only adds the IDAT or JDAT chunks and no others; you must call
    one of these functions after you 'put' the initial chunks of the image and
@@ -1753,7 +1764,20 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 
 /* ************************************************************************** */
 
-#endif /* mng_access_chunks */
+/* use the following function to set the frame-/layer-count & playtime os an
+   animation you are creating; this may be useful if these variables are
+   calculated during the creation-process */
+   
+MNG_EXT mng_retcode MNG_DECL mng_updatemngheader     (mng_handle        hHandle,
+                                                      mng_uint32        iFramecount,
+                                                      mng_uint32        iLayercount,
+                                                      mng_uint32        iPlaytime);
+
+/* ************************************************************************** */
+
+#endif /* MNG_INCLUDE_WRITE_PROCS */
+
+#endif /* MNG_ACCESS_CHUNKS */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -1834,6 +1858,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putimgdata_jhdr     (mng_handle        hHandle,
 #define MNG_INVALIDENTRYIX   (mng_retcode)2051 /* accessing the wrong entry   */
 #define MNG_NOHEADER         (mng_retcode)2052 /* must have had header first  */
 #define MNG_NOCORRCHUNK      (mng_retcode)2053 /* can't find parent chunk     */
+#define MNG_NOMHDR           (mng_retcode)2054 /* no MNG header available     */
 
 #define MNG_IMAGETOOLARGE    (mng_retcode)4097 /* input-image way too big     */
 #define MNG_NOTANANIMATION   (mng_retcode)4098 /* file not a MNG              */

@@ -53,6 +53,8 @@
 /* *             - added tracestrings for SAVE/SEEK callbacks               * */
 /* *             - added tracestrings for get/set sectionbreaks             * */
 /* *             - added tracestring for special error routine              * */
+/* *             0.9.1 - 07/19/2000 - G.Juyn                                * */
+/* *             - added tracestring for updatemngheader                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -338,6 +340,8 @@
     {MNG_FN_PUTIMGDATA_JHDR,           "putimgdata_jhdr"},
     {MNG_FN_PUTIMGDATA_BASI,           "putimgdata_basi"},
     {MNG_FN_PUTIMGDATA_DHDR,           "putimgdata_dhdr"},
+
+    {MNG_FN_UPDATEMNGHEADER,           "updatemngheader"},
 
     {MNG_FN_PROCESS_RAW_CHUNK,         "process_raw_chunk"},
     {MNG_FN_READ_GRAPHIC,              "read_graphic"},
