@@ -80,6 +80,8 @@
 /* *             - added variable for freeze & reset processing             * */
 /* *             0.9.1 - 07/17/2000 - G.Juyn                                * */
 /* *             - added error cleanup processing                           * */
+/* *             - fixed support for mng_display_reset()                    * */
+/* *             - fixed suspension-buffering for 32K+ chunks               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -173,7 +175,8 @@ mng_retcode mng_drop_chunks (mng_datap pData)
 /* ************************************************************************** */
 
 #ifdef MNG_SUPPORT_DISPLAY
-mng_retcode mng_drop_objects (mng_datap pData)
+mng_retcode mng_drop_objects (mng_datap pData,
+                              mng_bool  bDropaniobj)
 {
   mng_objectp       pObject;
   mng_objectp       pNext;
@@ -195,16 +198,19 @@ mng_retcode mng_drop_objects (mng_datap pData)
     pObject = pNext;                   /* neeeext */
   }
 
-  pObject = pData->pFirstaniobj;       /* get first stored animation-object (if any) */
-
-  while (pObject)                      /* more objects to discard ? */
+  if (bDropaniobj)                     /* drop animation objects ? */
   {
-    pNext = ((mng_object_headerp)pObject)->pNext;
-                                       /* call appropriate cleanup */
-    fCleanup = ((mng_object_headerp)pObject)->fCleanup;
-    fCleanup (pData, pObject);
+    pObject = pData->pFirstaniobj;     /* get first stored animation-object (if any) */
 
-    pObject = pNext;                   /* neeeext */
+    while (pObject)                    /* more objects to discard ? */
+    {
+      pNext = ((mng_object_headerp)pObject)->pNext;
+                                       /* call appropriate cleanup */
+      fCleanup = ((mng_object_headerp)pObject)->fCleanup;
+      fCleanup (pData, pObject);
+
+      pObject = pNext;                 /* neeeext */
+    }
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -423,9 +429,11 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
 #ifdef MNG_SUPPORT_READ
   pData->bSuspensionmode       = MNG_FALSE;
   pData->iSuspendbufsize       = 0;
-  pData->pSuspendbuf           = 0;
-  pData->pSuspendbufnext       = 0;
+  pData->pSuspendbuf           = MNG_NULL;
+  pData->pSuspendbufnext       = MNG_NULL;
   pData->iSuspendbufleft       = 0;
+  pData->iChunklen             = 0;
+  pData->pReadbufnext          = MNG_NULL;
 #endif
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -515,7 +523,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_drop_objects (pData);            /* drop stored objects (if any) */
+  mng_drop_objects (pData, MNG_TRUE);  /* drop stored objects (if any) */
 
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
     MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
@@ -611,7 +619,7 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->bHavesig              = MNG_FALSE;
   pData->bEOF                  = MNG_FALSE;
   pData->iReadbufsize          = 0;
-  pData->pReadbuf              = 0;
+  pData->pReadbuf              = MNG_NULL;
 
   pData->pSuspendbufnext       = pData->pSuspendbuf;
   pData->iSuspendbufleft       = 0;
@@ -845,6 +853,7 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
 
 #ifdef MNG_SUPPORT_READ
   MNG_FREE (pData, pData->pReadbuf, pData->iReadbufsize)
+  MNG_FREE (pData, pData->pSuspendbuf, pData->iSuspendbufsize)
 #endif
 
 #ifdef MNG_SUPPORT_WRITE
@@ -889,7 +898,7 @@ mng_retcode MNG_DECL mng_cleanup (mng_handle* hHandle)
 #endif
 
 #ifdef MNG_SUPPORT_DISPLAY
-  mng_drop_objects (pData);            /* drop stored objects (if any) */
+  mng_drop_objects (pData, MNG_TRUE);  /* drop stored objects (if any) */
 
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
     MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
@@ -1350,7 +1359,7 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     pData->iRequesttime  = 0;
     pData->bSearching    = MNG_FALSE;
                                        /* drop all display objects */
-    iRetcode = mng_drop_objects (pData);
+    iRetcode = mng_drop_objects (pData, MNG_FALSE);
 
     if (!iRetcode)                     /* drop the savebuffer */
       iRetcode = mng_drop_savedata (pData);
@@ -1454,7 +1463,7 @@ mng_retcode MNG_DECL mng_display_reset (mng_handle hHandle)
     pData->iRequesttime  = 0;
     pData->bSearching    = MNG_FALSE;
                                        /* drop all display objects */
-    iRetcode = mng_drop_objects (pData);
+    iRetcode = mng_drop_objects (pData, MNG_FALSE);
 
     if (!iRetcode)                     /* drop the savebuffer */
       iRetcode = mng_drop_savedata (pData);

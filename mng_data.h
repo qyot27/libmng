@@ -63,6 +63,8 @@
 /* *             - added callbacks for SAVE/SEEK processing                 * */
 /* *             - added variable for NEEDSECTIONWAIT breaks                * */
 /* *             - added variable for freeze & reset processing             * */
+/* *             0.9.1 - 07/17/2000 - G.Juyn                                * */
+/* *             - fixed suspension-buffering for 32K+ chunks               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -336,6 +338,8 @@ typedef struct mng_data_struct {
            mng_uint8p        pSuspendbuf;
            mng_uint8p        pSuspendbufnext;
            mng_uint32        iSuspendbufleft;
+           mng_uint32        iChunklen;          /* chunk length */
+           mng_uint8p        pReadbufnext;       /* 32K+ suspension-processing */
 #endif /* MNG_SUPPORT_READ */
 
 #ifdef MNG_SUPPORT_WRITE
