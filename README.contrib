@@ -48,3 +48,12 @@ Source-code only
 Requires GTK+ (1.2 or higher) and libmng (0.9.2 or higher)
 
 ----------------------------------------------------------------------
+
+mngview - Another MNG viewer; this one for MSVC - by Nicholaus Brennig
+
+A welcome contribution from Nicholaus. Author of SlowView. A very nice
+image-handling utility for Windows. A welcome contribution since there
+have been numerous questions about linking libmng with MSVC.
+Well, look no further. Here it is!
+
+----------------------------------------------------------------------
