@@ -16,6 +16,7 @@ libmng.com) and I'll be happy to include it in the next release!
 Current files:
 
 makefile.bcb3 - Borland C++ Builder
+makefile.vcwin32 - Microsoft Visual C++
 makefile.unix - generic Unix
 makefile.linux - Linux ELF (builds shared library)
 

@@ -16,7 +16,7 @@ core:
 - fixed possible loop in display_resume() (Thanks Vova!)
 - fixed unwanted repetition in mng_readdisplay()
 - changed inclusion of the lcms header file for non-windows platforms
-- by default configure includes CMS support if lcms is present
+- changed IHDR filter_method check for PNGs                
  
 samples:
 
@@ -25,14 +25,18 @@ contrib:
 - added MSVC MNGview sample by Nikolaus Brennig
 - updated Jason Summer's mngplg to version 0.9.2
   (that's mngplg-0.9.2 based on libmng-0.9.3 !!!)
+- rearranged contrib directory slightly
 
 doc:
 - added README.dll
 - added README.config
 
 makefiles:
+- added a makefile for MS Visual C++ (Thanks to Atsushi Matsuda)
+
+autoconf:
 - fixed configure.in for lcms (FreeBSD port by Mikhail Teterin)
-- rearranged contrib directory slightly
+- by default configure includes CMS support if lcms is present
 
 -----------------------------------------------------------
 

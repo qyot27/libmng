@@ -133,6 +133,9 @@
 /* *             0.9.3 - 10/23/2000 - G.Juyn                                * */
 /* *             - fixed bug in empty PLTE handling                         * */
 /* *                                                                        * */
+/* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
+/* *             - changed IHDR filter_method check for PNGs                * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -594,6 +597,9 @@ READ_CHUNK (read_ihdr)
   if (pData->iCompression != MNG_COMPRESSION_DEFLATE)
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
+  if ((pData->eSigtype == mng_it_png) && (pData->iFilter))
+    MNG_ERROR (pData, MNG_INVALIDFILTER)
+  else
   if (pData->iFilter & (~MNG_FILTER_MASK))
     MNG_ERROR (pData, MNG_INVALIDFILTER)
 
