@@ -49,6 +49,8 @@
 /* *             - cleaned up some code regarding mixed support             * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - implemented JNG support                                  * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added support for global color-chunks in animation       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1115,6 +1117,16 @@ READ_CHUNK (read_gama)
   {                                    /* store as global */
     if (iRawlen != 0)
       pData->iGlobalGamma = mng_get_uint32 (pRawdata);
+                                       /* processing inside loop/term ? */
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_gamap pGAMA;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_gama (pData, (mng_bool)(iRawlen == 0),
+                                              pData->iGlobalGamma, &pGAMA);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -1227,6 +1239,24 @@ READ_CHUNK (read_chrm)
       pData->iGlobalPrimarybluex  = mng_get_uint32 (pRawdata+24);
       pData->iGlobalPrimarybluey  = mng_get_uint32 (pRawdata+28);
     }
+                                       /* processing inside loop/term ? */
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_chrmp pCHRM;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_chrm (pData, (mng_bool)(iRawlen == 0),
+                                              pData->iGlobalWhitepointx,
+                                              pData->iGlobalWhitepointy,
+                                              pData->iGlobalPrimaryredx,
+                                              pData->iGlobalPrimaryredy,
+                                              pData->iGlobalPrimarygreenx,
+                                              pData->iGlobalPrimarygreeny,
+                                              pData->iGlobalPrimarybluex,
+                                              pData->iGlobalPrimarybluey,
+                                              &pCHRM);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -1328,6 +1358,16 @@ READ_CHUNK (read_srgb)
   {                                    /* store as global */
     if (iRawlen != 0)
       pData->iGlobalRendintent = *pRawdata;
+                                       /* processing inside loop/term ? */
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_srgbp pSRGB;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_srgb (pData, (mng_bool)(iRawlen == 0),
+                                              pData->iGlobalRendintent, &pSRGB);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -1451,10 +1491,10 @@ READ_CHUNK (read_iccp)
     if (iRawlen == 0)                  /* empty chunk ? */
     {
       if (pData->pGlobalProfile)       /* did we have a global profile ? */
-        MNG_FREE (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+        MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
 
       pData->iGlobalProfilesize = 0;   /* reset to null */
-      pData->pGlobalProfile     = 0; 
+      pData->pGlobalProfile     = MNG_NULL; 
     }
     else
     {                                  /* allocate a global buffer & copy it */
@@ -1462,6 +1502,17 @@ READ_CHUNK (read_iccp)
       MNG_COPY  (pData->pGlobalProfile, pBuf, iProfilesize)
                                        /* store it's length as well */
       pData->iGlobalProfilesize = iProfilesize;
+    }
+                                       /* processing inside loop/term ? */
+    if ((pData->bHasLOOP) || (pData->bHasTERM))
+    {
+      mng_ani_iccpp pICCP;             /* create an animation object */
+      mng_retcode iRetcode = create_ani_iccp (pData, (mng_bool)(iRawlen == 0),
+                                              pData->iGlobalProfilesize,
+                                              pData->pGlobalProfile, &pICCP);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
     }
   }
 #endif /* MNG_SUPPORT_DISPLAY */  

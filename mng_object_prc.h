@@ -18,6 +18,9 @@
 /* * changes   : 0.5.1 - 05/08/2000 - G.Juyn                                * */
 /* *             - changed strict-ANSI stuff                                * */
 /* *                                                                        * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added support for global color-chunks in animation       * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -109,6 +112,34 @@ mng_retcode reset_object_details (mng_datap  pData,
 
 mng_retcode create_ani_image  (mng_datap      pData,
                                mng_ani_imagep *ppObject);
+
+mng_retcode create_ani_gama   (mng_datap      pData,
+                               mng_bool       bEmpty,
+                               mng_uint32     iGamma,
+                               mng_ani_gamap  *ppObject);
+
+mng_retcode create_ani_chrm   (mng_datap      pData,
+                               mng_bool       bEmpty,
+                               mng_uint32     iWhitepointx,
+                               mng_uint32     iWhitepointy,
+                               mng_uint32     iRedx,
+                               mng_uint32     iRedy,
+                               mng_uint32     iGreenx,
+                               mng_uint32     iGreeny,
+                               mng_uint32     iBluex,
+                               mng_uint32     iBluey,
+                               mng_ani_chrmp  *ppObject);
+
+mng_retcode create_ani_srgb   (mng_datap      pData,
+                               mng_bool       bEmpty,
+                               mng_uint8      iRenderinginent,
+                               mng_ani_srgbp  *ppObject);
+
+mng_retcode create_ani_iccp   (mng_datap      pData,
+                               mng_bool       bEmpty,
+                               mng_uint32     iProfilesize,
+                               mng_ptr        pProfile,
+                               mng_ani_iccpp  *ppObject);
 
 mng_retcode create_ani_loop   (mng_datap      pData,
                                mng_uint8      iLevel,
@@ -211,6 +242,14 @@ mng_retcode create_ani_term   (mng_datap      pData,
 mng_retcode free_ani_image    (mng_datap    pData,
                                mng_objectp  pObject);
 
+mng_retcode free_ani_gama     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_chrm     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_srgb     (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode free_ani_iccp     (mng_datap    pData,
+                               mng_objectp  pObject);
 mng_retcode free_ani_loop     (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode free_ani_endl     (mng_datap    pData,
@@ -239,6 +278,14 @@ mng_retcode free_ani_term     (mng_datap    pData,
 mng_retcode process_ani_image (mng_datap    pData,
                                mng_objectp  pObject);
 
+mng_retcode process_ani_gama  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_chrm  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_srgb  (mng_datap    pData,
+                               mng_objectp  pObject);
+mng_retcode process_ani_iccp  (mng_datap    pData,
+                               mng_objectp  pObject);
 mng_retcode process_ani_loop  (mng_datap    pData,
                                mng_objectp  pObject);
 mng_retcode process_ani_endl  (mng_datap    pData,

@@ -22,6 +22,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/20/2000 - G.Juyn                                * */
 /* *             - fixed to support JNG objects                             * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added support for global color-chunks in animation       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -955,6 +957,377 @@ mng_retcode process_ani_image (mng_datap   pData,
 #endif
 
   return iRetcode;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_gama (mng_datap     pData,
+                             mng_bool      bEmpty,
+                             mng_uint32    iGamma,
+                             mng_ani_gamap *ppObject)
+{
+  mng_ani_gamap pGAMA;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_GAMA, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pGAMA, sizeof (mng_ani_gama))
+
+  pGAMA->sHeader.fCleanup = free_ani_gama;
+  pGAMA->sHeader.fProcess = process_ani_gama;
+
+  add_ani_object (pData, (mng_object_headerp)pGAMA);
+
+  pGAMA->bEmpty           = bEmpty;
+  pGAMA->iGamma           = iGamma;
+
+  *ppObject = pGAMA;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_GAMA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_gama (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_GAMA, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_gama))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_GAMA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_gama (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_gamap pGAMA = (mng_ani_gamap)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_GAMA, MNG_LC_START)
+#endif
+
+  if (pGAMA->bEmpty)                   /* empty chunk ? */
+  {                                    /* clear global gAMA */
+    pData->bHasglobalGAMA = MNG_FALSE;
+    pData->iGlobalGamma   = 0;
+  }
+  else
+  {                                    /* set global gAMA */
+    pData->bHasglobalGAMA = MNG_TRUE;
+    pData->iGlobalGamma   = pGAMA->iGamma;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_GAMA, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_chrm (mng_datap     pData,
+                             mng_bool      bEmpty,
+                             mng_uint32    iWhitepointx,
+                             mng_uint32    iWhitepointy,
+                             mng_uint32    iRedx,
+                             mng_uint32    iRedy,
+                             mng_uint32    iGreenx,
+                             mng_uint32    iGreeny,
+                             mng_uint32    iBluex,
+                             mng_uint32    iBluey,
+                             mng_ani_chrmp *ppObject)
+{
+  mng_ani_chrmp pCHRM;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CHRM, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pCHRM, sizeof (mng_ani_chrm))
+
+  pCHRM->sHeader.fCleanup = free_ani_chrm;
+  pCHRM->sHeader.fProcess = process_ani_chrm;
+
+  add_ani_object (pData, (mng_object_headerp)pCHRM);
+
+  pCHRM->bEmpty           = bEmpty;
+  pCHRM->iWhitepointx     = iWhitepointx;
+  pCHRM->iWhitepointy     = iWhitepointy;
+  pCHRM->iRedx            = iRedx;
+  pCHRM->iRedy            = iRedy;
+  pCHRM->iGreenx          = iGreenx;
+  pCHRM->iGreeny          = iGreeny;
+  pCHRM->iBluex           = iBluex;
+  pCHRM->iBluey           = iBluey;
+
+  *ppObject = pCHRM;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_CHRM, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_chrm (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CHRM, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_chrm))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_CHRM, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_chrm (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_chrmp pCHRM = (mng_ani_chrmp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CHRM, MNG_LC_START)
+#endif
+
+  if (pCHRM->bEmpty)                   /* empty chunk ? */
+  {                                    /* clear global cHRM */
+    pData->bHasglobalCHRM       = MNG_FALSE;
+    pData->iGlobalWhitepointx   = 0;
+    pData->iGlobalWhitepointy   = 0;
+    pData->iGlobalPrimaryredx   = 0;
+    pData->iGlobalPrimaryredy   = 0;
+    pData->iGlobalPrimarygreenx = 0;
+    pData->iGlobalPrimarygreeny = 0;
+    pData->iGlobalPrimarybluex  = 0;
+    pData->iGlobalPrimarybluey  = 0;
+  }
+  else
+  {                                    /* set global cHRM */
+    pData->bHasglobalCHRM       = MNG_TRUE;
+    pData->iGlobalWhitepointx   = pCHRM->iWhitepointx;
+    pData->iGlobalWhitepointy   = pCHRM->iWhitepointy;
+    pData->iGlobalPrimaryredx   = pCHRM->iRedx;
+    pData->iGlobalPrimaryredy   = pCHRM->iRedy;
+    pData->iGlobalPrimarygreenx = pCHRM->iGreenx;
+    pData->iGlobalPrimarygreeny = pCHRM->iGreeny;
+    pData->iGlobalPrimarybluex  = pCHRM->iBluex;
+    pData->iGlobalPrimarybluey  = pCHRM->iBluey;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_CHRM, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_srgb (mng_datap     pData,
+                             mng_bool      bEmpty,
+                             mng_uint8     iRenderingintent,
+                             mng_ani_srgbp *ppObject)
+{
+  mng_ani_srgbp pSRGB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SRGB, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pSRGB, sizeof (mng_ani_srgb))
+
+  pSRGB->sHeader.fCleanup = free_ani_srgb;
+  pSRGB->sHeader.fProcess = process_ani_srgb;
+
+  add_ani_object (pData, (mng_object_headerp)pSRGB);
+
+  pSRGB->bEmpty           = bEmpty;
+  pSRGB->iRenderingintent = iRenderingintent;
+
+  *ppObject = pSRGB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_SRGB, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_srgb (mng_datap   pData,
+                           mng_objectp pObject)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SRGB, MNG_LC_START)
+#endif
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_srgb))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_SRGB, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_srgb (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_srgbp pSRGB = (mng_ani_srgbp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SRGB, MNG_LC_START)
+#endif
+
+  if (pSRGB->bEmpty)                   /* empty chunk ? */
+  {                                    /* clear global sRGB */
+    pData->bHasglobalSRGB    = MNG_FALSE;
+    pData->iGlobalRendintent = 0;
+  }
+  else
+  {                                    /* set global sRGB */
+    pData->bHasglobalSRGB    = MNG_TRUE;
+    pData->iGlobalRendintent = pSRGB->iRenderingintent;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_SRGB, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+mng_retcode create_ani_iccp (mng_datap     pData,
+                             mng_bool      bEmpty,
+                             mng_uint32    iProfilesize,
+                             mng_ptr       pProfile,
+                             mng_ani_iccpp *ppObject)
+{
+  mng_ani_iccpp pICCP;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_ICCP, MNG_LC_START)
+#endif
+
+  MNG_ALLOC (pData, pICCP, sizeof (mng_ani_iccp))
+
+  pICCP->sHeader.fCleanup = free_ani_iccp;
+  pICCP->sHeader.fProcess = process_ani_iccp;
+
+  add_ani_object (pData, (mng_object_headerp)pICCP);
+
+  pICCP->bEmpty           = bEmpty;
+  pICCP->iProfilesize     = iProfilesize;
+
+  if (iProfilesize)
+  {
+    MNG_ALLOC (pData, pICCP->pProfile, iProfilesize)
+    MNG_COPY (pICCP->pProfile, pProfile, iProfilesize)
+  }
+
+  *ppObject = pICCP;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_CREATE_ANI_ICCP, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode free_ani_iccp (mng_datap   pData,
+                           mng_objectp pObject)
+{
+  mng_ani_iccpp pICCP = (mng_ani_iccpp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_ICCP, MNG_LC_START)
+#endif
+
+  if (pICCP->iProfilesize)
+    MNG_FREEX (pData, pICCP->pProfile, pICCP->iProfilesize)
+
+  MNG_FREEX (pData, pObject, sizeof (mng_ani_iccp))
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ANI_ICCP, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_ani_iccp (mng_datap   pData,
+                              mng_objectp pObject)
+{
+  mng_ani_iccpp pICCP = (mng_ani_iccpp)pObject;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ICCP, MNG_LC_START)
+#endif
+
+  if (pICCP->bEmpty)                   /* empty chunk ? */
+  {                                    /* clear global iCCP */
+    pData->bHasglobalICCP = MNG_FALSE;
+
+    if (pData->iGlobalProfilesize)
+      MNG_FREEX (pData, pData->pGlobalProfile, pData->iGlobalProfilesize)
+
+    pData->iGlobalProfilesize = 0;
+    pData->pGlobalProfile     = MNG_NULL;
+  }
+  else
+  {                                    /* set global iCCP */
+    pData->bHasglobalICCP     = MNG_TRUE;
+    pData->iGlobalProfilesize = pICCP->iProfilesize;
+
+    if (pICCP->iProfilesize)
+    {
+      MNG_ALLOC (pData, pData->pGlobalProfile, pICCP->iProfilesize)
+      MNG_COPY (pData->pGlobalProfile, pICCP->pProfile, pICCP->iProfilesize)
+    }    
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ICCP, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */

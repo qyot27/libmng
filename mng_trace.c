@@ -22,6 +22,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - added trace telltale reporting                           * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added tracestrings for global animation color-chunks     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -429,6 +431,10 @@
     {MNG_FN_CREATE_ANI_TERM,           "create_ani_term"},
     {MNG_FN_CREATE_ANI_SAVE,           "create_ani_save"},
     {MNG_FN_CREATE_ANI_SEEK,           "create_ani_seek"},
+    {MNG_FN_CREATE_ANI_GAMA,           "create_ani_gama"},
+    {MNG_FN_CREATE_ANI_CHRM,           "create_ani_chrm"},
+    {MNG_FN_CREATE_ANI_SRGB,           "create_ani_srgb"},
+    {MNG_FN_CREATE_ANI_ICCP,           "create_ani_iccp"},
 
     {MNG_FN_CREATE_ANI_IMAGE,          "create_ani_image"},
 
@@ -447,6 +453,10 @@
     {MNG_FN_FREE_ANI_TERM,             "free_ani_term"},
     {MNG_FN_FREE_ANI_SAVE,             "free_ani_save"},
     {MNG_FN_FREE_ANI_SEEK,             "free_ani_seek"},
+    {MNG_FN_FREE_ANI_GAMA,             "free_ani_gama"},
+    {MNG_FN_FREE_ANI_CHRM,             "free_ani_chrm"},
+    {MNG_FN_FREE_ANI_SRGB,             "free_ani_srgb"},
+    {MNG_FN_FREE_ANI_ICCP,             "free_ani_iccp"},
 
     {MNG_FN_FREE_ANI_IMAGE,            "free_ani_image"},
 
@@ -465,6 +475,10 @@
     {MNG_FN_PROCESS_ANI_TERM,          "process_ani_term"},
     {MNG_FN_PROCESS_ANI_SAVE,          "process_ani_save"},
     {MNG_FN_PROCESS_ANI_SEEK,          "process_ani_seek"},
+    {MNG_FN_PROCESS_ANI_GAMA,          "process_ani_gama"},
+    {MNG_FN_PROCESS_ANI_CHRM,          "process_ani_chrm"},
+    {MNG_FN_PROCESS_ANI_SRGB,          "process_ani_srgb"},
+    {MNG_FN_PROCESS_ANI_ICCP,          "process_ani_iccp"},
 
     {MNG_FN_PROCESS_ANI_IMAGE,         "process_ani_image"},
 

@@ -22,6 +22,8 @@
 /* *                                                                        * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - changed inclusion to DISPLAY_PROCS                       * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added global color-chunks for animations                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -142,14 +144,58 @@ typedef mng_ani_image * mng_ani_imagep;          /* that's actualy crucial, so d
 
 /* ************************************************************************** */
 
+typedef struct {                                 /* global gAMA object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_bool          bEmpty;
+           mng_uint32        iGamma;
+        } mng_ani_gama;
+typedef mng_ani_gama * mng_ani_gamap;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* global gCRM object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_bool          bEmpty;
+           mng_uint32        iWhitepointx;
+           mng_uint32        iWhitepointy;
+           mng_uint32        iRedx;
+           mng_uint32        iRedy;
+           mng_uint32        iGreenx;
+           mng_uint32        iGreeny;
+           mng_uint32        iBluex;
+           mng_uint32        iBluey;
+        } mng_ani_chrm;
+typedef mng_ani_chrm * mng_ani_chrmp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* global sRGB object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_bool          bEmpty;
+           mng_uint8         iRenderingintent;
+        } mng_ani_srgb;
+typedef mng_ani_srgb * mng_ani_srgbp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* global iCCP object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_bool          bEmpty;
+           mng_uint32        iProfilesize;
+           mng_ptr           pProfile;
+        } mng_ani_iccp;
+typedef mng_ani_iccp * mng_ani_iccpp;
+
+/* ************************************************************************** */
+
 typedef struct {                                 /* LOOP object */
            mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
-           mng_uint8         iLevel;             
-           mng_uint32        iRepeatcount;       
-           mng_uint8         iTermcond;          
-           mng_uint32        iItermin;           
-           mng_uint32        iItermax;           
-           mng_uint32        iCount;             
+           mng_uint8         iLevel;
+           mng_uint32        iRepeatcount;
+           mng_uint8         iTermcond;
+           mng_uint32        iItermin;
+           mng_uint32        iItermax;
+           mng_uint32        iCount;
            mng_uint32p       pSignals;
 
            mng_uint32        iRunningcount;      /* running counter */

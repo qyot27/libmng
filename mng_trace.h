@@ -29,6 +29,8 @@
 /* *             - added JNG tracecodes                                     * */
 /* *             0.5.2 - 05/23/2000 - G.Juyn                                * */
 /* *             - added trace-table entry definition                       * */
+/* *             0.5.2 - 05/24/2000 - G.Juyn                                * */
+/* *             - added tracecodes for global animation color-chunks       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -474,6 +476,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_TERM       1813
 #define MNG_FN_CREATE_ANI_SAVE       1814
 #define MNG_FN_CREATE_ANI_SEEK       1815
+#define MNG_FN_CREATE_ANI_GAMA       1816
+#define MNG_FN_CREATE_ANI_CHRM       1817
+#define MNG_FN_CREATE_ANI_SRGB       1818
+#define MNG_FN_CREATE_ANI_ICCP       1819
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 
@@ -494,6 +500,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_TERM         1913
 #define MNG_FN_FREE_ANI_SAVE         1914
 #define MNG_FN_FREE_ANI_SEEK         1915
+#define MNG_FN_FREE_ANI_GAMA         1916
+#define MNG_FN_FREE_ANI_CHRM         1917
+#define MNG_FN_FREE_ANI_SRGB         1918
+#define MNG_FN_FREE_ANI_ICCP         1919
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 
@@ -514,6 +524,10 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_TERM      2013
 #define MNG_FN_PROCESS_ANI_SAVE      2014
 #define MNG_FN_PROCESS_ANI_SEEK      2015
+#define MNG_FN_PROCESS_ANI_GAMA      2016
+#define MNG_FN_PROCESS_ANI_CHRM      2017
+#define MNG_FN_PROCESS_ANI_SRGB      2018
+#define MNG_FN_PROCESS_ANI_ICCP      2019
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 
