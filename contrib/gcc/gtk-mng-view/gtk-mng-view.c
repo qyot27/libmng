@@ -225,13 +225,9 @@ gtk_mng_view_init_libmng (GtkMngView * mng_view)
 static GtkWidgetClass * parent_class = NULL;
 
 static void
-gtk_mng_view_finalize (GtkObject * obj)
+gtk_mng_view_finalize (GObject * obj)
 {
-  GtkMngView * mng_view;
-
-  g_return_if_fail (IS_GTK_MNG_VIEW (obj));
-
-  mng_view = (GtkMngView *) obj;
+  GtkMngView * mng_view = GTK_MNG_VIEW (obj);
 
   g_timer_destroy (mng_view->timer);
 
@@ -243,8 +239,7 @@ gtk_mng_view_finalize (GtkObject * obj)
   if (mng_view->MNG_handle)
     mng_cleanup (&mng_view->MNG_handle);
 
-  if (GTK_OBJECT_CLASS (parent_class)->finalize)
-    (* GTK_OBJECT_CLASS (parent_class)->finalize) (obj);
+  G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
 
 static void
@@ -295,7 +290,7 @@ gtk_mng_view_paint (GtkMngView * mng_view,
 
   bptr = buffer;
   ptr = mng_view->MNG_drawing_buffer
-	+ 3 * (area->y * mng_view->width + area->x); 
+	+ 3 * (area->y * mng_view->width + area->x);
 
   while (bptr < buffer + rowstride * area->height)
     {
@@ -387,17 +382,15 @@ gtk_mng_view_init (GtkMngView * mng_view)
 static void
 gtk_mng_view_class_init (GtkMngViewClass * klass)
 {
-  GtkObjectClass * object_class;
+  GObjectClass   * object_class;
   GtkWidgetClass * widget_class;
 
-  g_return_if_fail (IS_GTK_MNG_VIEW_CLASS (klass));
+  parent_class = g_type_class_peek_parent (klass);
 
-  parent_class = gtk_type_class (GTK_TYPE_WIDGET);
-
-  object_class = (GtkObjectClass *) klass;
+  object_class = G_OBJECT_CLASS (klass);
   object_class->finalize = gtk_mng_view_finalize;
 
-  widget_class = (GtkWidgetClass *) klass;
+  widget_class = GTK_WIDGET_CLASS (klass);
   widget_class->size_request = gtk_mng_view_size_request;
   widget_class->size_allocate = gtk_mng_view_size_allocate;
   widget_class->expose_event = gtk_mng_view_expose;

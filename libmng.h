@@ -411,13 +411,13 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "1.0.7"
+#define MNG_VERSION_TEXT    "1.0.8-alpha"
 #define MNG_VERSION_SO      1          /* eg. libmng.so.1  */
 #define MNG_VERSION_DLL     1          /* but: libmng.dll (!) */
 #define MNG_VERSION_MAJOR   1
 #define MNG_VERSION_MINOR   0
-#define MNG_VERSION_RELEASE 7
-#define MNG_VERSION_BETA    MNG_FALSE
+#define MNG_VERSION_RELEASE 8
+#define MNG_VERSION_BETA    MNG_TRUE
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text      (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so        (void);
