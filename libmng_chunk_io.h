@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_io.h         copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (definition)                            * */
 /* *                                                                        * */
@@ -24,6 +24,9 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -103,6 +106,7 @@ READ_CHUNK (read_ijng) ;
 READ_CHUNK (read_drop) ;
 READ_CHUNK (read_dbyk) ;
 READ_CHUNK (read_ordr) ;
+READ_CHUNK (read_magn) ;
 READ_CHUNK (read_need) ;
 READ_CHUNK (read_unknown) ;
 
@@ -158,6 +162,7 @@ READ_CHUNK (read_unknown) ;
 #define read_drop 0
 #define read_dbyk 0
 #define read_ordr 0
+#define read_magn 0
 #define read_need 0
 #define read_unknown 0
 #endif /* MNG_INCLUDE_READ_PROCS */
@@ -218,6 +223,7 @@ WRITE_CHUNK (write_ijng) ;
 WRITE_CHUNK (write_drop) ;
 WRITE_CHUNK (write_dbyk) ;
 WRITE_CHUNK (write_ordr) ;
+WRITE_CHUNK (write_magn) ;
 WRITE_CHUNK (write_need) ;
 WRITE_CHUNK (write_unknown) ;
 
@@ -273,6 +279,7 @@ WRITE_CHUNK (write_unknown) ;
 #define write_drop 0
 #define write_dbyk 0
 #define write_ordr 0
+#define write_magn 0
 #define write_need 0
 #define write_unknown 0
 #endif /* MNG_INCLUDE_WRITE_PROCS */

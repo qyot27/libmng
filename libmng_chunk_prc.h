@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_chunk_prc.h        copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (definition)                * */
 /* *                                                                        * */
@@ -20,6 +20,9 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -95,6 +98,7 @@ INIT_CHUNK_HDR (init_ijng) ;
 INIT_CHUNK_HDR (init_drop) ;
 INIT_CHUNK_HDR (init_dbyk) ;
 INIT_CHUNK_HDR (init_ordr) ;
+INIT_CHUNK_HDR (init_magn) ;
 INIT_CHUNK_HDR (init_unknown) ;
 
 /* ************************************************************************** */
@@ -152,6 +156,7 @@ FREE_CHUNK_HDR (free_ijng) ;
 FREE_CHUNK_HDR (free_drop) ;
 FREE_CHUNK_HDR (free_dbyk) ;
 FREE_CHUNK_HDR (free_ordr) ;
+FREE_CHUNK_HDR (free_magn) ;
 FREE_CHUNK_HDR (free_unknown) ;
 
 /* ************************************************************************** */

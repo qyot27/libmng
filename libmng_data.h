@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_data.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -74,6 +74,9 @@
 /* *             - B111096 - fixed large-buffer read-suspension             * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -549,6 +552,8 @@ typedef struct mng_data_struct {
            mng_ptr           fDeltareplacerow;
            mng_ptr           fDeltaputrow;
 
+           mng_uint16        iMAGNfromid;
+           mng_uint16        iMAGNtoid;
 #endif /* MNG_SUPPORT_DISPLAY */
 
 #ifdef MNG_INCLUDE_ZLIB
@@ -624,13 +629,28 @@ typedef mng_data * mng_datap;
 /* *                                                                        * */
 /* ************************************************************************** */
 
-typedef mng_retcode(*mng_displayrow)  (mng_datap pData);
-typedef mng_retcode(*mng_restbkgdrow) (mng_datap pData);
-typedef mng_retcode(*mng_correctrow)  (mng_datap pData);
-typedef mng_retcode(*mng_retrieverow) (mng_datap pData);
-typedef mng_retcode(*mng_storerow)    (mng_datap pData);
-typedef mng_retcode(*mng_processrow)  (mng_datap pData);
-typedef mng_retcode(*mng_initrowproc) (mng_datap pData);
+typedef mng_retcode(*mng_displayrow)  (mng_datap  pData);
+typedef mng_retcode(*mng_restbkgdrow) (mng_datap  pData);
+typedef mng_retcode(*mng_correctrow)  (mng_datap  pData);
+typedef mng_retcode(*mng_retrieverow) (mng_datap  pData);
+typedef mng_retcode(*mng_storerow)    (mng_datap  pData);
+typedef mng_retcode(*mng_processrow)  (mng_datap  pData);
+typedef mng_retcode(*mng_initrowproc) (mng_datap  pData);
+
+typedef mng_retcode(*mng_magnify_x)   (mng_datap  pData,
+                                       mng_uint16 iMX,
+                                       mng_uint16 iML,
+                                       mng_uint16 iMR,
+                                       mng_uint32 iWidth,
+                                       mng_uint8p iSrcline,
+                                       mng_uint8p iDstline);
+typedef mng_retcode(*mng_magnify_y)   (mng_datap  pData,
+                                       mng_int32  iM,
+                                       mng_int32  iS,
+                                       mng_uint32 iWidth,
+                                       mng_uint8p iSrcline1,
+                                       mng_uint8p iSrcline2,
+                                       mng_uint8p iDstline);
 
 /* ************************************************************************** */
 /* *                                                                        * */

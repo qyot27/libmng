@@ -92,6 +92,8 @@
 /* *             - B111300 - fixup for improved portability                 * */
 /* *             0.9.3 - 08/21/2000 - G.Juyn                                * */
 /* *             - fixed TERM processing delay of 0 msecs                   * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -744,6 +746,15 @@ mng_retcode display_image (mng_datap  pData,
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_IMAGE, MNG_LC_START)
 #endif
+
+  if ( (!pData->iBreakpoint) &&        /* needs magnification ? */
+       ( (pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY) ) )
+  {
+    mng_retcode iRetcode = magnify_imageobject (pData, pImage);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+  }
 
   pData->pRetrieveobj = pImage;        /* so retrieve-row and color-correction can find it */
 
@@ -1451,6 +1462,7 @@ mng_retcode process_display (mng_datap pData)
         case 3  : ;                    /* same as 4 !!! */
         case 4  : { iRetcode = process_display_show  (pData); break; }
         case 5  : { iRetcode = process_display_clon2 (pData); break; }
+        case 9  : { iRetcode = process_display_magn2 (pData); break; }
         default : MNG_ERROR (pData, MNG_INTERNALERROR)
       }
     }
@@ -1571,6 +1583,8 @@ mng_retcode process_display_ihdr (mng_datap pData)
       pData->pStoreobj = pData->pObjzero;
                                        /* display "on-the-fly" ? */
     if ( (pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing) &&
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY == 0) &&
          ( (pData->eImagetype == mng_it_png         ) ||
            (((mng_imagep)pData->pStoreobj)->bVisible)    )                   )
     {
@@ -1793,6 +1807,7 @@ mng_retcode process_display_iend (mng_datap pData)
 {
   mng_retcode iRetcode, iRetcode2;
   mng_bool bDodisplay = MNG_FALSE;
+  mng_bool bMagnify   = MNG_FALSE;
   mng_bool bCleanup   = (mng_bool)(pData->iBreakpoint != 0);
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1806,18 +1821,24 @@ mng_retcode process_display_iend (mng_datap pData)
       ((pData->iJHDRcolortype == MNG_COLORTYPE_JPEGGRAYA ) ||
        (pData->iJHDRcolortype == MNG_COLORTYPE_JPEGCOLORA)    ))
     bDodisplay = MNG_TRUE;
-#endif    
+#endif
+
+  if ( (pData->pStoreobj) &&           /* on-the-fly magnification ? */
+       ( (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX) ||
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY)    ) )
+    bMagnify = MNG_TRUE;
 
   if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
   {
     if ((pData->bHasBASI) ||           /* was it a BASI stream */
         (bDodisplay)      ||           /* or should we display the JNG */
+        (bMagnify)        ||           /* or should we magnify it */
                                        /* or did we get broken here last time ? */
         ((pData->iBreakpoint) && (pData->iBreakpoint != 8)))
     {
       mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
-      if (!pImage)                     /* or was it an "on-the-fly" image ? */
+      if (!pImage)                     /* or was it object 0 ? */
         pImage = (mng_imagep)pData->pObjzero;
                                        /* display it now then ? */
       if ((pImage->bVisible) && (pImage->bViewable))
@@ -2812,7 +2833,7 @@ mng_retcode process_display_show (mng_datap pData)
       iFrom = (mng_int16)pData->iSHOWfromid;
       iTo   = (mng_int16)pData->iSHOWtoid;
       iX    = iFrom;
-      
+
       pData->iSHOWfromid = (mng_uint16)iFrom;
       pData->iSHOWtoid   = (mng_uint16)iTo;
       pData->iSHOWskip   = iS;
@@ -3099,6 +3120,8 @@ mng_retcode process_display_jhdr (mng_datap pData)
       pData->pStoreobj = pData->pObjzero;
                                        /* display "on-the-fly" ? */
     if ( (pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing) &&
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
+         (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY == 0) &&
          ( (pData->eImagetype == mng_it_jng         ) ||
            (((mng_imagep)pData->pStoreobj)->bVisible)    )                   )
     {
@@ -3279,7 +3302,15 @@ mng_retcode process_display_dhdr (mng_datap  pData,
   if (pImage)                          /* object exists ? */
   {
     if (pImage->pImgbuf->bConcrete)    /* is it concrete ? */
-    {                                  /* save delta fields */
+    {                                  /* previous magnification to be done ? */
+      if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
+      {
+        mng_retcode iRetcode = magnify_imageobject (pData, pImage);
+
+        if (iRetcode)                /* on error bail out */
+          return iRetcode;
+      }
+                                       /* save delta fields */
       pData->pDeltaImage       = (mng_ptr)pImage;
       pData->iDeltaImagetype   = iImagetype;
       pData->iDeltatype        = iDeltatype;
@@ -3766,6 +3797,137 @@ mng_retcode process_display_pplt (mng_datap      pData,
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_PPLT, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_magn (mng_datap  pData,
+                                  mng_uint16 iFirstid,
+                                  mng_uint16 iLastid,
+                                  mng_uint16 iMethodX,
+                                  mng_uint16 iMX,
+                                  mng_uint16 iMY,
+                                  mng_uint16 iML,
+                                  mng_uint16 iMR,
+                                  mng_uint16 iMT,
+                                  mng_uint16 iMB,
+                                  mng_uint16 iMethodY)
+{
+  mng_uint16 iX;
+  mng_imagep pImage;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_START)
+#endif
+                                       /* iterate the object-ids */
+  for (iX = iFirstid; iX <= iLastid; iX++)
+  {
+    if (iX == 0)                       /* process object 0 ? */
+    {
+      mng_imagep pImage = (mng_imagep)pData->pObjzero;
+
+      pImage->iMAGN_MethodX = iMethodX;
+      pImage->iMAGN_MethodY = iMethodY;
+      pImage->iMAGN_MX      = iMX;
+      pImage->iMAGN_MY      = iMY;
+      pImage->iMAGN_ML      = iML;
+      pImage->iMAGN_MR      = iMR;
+      pImage->iMAGN_MT      = iMT;
+      pImage->iMAGN_MB      = iMB;
+    }
+    else
+    {
+      pImage = find_imageobject (pData, iX);
+                                       /* object exists & is not frozen ? */
+      if ((pImage) && (!pImage->bFrozen))
+      {                                /* previous magnification to be done ? */
+        if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
+        {
+          mng_retcode iRetcode = magnify_imageobject (pData, pImage);
+
+          if (iRetcode)                /* on error bail out */
+            return iRetcode;
+        }
+
+        pImage->iMAGN_MethodX = iMethodX;
+        pImage->iMAGN_MethodY = iMethodY;
+        pImage->iMAGN_MX      = iMX;
+        pImage->iMAGN_MY      = iMY;
+        pImage->iMAGN_ML      = iML;
+        pImage->iMAGN_MR      = iMR;
+        pImage->iMAGN_MT      = iMT;
+        pImage->iMAGN_MB      = iMB;
+      }
+    }
+  }
+
+  iX = iFirstid;
+                                       /* iterate again for showing */
+  while ((iX <= iLastid) && (!pData->bTimerset))
+  {
+    if (iX)                            /* only real objects ! */
+    {
+      pImage = find_imageobject (pData, iX);
+                                       /* object exists & is not frozen  &
+                                          is visible & is viewable ? */
+      if ((pImage) && (!pImage->bFrozen) &&
+          (pImage->bVisible) && (pImage->bViewable))
+        display_image (pData, pImage, MNG_FALSE);
+    }
+
+    iX++;
+  }
+
+  if (pData->bTimerset)                /* broken ? */
+  {
+    pData->iMAGNfromid = iFirstid;
+    pData->iMAGNtoid   = iLastid;
+    pData->iBreakpoint = 9;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode process_display_magn2 (mng_datap pData)
+{
+  mng_uint16 iX;
+  mng_imagep pImage;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_START)
+#endif
+
+  iX = pData->iMAGNfromid;
+                                       /* iterate again for showing */
+  while ((iX <= pData->iMAGNtoid) && (!pData->bTimerset))
+  {
+    if (iX)                            /* only real objects ! */
+    {
+      pImage = find_imageobject (pData, iX);
+                                       /* object exists & is not frozen  &
+                                          is visible & is viewable ? */
+      if ((pImage) && (!pImage->bFrozen) &&
+          (pImage->bVisible) && (pImage->bViewable))
+        display_image (pData, pImage, MNG_FALSE);
+    }
+
+    iX++;
+  }
+
+  if (pData->bTimerset)                /* broken ? */
+    pData->iBreakpoint = 9;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MAGN, MNG_LC_END)
 #endif
 
   return MNG_NOERROR;

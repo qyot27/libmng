@@ -67,6 +67,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/20/2000 - G.Juyn                                * */
 /* *             - fixed app-supplied background restore                    * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -7153,6 +7155,1637 @@ mng_retcode next_jpeg_row (mng_datap pData)
 /* ************************************************************************** */
 
 #endif /* MNG_INCLUDE_JNG */
+
+/* ************************************************************************** */
+
+mng_retcode magnify_g8_x1 (mng_datap  pData,
+                           mng_uint16 iMX,
+                           mng_uint16 iML,
+                           mng_uint16 iMR,
+                           mng_uint32 iWidth,
+                           mng_uint8p pSrcline,
+                           mng_uint8p pDstline)
+{
+  mng_uint32 iX, iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_X1, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+      iM = iML;
+    else
+    if (iX == (iWidth - 1))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+
+    for (iS = 1; iS < iM; iS++)        /* fill interval */
+    {
+      *pTempdst = *pTempsrc1;          /* copy original source pixel */
+      pTempdst++;
+    }
+
+    pTempsrc1++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_X1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_g8_x2 (mng_datap  pData,
+                           mng_uint16 iMX,
+                           mng_uint16 iML,
+                           mng_uint16 iMR,
+                           mng_uint32 iWidth,
+                           mng_uint8p pSrcline,
+                           mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_X2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 1;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {                                /* is it same as first ? */
+        if (*pTempsrc1 == *pTempsrc2)
+        {
+          for (iS = 1; iS < iM; iS++)  /* then just repeat the first */
+          {
+            *pTempdst = *pTempsrc1;
+            pTempdst++;
+          }
+        }
+        else
+        {
+          for (iS = 1; iS < iM; iS++)  /* calculate the distances */
+          {
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+            pTempdst++;
+          }
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1++;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_X2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgb8_x1 (mng_datap  pData,
+                             mng_uint16 iMX,
+                             mng_uint16 iML,
+                             mng_uint16 iMR,
+                             mng_uint32 iWidth,
+                             mng_uint8p pSrcline,
+                             mng_uint8p pDstline)
+{
+  mng_uint32 iX, iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_X1, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+      iM = iML;
+    else
+    if (iX == (iWidth - 1))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+
+    for (iS = 1; iS < iM; iS++)        /* fill interval */
+    {
+      *pTempdst = *pTempsrc1;          /* copy original source pixel */
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+1);
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+2);
+      pTempdst++;
+    }
+
+    pTempsrc1 += 3;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_X1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgb8_x2 (mng_datap  pData,
+                             mng_uint16 iMX,
+                             mng_uint16 iML,
+                             mng_uint16 iMR,
+                             mng_uint32 iWidth,
+                             mng_uint8p pSrcline,
+                             mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_X2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 3;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = (mng_int32)iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = (mng_int32)iMR;
+    else
+      iM = (mng_int32)iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          if (*pTempsrc1 == *pTempsrc2)
+            *pTempdst = *pTempsrc1;    /* just repeat the first */
+          else                         /* calculate the distance */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+1) == *(pTempsrc2+1))
+            *pTempdst = *(pTempsrc1+1);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+2) == *(pTempsrc2+2))
+            *pTempdst = *(pTempsrc1+2);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
+
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+2);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 3;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_X2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_x1 (mng_datap  pData,
+                            mng_uint16 iMX,
+                            mng_uint16 iML,
+                            mng_uint16 iMR,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX, iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X1, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+      iM = iML;
+    else
+    if (iX == (iWidth - 1))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+
+    for (iS = 1; iS < iM; iS++)        /* fill interval */
+    {
+      *pTempdst = *pTempsrc1;          /* copy original source pixel */
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+1);
+      pTempdst++;
+    }
+
+    pTempsrc1 += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_x2 (mng_datap  pData,
+                            mng_uint16 iMX,
+                            mng_uint16 iML,
+                            mng_uint16 iMR,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 2;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          if (*pTempsrc1 == *pTempsrc2)
+            *pTempdst = *pTempsrc1;    /* just repeat the first */
+          else                         /* calculate the distance */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+1) == *(pTempsrc2+1))
+            *pTempdst = *(pTempsrc1+1);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
+
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_x3 (mng_datap  pData,
+                            mng_uint16 iMX,
+                            mng_uint16 iML,
+                            mng_uint16 iMR,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X3, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 2;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* just repeat the source color */
+          pTempdst++;
+
+          if (*(pTempsrc1+1) == *(pTempsrc2+1))
+            *pTempdst = *(pTempsrc1+1);
+          else                         /* calculate distance for alpha */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
+
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X3, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_x4 (mng_datap  pData,
+                            mng_uint16 iMX,
+                            mng_uint16 iML,
+                            mng_uint16 iMR,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X4, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 2;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          if (*pTempsrc1 == *pTempsrc2)
+            *pTempdst = *pTempsrc1;    /* just repeat the first */
+          else                         /* calculate the distance */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+
+          pTempdst++;
+
+          *pTempdst = *(pTempsrc1+1);  /* repeat the source alpha */
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 2;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_X4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_x1 (mng_datap  pData,
+                              mng_uint16 iMX,
+                              mng_uint16 iML,
+                              mng_uint16 iMR,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX, iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X1, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+3);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+      iM = iML;
+    else
+    if (iX == (iWidth - 1))            /* last interval ? */
+      iM = iMR;
+    else
+      iM = iMX;
+
+    for (iS = 1; iS < iM; iS++)        /* fill interval */
+    {
+      *pTempdst = *pTempsrc1;          /* copy original source pixel */
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+1);
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+2);
+      pTempdst++;
+      *pTempdst = *(pTempsrc1+3);
+      pTempdst++;
+    }
+
+    pTempsrc1 += 4;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_x2 (mng_datap  pData,
+                              mng_uint16 iMX,
+                              mng_uint16 iML,
+                              mng_uint16 iMR,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 4;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+3);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = (mng_int32)iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = (mng_int32)iMR;
+    else
+      iM = (mng_int32)iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          if (*pTempsrc1 == *pTempsrc2)
+            *pTempdst = *pTempsrc1;    /* just repeat the first */
+          else                         /* calculate the distance */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+1) == *(pTempsrc2+1))
+            *pTempdst = *(pTempsrc1+1);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+2) == *(pTempsrc2+2))
+            *pTempdst = *(pTempsrc1+2);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+3) == *(pTempsrc2+3))
+            *pTempdst = *(pTempsrc1+3);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+3)) -
+                                                 (mng_int32)(*(pTempsrc1+3)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+3))         );
+
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+2);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+3);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 4;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_x3 (mng_datap  pData,
+                              mng_uint16 iMX,
+                              mng_uint16 iML,
+                              mng_uint16 iMR,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X3, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 4;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+3);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = (mng_int32)iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = (mng_int32)iMR;
+    else
+      iM = (mng_int32)iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* just repeat the source color */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+2);
+          pTempdst++;
+
+          if (*(pTempsrc1+3) == *(pTempsrc2+3))
+            *pTempdst = *(pTempsrc1+3);
+          else                         /* calculate the distance for alpha */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+3)) -
+                                                 (mng_int32)(*(pTempsrc1+3)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+3))         );
+
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+2);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+3);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 4;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X3, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_x4 (mng_datap  pData,
+                              mng_uint16 iMX,
+                              mng_uint16 iML,
+                              mng_uint16 iMR,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_int32  iS, iM;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X4, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline;                /* initialize pixel-loop */
+  pTempdst  = pDstline;
+
+  for (iX = 0; iX < iWidth; iX++)
+  {
+    pTempsrc2 = pTempsrc1 + 4;
+
+    *pTempdst = *pTempsrc1;            /* copy original source pixel */
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+1);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+2);
+    pTempdst++;
+    *pTempdst = *(pTempsrc1+3);
+    pTempdst++;
+
+    if (iX == 0)                       /* first interval ? */
+    {
+      if (iWidth == 1)                 /* single pixel ? */
+        pTempsrc2 = MNG_NULL;
+
+      iM = (mng_int32)iML;
+    }
+    else
+    if (iX == (iWidth - 2))            /* last interval ? */
+      iM = (mng_int32)iMR;
+    else
+      iM = (mng_int32)iMX;
+                                       /* fill interval ? */
+    if ((iX < iWidth - 1) || (iWidth == 1))
+    {
+      if (pTempsrc2)                   /* do we have the second pixel ? */
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          if (*pTempsrc1 == *pTempsrc2)
+            *pTempdst = *pTempsrc1;    /* just repeat the first */
+          else                         /* calculate the distance */
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*pTempsrc2)     -
+                                                 (mng_int32)(*pTempsrc1)     ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*pTempsrc1)             );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+1) == *(pTempsrc2+1))
+            *pTempdst = *(pTempsrc1+1);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+1)) -
+                                                 (mng_int32)(*(pTempsrc1+1)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+1))         );
+
+          pTempdst++;
+
+          if (*(pTempsrc1+2) == *(pTempsrc2+2))
+            *pTempdst = *(pTempsrc1+2);
+          else
+            *pTempdst = (mng_uint8)(((2 * iS * ( (mng_int32)(*(pTempsrc2+2)) -
+                                                 (mng_int32)(*(pTempsrc1+2)) ) + 1) /
+                                     (iM * 2)) + (mng_int32)(*(pTempsrc1+2))         );
+
+          pTempdst++;
+
+          *pTempdst = *(pTempsrc1+3);  /* repeat the source alpha */
+          pTempdst++;
+        }
+      }
+      else
+      {
+        for (iS = 1; iS < iM; iS++)
+        {
+          *pTempdst = *pTempsrc1;      /* repeat first source pixel */
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+1);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+2);
+          pTempdst++;
+          *pTempdst = *(pTempsrc1+3);
+          pTempdst++;
+        }
+      }
+    }
+
+    pTempsrc1 += 4;
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_X4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_g8_y1 (mng_datap  pData,
+                           mng_int32  iS,
+                           mng_int32  iM,
+                           mng_uint32 iWidth,
+                           mng_uint8p pSrcline1,
+                           mng_uint8p pSrcline2,
+                           mng_uint8p pDstline)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_Y1, MNG_LC_START)
+#endif
+
+  MNG_COPY (pDstline, pSrcline1, iWidth)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_Y1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_g8_y2 (mng_datap  pData,
+                           mng_int32  iS,
+                           mng_int32  iM,
+                           mng_uint32 iWidth,
+                           mng_uint8p pSrcline1,
+                           mng_uint8p pSrcline2,
+                           mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_Y2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_G8_Y2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgb8_y1 (mng_datap  pData,
+                             mng_int32  iS,
+                             mng_int32  iM,
+                             mng_uint32 iWidth,
+                             mng_uint8p pSrcline1,
+                             mng_uint8p pSrcline2,
+                             mng_uint8p pDstline)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_Y1, MNG_LC_START)
+#endif
+
+  MNG_COPY (pDstline, pSrcline1, iWidth * 3)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_Y1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgb8_y2 (mng_datap  pData,
+                             mng_int32  iS,
+                             mng_int32  iM,
+                             mng_uint32 iWidth,
+                             mng_uint8p pSrcline1,
+                             mng_uint8p pSrcline2,
+                             mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_Y2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth * 3)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGB8_Y2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_y1 (mng_datap  pData,
+                            mng_int32  iS,
+                            mng_int32  iM,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline1,
+                            mng_uint8p pSrcline2,
+                            mng_uint8p pDstline)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y1, MNG_LC_START)
+#endif
+
+  MNG_COPY (pDstline, pSrcline1, iWidth << 1)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_y2 (mng_datap  pData,
+                            mng_int32  iS,
+                            mng_int32  iM,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline1,
+                            mng_uint8p pSrcline2,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 1)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_y3 (mng_datap  pData,
+                            mng_int32  iS,
+                            mng_int32  iM,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline1,
+                            mng_uint8p pSrcline2,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y3, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {
+      *pTempdst = *pTempsrc1;          /* repeat the source color */
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else                             /* calculate the distance for alpha */
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 1)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y3, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_ga8_y4 (mng_datap  pData,
+                            mng_int32  iS,
+                            mng_int32  iM,
+                            mng_uint32 iWidth,
+                            mng_uint8p pSrcline1,
+                            mng_uint8p pSrcline2,
+                            mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y4, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      *pTempdst = *pTempsrc1;          /* repeat the source alpha */
+      
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 1)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_GA8_Y4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_y1 (mng_datap  pData,
+                              mng_int32  iS,
+                              mng_int32  iM,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline1,
+                              mng_uint8p pSrcline2,
+                              mng_uint8p pDstline)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y1, MNG_LC_START)
+#endif
+
+  MNG_COPY (pDstline, pSrcline1, iWidth << 2)
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y1, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_y2 (mng_datap  pData,
+                              mng_int32  iS,
+                              mng_int32  iM,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline1,
+                              mng_uint8p pSrcline2,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y2, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 2)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y2, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_y3 (mng_datap  pData,
+                              mng_int32  iS,
+                              mng_int32  iM,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline1,
+                              mng_uint8p pSrcline2,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y3, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {
+      *pTempdst = *pTempsrc1;          /* repeat the source color */
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      *pTempdst = *pTempsrc1;
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      *pTempdst = *pTempsrc1;
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else                             /* calculate the distance for alpha */
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 2)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y3, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
+
+/* ************************************************************************** */
+
+mng_retcode magnify_rgba8_y4 (mng_datap  pData,
+                              mng_int32  iS,
+                              mng_int32  iM,
+                              mng_uint32 iWidth,
+                              mng_uint8p pSrcline1,
+                              mng_uint8p pSrcline2,
+                              mng_uint8p pDstline)
+{
+  mng_uint32 iX;
+  mng_uint8p pTempsrc1;
+  mng_uint8p pTempsrc2;
+  mng_uint8p pTempdst;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y4, MNG_LC_START)
+#endif
+
+  pTempsrc1 = pSrcline1;               /* initialize pixel-loop */
+  pTempsrc2 = pSrcline2;
+  pTempdst  = pDstline;
+
+  if (pTempsrc2)                       /* do we have a second line ? */
+  {
+    for (iX = 0; iX < iWidth; iX++)
+    {                                  /* calculate the distances */
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      if (*pTempsrc1 == *pTempsrc2)
+        *pTempdst = *pTempsrc1;
+      else
+        *pTempdst = (mng_uint8)( ( (2 * iS * ( (mng_int32)(*pTempsrc2) -
+                                               (mng_int32)(*pTempsrc1) ) + 1) /
+                                   (iM * 2) ) + (mng_int32)(*pTempsrc1) );
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+
+      *pTempdst = *pTempsrc1;          /* repeat the source alpha */ 
+
+      pTempdst++;
+      pTempsrc1++;
+      pTempsrc2++;
+    }
+  }
+  else
+  {                                    /* just repeat the entire line */
+    MNG_COPY (pTempdst, pTempsrc1, iWidth << 2)
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_MAGNIFY_RGBA8_Y4, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;
+}
 
 /* ************************************************************************** */
 

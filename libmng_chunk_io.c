@@ -111,6 +111,8 @@
 /* *             0.9.3 - 08/22/2000 - G.Juyn                                * */
 /* *             - fixed write-code for zTXt & iTXt                         * */
 /* *             - fixed read-code for iTXt                                 * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5826,6 +5828,128 @@ READ_CHUNK (read_ordr)
 
 /* ************************************************************************** */
 
+READ_CHUNK (read_magn)
+{
+  mng_uint16 iFirstid, iLastid;
+  mng_uint16 iMethodX, iMethodY;
+  mng_uint16 iMX, iMY, iML, iMR, iMT, iMB;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_MAGN, MNG_LC_START)
+#endif
+                                       /* sequence checks */
+#ifdef MNG_SUPPORT_JNG
+  if ((!pData->bHasMHDR) || (pData->bHasIHDR) || (pData->bHasDHDR) || (pData->bHasJHDR))
+#else
+  if ((!pData->bHasMHDR) || (pData->bHasIHDR) || (pData->bHasDHDR))
+#endif
+    MNG_ERROR (pData, MNG_SEQUENCEERROR)
+                                       /* check length */
+  if ((iRawlen > 20) || ((iRawlen & 0x01) != 0))
+    MNG_ERROR (pData, MNG_INVALIDLENGTH)
+
+  if (iRawlen > 0)                     /* get the fields */
+    iFirstid = mng_get_uint16 (pRawdata);
+  else
+    iFirstid = 0;
+
+  if (iRawlen > 2)
+    iLastid  = mng_get_uint16 (pRawdata+2);
+  else
+    iLastid  = iFirstid;
+
+  if (iRawlen > 4)
+    iMethodX = mng_get_uint16 (pRawdata+4);
+  else
+    iMethodX = 0;
+
+  if (iRawlen > 6)
+    iMX      = mng_get_uint16 (pRawdata+6);
+  else
+    iMX      = 1;
+
+  if (iRawlen > 8)
+    iMY      = mng_get_uint16 (pRawdata+8);
+  else
+    iMY      = iMX;
+
+  if (iRawlen > 10)
+    iML      = mng_get_uint16 (pRawdata+10);
+  else
+    iML      = iMX;
+
+  if (iRawlen > 12)
+    iMR      = mng_get_uint16 (pRawdata+12);
+  else
+    iMR      = iMX;
+
+  if (iRawlen > 14)
+    iMT      = mng_get_uint16 (pRawdata+14);
+  else
+    iMT      = iMY;
+
+  if (iRawlen > 16)
+    iMB      = mng_get_uint16 (pRawdata+16);
+  else
+    iMB      = iMY;
+
+  if (iRawlen > 18)
+    iMethodY = mng_get_uint16 (pRawdata+18);
+  else
+    iMethodY = iMethodX;
+
+#ifdef MNG_SUPPORT_DISPLAY
+  if (pData->bDisplaying)
+  {
+    mng_retcode iRetcode;
+
+    iRetcode = create_ani_magn (pData, iFirstid, iLastid, iMethodX,
+                                iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* display processing ? */
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
+    {
+      iRetcode = process_display_magn (pData, iFirstid, iLastid, iMethodX,
+                                       iMX, iMY, iML, iMR, iMT, iMB, iMethodY);
+
+      if (iRetcode)                    /* on error bail out */
+        return iRetcode;
+    }
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_STORE_CHUNKS
+  if (pData->bStorechunks)
+  {                                    /* initialize storage */
+    mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* store the fields */
+    ((mng_magnp)*ppChunk)->iFirstid = iFirstid;
+    ((mng_magnp)*ppChunk)->iLastid  = iLastid;
+    ((mng_magnp)*ppChunk)->iMethodX = iMethodX;
+    ((mng_magnp)*ppChunk)->iMX      = iMX;
+    ((mng_magnp)*ppChunk)->iMY      = iMY;
+    ((mng_magnp)*ppChunk)->iML      = iML;
+    ((mng_magnp)*ppChunk)->iMR      = iMR;
+    ((mng_magnp)*ppChunk)->iMT      = iMT;
+    ((mng_magnp)*ppChunk)->iMB      = iMB;
+    ((mng_magnp)*ppChunk)->iMethodY = iMethodY;
+  }
+#endif /* MNG_STORE_CHUNKS */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_MAGN, MNG_LC_END)
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+
+/* ************************************************************************** */
+
 READ_CHUNK (read_unknown)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -8251,6 +8375,94 @@ WRITE_CHUNK (write_ordr)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_WRITE_ORDR, MNG_LC_END)
+#endif
+
+  return iRetcode;
+}
+
+/* ************************************************************************** */
+
+WRITE_CHUNK (write_magn)
+{
+  mng_magnp   pMAGN;
+  mng_uint8p  pRawdata;
+  mng_uint32  iRawlen;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_MAGN, MNG_LC_START)
+#endif
+
+  pMAGN    = (mng_magnp)pChunk;        /* address the proper chunk */
+
+  pRawdata = pData->pWritebuf+8;       /* init output buffer & size */
+  iRawlen  = 20;
+                                       /* fill the output buffer */
+  mng_put_uint16 (pRawdata,    pMAGN->iFirstid);
+  mng_put_uint16 (pRawdata+2,  pMAGN->iLastid);
+  mng_put_uint16 (pRawdata+4,  pMAGN->iMethodX);
+  mng_put_uint16 (pRawdata+6,  pMAGN->iMX);
+  mng_put_uint16 (pRawdata+8,  pMAGN->iMY);
+  mng_put_uint16 (pRawdata+10, pMAGN->iML);
+  mng_put_uint16 (pRawdata+12, pMAGN->iMR);
+  mng_put_uint16 (pRawdata+14, pMAGN->iMT);
+  mng_put_uint16 (pRawdata+16, pMAGN->iMB);
+  mng_put_uint16 (pRawdata+18, pMAGN->iMethodY);
+                                       /* optimize length */
+  if (pMAGN->iMethodY == pMAGN->iMethodX)
+  {
+    iRawlen -= 2;
+
+    if (pMAGN->iMB == pMAGN->iMY)
+    {
+      iRawlen -= 2;
+
+      if (pMAGN->iMT == pMAGN->iMY)
+      {
+        iRawlen -= 2;
+
+        if (pMAGN->iMR == pMAGN->iMX)
+        {
+          iRawlen -= 2;
+
+          if (pMAGN->iML == pMAGN->iMX)
+          {
+            iRawlen -= 2;
+
+            if (pMAGN->iMY == pMAGN->iMX)
+            {
+              iRawlen -= 2;
+
+              if (pMAGN->iMX == 1)
+              {
+                iRawlen -= 2;
+
+                if (pMAGN->iMethodX == 0)
+                {
+                  iRawlen -= 2;
+
+                  if (pMAGN->iLastid == pMAGN->iFirstid)
+                  {
+                    iRawlen -= 2;
+
+                    if (pMAGN->iFirstid == 0)
+                      iRawlen = 0;
+
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+                                       /* and write it */
+  iRetcode = write_raw_chunk (pData, pMAGN->sHeader.iChunkname,
+                              iRawlen, pRawdata);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_MAGN, MNG_LC_END)
 #endif
 
   return iRetcode;

@@ -22,6 +22,7 @@ core:
 - fixed TERM processing delay of 0 msecs            
 - fixed write-code for zTXt & iTXt
 - fixed read-code for iTXt                                
+- added MAGN chunk                                        
 
 samples:
 

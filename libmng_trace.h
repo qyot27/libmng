@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_trace.h            copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -70,6 +70,9 @@
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
 /* *             - added tracecode for updatemngsimplicity                  * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -322,6 +325,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GETCHUNK_DBYK          749
 #define MNG_FN_GETCHUNK_ORDR          750
 #define MNG_FN_GETCHUNK_UNKNOWN       751
+#define MNG_FN_GETCHUNK_MAGN          752
 
 #define MNG_FN_GETCHUNK_PAST_SRC      781
 #define MNG_FN_GETCHUNK_SAVE_ENTRY    782
@@ -379,6 +383,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PUTCHUNK_DBYK          849
 #define MNG_FN_PUTCHUNK_ORDR          850
 #define MNG_FN_PUTCHUNK_UNKNOWN       851
+#define MNG_FN_PUTCHUNK_MAGN          852
 
 #define MNG_FN_PUTCHUNK_PAST_SRC      881
 #define MNG_FN_PUTCHUNK_SAVE_ENTRY    882
@@ -542,6 +547,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_RESET_OBJECTDETAILS   1608
 #define MNG_FN_RENUM_IMGOBJECT       1609
 #define MNG_FN_PROMOTE_IMGOBJECT     1610
+#define MNG_FN_MAGNIFY_IMGOBJECT     1611
 
 /* ************************************************************************** */
 
@@ -616,6 +622,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_CREATE_ANI_IPNG       1825
 #define MNG_FN_CREATE_ANI_IJNG       1826
 #define MNG_FN_CREATE_ANI_PPLT       1827
+#define MNG_FN_CREATE_ANI_MAGN       1828
 
 #define MNG_FN_CREATE_ANI_IMAGE      1891
 
@@ -648,6 +655,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_ANI_IPNG         1925
 #define MNG_FN_FREE_ANI_IJNG         1926
 #define MNG_FN_FREE_ANI_PPLT         1927
+#define MNG_FN_FREE_ANI_MAGN         1928
 
 #define MNG_FN_FREE_ANI_IMAGE        1991
 
@@ -680,6 +688,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_ANI_IPNG      2025
 #define MNG_FN_PROCESS_ANI_IJNG      2026
 #define MNG_FN_PROCESS_ANI_PPLT      2027
+#define MNG_FN_PROCESS_ANI_MAGN      2028
 
 #define MNG_FN_PROCESS_ANI_IMAGE     2091
 
@@ -744,6 +753,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_INIT_DBYK             2249
 #define MNG_FN_INIT_ORDR             2250
 #define MNG_FN_INIT_UNKNOWN          2251
+#define MNG_FN_INIT_MAGN             2252
 
 /* ************************************************************************** */
 
@@ -798,6 +808,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_FREE_DBYK             2449
 #define MNG_FN_FREE_ORDR             2450
 #define MNG_FN_FREE_UNKNOWN          2451
+#define MNG_FN_FREE_MAGN             2452
 
 /* ************************************************************************** */
 
@@ -852,6 +863,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_READ_DBYK             2649
 #define MNG_FN_READ_ORDR             2650
 #define MNG_FN_READ_UNKNOWN          2651
+#define MNG_FN_READ_MAGN             2652
 
 /* ************************************************************************** */
 
@@ -906,6 +918,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_WRITE_DBYK            2849
 #define MNG_FN_WRITE_ORDR            2850
 #define MNG_FN_WRITE_UNKNOWN         2851
+#define MNG_FN_WRITE_MAGN            2852
 
 /* ************************************************************************** */
 
@@ -968,6 +981,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_PROCESS_DISPLAY_DROP  3244
 #define MNG_FN_PROCESS_DISPLAY_DBYK  3245
 #define MNG_FN_PROCESS_DISPLAY_ORDR  3246
+#define MNG_FN_PROCESS_DISPLAY_MAGN  3247
 
 /* ************************************************************************** */
 
@@ -1019,6 +1033,34 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_NEXT_JPEG_ALPHAROW    3591
 #define MNG_FN_NEXT_JPEG_ROW         3592
 #define MNG_FN_DISPLAY_JPEG_ROWS     3593
+
+/* ************************************************************************** */
+
+#define MNG_FN_MAGNIFY_G8_X1         3701
+#define MNG_FN_MAGNIFY_G8_X2         3702
+#define MNG_FN_MAGNIFY_RGB8_X1       3703
+#define MNG_FN_MAGNIFY_RGB8_X2       3704
+#define MNG_FN_MAGNIFY_GA8_X1        3705
+#define MNG_FN_MAGNIFY_GA8_X2        3706
+#define MNG_FN_MAGNIFY_GA8_X3        3707
+#define MNG_FN_MAGNIFY_GA8_X4        3708
+#define MNG_FN_MAGNIFY_RGBA8_X1      3709
+#define MNG_FN_MAGNIFY_RGBA8_X2      3710
+#define MNG_FN_MAGNIFY_RGBA8_X3      3711
+#define MNG_FN_MAGNIFY_RGBA8_X4      3712
+
+#define MNG_FN_MAGNIFY_G8_Y1         3751
+#define MNG_FN_MAGNIFY_G8_Y2         3752
+#define MNG_FN_MAGNIFY_RGB8_Y1       3753
+#define MNG_FN_MAGNIFY_RGB8_Y2       3754
+#define MNG_FN_MAGNIFY_GA8_Y1        3755
+#define MNG_FN_MAGNIFY_GA8_Y2        3756
+#define MNG_FN_MAGNIFY_GA8_Y3        3757
+#define MNG_FN_MAGNIFY_GA8_Y4        3758
+#define MNG_FN_MAGNIFY_RGBA8_Y1      3759
+#define MNG_FN_MAGNIFY_RGBA8_Y2      3760
+#define MNG_FN_MAGNIFY_RGBA8_Y3      3761
+#define MNG_FN_MAGNIFY_RGBA8_Y4      3762
 
 /* ************************************************************************** */
 /* *                                                                        * */

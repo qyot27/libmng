@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_read.c             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -47,6 +47,9 @@
 /* *             - B111096 - fixed large-buffer read-suspension             * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -284,9 +287,11 @@ mng_retcode process_raw_chunk (mng_datap  pData,
     {MNG_UINT_JSEP, init_jsep, free_jsep, read_jsep, write_jsep, 0, 0},
 #endif
     {MNG_UINT_LOOP, init_loop, free_loop, read_loop, write_loop, 0, 0},
+    {MNG_UINT_MAGN, init_magn, free_magn, read_magn, write_magn, 0, 0},
     {MNG_UINT_MEND, init_mend, free_mend, read_mend, write_mend, 0, 0},
     {MNG_UINT_MHDR, init_mhdr, free_mhdr, read_mhdr, write_mhdr, 0, 0},
     {MNG_UINT_MOVE, init_move, free_move, read_move, write_move, 0, 0},
+    {MNG_UINT_MaGN, init_magn, free_magn, read_magn, write_magn, 0, 0},
     {MNG_UINT_ORDR, init_ordr, free_ordr, read_ordr, write_ordr, 0, 0},
     {MNG_UINT_PAST, init_past, free_past, read_past, write_past, 0, 0},
     {MNG_UINT_PLTE, init_plte, free_plte, read_plte, write_plte, 0, 0},
@@ -451,6 +456,7 @@ mng_retcode read_chunk (mng_datap  pData)
 #endif
         case 6 : ;                     /* same as 8 !!! */
         case 8 : { iRetcode = process_display_iend  (pData); break; }
+        case 9 : { iRetcode = process_display_magn2 (pData); break; }
       }
     }
   }

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.h          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (definition)                            * */
 /* *                                                                        * */
@@ -31,6 +31,8 @@
 /* *             - changed file-prefixes                                    * */
 /* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
 /* *             - B111300 - fixup for improved portability                 * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -162,6 +164,19 @@ mng_retcode process_display_pplt  (mng_datap      pData,
                                    mng_palette8ep paIndexentries,
                                    mng_uint8p     paAlphaentries,
                                    mng_uint8p     paUsedentries);
+
+mng_retcode process_display_magn  (mng_datap      pData,
+                                   mng_uint16     iFirstid,
+                                   mng_uint16     iLastid,
+                                   mng_uint16     iMethodX,
+                                   mng_uint16     iMX,
+                                   mng_uint16     iMY,
+                                   mng_uint16     iML,
+                                   mng_uint16     iMR,
+                                   mng_uint16     iMT,
+                                   mng_uint16     iMB,
+                                   mng_uint16     iMethodY);
+mng_retcode process_display_magn2 (mng_datap      pData);
 
 /* ************************************************************************** */
 

@@ -183,6 +183,8 @@
 /* *             - added check for simplicity-bits in MHDR                  * */
 /* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
 /* *             - added workaround for faulty PhotoShop iCCP chunk         * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1334,6 +1336,19 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_ordr_entry (mng_handle       hHandle,
                                                       mng_chunkid      *iChunkname,
                                                       mng_uint8        *iOrdertype);
 
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_magn       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint16       *iFirstid,
+                                                      mng_uint16       *iLastid,
+                                                      mng_uint16       *iMethodX,
+                                                      mng_uint16       *iMX,
+                                                      mng_uint16       *iMY,
+                                                      mng_uint16       *iML,
+                                                      mng_uint16       *iMR,
+                                                      mng_uint16       *iMT,
+                                                      mng_uint16       *iMB,
+                                                      mng_uint16       *iMethodY);
+
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_unknown    (mng_handle       hHandle,
                                                       mng_handle       hChunk,
                                                       mng_chunkid      *iChunkname,
@@ -1714,6 +1729,18 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_ordr_entry (mng_handle       hHandle,
                                                       mng_chunkid      iChunkname,
                                                       mng_uint8        iOrdertype);
 
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_magn       (mng_handle       hHandle,
+                                                      mng_uint16       iFirstid,
+                                                      mng_uint16       iLastid,
+                                                      mng_uint16       iMethodX,
+                                                      mng_uint16       iMX,
+                                                      mng_uint16       iMY,
+                                                      mng_uint16       iML,
+                                                      mng_uint16       iMR,
+                                                      mng_uint16       iMT,
+                                                      mng_uint16       iMB,
+                                                      mng_uint16       iMethodY);
+
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_unknown    (mng_handle       hHandle,
                                                       mng_chunkid      iChunkname,
                                                       mng_uint32       iRawlen,
@@ -1996,9 +2023,11 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UINT_JHDR 0x4a484452L
 #define MNG_UINT_JSEP 0x4a534550L
 #define MNG_UINT_LOOP 0x4c4f4f50L
+#define MNG_UINT_MAGN 0x4d41474eL
 #define MNG_UINT_MEND 0x4d454e44L
 #define MNG_UINT_MHDR 0x4d484452L
 #define MNG_UINT_MOVE 0x4d4f5645L
+#define MNG_UINT_MaGN 0x4d61474eL
 #define MNG_UINT_ORDR 0x4f524452L
 #define MNG_UINT_PAST 0x50415354L
 #define MNG_UINT_PLTE 0x504c5445L

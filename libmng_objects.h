@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_objects.h          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Internal object structures (definition)                    * */
 /* *                                                                        * */
@@ -38,6 +38,9 @@
 /* *                                                                        * */
 /* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
 /* *             - changed file-prefixes                                    * */
+/* *                                                                        * */
+/* *             0.9.3 - 08/26/2000 - G.Juyn                                * */
+/* *             - added MAGN chunk                                         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -153,6 +156,14 @@ typedef struct {                                 /* MNG specification "object" *
            mng_int32         iClipr;
            mng_int32         iClipt;
            mng_int32         iClipb;
+           mng_uint16        iMAGN_MethodX;      /* magnification (MAGN) */
+           mng_uint16        iMAGN_MethodY;
+           mng_uint16        iMAGN_MX;
+           mng_uint16        iMAGN_MY;
+           mng_uint16        iMAGN_ML;
+           mng_uint16        iMAGN_MR;
+           mng_uint16        iMAGN_MT;
+           mng_uint16        iMAGN_MB;
            mng_imagedatap    pImgbuf;            /* the image-data buffer */
         } mng_image;
 typedef mng_image * mng_imagep;
@@ -450,6 +461,23 @@ typedef struct {                                 /* PPLT object */
            mng_uint8arr      aUsedentries;
         } mng_ani_pplt;
 typedef mng_ani_pplt * mng_ani_ppltp;
+
+/* ************************************************************************** */
+
+typedef struct {                                 /* MAGN object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint16        iFirstid;
+           mng_uint16        iLastid;
+           mng_uint16        iMethodX;
+           mng_uint16        iMX;
+           mng_uint16        iMY;
+           mng_uint16        iML;
+           mng_uint16        iMR;
+           mng_uint16        iMT;
+           mng_uint16        iMB;
+           mng_uint16        iMethodY;
+        } mng_ani_magn;
+typedef mng_ani_magn * mng_ani_magnp;
 
 /* ************************************************************************** */
 
