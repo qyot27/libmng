@@ -844,7 +844,11 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
       if (pData->bSuspended)           /* suspended ? */
         pData->iSuspendpoint = 2;
       else                             /* save the length */
+      {
         pData->iChunklen = mng_get_uint32 (pBuf);
+        if (pData->iChunklen > 0x7ffffff)
+           return MNG_INVALIDLENGTH;
+      }
 
     }
 
