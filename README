@@ -9,7 +9,7 @@ And a number of functions have been added to facilitate in integrating
 the library in a multitude of applications, as these were the result of
 requests from several implementors.
 
-This is another release candidate. If no significant problems are discovered
+This is another release candidate. If no significant problems are discovered,
 libmng 1.0.0 will be just around the corner!
 
 

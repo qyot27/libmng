@@ -1,7 +1,7 @@
 -----------------------------------------------------------
 
-0.9.3 (October nth 2000)
-------------------------
+0.9.3 (October 29th 2000)
+-------------------------
 
 in short:
 
@@ -11,13 +11,16 @@ no need to withhold some new functionality as it was pretty clear there was
 going to be another beta-round. If things go well, I'm going to try to release
 libmng 1.0.0 very shortly after this one.
 
+Many thanks to a lot of people for helping out, sending contributions, making
+suggestions and testing this little baby. This would get nowhere without YOU!!!
+
 - fixed bug 111300/117103
 - added workaround for faulty PhotoShop iCCP chunk
 - added MAGN/JDAA chunks
 - added support for new filter_types
 - added PNG/MNG spec version indicators
 - added BCB mngview contribution by Andy Protano
-- added BCB mngdump; a GUI-based MNG dumping utility (by Andy Protano)
+- added BCB mngdump; a GUI-based MNG dumping utility (Andy Protano)
 - implemented support for nEED "draft nn"
 - implemented app-defined support for bKGD for PNG images
 - removed trace-options from default SO/DLL builds (!!!)
@@ -30,7 +33,7 @@ libmng 1.0.0 very shortly after this one.
 
 bugfixes:
 - B111300 - fixup for improved portability
-- B117103 - fixed compilation errors on *nix with lcms
+- B117103 - fixed compilation errors on *nix with lcms (thanks Ralph!)
 
 core:
 - fixed compiler-warnings from Mozilla
@@ -62,32 +65,34 @@ core:
 - added functions to retrieve PNG/JNG specific header-info
 - added optional support for bKGD for PNG images
 - raised initial maximum canvas size to 10000x10000
-- added support for delta-JNG                             
-- added callback to process non-critical unknown chunks   
+- added support for delta-JNG
+- added callback to process non-critical unknown chunks
 - fixed support for delta-images during read() / display()
-- added closestream() processing for mng_cleanup()        
-- fixed delta-processing behavior                         
+- added closestream() processing for mng_cleanup()
+- fixed delta-processing behavior
 - added storage for pixel-/alpha-sampledepth for delta's
-- implemented delayed delta-processing                    
-- fixed putchunk_plte() to set bEmpty parameter (thanks Ben!)            
-- added errorcode for delayed delta-processing            
-- added get/set for bKGD preference setting                
+- implemented delayed delta-processing
+- fixed putchunk_plte() to set bEmpty parameter (thanks Ben!)
+- added errorcode for delayed delta-processing
+- added get/set for bKGD preference setting
 - added get function for interlace/progressive display
 - fixed bug in empty PLTE handling
-- fixed seperate read() & display() processing          
+- fixed seperate read() & display() processing
 - fixed tRNS processing for gray-image < 8-bits
 
 samples:
 - added BCB mngview contribution by Andy Protano
 
 contrib:
-- added BCB mngdump; a GUI-based MNG dumping utility (by Andy Protano)
+- added BCB mngdump; a GUI-based MNG dumping utility (Andy Protano)
 
 doc:
 - updated RPM spec-file by MATSUURA Takanori
+- updated README.contrib
 
 makefiles:
 - fixed some stuff in automake/autoconf/libtool
+- fixed auto* for bug B117103
 
 -----------------------------------------------------------
 
