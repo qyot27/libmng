@@ -1,4 +1,4 @@
-libmng - Multiple-image Network Graphics (MNG) Reference Library 1.0.7
+libmng - Multiple-image Network Graphics (MNG) Reference Library 1.0.8
 
 DESCRIPTION
 The libmng library supports decoding, displaying, encoding, and various

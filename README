@@ -1,11 +1,8 @@
-libmng 1.0.7
+libmng 1.0.8
 ------------
 
-Minor upgrade for Mozilla re-integration.
-
-A bunch of new canvas-styles thanks to Raphael Assenat and John Stiles.
-A couple of bug-fixes & cleaning up warnings.
-Also upgraded to the latest zlib/lcms releases.
+Added special data-pushing mechanisms and a few other tid-bits.
+See CHANGELOG for details.
 
 
 Y.T.
