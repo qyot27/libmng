@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating MNG format files.
 Name: libmng
 Version: 0.9.2
-Release: 2
+Release: 2.1
 Copyright: AS IS
 Group: System Environment/Libraries
 Source0: libmng-%{PACKAGE_VERSION}.tar.gz
@@ -29,6 +29,10 @@ files, you should install libmng-devel.  You'll also need to install
 the libmng package.
 
 %changelog
+* Tue Aug 15 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
+- based on libmng-0.9.2/doc/rpm/libmng.spec
+- use %%configure and %%makeinstall
+
 * Sat Aug  5 2000 Gerard Juyn <gerard@libmng.com>
 - updated to 0.9.2
 
@@ -42,18 +46,15 @@ the libmng package.
 - 1st release for RPM
 
 %prep
-%setup -n libmng
-ln -s makefiles/makefile.linux Makefile
-%patch -p1 -b .rhconf
+%setup
+%configure
 
 %build
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/{lib,include}
-make install prefix=$RPM_BUILD_ROOT/usr
-strip -R .comments --strip-unneeded $RPM_BUILD_ROOT/usr/lib/libmng.so.0.%{PACKAGE_VERSION}
+%makeinstall
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -64,7 +65,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc changes.readme license.readme readme doc/*
+%doc CHANGES LICENSE README doc
 /usr/lib/libmng.so.*
 
 %files devel
@@ -72,3 +73,4 @@ rm -rf $RPM_BUILD_ROOT
 /usr/include/*
 /usr/lib/libmng.a
 /usr/lib/libmng.so
+
