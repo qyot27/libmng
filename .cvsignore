@@ -1,5 +1,9 @@
 libmng.so
 libmng.so.*
+*.lo
+*.la
+.libs
+.deps
 Makefile
 Makefile.in
 aclocal.m4
