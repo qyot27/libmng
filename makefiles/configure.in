@@ -36,6 +36,13 @@ AC_CHECK_FUNC(pow, , AC_CHECK_LIB(m, pow, LIBS="$LIBS -lm"))
 dnl what functionality we want to add (read, write, display).
 dnl all on by default. see libmng_conf.h for full descriptions
 
+dnl not building a standard shared object?
+AC_ARG_ENABLE(buildso,
+[  --disable-buildso       disable building standard shared object])
+if test "x$enable_buildso" != "xno"; then
+  AC_DEFINE(MNG_BUILD_SO)
+fi
+
 dnl we only support the full mng spec for now (no LC or VLC)
 AC_DEFINE(MNG_SUPPORT_FULL)
 
@@ -60,6 +67,13 @@ if test "x$enable_display" != "xno"; then
   AC_DEFINE(MNG_SUPPORT_DISPLAY)
 fi
 
+dnl remove support for 'dynamic' MNG?
+AC_ARG_ENABLE(dynamic,
+[  --disable-dynamic       remove dynamic MNG support from library])
+if test "x$enable_dynamic" != "xno"; then
+  AC_DEFINE(MNG_SUPPORT_DYNAMICMNG)
+fi
+
 dnl remove support in library to access chunks?
 AC_ARG_ENABLE(chunks,
 [  --disable-chunks        remove support for chunk access])
@@ -69,11 +83,10 @@ fi
 
 dnl disable support for accessing chunks that have been previously read?
 AC_ARG_ENABLE(storechunks,
-[  --disable-storechunks   remove support for access of previous chunks],[
+[  --disable-storechunks   remove support for access of previous chunks])
 if test "x$enable_storechunks" != "xno"; then
   AC_DEFINE(MNG_STORE_CHUNKS)
 fi
-])
 
 dnl enable support for debug tracing callbacks and messages?
 AC_ARG_ENABLE(trace,

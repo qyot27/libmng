@@ -146,6 +146,8 @@
 /* *             - added another fix for misplaced TERM chunk               * */
 /* *             - completed support for condition=2 in TERM chunk          * */
 /* *             - added beta version function & constant                   * */
+/* *             1.0.5 - 10/11/2002 - G.Juyn                                * */
+/* *             - added mng_status_dynamic to supports function            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -850,6 +852,7 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_setcb_writedata",        1, 0, 0},
     {"mng_status_creating",        1, 0, 0},
     {"mng_status_displaying",      1, 0, 0},
+    {"mng_status_dynamic",         1, 0, 5},
     {"mng_status_error",           1, 0, 0},
     {"mng_status_reading",         1, 0, 0},
     {"mng_status_running",         1, 0, 0},
