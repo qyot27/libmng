@@ -657,20 +657,20 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
                                             mng_chunkp      pHeader,
                                             mng_uint32      iRawlen,
                                             mng_uint8p      pRawdata,
-                                            mng_field_descp pField,
+                                            mng_field_desc2p pField,
                                             mng_uint16      iFields,
                                             mng_chunkp*     ppChunk,
                                             mng_bool        bWorkcopy)
 {
-  mng_field_descp pTempfield  = pField;
-  mng_uint16      iFieldcount = iFields;
-  mng_uint8p      pTempdata   = pRawdata;
-  mng_uint32      iTemplen    = iRawlen;
-  mng_uint16      iLastgroup  = 0;
-  mng_uint8p      pChunkdata;
-  mng_uint32      iDatalen;
-  mng_uint8       iColortype;
-  mng_bool        bProcess;
+  mng_field_desc2p pTempfield  = pField;
+  mng_uint16       iFieldcount = iFields;
+  mng_uint8p       pTempdata   = pRawdata;
+  mng_uint32       iTemplen    = iRawlen;
+  mng_uint16       iLastgroup  = 0;
+  mng_uint8p       pChunkdata;
+  mng_uint32       iDatalen;
+  mng_uint8        iColortype;
+  mng_bool         bProcess;
                                        /* initialize storage */
   mng_retcode iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
   if (iRetcode)                        /* on error bail out */
@@ -870,10 +870,10 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
 
 READ_CHUNK (mng_read_general)
 {
-  mng_chunk_descp pDescr  = ((mng_chunk_headerp)pHeader)->pChunkdescr;
-  mng_field_descp pField  = pDescr->pFielddesc;
-  mng_uint16      iFields = pDescr->iFielddesc;
-  mng_retcode     iRetcode;
+  mng_chunk_descp  pDescr  = ((mng_chunk_headerp)pHeader)->pChunkdescr;
+  mng_field_desc2p pField  = pDescr->pFielddesc;
+  mng_uint16       iFields = pDescr->iFielddesc;
+  mng_retcode      iRetcode;
 
   if (!pDescr)                         /* this is a bad booboo !!! */
     MNG_ERROR (pData, MNG_INTERNALERROR)

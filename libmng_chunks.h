@@ -117,19 +117,32 @@ typedef mng_retcode (*mng_c_specialfunc)  (mng_datap  pData,
 
 typedef struct {                       /* chunk-field descriptor */
            mng_f_specialfunc pSpecialfunc;
+           mng_uint16        iFlags;
            mng_uint16        iMinvalue;
            mng_uint16        iMaxvalue;
            mng_uint16        iLengthmin;
            mng_uint16        iLengthmax;
            mng_uint16        iOffsetchunk;
-           mng_uint16        iOffsetobject;
            mng_uint16        iOffsetchunkind;
-           mng_uint16        iOffsetobjectind;
            mng_uint16        iOffsetchunklen;
+           mng_uint16        iOffsetobject;
+           mng_uint16        iOffsetobjectind;
            mng_uint16        iOffsetobjectlen;
-           mng_uint16        iFlags;
         } mng_field_descriptor;
 typedef mng_field_descriptor * mng_field_descp;
+
+typedef struct {                       /* chunk-field descriptor (short) */
+           mng_f_specialfunc pSpecialfunc;
+           mng_uint16        iFlags;
+           mng_uint16        iMinvalue;
+           mng_uint16        iMaxvalue;
+           mng_uint16        iLengthmin;
+           mng_uint16        iLengthmax;
+           mng_uint16        iOffsetchunk;
+           mng_uint16        iOffsetchunkind;
+           mng_uint16        iOffsetchunklen;
+        } mng_field_descriptor2;
+typedef mng_field_descriptor2 * mng_field_desc2p;
 
 #define MNG_DESCR_GLOBAL      0x0001
 #define MNG_DESCR_EMPTY       0x0002
@@ -535,11 +548,11 @@ typedef struct {                       /* BASI */
            mng_uint16        iRed;
            mng_uint16        iGreen;
            mng_uint16        iBlue;
-           mng_uint16        iAlpha;
-           mng_uint8         iViewable;
 #ifdef MNG_OPTIMIZE_CHUNKREADER
            mng_bool          bHasalpha;
 #endif
+           mng_uint16        iAlpha;
+           mng_uint8         iViewable;
         } mng_basi;
 typedef mng_basi * mng_basip;
 
@@ -550,15 +563,15 @@ typedef struct {                       /* CLON */
            mng_uint16        iSourceid;
            mng_uint16        iCloneid;
            mng_uint8         iClonetype;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+           mng_bool          bHasdonotshow;
+#endif
            mng_uint8         iDonotshow;
            mng_uint8         iConcrete;
            mng_bool          bHasloca;
            mng_uint8         iLocationtype;
            mng_int32         iLocationx;
            mng_int32         iLocationy;
-#ifdef MNG_OPTIMIZE_CHUNKREADER
-           mng_bool          bHasdonotshow;
-#endif
         } mng_clon;
 typedef mng_clon * mng_clonp;
 
@@ -670,11 +683,11 @@ typedef struct {                       /* SHOW */
            mng_chunk_header  sHeader;
            mng_bool          bEmpty;
            mng_uint16        iFirstid;
-           mng_uint16        iLastid;
-           mng_uint8         iMode;
 #ifdef MNG_OPTIMIZE_CHUNKREADER
            mng_bool          bHaslastid;
 #endif
+           mng_uint16        iLastid;
+           mng_uint8         iMode;
         } mng_show;
 typedef mng_show * mng_showp;
 
@@ -812,14 +825,16 @@ typedef struct {                       /* DHDR */
            mng_uint16        iObjectid;
            mng_uint8         iImagetype;
            mng_uint8         iDeltatype;
-           mng_uint32        iBlockwidth;
-           mng_uint32        iBlockheight;
-           mng_uint32        iBlockx;
-           mng_uint32        iBlocky;
 #ifdef MNG_OPTIMIZE_CHUNKREADER
            mng_bool          bHasblocksize;
+#endif
+           mng_uint32        iBlockwidth;
+           mng_uint32        iBlockheight;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
            mng_bool          bHasblockloc;
 #endif
+           mng_uint32        iBlockx;
+           mng_uint32        iBlocky;
         } mng_dhdr;
 typedef mng_dhdr * mng_dhdrp;
 

@@ -50,477 +50,361 @@
 /* ************************************************************************** */
 /* PNG chunks */
 
-mng_field_descriptor mng_fields_ihdr [] =
+mng_field_descriptor2 mng_fields_ihdr [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
      1, 0, 4, 4,
-     offsetof(mng_ihdr, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT},
+     offsetof(mng_ihdr, iWidth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
      1, 0, 4, 4,
-     offsetof(mng_ihdr, iHeight), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT},
+     offsetof(mng_ihdr, iHeight), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      1, 16, 1, 1,
-     offsetof(mng_ihdr, iBitdepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_ihdr, iBitdepth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 6, 1, 1,
-     offsetof(mng_ihdr, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_ihdr, iColortype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_ihdr, iCompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_ihdr, iCompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_ihdr, iFilter), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_ihdr, iFilter), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_ihdr, iInterlace), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_ihdr, iInterlace), MNG_NULL, MNG_NULL}
   };
 
 /* ************************************************************************** */
 
-mng_field_descriptor mng_fields_plte [] =
+mng_field_descriptor2 mng_fields_plte [] =
   {
     {mng_debunk_plte,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 
 /* ************************************************************************** */
 
-mng_field_descriptor mng_fields_idat [] =
+mng_field_descriptor2 mng_fields_idat [] =
   {
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 0, 0,
-     offsetof(mng_idat, pData), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_idat, iDatasize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_idat, pData), MNG_NULL, offsetof(mng_idat, iDatasize)}
   };
 
 /* ************************************************************************** */
 
-mng_field_descriptor mng_fields_trns [] =
+mng_field_descriptor2 mng_fields_trns [] =
   {
     {mng_debunk_trns,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_gAMA
-mng_field_descriptor mng_fields_gama [] =
+mng_field_descriptor2 mng_fields_gama [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_gama, iGamma), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_gama, iGamma), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_cHRM
-mng_field_descriptor mng_fields_chrm [] =
+mng_field_descriptor2 mng_fields_chrm [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iWhitepointx), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iWhitepointx), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iWhitepointy), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iWhitepointy), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iRedx), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iRedx), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iRedy), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iRedy), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iGreeny), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iGreeny), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iGreeny), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iGreeny), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iBluex), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_chrm, iBluex), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_chrm, iBluey), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_chrm, iBluey), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sRGB
-mng_field_descriptor mng_fields_srgb [] =
+mng_field_descriptor2 mng_fields_srgb [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 4, 1, 1,
-     offsetof(mng_srgb, iRenderingintent), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_srgb, iRenderingintent), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_iCCP
-mng_field_descriptor mng_fields_iccp [] =
+mng_field_descriptor2 mng_fields_iccp [] =
   {
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 1, 79,
-     offsetof(mng_iccp, zName), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_iccp, iNamesize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_iccp, zName), MNG_NULL, offsetof(mng_iccp, iNamesize)},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_iccp, iCompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_iccp, iCompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_DEFLATED,
      0, 0, 0, 0,
-     offsetof(mng_iccp, pProfile), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_iccp, iProfilesize), MNG_NULL,
-     MNG_FIELD_DEFLATED}
+     offsetof(mng_iccp, pProfile), MNG_NULL, offsetof(mng_iccp, iProfilesize)}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_tEXt
-mng_field_descriptor mng_fields_text [] =
+mng_field_descriptor2 mng_fields_text [] =
   {
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 1, 79,
-     offsetof(mng_text, zKeyword), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_text, iKeywordsize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_text, zKeyword), MNG_NULL, offsetof(mng_text, iKeywordsize)},
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 0, 0,
-     offsetof(mng_text, zText), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_text, iTextsize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_text, zText), MNG_NULL, offsetof(mng_text, iTextsize)}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_zTXt
-mng_field_descriptor mng_fields_ztxt [] =
+mng_field_descriptor2 mng_fields_ztxt [] =
   {
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 1, 79,
-     offsetof(mng_ztxt, zKeyword), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_ztxt, iKeywordsize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_ztxt, zKeyword), MNG_NULL, offsetof(mng_ztxt, iKeywordsize)},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_ztxt, iCompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_ztxt, iCompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_DEFLATED,
      0, 0, 0, 0,
-     offsetof(mng_ztxt, zText), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_ztxt, iTextsize), MNG_NULL,
-     MNG_FIELD_DEFLATED}
+     offsetof(mng_ztxt, zText), MNG_NULL, offsetof(mng_ztxt, iTextsize)}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_iTXt
-mng_field_descriptor mng_fields_itxt [] =
+mng_field_descriptor2 mng_fields_itxt [] =
   {
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 1, 79,
-     offsetof(mng_itxt, zKeyword), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_itxt, iKeywordsize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_itxt, zKeyword), MNG_NULL, offsetof(mng_itxt, iKeywordsize)},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_itxt, iCompressionflag), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_itxt, iCompressionflag), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_itxt, iCompressionmethod), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_itxt, iCompressionmethod), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 0, 0,
-     offsetof(mng_itxt, zLanguage), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_itxt, iLanguagesize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_itxt, zLanguage), MNG_NULL, offsetof(mng_itxt, iLanguagesize)},
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR,
      0, 0, 0, 0,
-     offsetof(mng_itxt, zTranslation), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_itxt, iTranslationsize), MNG_NULL,
-     MNG_FIELD_TERMINATOR},
+     offsetof(mng_itxt, zTranslation), MNG_NULL, offsetof(mng_itxt, iTranslationsize)},
     {mng_deflate_itxt,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_bKGD
-mng_field_descriptor mng_fields_bkgd [] =
+mng_field_descriptor2 mng_fields_bkgd [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE,
      0, 0, 0, 0,
-     offsetof(mng_bkgd, iType), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE},
+     offsetof(mng_bkgd, iType), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE3,
      0, 0xFF, 1, 1,
-     offsetof(mng_bkgd, iIndex), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE3},
+     offsetof(mng_bkgd, iIndex), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE0 | MNG_FIELD_IFIMGTYPE4,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_bkgd, iGray), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE0 | MNG_FIELD_IFIMGTYPE4},
+     offsetof(mng_bkgd, iGray), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_bkgd, iRed), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6},
+     offsetof(mng_bkgd, iRed), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_bkgd, iGreen), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6},
+     offsetof(mng_bkgd, iGreen), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_bkgd, iBlue), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE6}
+     offsetof(mng_bkgd, iBlue), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_pHYs
-mng_field_descriptor mng_fields_phys [] =
+mng_field_descriptor2 mng_fields_phys [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_phys, iSizex), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_phys, iSizex), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_phys, iSizey), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_phys, iSizey), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_phys, iUnit), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_phys, iUnit), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sBIT
-mng_field_descriptor mng_fields_sbit [] =
+mng_field_descriptor2 mng_fields_sbit [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE,
      0, 0, 0, 0,
-     offsetof(mng_sbit, iType), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_PUTIMGTYPE},
+     offsetof(mng_sbit, iType), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPES,
      0, 0xFF, 1, 1,
-     offsetof(mng_sbit, aBits[0]), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPES},
+     offsetof(mng_sbit, aBits[0]), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE4 | MNG_FIELD_IFIMGTYPE6,
      0, 0xFF, 1, 1,
-     offsetof(mng_sbit, aBits[1]), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE4 | MNG_FIELD_IFIMGTYPE6},
+     offsetof(mng_sbit, aBits[1]), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE6,
      0, 0xFF, 1, 1,
-     offsetof(mng_sbit, aBits[2]), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE2 | MNG_FIELD_IFIMGTYPE3 | MNG_FIELD_IFIMGTYPE6},
+     offsetof(mng_sbit, aBits[2]), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE6,
      0, 0xFF, 1, 1,
-     offsetof(mng_sbit, aBits[3]), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_IFIMGTYPE6}
+     offsetof(mng_sbit, aBits[3]), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_sPLT
-mng_field_descriptor mng_fields_splt [] =
+mng_field_descriptor2 mng_fields_splt [] =
   {
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 79,
-     offsetof(mng_splt, zName), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_splt, iNamesize), MNG_NULL,
-     MNG_NULL},
+     offsetof(mng_splt, zName), MNG_NULL, offsetof(mng_splt, iNamesize)},
     {MNG_NULL,
+     MNG_FIELD_INT,
      8, 16, 1, 1,
-     offsetof(mng_splt, iSampledepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_splt, iSampledepth), MNG_NULL, MNG_NULL},
     {mng_splt_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_hIST
-mng_field_descriptor mng_fields_hist [] =
+mng_field_descriptor2 mng_fields_hist [] =
   {
     {mng_hist_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_tIME
-mng_field_descriptor mng_fields_time [] =
+mng_field_descriptor2 mng_fields_time [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_time, iYear), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_time, iYear), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      1, 12, 1, 1,
-     offsetof(mng_time, iMonth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_time, iMonth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      1, 31, 1, 1,
-     offsetof(mng_time, iDay), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_time, iDay), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 24, 1, 1,
-     offsetof(mng_time, iHour), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_time, iHour), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 60, 1, 1,
-     offsetof(mng_time, iMinute), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_time, iMinute), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 60, 1, 1,
-     offsetof(mng_time, iSecond), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_time, iSecond), MNG_NULL, MNG_NULL}
   };
 #endif
 
@@ -529,698 +413,507 @@ mng_field_descriptor mng_fields_time [] =
 /* JNG chunks */
 
 #ifdef MNG_INCLUDE_JNG
-mng_field_descriptor mng_fields_jhdr [] =
+mng_field_descriptor2 mng_fields_jhdr [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
      1, 0, 4, 4,
-     offsetof(mng_jhdr, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT},
+     offsetof(mng_jhdr, iWidth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT,
      1, 0, 4, 4,
-     offsetof(mng_jhdr, iHeight), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_NOHIGHBIT},
+     offsetof(mng_jhdr, iHeight), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      8, 16, 1, 1,
-     offsetof(mng_jhdr, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iColortype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      8, 20, 1, 1,
-     offsetof(mng_jhdr, iImagesampledepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iImagesampledepth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      8, 8, 1, 1,
-     offsetof(mng_jhdr, iImagecompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iImagecompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 8, 1, 1,
-     offsetof(mng_jhdr, iImageinterlace), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iImageinterlace), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 16, 1, 1,
-     offsetof(mng_jhdr, iAlphasampledepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iAlphasampledepth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 8, 1, 1,
-     offsetof(mng_jhdr, iAlphacompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iAlphacompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_jhdr, iAlphafilter), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_jhdr, iAlphafilter), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_jhdr, iAlphainterlace), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_jhdr, iAlphainterlace), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifdef MNG_INCLUDE_JNG
-mng_field_descriptor mng_fields_jdaa [] =
-  {
-    {MNG_NULL,
-     0, 0, 0, 0,
-     offsetof(mng_jdaa, pData), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_jdaa, iDatasize), MNG_NULL,
-     MNG_NULL}
-  };
-#endif
-
-/* ************************************************************************** */
-
-#ifdef MNG_INCLUDE_JNG
-mng_field_descriptor mng_fields_jdat [] =
-  {
-    {MNG_NULL,
-     0, 0, 0, 0,
-     offsetof(mng_jdat, pData), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_jdat, iDatasize), MNG_NULL,
-     MNG_NULL}
-  };
+#define mng_fields_jdaa mng_fields_idat
+#define mng_fields_jdat mng_fields_idat
 #endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
 /* MNG chunks */
 
-mng_field_descriptor mng_fields_mhdr [] =
+mng_field_descriptor2 mng_fields_mhdr [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iWidth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iHeight), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iHeight), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iTicks), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iTicks), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iLayercount), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iLayercount), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iFramecount), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iFramecount), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iPlaytime), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_mhdr, iPlaytime), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_mhdr, iSimplicity), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_mhdr, iSimplicity), MNG_NULL, MNG_NULL}
   };
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_field_descriptor mng_fields_loop [] =
+mng_field_descriptor2 mng_fields_loop [] =
   {
     {mng_debunk_loop,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_LOOP
-mng_field_descriptor mng_fields_endl [] =
+mng_field_descriptor2 mng_fields_endl [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFF, 1, 1,
-     offsetof(mng_endl, iLevel), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_endl, iLevel), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_DEFI
-mng_field_descriptor mng_fields_defi [] =
+mng_field_descriptor2 mng_fields_defi [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_defi, iObjectid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_defi, iObjectid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 0xFF, 1, 1,
-     offsetof(mng_defi, iDonotshow), MNG_NULL,
-     offsetof(mng_defi, bHasdonotshow), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_defi, iDonotshow), offsetof(mng_defi, bHasdonotshow), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 0xFF, 1, 1,
-     offsetof(mng_defi, iConcrete), MNG_NULL,
-     offsetof(mng_defi, bHasconcrete), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_defi, iConcrete), offsetof(mng_defi, bHasconcrete), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_defi, iXlocation), MNG_NULL,
-     offsetof(mng_defi, bHasloca), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_defi, iXlocation), offsetof(mng_defi, bHasloca), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_defi, iYlocation), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_defi, iYlocation), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_defi, iLeftcb), MNG_NULL,
-     offsetof(mng_defi, bHasclip), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2},
+     offsetof(mng_defi, iLeftcb), offsetof(mng_defi, bHasclip), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_defi, iRightcb), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2},
+     offsetof(mng_defi, iRightcb), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_defi, iTopcb), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2},
+     offsetof(mng_defi, iTopcb), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_defi, iBottomcb), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2}
+     offsetof(mng_defi, iBottomcb), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_BASI
-mng_field_descriptor mng_fields_basi [] =
+mng_field_descriptor2 mng_fields_basi [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_basi, iWidth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iWidth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_basi, iHeight), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iHeight), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      1, 16, 1, 1,
-     offsetof(mng_basi, iBitdepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iBitdepth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 6, 1, 1,
-     offsetof(mng_basi, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iColortype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_basi, iCompression), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iCompression), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 1, 1,
-     offsetof(mng_basi, iFilter), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iFilter), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_basi, iInterlace), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_basi, iInterlace), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_basi, iRed), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_basi, iRed), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_basi, iGreen), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_basi, iGreen), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_basi, iBlue), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_basi, iBlue), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_basi, iAlpha), MNG_NULL,
-     offsetof(mng_basi, bHasalpha), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_basi, iAlpha), offsetof(mng_basi, bHasalpha), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 1, 1, 1,
-     offsetof(mng_basi, iViewable), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL}
+     offsetof(mng_basi, iViewable), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLON
-mng_field_descriptor mng_fields_clon [] =
+mng_field_descriptor2 mng_fields_clon [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_clon, iSourceid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clon, iSourceid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_clon, iCloneid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clon, iCloneid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 2, 1, 1,
-     offsetof(mng_clon, iClonetype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_clon, iClonetype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 1, 1, 1,
-     offsetof(mng_clon, iDonotshow), MNG_NULL,
-     offsetof(mng_clon, bHasdonotshow), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_clon, iDonotshow), offsetof(mng_clon, bHasdonotshow), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 1, 1, 1,
-     offsetof(mng_clon, iConcrete), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_clon, iConcrete), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 2, 1, 1,
-     offsetof(mng_clon, iLocationtype), MNG_NULL,
-     offsetof(mng_clon, bHasloca), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_clon, iLocationtype), offsetof(mng_clon, bHasloca), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_clon, iLocationx), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_clon, iLocationx), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_clon, iLocationy), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1}
+     offsetof(mng_clon, iLocationy), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_PAST
-mng_field_descriptor mng_fields_past [] =
+mng_field_descriptor2 mng_fields_past [] =
   {
     {mng_debunk_past,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_DISC
-mng_field_descriptor mng_fields_disc [] =
+mng_field_descriptor2 mng_fields_disc [] =
   {
     {mng_disc_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_BACK
-mng_field_descriptor mng_fields_back [] =
+mng_field_descriptor2 mng_fields_back [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_back, iRed), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_back, iRed), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_back, iGreen), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_back, iGreen), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_back, iBlue), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_back, iBlue), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 3, 1, 1,
-     offsetof(mng_back, iMandatory), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_back, iMandatory), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_back, iImageid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_back, iImageid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 1, 1, 1,
-     offsetof(mng_back, iTile), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL}
+     offsetof(mng_back, iTile), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_FRAM
-mng_field_descriptor mng_fields_fram [] =
+mng_field_descriptor2 mng_fields_fram [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 4, 1, 1,
-     offsetof(mng_fram, iMode), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_fram, iMode), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_TERMINATOR | MNG_FIELD_OPTIONAL,
      0, 0, 1, 79,
-     offsetof(mng_fram, zName), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_fram, iNamesize), MNG_NULL,
-     MNG_FIELD_TERMINATOR | MNG_FIELD_OPTIONAL},
+     offsetof(mng_fram, zName), MNG_NULL, offsetof(mng_fram, iNamesize)},
     {mng_fram_remainder,
+     MNG_FIELD_OPTIONAL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_OPTIONAL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MOVE
-mng_field_descriptor mng_fields_move [] =
+mng_field_descriptor2 mng_fields_move [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_move, iFirstid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_move, iFirstid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_move, iLastid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_move, iLastid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_move, iMovetype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_move, iMovetype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_move, iMovex), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_move, iMovex), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_move, iMovey), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_move, iMovey), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_CLIP
-mng_field_descriptor mng_fields_clip [] =
+mng_field_descriptor2 mng_fields_clip [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_clip, iFirstid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iFirstid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_clip, iLastid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iLastid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_clip, iCliptype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iCliptype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_clip, iClipl), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iClipl), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_clip, iClipr), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iClipr), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_clip, iClipt), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_clip, iClipt), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_clip, iClipb), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_clip, iClipb), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SHOW
-mng_field_descriptor mng_fields_show [] =
+mng_field_descriptor2 mng_fields_show [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      1, 0xFFFF, 2, 2,
-     offsetof(mng_show, iFirstid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_show, iFirstid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      1, 0xFFFF, 2, 2,
-     offsetof(mng_show, iLastid), MNG_NULL,
-     offsetof(mng_show, bHaslastid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_show, iLastid), offsetof(mng_show, bHaslastid), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL,
      0, 7, 1, 1,
-     offsetof(mng_show, iMode), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL},
+     offsetof(mng_show, iMode), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_TERM
-mng_field_descriptor mng_fields_term [] =
+mng_field_descriptor2 mng_fields_term [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 3, 1, 1,
-     offsetof(mng_term, iTermaction), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_term, iTermaction), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 2, 1, 1,
-     offsetof(mng_term, iIteraction), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_term, iIteraction), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_term, iDelay), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_term, iDelay), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_term, iItermax), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1}
+     offsetof(mng_term, iItermax), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SAVE
-mng_field_descriptor mng_fields_save [] =
+mng_field_descriptor2 mng_fields_save [] =
   {
     {mng_save_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_SEEK
-mng_field_descriptor mng_fields_seek [] =
+mng_field_descriptor2 mng_fields_seek [] =
   {
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 79,
-     offsetof(mng_seek, zName), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_seek, iNamesize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_seek, zName), MNG_NULL, offsetof(mng_seek, iNamesize)}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_eXPI
-mng_field_descriptor mng_fields_expi [] =
+mng_field_descriptor2 mng_fields_expi [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_expi, iSnapshotid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_expi, iSnapshotid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 79,
-     offsetof(mng_expi, zName), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_expi, iNamesize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_expi, zName), MNG_NULL, offsetof(mng_expi, iNamesize)}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_fPRI
-mng_field_descriptor mng_fields_fpri [] =
+mng_field_descriptor2 mng_fields_fpri [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_fpri, iDeltatype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_fpri, iDeltatype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFF, 1, 1,
-     offsetof(mng_fpri, iPriority), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_fpri, iPriority), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_nEED
-mng_field_descriptor mng_fields_need [] =
+mng_field_descriptor2 mng_fields_need [] =
   {
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 0,
-     offsetof(mng_need, zKeywords), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_need, iKeywordssize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_need, zKeywords), MNG_NULL, offsetof(mng_need, iKeywordssize)}
   };
 #endif
 
@@ -1233,110 +926,84 @@ mng_field_descriptor mng_fields_need [] =
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor mng_fields_dhdr [] =
+mng_field_descriptor2 mng_fields_dhdr [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0xFFFF, 2, 2,
-     offsetof(mng_dhdr, iObjectid), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_dhdr, iObjectid), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 2, 1, 1,
-     offsetof(mng_dhdr, iImagetype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_dhdr, iImagetype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 7, 1, 1,
-     offsetof(mng_dhdr, iDeltatype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_dhdr, iDeltatype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_dhdr, iBlockwidth), MNG_NULL,
-     offsetof(mng_dhdr, bHasblocksize), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_dhdr, iBlockwidth), offsetof(mng_dhdr, bHasblocksize), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1,
      0, 0, 4, 4,
-     offsetof(mng_dhdr, iBlockheight), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP1},
+     offsetof(mng_dhdr, iBlockheight), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_dhdr, iBlockx), MNG_NULL,
-     offsetof(mng_dhdr, bHasblockloc), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2},
+     offsetof(mng_dhdr, iBlockx), offsetof(mng_dhdr, bHasblockloc), MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2,
      0, 0, 4, 4,
-     offsetof(mng_dhdr, iBlocky), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT | MNG_FIELD_OPTIONAL | MNG_FIELD_GROUP2}
+     offsetof(mng_dhdr, iBlocky), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor mng_fields_prom [] =
+mng_field_descriptor2 mng_fields_prom [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 14, 1, 1,
-     offsetof(mng_prom, iColortype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_prom, iColortype), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 16, 1, 1,
-     offsetof(mng_prom, iSampledepth), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_prom, iSampledepth), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_prom, iFilltype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT}
+     offsetof(mng_prom, iFilltype), MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor mng_fields_pplt [] =
+mng_field_descriptor2 mng_fields_pplt [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 5, 1, 1,
-     offsetof(mng_pplt, iDeltatype), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_pplt, iDeltatype), MNG_NULL, MNG_NULL},
     {mng_pplt_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL},
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DELTA_PNG
-mng_field_descriptor mng_fields_drop [] =
+mng_field_descriptor2 mng_fields_drop [] =
   {
     {mng_drop_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
@@ -1344,26 +1011,20 @@ mng_field_descriptor mng_fields_drop [] =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_DBYK
-mng_field_descriptor mng_fields_dbyk [] =
+mng_field_descriptor2 mng_fields_dbyk [] =
   {
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 0, 4, 4,
-     offsetof(mng_dbyk, iChunkname), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_dbyk, iChunkname), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_FIELD_INT,
      0, 1, 1, 1,
-     offsetof(mng_dbyk, iPolarity), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_FIELD_INT},
+     offsetof(mng_dbyk, iPolarity), MNG_NULL, MNG_NULL},
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 0,
-     offsetof(mng_dbyk, zKeywords), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_dbyk, iKeywordssize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_dbyk, zKeywords), MNG_NULL, offsetof(mng_dbyk, iKeywordssize)}
   };
 #endif
 #endif
@@ -1372,14 +1033,12 @@ mng_field_descriptor mng_fields_dbyk [] =
 
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
-mng_field_descriptor mng_fields_ordr [] =
+mng_field_descriptor2 mng_fields_ordr [] =
   {
     {mng_drop_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 #endif
@@ -1387,41 +1046,35 @@ mng_field_descriptor mng_fields_ordr [] =
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_MAGN
-mng_field_descriptor mng_fields_magn [] =
+mng_field_descriptor2 mng_fields_magn [] =
   {
     {mng_debunk_magn,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_SKIPCHUNK_evNT
-mng_field_descriptor mng_fields_evnt [] =
+mng_field_descriptor2 mng_fields_evnt [] =
   {
     {mng_evnt_entries,
+     MNG_NULL,
      0, 0, 0, 0,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     MNG_NULL}
+     MNG_NULL, MNG_NULL, MNG_NULL}
   };
 #endif
 
 /* ************************************************************************** */
 
-mng_field_descriptor mng_fields_unknown [] =
+mng_field_descriptor2 mng_fields_unknown [] =
   {
     {MNG_NULL,
+     MNG_NULL,
      0, 0, 1, 0,
-     offsetof(mng_unknown_chunk, pData), MNG_NULL,
-     MNG_NULL, MNG_NULL,
-     offsetof(mng_unknown_chunk, iDatasize), MNG_NULL,
-     MNG_NULL}
+     offsetof(mng_unknown_chunk, pData), MNG_NULL, offsetof(mng_unknown_chunk, iDatasize)}
   };
 
 /* ************************************************************************** */
@@ -1431,7 +1084,7 @@ mng_field_descriptor mng_fields_unknown [] =
 mng_chunk_descriptor mng_chunk_descr_ihdr =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ihdr,
-     mng_fields_ihdr, (sizeof(mng_fields_ihdr) / sizeof(mng_field_descriptor)),
+     mng_fields_ihdr, (sizeof(mng_fields_ihdr) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL,
      MNG_NULL,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOJHDR | MNG_DESCR_NOBASI | MNG_DESCR_NOIDAT | MNG_DESCR_NOPLTE};
@@ -1439,7 +1092,7 @@ mng_chunk_descriptor mng_chunk_descr_ihdr =
 mng_chunk_descriptor mng_chunk_descr_plte =
     {mng_it_png, mng_create_none, 0, offsetof(mng_plte, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_plte,
-     mng_fields_plte, (sizeof(mng_fields_plte) / sizeof(mng_field_descriptor)),
+     mng_fields_plte, (sizeof(mng_fields_plte) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1447,7 +1100,7 @@ mng_chunk_descriptor mng_chunk_descr_plte =
 mng_chunk_descriptor mng_chunk_descr_idat =
     {mng_it_png, mng_create_none, 0, offsetof(mng_idat, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_idat,
-     mng_fields_idat, (sizeof(mng_fields_idat) / sizeof(mng_field_descriptor)),
+     mng_fields_idat, (sizeof(mng_fields_idat) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOJSEP};
@@ -1463,7 +1116,7 @@ mng_chunk_descriptor mng_chunk_descr_iend =
 mng_chunk_descriptor mng_chunk_descr_trns =
     {mng_it_png, mng_create_none, 0, offsetof(mng_trns, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_trns,
-     mng_fields_trns, (sizeof(mng_fields_trns) / sizeof(mng_field_descriptor)),
+     mng_fields_trns, (sizeof(mng_fields_trns) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1472,7 +1125,7 @@ mng_chunk_descriptor mng_chunk_descr_trns =
 mng_chunk_descriptor mng_chunk_descr_gama =
     {mng_it_png, mng_create_none, 0, offsetof(mng_gama, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_gama,
-     mng_fields_gama, (sizeof(mng_fields_gama) / sizeof(mng_field_descriptor)),
+     mng_fields_gama, (sizeof(mng_fields_gama) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1482,7 +1135,7 @@ mng_chunk_descriptor mng_chunk_descr_gama =
 mng_chunk_descriptor mng_chunk_descr_chrm =
     {mng_it_png, mng_create_none, 0, offsetof(mng_chrm, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_chrm,
-     mng_fields_chrm, (sizeof(mng_fields_chrm) / sizeof(mng_field_descriptor)),
+     mng_fields_chrm, (sizeof(mng_fields_chrm) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1492,7 +1145,7 @@ mng_chunk_descriptor mng_chunk_descr_chrm =
 mng_chunk_descriptor mng_chunk_descr_srgb =
     {mng_it_png, mng_create_none, 0, offsetof(mng_srgb, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_srgb,
-     mng_fields_srgb, (sizeof(mng_fields_srgb) / sizeof(mng_field_descriptor)),
+     mng_fields_srgb, (sizeof(mng_fields_srgb) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1502,7 +1155,7 @@ mng_chunk_descriptor mng_chunk_descr_srgb =
 mng_chunk_descriptor mng_chunk_descr_iccp =
     {mng_it_png, mng_create_none, 0, offsetof(mng_iccp, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_iccp,
-     mng_fields_iccp, (sizeof(mng_fields_iccp) / sizeof(mng_field_descriptor)),
+     mng_fields_iccp, (sizeof(mng_fields_iccp) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOPLTE | MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1512,7 +1165,7 @@ mng_chunk_descriptor mng_chunk_descr_iccp =
 mng_chunk_descriptor mng_chunk_descr_text =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_text,
-     mng_fields_text, (sizeof(mng_fields_text) / sizeof(mng_field_descriptor)),
+     mng_fields_text, (sizeof(mng_fields_text) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
@@ -1522,7 +1175,7 @@ mng_chunk_descriptor mng_chunk_descr_text =
 mng_chunk_descriptor mng_chunk_descr_ztxt =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ztxt,
-     mng_fields_ztxt, (sizeof(mng_fields_ztxt) / sizeof(mng_field_descriptor)),
+     mng_fields_ztxt, (sizeof(mng_fields_ztxt) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
@@ -1532,7 +1185,7 @@ mng_chunk_descriptor mng_chunk_descr_ztxt =
 mng_chunk_descriptor mng_chunk_descr_itxt =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_itxt,
-     mng_fields_itxt, (sizeof(mng_fields_itxt) / sizeof(mng_field_descriptor)),
+     mng_fields_itxt, (sizeof(mng_fields_itxt) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
@@ -1542,7 +1195,7 @@ mng_chunk_descriptor mng_chunk_descr_itxt =
 mng_chunk_descriptor mng_chunk_descr_bkgd =
     {mng_it_png, mng_create_none, 0, offsetof(mng_bkgd, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_bkgd,
-     mng_fields_bkgd, (sizeof(mng_fields_bkgd) / sizeof(mng_field_descriptor)),
+     mng_fields_bkgd, (sizeof(mng_fields_bkgd) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1552,7 +1205,7 @@ mng_chunk_descriptor mng_chunk_descr_bkgd =
 mng_chunk_descriptor mng_chunk_descr_phys =
     {mng_it_png, mng_create_none, 0, offsetof(mng_phys, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_phys,
-     mng_fields_phys, (sizeof(mng_fields_phys) / sizeof(mng_field_descriptor)),
+     mng_fields_phys, (sizeof(mng_fields_phys) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1562,7 +1215,7 @@ mng_chunk_descriptor mng_chunk_descr_phys =
 mng_chunk_descriptor mng_chunk_descr_sbit =
     {mng_it_png, mng_create_none, 0, offsetof(mng_sbit, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_sbit,
-     mng_fields_sbit, (sizeof(mng_fields_sbit) / sizeof(mng_field_descriptor)),
+     mng_fields_sbit, (sizeof(mng_fields_sbit) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1572,7 +1225,7 @@ mng_chunk_descriptor mng_chunk_descr_sbit =
 mng_chunk_descriptor mng_chunk_descr_splt =
     {mng_it_png, mng_create_none, 0, offsetof(mng_splt, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_splt,
-     mng_fields_splt, (sizeof(mng_fields_splt) / sizeof(mng_field_descriptor)),
+     mng_fields_splt, (sizeof(mng_fields_splt) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL | MNG_DESCR_EMPTYEMBED | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_GenHDR,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1582,7 +1235,7 @@ mng_chunk_descriptor mng_chunk_descr_splt =
 mng_chunk_descriptor mng_chunk_descr_hist =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_hist,
-     mng_fields_hist, (sizeof(mng_fields_hist) / sizeof(mng_field_descriptor)),
+     mng_fields_hist, (sizeof(mng_fields_hist) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_GenHDR | MNG_DESCR_PLTE,
      MNG_DESCR_NOIDAT | MNG_DESCR_NOJDAT | MNG_DESCR_NOJDAA};
@@ -1592,7 +1245,7 @@ mng_chunk_descriptor mng_chunk_descr_hist =
 mng_chunk_descriptor mng_chunk_descr_time =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_time,
-     mng_fields_time, (sizeof(mng_fields_time) / sizeof(mng_field_descriptor)),
+     mng_fields_time, (sizeof(mng_fields_time) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_GLOBAL,
      MNG_DESCR_GenHDR,
      MNG_NULL};
@@ -1605,7 +1258,7 @@ mng_chunk_descriptor mng_chunk_descr_time =
 mng_chunk_descriptor mng_chunk_descr_jhdr =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jhdr,
-     mng_fields_jhdr, (sizeof(mng_fields_jhdr) / sizeof(mng_field_descriptor)),
+     mng_fields_jhdr, (sizeof(mng_fields_jhdr) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_NULL,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1615,7 +1268,7 @@ mng_chunk_descriptor mng_chunk_descr_jhdr =
 mng_chunk_descriptor mng_chunk_descr_jdaa =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jdaa,
-     mng_fields_jdaa, (sizeof(mng_fields_jdaa) / sizeof(mng_field_descriptor)),
+     mng_fields_jdaa, (sizeof(mng_fields_jdaa) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_JngHDR,
      MNG_DESCR_NOJSEP};
@@ -1625,7 +1278,7 @@ mng_chunk_descriptor mng_chunk_descr_jdaa =
 mng_chunk_descriptor mng_chunk_descr_jdat =
     {mng_it_jng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_jdat,
-     mng_fields_jdat, (sizeof(mng_fields_jdat) / sizeof(mng_field_descriptor)),
+     mng_fields_jdat, (sizeof(mng_fields_jdat) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_JngHDR,
      MNG_NULL};
@@ -1647,7 +1300,7 @@ mng_chunk_descriptor mng_chunk_descr_jsep =
 mng_chunk_descriptor mng_chunk_descr_mhdr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_mhdr,
-     mng_fields_mhdr, (sizeof(mng_fields_mhdr) / sizeof(mng_field_descriptor)),
+     mng_fields_mhdr, (sizeof(mng_fields_mhdr) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_NULL,
      MNG_DESCR_NOMHDR | MNG_DESCR_NOIHDR | MNG_DESCR_NOJHDR};
@@ -1664,7 +1317,7 @@ mng_chunk_descriptor mng_chunk_descr_mend =
 mng_chunk_descriptor mng_chunk_descr_loop =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_loop,
-     mng_fields_loop, (sizeof(mng_fields_loop) / sizeof(mng_field_descriptor)),
+     mng_fields_loop, (sizeof(mng_fields_loop) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1672,7 +1325,7 @@ mng_chunk_descriptor mng_chunk_descr_loop =
 mng_chunk_descriptor mng_chunk_descr_endl =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_endl,
-     mng_fields_endl, (sizeof(mng_fields_endl) / sizeof(mng_field_descriptor)),
+     mng_fields_endl, (sizeof(mng_fields_endl) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1682,7 +1335,7 @@ mng_chunk_descriptor mng_chunk_descr_endl =
 mng_chunk_descriptor mng_chunk_descr_defi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_defi,
-     mng_fields_defi, (sizeof(mng_fields_defi) / sizeof(mng_field_descriptor)),
+     mng_fields_defi, (sizeof(mng_fields_defi) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1692,7 +1345,7 @@ mng_chunk_descriptor mng_chunk_descr_defi =
 mng_chunk_descriptor mng_chunk_descr_basi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_basi,
-     mng_fields_basi, (sizeof(mng_fields_basi) / sizeof(mng_field_descriptor)),
+     mng_fields_basi, (sizeof(mng_fields_basi) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1702,7 +1355,7 @@ mng_chunk_descriptor mng_chunk_descr_basi =
 mng_chunk_descriptor mng_chunk_descr_clon =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_clon,
-     mng_fields_clon, (sizeof(mng_fields_clon) / sizeof(mng_field_descriptor)),
+     mng_fields_clon, (sizeof(mng_fields_clon) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1712,7 +1365,7 @@ mng_chunk_descriptor mng_chunk_descr_clon =
 mng_chunk_descriptor mng_chunk_descr_past =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_past,
-     mng_fields_past, (sizeof(mng_fields_past) / sizeof(mng_field_descriptor)),
+     mng_fields_past, (sizeof(mng_fields_past) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1722,7 +1375,7 @@ mng_chunk_descriptor mng_chunk_descr_past =
 mng_chunk_descriptor mng_chunk_descr_disc =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_disc,
-     mng_fields_disc, (sizeof(mng_fields_disc) / sizeof(mng_field_descriptor)),
+     mng_fields_disc, (sizeof(mng_fields_disc) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1732,7 +1385,7 @@ mng_chunk_descriptor mng_chunk_descr_disc =
 mng_chunk_descriptor mng_chunk_descr_back =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_back,
-     mng_fields_back, (sizeof(mng_fields_back) / sizeof(mng_field_descriptor)),
+     mng_fields_back, (sizeof(mng_fields_back) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1742,7 +1395,7 @@ mng_chunk_descriptor mng_chunk_descr_back =
 mng_chunk_descriptor mng_chunk_descr_fram =
     {mng_it_mng, mng_create_none, 0, offsetof(mng_fram, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_fram,
-     mng_fields_fram, (sizeof(mng_fields_fram) / sizeof(mng_field_descriptor)),
+     mng_fields_fram, (sizeof(mng_fields_fram) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1752,7 +1405,7 @@ mng_chunk_descriptor mng_chunk_descr_fram =
 mng_chunk_descriptor mng_chunk_descr_move =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_move,
-     mng_fields_move, (sizeof(mng_fields_move) / sizeof(mng_field_descriptor)),
+     mng_fields_move, (sizeof(mng_fields_move) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1762,7 +1415,7 @@ mng_chunk_descriptor mng_chunk_descr_move =
 mng_chunk_descriptor mng_chunk_descr_clip =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_clip,
-     mng_fields_clip, (sizeof(mng_fields_clip) / sizeof(mng_field_descriptor)),
+     mng_fields_clip, (sizeof(mng_fields_clip) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1772,7 +1425,7 @@ mng_chunk_descriptor mng_chunk_descr_clip =
 mng_chunk_descriptor mng_chunk_descr_show =
     {mng_it_mng, mng_create_none, 0, offsetof(mng_show, bEmpty),
      MNG_NULL, MNG_NULL, mng_special_show,
-     mng_fields_show, (sizeof(mng_fields_show) / sizeof(mng_field_descriptor)),
+     mng_fields_show, (sizeof(mng_fields_show) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1782,7 +1435,7 @@ mng_chunk_descriptor mng_chunk_descr_show =
 mng_chunk_descriptor mng_chunk_descr_term =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_term,
-     mng_fields_term, (sizeof(mng_fields_term) / sizeof(mng_field_descriptor)),
+     mng_fields_term, (sizeof(mng_fields_term) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR | MNG_DESCR_NOTERM | MNG_DESCR_NOLOOP};
@@ -1792,7 +1445,7 @@ mng_chunk_descriptor mng_chunk_descr_term =
 mng_chunk_descriptor mng_chunk_descr_save =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_save,
-     mng_fields_save, (sizeof(mng_fields_save) / sizeof(mng_field_descriptor)),
+     mng_fields_save, (sizeof(mng_fields_save) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOSAVE | MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1802,7 +1455,7 @@ mng_chunk_descriptor mng_chunk_descr_save =
 mng_chunk_descriptor mng_chunk_descr_seek =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_seek,
-     mng_fields_seek, (sizeof(mng_fields_seek) / sizeof(mng_field_descriptor)),
+     mng_fields_seek, (sizeof(mng_fields_seek) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYGLOBAL,
      MNG_DESCR_MHDR | MNG_DESCR_SAVE,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1812,7 +1465,7 @@ mng_chunk_descriptor mng_chunk_descr_seek =
 mng_chunk_descriptor mng_chunk_descr_expi =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_expi,
-     mng_fields_expi, (sizeof(mng_fields_expi) / sizeof(mng_field_descriptor)),
+     mng_fields_expi, (sizeof(mng_fields_expi) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1822,7 +1475,7 @@ mng_chunk_descriptor mng_chunk_descr_expi =
 mng_chunk_descriptor mng_chunk_descr_fpri =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_fpri,
-     mng_fields_fpri, (sizeof(mng_fields_fpri) / sizeof(mng_field_descriptor)),
+     mng_fields_fpri, (sizeof(mng_fields_fpri) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1832,7 +1485,7 @@ mng_chunk_descriptor mng_chunk_descr_fpri =
 mng_chunk_descriptor mng_chunk_descr_need =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_need,
-     mng_fields_need, (sizeof(mng_fields_need) / sizeof(mng_field_descriptor)),
+     mng_fields_need, (sizeof(mng_fields_need) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1842,7 +1495,7 @@ mng_chunk_descriptor mng_chunk_descr_need =
 mng_chunk_descriptor mng_chunk_descr_phyg =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_phyg,
-     mng_fields_phyg, (sizeof(mng_fields_phyg) / sizeof(mng_field_descriptor)),
+     mng_fields_phyg, (sizeof(mng_fields_phyg) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1852,7 +1505,7 @@ mng_chunk_descriptor mng_chunk_descr_phyg =
 mng_chunk_descriptor mng_chunk_descr_dhdr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_dhdr,
-     mng_fields_dhdr, (sizeof(mng_fields_dhdr) / sizeof(mng_field_descriptor)),
+     mng_fields_dhdr, (sizeof(mng_fields_dhdr) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
@@ -1862,7 +1515,7 @@ mng_chunk_descriptor mng_chunk_descr_dhdr =
 mng_chunk_descriptor mng_chunk_descr_prom =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_prom,
-     mng_fields_prom, (sizeof(mng_fields_prom) / sizeof(mng_field_descriptor)),
+     mng_fields_prom, (sizeof(mng_fields_prom) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1882,7 +1535,7 @@ mng_chunk_descriptor mng_chunk_descr_ipng =
 mng_chunk_descriptor mng_chunk_descr_pplt =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_pplt,
-     mng_fields_pplt, (sizeof(mng_fields_pplt) / sizeof(mng_field_descriptor)),
+     mng_fields_pplt, (sizeof(mng_fields_pplt) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1904,7 +1557,7 @@ mng_chunk_descriptor mng_chunk_descr_ijng =
 mng_chunk_descriptor mng_chunk_descr_drop =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_drop,
-     mng_fields_drop, (sizeof(mng_fields_drop) / sizeof(mng_field_descriptor)),
+     mng_fields_drop, (sizeof(mng_fields_drop) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1915,7 +1568,7 @@ mng_chunk_descriptor mng_chunk_descr_drop =
 mng_chunk_descriptor mng_chunk_descr_dbyk =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_dbyk,
-     mng_fields_dbyk, (sizeof(mng_fields_dbyk) / sizeof(mng_field_descriptor)),
+     mng_fields_dbyk, (sizeof(mng_fields_dbyk) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1927,7 +1580,7 @@ mng_chunk_descriptor mng_chunk_descr_dbyk =
 mng_chunk_descriptor mng_chunk_descr_ordr =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_ordr,
-     mng_fields_ordr, (sizeof(mng_fields_ordr) / sizeof(mng_field_descriptor)),
+     mng_fields_ordr, (sizeof(mng_fields_ordr) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR | MNG_DESCR_DHDR,
      MNG_NULL};
@@ -1938,17 +1591,17 @@ mng_chunk_descriptor mng_chunk_descr_ordr =
 mng_chunk_descriptor mng_chunk_descr_magn =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_magn,
-     mng_fields_magn, (sizeof(mng_fields_magn) / sizeof(mng_field_descriptor)),
+     mng_fields_magn, (sizeof(mng_fields_magn) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
-     MNG_DESCR_MHDR | MNG_DESCR_DHDR,
-     MNG_NULL};
+     MNG_DESCR_MHDR,
+     MNG_DESCR_NOIHDR | MNG_DESCR_NOBASI | MNG_DESCR_NODHDR | MNG_DESCR_NOJHDR};
 #endif
 
 #ifndef MNG_SKIPCHUNK_evNT
 mng_chunk_descriptor mng_chunk_descr_evnt =
     {mng_it_mng, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_evnt,
-     mng_fields_evnt, (sizeof(mng_fields_evnt) / sizeof(mng_field_descriptor)),
+     mng_fields_evnt, (sizeof(mng_fields_evnt) / sizeof(mng_field_descriptor2)),
      MNG_NULL,
      MNG_DESCR_MHDR,
      MNG_DESCR_NOSAVE};
@@ -1961,7 +1614,7 @@ mng_chunk_descriptor mng_chunk_descr_evnt =
 mng_chunk_descriptor mng_chunk_descr_unknown =
     {mng_it_png, mng_create_none, 0, 0,
      MNG_NULL, MNG_NULL, mng_special_unknown,
-     mng_fields_unknown, (sizeof(mng_fields_unknown) / sizeof(mng_field_descriptor)),
+     mng_fields_unknown, (sizeof(mng_fields_unknown) / sizeof(mng_field_descriptor2)),
      MNG_DESCR_EMPTY | MNG_DESCR_EMPTYEMBED,
      MNG_NULL,
      MNG_NULL};

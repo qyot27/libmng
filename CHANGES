@@ -5,7 +5,9 @@
 
 in short:
 
-intermediate cvs
+New optimizations save about 21KB on a full-MNG standard Windows DLL build.
+
+(still intermediate cvs)
 
 -------------------
 
