@@ -263,6 +263,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 11/27/2003 - R.A                                   * */
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *             1.0.7 - 12/06/2003 - R.A                                   * */
+/* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2337,10 +2339,10 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_CANVAS_DX15      0x00000003L         /* not supported yet */
 #define MNG_CANVAS_DX16      0x00000004L         /* not supported yet */
 
-#define MNG_CANVAS_RGB565    0x00000005L         /* not supported yet */
-#define MNG_CANVAS_RGBA565   0x00001005L         /* not supported yet */
+#define MNG_CANVAS_RGB565    0x00000005L
+#define MNG_CANVAS_RGBA565   0x00001005L
 #define MNG_CANVAS_BGR565    0x00000006L
-#define MNG_CANVAS_BGRA565   0x00001006L         /* not supported yet */
+#define MNG_CANVAS_BGRA565   0x00001006L         
 
 #define MNG_CANVAS_PIXELTYPE(C)  (C & 0x000000FFL)
 #define MNG_CANVAS_BITDEPTH(C)   (C & 0x00000100L)

@@ -201,6 +201,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 11/27/2003 - R.A                                   * */
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *             1.0.7 - 12/06/2003 - R.A                                   * */
+/* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -466,8 +468,14 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #ifndef MNG_SKIPCANVAS_RGB565
       case MNG_CANVAS_RGB565  : { pData->fDisplayrow = (mng_fptr)mng_display_rgb565;   break; }
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA565
+      case MNG_CANVAS_RGBA565 : { pData->fDisplayrow = (mng_fptr)mng_display_rgba565;  break; }
+#endif
 #ifndef MNG_SKIPCANVAS_BGR565
       case MNG_CANVAS_BGR565  : { pData->fDisplayrow = (mng_fptr)mng_display_bgr565;   break; }
+#endif
+#ifndef MNT_SKIPCANVAS_BGRA565
+      case MNG_CANVAS_BGRA565 : { pData->fDisplayrow = (mng_fptr)mng_display_bgra565;  break; }
 #endif
 
 #ifndef MNG_NO_16BIT_SUPPORT

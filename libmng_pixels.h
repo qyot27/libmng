@@ -74,6 +74,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 11/27/2003 - R.A                                   * */
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *             1.0.7 - 12/06/2003 - R.A                                   * */
+/* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -137,8 +139,14 @@ mng_retcode mng_display_abgr8          (mng_datap  pData);
 #ifndef MNG_SKIPCANVAS_RGB565
 mng_retcode mng_display_rgb565         (mng_datap  pData);
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA565
+mng_retcode mng_display_rgba565        (mng_datap  pData);
+#endif
 #ifndef MNG_SKIPCANVAS_BGR565
 mng_retcode mng_display_bgr565         (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA565
+mng_retcode mng_display_bgra565        (mng_datap  pData);
 #endif
 
 /* ************************************************************************** */

@@ -92,6 +92,8 @@
 /* *                                                                        * */
 /* *             1.0.7 - 11/27/2003 - R.A                                   * */
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
+/* *             1.0.7 - 12/06/2003 - R.A                                   * */
+/* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -176,8 +178,14 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
 #ifndef MNG_SKIPCANVAS_RGB565
     case MNG_CANVAS_RGB565  : break;
 #endif
+#ifndef MNG_SKIPCANVAS_RGBA565
+    case MNG_CANVAS_RGBA565 : break;
+#endif
 #ifndef MNG_SKIPCANVAS_BGR565
     case MNG_CANVAS_BGR565  : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA565
+    case MNG_CANVAS_BGRA565 : break;
 #endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_RGBA16  : break; */

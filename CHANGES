@@ -13,6 +13,7 @@ bugfixes:
 
 core:
 - added CANVAS_RGB565 and CANVAS_BGR565 (big thanx to Raphael Assenat!!)
+- added CANVAS_RGBA565 and CANVAS_BGRA565 ( -- ditto -- )
 
 samples:
 
