@@ -5848,6 +5848,7 @@ mng_retcode mng_process_display_past (mng_datap  pData,
     mng_int32      iTargetrowsize;
     mng_int32      iTargetsamples;
     mng_bool       bTargetRGBA16 = MNG_FALSE;
+    mng_int32      iTemprowsize;
     mng_imagedatap pBuf;
                                        /* needs magnification ? */
     if ((pTargetimg->iMAGN_MethodX) || (pTargetimg->iMAGN_MethodY))
@@ -6197,8 +6198,12 @@ mng_retcode mng_process_display_past (mng_datap  pData,
               iTargetrowsize       = (iTargetsamples << 2);
 
                                        /* get temporary work-buffers */
-            MNG_ALLOC (pData, pData->pRGBArow, (iSourcerowsize << 1))
-            MNG_ALLOC (pData, pData->pWorkrow, (iSourcerowsize << 1))
+            if (iSourcerowsize > iTargetrowsize)
+              iTemprowsize         = iSourcerowsize << 1;
+            else
+              iTemprowsize         = iTargetrowsize << 1;
+            MNG_ALLOC (pData, pData->pRGBArow, iTemprowsize)
+            MNG_ALLOC (pData, pData->pWorkrow, iTemprowsize)
 
             while ((!iRetcode) && (iTargetY < pData->iDestb))
             {                          /* get a row */
@@ -6241,8 +6246,8 @@ mng_retcode mng_process_display_past (mng_datap  pData,
               iTargetY++;
             }
                                        /* drop the temporary row-buffer */
-            MNG_FREEX (pData, pData->pWorkrow, (iSourcerowsize << 1))
-            MNG_FREEX (pData, pData->pRGBArow, (iSourcerowsize << 1))
+            MNG_FREEX (pData, pData->pWorkrow, iTemprowsize)
+            MNG_FREEX (pData, pData->pRGBArow, iTemprowsize)
           }
 
 #if defined(MNG_FULL_CMS)              /* cleanup cms stuff */
