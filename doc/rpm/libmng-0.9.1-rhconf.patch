@@ -3,7 +3,7 @@
 @@ -13,19 +13,19 @@
  OPTIONS = -DMNG_BUILD_SO
  
- # where "make install" puts libmng.a, libmng.so*, libmng.h and mng_conf.h
+ # where "make install" puts libmng.a,libmng.so*,libmng.h,libmng_conf.h,libmng_types.h
 -prefix=/usr/local
 +prefix=/usr
  

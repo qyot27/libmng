@@ -18,16 +18,18 @@ CFLAGS= -WD -O2 -Hc -w-par -k -y -v -vi -c -tWD \
 	-wamb -Tkh30000 -ff -5 -I.;..\zlib;..\jpgsrc6b;..\lcms\include $(MNGOPT)
 
 # source files
-SOURCES= mng_hlapi.c mng_callback_xs.c mng_prop_xs.c mng_chunk_xs.c \
-	mng_read.c mng_write.c mng_display.c \
-	mng_object_prc.c mng_chunk_prc.c mng_chunk_io.c mng_error.c mng_trace.c \
-	mng_pixels.c mng_filter.c mng_dither.c mng_zlib.c mng_jpeg.c mng_cms.c
+SOURCES= libmng_hlapi.c libmng_callback_xs.c libmng_prop_xs.c libmng_chunk_xs.c \
+	libmng_read.c libmng_write.c libmng_display.c \
+	libmng_object_prc.c libmng_chunk_prc.c libmng_chunk_io.c libmng_error.c \
+    libmng_trace.c libmng_pixels.c libmng_filter.c libmng_dither.c \
+    libmng_zlib.c libmng_jpeg.c libmng_cms.c
 
 # object files
-OBJECTS= mng_hlapi.obj mng_callback_xs.obj mng_prop_xs.obj mng_chunk_xs.obj \
-	mng_read.obj mng_write.obj mng_display.obj \
-	mng_object_prc.obj mng_chunk_prc.obj mng_chunk_io.obj mng_error.obj mng_trace.obj \
-	mng_pixels.obj mng_filter.obj mng_dither.obj mng_zlib.obj mng_jpeg.obj mng_cms.obj
+OBJECTS= libmng_hlapi.obj libmng_callback_xs.obj libmng_prop_xs.obj libmng_chunk_xs.obj \
+	libmng_read.obj libmng_write.obj libmng_display.obj \
+	libmng_object_prc.obj libmng_chunk_prc.obj libmng_chunk_io.obj libmng_error.obj \
+    libmng_trace.obj libmng_pixels.obj libmng_filter.obj libmng_dither.obj \
+    libmng_zlib.obj libmng_jpeg.obj libmng_cms.obj
 
 # type dependancies
 .c.obj:
@@ -44,53 +46,60 @@ clean:
 libmng.lib: $(OBJECTS)
 	- del libmng.lib
 	tlib libmng.lib /E /C @&&|
-+mng_hlapi.obj +mng_callback_xs.obj +mng_prop_xs.obj +mng_chunk_xs.obj &
-+mng_read.obj +mng_write.obj +mng_display.obj &
-+mng_object_prc.obj +mng_chunk_prc.obj +mng_chunk_io.obj +mng_error.obj +mng_trace.obj &
-+mng_pixels.obj +mng_filter.obj +mng_dither.obj +mng_zlib.obj +mng_jpeg.obj +mng_cms.obj
++libmng_hlapi.obj +libmng_callback_xs.obj +libmng_prop_xs.obj +libmng_chunk_xs.obj &
++libmng_read.obj +libmng_write.obj +libmng_display.obj &
++libmng_object_prc.obj +libmng_chunk_prc.obj +libmng_chunk_io.obj +libmng_error.obj &
++libmng_trace.obj +libmng_pixels.obj +libmng_filter.obj +libmng_dither.obj &
++libmng_zlib.obj +libmng_jpeg.obj +libmng_cms.obj
 |
 
-mng_hlapi.obj: mng_hlapi.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_object_prc.h \
-	mng_chunks.h mng_memory.h mng_error.h mng_trace.h mng_read.h mng_write.h \
-	mng_display.h mng_zlib.h mng_cms.h mng_zlib.h
-mng_callback_xs.obj: mng_callback_xs.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h
-mng_prop_xs.obj: mng_prop_xs.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h mng_cms.h
-mng_chunk_xs.obj: mng_chunk_xs.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_chunks.h mng_chunk_prc.h mng_error.h mng_trace.h
-mng_read.obj: mng_read.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_object_prc.h \
-	mng_chunks.h mng_chunk_prc.h mng_chunk_io.h mng_memory.h mng_error.h mng_trace.h \
-	mng_read.h mng_display.h
-mng_write.obj: mng_write.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h mng_write.h
-mng_display.obj: mng_display.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_object_prc.h mng_memory.h \
-	mng_error.h mng_trace.h mng_zlib.h mng_cms.h mng_pixels.h mng_display.h
-mng_object_prc.obj: mng_object_prc.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_object_prc.h mng_memory.h mng_error.h mng_trace.h \
-	mng_display.h
-mng_chunk_prc.obj: mng_chunk_prc.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_chunks.h mng_chunk_prc.h mng_memory.h mng_error.h mng_trace.h
-mng_chunk_io.obj: mng_chunk_io.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_object_prc.h mng_chunks.h mng_chunk_io.h \
-	mng_memory.h mng_error.h mng_trace.h mng_display.h mng_zlib.h mng_pixels.h
-mng_error.obj: mng_error.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h
-mng_trace.obj: mng_trace.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h
-mng_pixels.obj: mng_pixels.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_memory.h mng_error.h mng_trace.h mng_cms.h mng_pixels.h
-mng_filter.obj: mng_filter.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h mng_filter.h
-mng_dither.obj: mng_dither.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_error.h mng_trace.h mng_dither.h
-mng_zlib.obj: mng_zlib.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_memory.h mng_error.h mng_trace.h mng_pixels.h mng_filter.h mng_zlib.h
-mng_jpeg.obj: mng_jpeg.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_memory.h mng_error.h mng_trace.h mng_pixels.h mng_jpeg.h
-mng_cms.obj: mng_cms.c libmng.h mng_conf.h mng_types.h \
-	mng_data.h mng_objects.h mng_error.h mng_trace.h mng_cms.h
+libmng_hlapi.obj: libmng_hlapi.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_object_prc.h \
+	libmng_chunks.h libmng_memory.h libmng_error.h libmng_trace.h libmng_read.h \
+    libmng_write.h libmng_display.h libmng_zlib.h libmng_cms.h libmng_zlib.h
+libmng_callback_xs.obj: libmng_callback_xs.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h
+libmng_prop_xs.obj: libmng_prop_xs.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h libmng_cms.h
+libmng_chunk_xs.obj: libmng_chunk_xs.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_chunks.h libmng_chunk_prc.h libmng_error.h libmng_trace.h
+libmng_read.obj: libmng_read.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_object_prc.h \
+	libmng_chunks.h libmng_chunk_prc.h libmng_chunk_io.h libmng_memory.h \
+    libmng_error.h libmng_trace.h libmng_read.h libmng_display.h
+libmng_write.obj: libmng_write.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h libmng_write.h
+libmng_display.obj: libmng_display.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_object_prc.h libmng_memory.h \
+	libmng_error.h libmng_trace.h libmng_zlib.h libmng_cms.h \
+    libmng_pixels.h libmng_display.h
+libmng_object_prc.obj: libmng_object_prc.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_object_prc.h libmng_memory.h \
+    libmng_error.h libmng_trace.h libmng_display.h
+libmng_chunk_prc.obj: libmng_chunk_prc.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_chunks.h libmng_chunk_prc.h libmng_memory.h \
+    libmng_error.h libmng_trace.h
+libmng_chunk_io.obj: libmng_chunk_io.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_object_prc.h libmng_chunks.h \
+    libmng_chunk_io.h libmng_memory.h libmng_error.h libmng_trace.h \
+    libmng_display.h libmng_zlib.h libmng_pixels.h
+libmng_error.obj: libmng_error.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h
+libmng_trace.obj: libmng_trace.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h
+libmng_pixels.obj: libmng_pixels.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_memory.h libmng_error.h libmng_trace.h \
+    libmng_cms.h libmng_pixels.h
+libmng_filter.obj: libmng_filter.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h libmng_filter.h
+libmng_dither.obj: libmng_dither.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_error.h libmng_trace.h libmng_dither.h
+libmng_zlib.obj: libmng_zlib.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_memory.h libmng_error.h libmng_trace.h libmng_pixels.h \
+    libmng_filter.h libmng_zlib.h
+libmng_jpeg.obj: libmng_jpeg.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_memory.h libmng_error.h libmng_trace.h \
+    libmng_pixels.h libmng_jpeg.h
+libmng_cms.obj: libmng_cms.c libmng.h libmng_conf.h libmng_types.h \
+	libmng_data.h libmng_objects.h libmng_error.h libmng_trace.h libmng_cms.h
 

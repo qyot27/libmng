@@ -10,7 +10,6 @@
 /* * is defined as the following set of individuals:                        * */
 /* *                                                                        * */
 /* *    Gerard Juyn (gerard@libmng.com)                                     * */
-/* *    Tim Rowley                                                          * */
 /* *                                                                        * */
 /* * The MNG Library is supplied "AS IS".  The Contributing Authors         * */
 /* * disclaim all warranties, expressed or implied, including, without      * */
@@ -176,6 +175,8 @@
 /* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
 /* *             - fixed problem with trace-functions improperly wrapped    * */
 /* *             - added status_xxxx functions                              * */
+/* *             0.9.2 - 08/05/2000 - G.Juyn                                * */
+/* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -188,7 +189,7 @@
 
 /* ************************************************************************** */
 
-#include "mng_conf.h"                  /* user-specific configuration options */
+#include "libmng_conf.h"               /* user-specific configuration options */
 
 /* ************************************************************************** */
 
@@ -249,7 +250,7 @@
 
 /* ************************************************************************** */
 
-#include "mng_types.h"                 /* platform-specific definitions
+#include "libmng_types.h"              /* platform-specific definitions
                                           and other assorted stuff */
 
 /* ************************************************************************** */
@@ -313,12 +314,12 @@ extern "C" {
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#define MNG_VERSION_TEXT    "0.9.1"
+#define MNG_VERSION_TEXT    "0.9.2"
 #define MNG_VERSION_SO      0          /* eg. libmng.so.0 (while in test/beta) */
 #define MNG_VERSION_DLL     0          /* eg. libmng.dll (nb. same for version 1) */
 #define MNG_VERSION_MAJOR   0
 #define MNG_VERSION_MINOR   9
-#define MNG_VERSION_RELEASE 1
+#define MNG_VERSION_RELEASE 2
 
 MNG_EXT mng_pchar MNG_DECL mng_version_text    (void);
 MNG_EXT mng_uint8 MNG_DECL mng_version_so      (void);
