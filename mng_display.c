@@ -77,6 +77,11 @@
 /* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
 /* *             - changed EOF processing behavior                          * */
 /* *             - fixed TERM delay processing                              * */
+/* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
+/* *             - fixed freeze & reset processing                          * */
+/* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
+/* *             - fixed storage of images during mng_read()                * */
+/* *             - fixed support for mng_display() after mng_read()         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -145,7 +150,7 @@ mng_retcode display_progressive_refresh (mng_datap  pData,
       pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
       pData->bNeedrefresh  = MNG_FALSE;
                                        /* interval requested ? */
-      if ((pData->bRunning) && (iInterval))
+      if ((pData->bRunning) && (!pData->bFreezing) && (iInterval))
       {                                /* setup the timer */
         mng_retcode iRetcode = set_delay (pData, iInterval);
 
@@ -1373,7 +1378,7 @@ mng_retcode restore_state (mng_datap pData)
 
 mng_retcode process_display (mng_datap pData)
 {
-  mng_retcode iRetcode;
+  mng_retcode iRetcode = MNG_NOERROR;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY, MNG_LC_START)
@@ -1438,23 +1443,27 @@ mng_retcode process_display (mng_datap pData)
     }
     else
     {
-      iRetcode = ((mng_object_headerp)pData->pCurraniobj)->fProcess (pData, pData->pCurraniobj);
+      if (pData->pCurraniobj)
+        iRetcode = ((mng_object_headerp)pData->pCurraniobj)->fProcess (pData, pData->pCurraniobj);
     }
 
     if (!pData->bTimerset)             /* reset breakpoint flag ? */
-      pData->iBreakpoint = 0; 
+      pData->iBreakpoint = 0;
                                        /* can we advance to next object ? */
     if ((!iRetcode) && (pData->pCurraniobj) &&
         (!pData->bTimerset) && (!pData->bSectionwait))
     {
       pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
-                                       /* TERM processing to be done ? */
-      if ((!pData->pCurraniobj) && (pData->bHasTERM) && (!pData->bHasMHDR))
+                                       /* MEND processing to be done ? */
+      if ((pData->eImagetype == mng_it_mng) && (!pData->pCurraniobj))
         iRetcode = process_display_mend (pData);
+
+      if (!pData->pCurraniobj)         /* refresh after last image ? */
+        pData->bNeedrefresh = MNG_TRUE;
     }
   }                                    /* until error or a break or no more objects */
   while ((!iRetcode) && (pData->pCurraniobj) &&
-         (!pData->bTimerset) && (!pData->bSectionwait));
+         (!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bFreezing));
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -1552,8 +1561,9 @@ mng_retcode process_display_ihdr (mng_datap pData)
         pData->pStoreobj = pData->pObjzero;
     }
                                        /* display "on-the-fly" ? */
-    if ( (pData->eImagetype == mng_it_png         ) ||
-         (((mng_imagep)pData->pStoreobj)->bVisible)    )
+    if ( (pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing) &&
+         ( (pData->eImagetype == mng_it_png         ) ||
+           (((mng_imagep)pData->pStoreobj)->bVisible)    )                   )
     {
       next_layer (pData);              /* that's a new layer then ! */
 
@@ -1789,47 +1799,50 @@ mng_retcode process_display_iend (mng_datap pData)
     bDodisplay = MNG_TRUE;
 #endif    
 
-  if ((pData->bHasBASI) ||             /* was it a BASI stream */
-      (bDodisplay)      ||             /* or should we display the JNG */
+  if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
+  {
+    if ((pData->bHasBASI) ||           /* was it a BASI stream */
+        (bDodisplay)      ||           /* or should we display the JNG */
                                        /* or did we get broken here last time ? */
-      ((pData->iBreakpoint) && (pData->iBreakpoint != 8)))
-  {
-    mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
+        ((pData->iBreakpoint) && (pData->iBreakpoint != 8)))
+    {
+      mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
 
-    if (!pImage)                       /* or was it an "on-the-fly" image ? */
-      pImage = (mng_imagep)pData->pObjzero;
+      if (!pImage)                     /* or was it an "on-the-fly" image ? */
+        pImage = (mng_imagep)pData->pObjzero;
                                        /* display it now then ? */
-    if ((pImage->bVisible) && (pImage->bViewable))
-    {                                  /* ok, so do it */
-      iRetcode = display_image (pData, pImage, bDodisplay);
+      if ((pImage->bVisible) && (pImage->bViewable))
+      {                                /* ok, so do it */
+        iRetcode = display_image (pData, pImage, bDodisplay);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
 
-      if (pData->bTimerset)            /* timer break ? */
-        pData->iBreakpoint = 6;
+        if (pData->bTimerset)          /* timer break ? */
+          pData->iBreakpoint = 6;
+      }
     }
-  }
 
-  if ((pData->bHasDHDR) ||             /* was it a DHDR stream */
-      (pData->iBreakpoint == 8))       /* or did we get broken here last time ? */
-  {
-    mng_imagep pImage = (mng_imagep)pData->pDeltaImage;
+    if ((pData->bHasDHDR) ||           /* was it a DHDR stream */
+        (pData->iBreakpoint == 8))     /* or did we get broken here last time ? */
+    {
+      mng_imagep pImage = (mng_imagep)pData->pDeltaImage;
                                        /* perform the delta operations needed */
-    iRetcode = execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
-
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-                                       /* display it now then ? */
-    if ((pImage->bVisible) && (pImage->bViewable))
-    {                                  /* ok, so do it */
-      iRetcode = display_image (pData, pImage, MNG_FALSE);
+      iRetcode = execute_delta_image (pData, pImage, (mng_imagep)pData->pObjzero);
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
+                                       /* display it now then ? */
+      if ((pImage->bVisible) && (pImage->bViewable))
+      {                                /* ok, so do it */
+        iRetcode = display_image (pData, pImage, MNG_FALSE);
 
-      if (pData->bTimerset)            /* timer break ? */
-        pData->iBreakpoint = 8;
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+
+        if (pData->bTimerset)          /* timer break ? */
+          pData->iBreakpoint = 8;
+      }
     }
   }
 

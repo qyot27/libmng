@@ -62,6 +62,7 @@
 /* *             0.9.1 - 07/15/2000 - G.Juyn                                * */
 /* *             - added callbacks for SAVE/SEEK processing                 * */
 /* *             - added variable for NEEDSECTIONWAIT breaks                * */
+/* *             - added variable for freeze & reset processing             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -372,8 +373,10 @@ typedef struct mng_data_struct {
                                                     mng_read_resume! */
            mng_uint8         iSuspendpoint;      /* indicates at which point the flow
                                                     was broken to suspend input-reading */
-           mng_bool          bSectionwait;       /* indicates a section break */   
-           mng_bool          bNeedrefresh;       /* indicates screen-refresh is needed */   
+           mng_bool          bSectionwait;       /* indicates a section break */
+           mng_bool          bFreezing;          /* indicates app requested a freeze */   
+           mng_bool          bResetting;         /* indicates app requested a reset */   
+           mng_bool          bNeedrefresh;       /* indicates screen-refresh is needed */
            mng_objectp       pCurrentobj;        /* current "object" */
            mng_objectp       pCurraniobj;        /* current animation object
                                                     "to be"/"being" processed */

@@ -87,6 +87,9 @@
 /* *                                                                        * */
 /* *             0.9.1 - 07/14/2000 - G.Juyn                                * */
 /* *             - changed pre-draft48 frame_mode=3 to frame_mode=1         * */
+/* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
+/* *             - fixed storage of images during mng_read()                * */
+/* *             - fixed support for mng_display() after mng_read()         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -586,16 +589,14 @@ READ_CHUNK (read_ihdr)
   if (!pData->bHasDHDR)
     pData->iImagelevel++;              /* one level deeper */
 
-#ifdef MNG_SUPPORT_DISPLAY
-  if (pData->bDisplaying)
+#ifdef MNG_SUPPORT_DISPLAY             /* running animation ? */
+  if ( (pData->eImagetype == mng_it_mng) ||
+       ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)) )
   {
-    if (pData->bRunning)               /* running animation ? */
-    {
-      mng_retcode iRetcode = process_display_ihdr (pData);
+    mng_retcode iRetcode = process_display_ihdr (pData);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -834,10 +835,11 @@ READ_CHUNK (read_idat)
   pData->bHasIDAT = MNG_TRUE;          /* got some IDAT now, don't we */
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if ((pData->bDisplaying) && (iRawlen))
-  {
-    if (pData->bRunning)               /* running animation ? */
-    {                                  /* display processing for non-empty chunks */
+  if (iRawlen)
+  {                                    /* running animation or MNG ? */
+    if ( ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)) ||
+         (pData->eImagetype == mng_it_mng)                                     )
+    {                                  /* display processing */
       mng_retcode iRetcode = process_display_idat (pData, iRawlen, pRawdata);
 
       if (iRetcode)                    /* on error bail out */
@@ -904,7 +906,8 @@ READ_CHUNK (read_iend)
       return iRetcode;
   }
 
-  if ((pData->bDisplaying) && (pData->bRunning))
+  if ((pData->bHasMHDR) ||
+      ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing)))
   {                                    /* display processing */
     mng_retcode iRetcode = process_display_iend (pData);
 
@@ -2879,7 +2882,7 @@ READ_CHUNK (read_mend)
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
 #ifdef MNG_SUPPORT_DISPLAY
-  if ((pData->bDisplaying) && (pData->bRunning))
+  if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
   {                                    /* do something */
     mng_retcode iRetcode = process_display_mend (pData);
 
@@ -3090,7 +3093,7 @@ READ_CHUNK (read_endl)
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
                                        /* process it */
-      if ((pData->bDisplaying) && (pData->bRunning))
+      if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
       {
         mng_ani_endlp pENDL = (mng_ani_endlp)pData->pLastaniobj;
 
@@ -3191,7 +3194,7 @@ READ_CHUNK (read_defi)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {                                  /* do the display processing */
       iRetcode = process_display_defi (pData);
 
@@ -3342,17 +3345,13 @@ READ_CHUNK (read_basi)
     iRetcode = create_ani_basi (pData, iRed, iGreen, iBlue,
                                 bHasalpha, iAlpha, iViewable);
 
-    if (iRetcode)                      /* on error bail out */
-      return iRetcode;
-
-    if ((pData->bDisplaying) && (pData->bRunning))
-    {                                  /* display-processing... */
+    if (!iRetcode)                     /* display-processing... */
       iRetcode = process_display_basi (pData, iRed, iGreen, iBlue,
                                        bHasalpha, iAlpha, iViewable);
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
-    }
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -3460,7 +3459,7 @@ READ_CHUNK (read_clon)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* do display processing */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_clon (pData, iSourceid, iCloneid, iClonetype,
                                        bHasdonotshow, iDonotshow, iConcrete,
@@ -3624,7 +3623,7 @@ READ_CHUNK (read_disc)
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
   {
-    if (pData->bRunning)
+    if ((pData->bRunning) && (!pData->bFreezing))
     {
       mng_retcode iRetcode = process_display_disc (pData, (iRawlen / 2),
                                                    (mng_uint16p)pRawdata);
@@ -3895,7 +3894,7 @@ READ_CHUNK (read_fram)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* now go and do something */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_fram (pData, iFramemode, iChangedelay, iDelay,
                                        iChangetimeout, iTimeout,
@@ -4047,7 +4046,7 @@ READ_CHUNK (read_move)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* process the move */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_move (pData,
                                        mng_get_uint16 (pRawdata),
@@ -4121,7 +4120,7 @@ READ_CHUNK (read_clip)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* process the clipping */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_clip (pData,
                                        mng_get_uint16 (pRawdata),
@@ -4215,7 +4214,7 @@ READ_CHUNK (read_show)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* go and do it! */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_show (pData);
 
@@ -4968,8 +4967,8 @@ READ_CHUNK (read_jhdr)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
-  {
-    if (pData->bRunning)               /* running animation ? */
+  {                                    /* running animation ? */
+    if ((pData->bRunning) && (!pData->bFreezing))
     {
       mng_retcode iRetcode = process_display_jhdr (pData);
 
@@ -5029,8 +5028,8 @@ READ_CHUNK (read_jdat)
 
 #ifdef MNG_SUPPORT_DISPLAY
   if ((pData->bDisplaying) && (iRawlen))
-  {
-    if (pData->bRunning)               /* running animation ? */
+  {                                    /* running animation ? */
+    if ((pData->bRunning) && (!pData->bFreezing))
     {                                  /* display processing for non-empty chunks */
       mng_retcode iRetcode = process_display_jdat (pData, iRawlen, pRawdata);
 
@@ -5175,7 +5174,7 @@ READ_CHUNK (read_dhdr)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* display processing ? */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_dhdr (pData, iObjectid, iImagetype, iDeltatype,
                                        iBlockwidth, iBlockheight, iBlockx, iBlocky);
@@ -5269,7 +5268,7 @@ READ_CHUNK (read_prom)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
                                        /* display processing ? */
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_prom (pData, iSampledepth,
                                        iColortype, iFilltype);
@@ -5322,7 +5321,7 @@ READ_CHUNK (read_ipng)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_ipng (pData);
 
@@ -5498,7 +5497,7 @@ READ_CHUNK (read_pplt)
       return iRetcode;
   }
                                        /* execute it now ? */
-  if ((pData->bDisplaying) && (pData->bRunning))
+  if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
   {
     mng_retcode iRetcode = process_display_pplt (pData, iDeltatype, iMax,
                                                  &aIndexentries, &aAlphaentries,
@@ -5559,7 +5558,7 @@ READ_CHUNK (read_ijng)
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
 
-    if ((pData->bDisplaying) && (pData->bRunning))
+    if ((pData->bDisplaying) && (pData->bRunning) && (!pData->bFreezing))
     {
       iRetcode = process_display_ijng (pData);
 

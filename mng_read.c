@@ -393,7 +393,7 @@ mng_retcode read_chunk (mng_datap  pData)
       }
     }                                  /* until error or a break or no more objects */
     while ((!iRetcode) && (pData->pCurraniobj) &&
-           (!pData->bTimerset) && (!pData->bSectionwait));
+           (!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bFreezing));
   }
   else
   {
@@ -426,7 +426,10 @@ mng_retcode read_chunk (mng_datap  pData)
 #else
   if (!pData->bEOF)
 #endif
-  {
+  {                                    /* freezing in progress ? */
+    if ((pData->bFreezing) && (pData->iSuspendpoint == 0))
+      pData->bRunning = MNG_FALSE;     /* then this is the right moment to do it */
+
     if (pData->iSuspendpoint <= 2)
     {
       iBuflen  = sizeof (iChunklen);   /* read length */

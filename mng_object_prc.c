@@ -48,6 +48,8 @@
 /* *                                                                        * */
 /* *             0.9.1 - 07/07/2000 - G.Juyn                                * */
 /* *             - added support for freeze/restart/resume & go_xxxx        * */
+/* *             0.9.1 - 07/16/2000 - G.Juyn                                * */
+/* *             - fixed support for mng_display() after mng_read()         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -921,7 +923,7 @@ mng_retcode create_ani_image (mng_datap pData)
 
   if (!pCurrent)                       /* otherwise object 0 */
     pCurrent = (mng_imagep)pData->pObjzero;
-                                       /* just clone the object !!! */
+                                       /* now just clone the object !!! */
   iRetcode  = clone_imageobject (pData, 0, MNG_FALSE, pCurrent->bVisible,
                                  MNG_TRUE, MNG_FALSE, 0, 0, 0, pCurrent, &pImage);
 
@@ -1014,6 +1016,8 @@ mng_retcode process_ani_image (mng_datap   pData,
         MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
                                        /* now blatently copy the animation buffer */
       MNG_COPY (pBuf, pImage->pImgbuf, sizeof (mng_imagedata))
+                                       /* copy viewability */
+      pCurrent->bViewable = pImage->bViewable;
 
       if (pBuf->iImgdatasize)          /* sample buffer present ? */
       {                                /* then make a copy */
