@@ -196,6 +196,8 @@
 /* *             - combined init functions into one function                * */
 /* *             1.0.6 - 07/10/2003 - G.R-P                                 * */
 /* *             - replaced nested switches with simple init setup function * */
+/* *             1.0.6 - 07/13/2003 - G.R-P                                 * */
+/* *             - restored two misplaced #else/#endif blocks               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -426,10 +428,10 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 /* ************************************************************************** */
 
 MNG_LOCAL void set_display_routine (mng_datap pData)
-{                                      /* actively running ? */
+{                                        /* actively running ? */
   if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
-    switch (pData->iCanvasstyle)       /* determine display routine */
+    switch (pData->iCanvasstyle)         /* determine display routine */
     {
 #ifndef MNG_SKIPCANVAS_RGB8
       case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8;     break; }
@@ -759,7 +761,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
 
               case  4 : { 
 #ifndef MNG_NO_16BIT_SUPPORT
-			              if (pImage->pImgbuf->iBitdepth > 8)
+			if (pImage->pImgbuf->iBitdepth > 8)
                             pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
                           else
 #endif
@@ -1968,7 +1970,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
 
   return MNG_NOERROR;
 }
-#endif
+#endif /* MNG_NO_DELTA_PNG */
 
 /* ************************************************************************** */
 
@@ -2509,8 +2511,6 @@ png_imgtype mng_png_imgtype(mng_uint8 colortype, mng_uint8 bitdepth)
   return (ret);
 }
 #endif /* MNG_OPTIMIZE_FOOTPRINT_INIT */
-
-/* ************************************************************************** */
 
 mng_retcode mng_process_display_ihdr (mng_datap pData)
 {                                      /* address the current "object" if any */
@@ -3402,7 +3402,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3415,7 +3416,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3439,7 +3441,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3454,7 +3457,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3515,7 +3519,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3529,7 +3534,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3548,7 +3554,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3564,7 +3571,8 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight;
+                    iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -4496,7 +4504,7 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
         
     }
     else
-#endif
+#endif /* MNG_NO_DELTA_PNG */
     {
       if (pImage)                      /* update object buffer ? */
       {
@@ -4625,12 +4633,12 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
         switch (pData->iJHDRalphabitdepth)
         {
 #ifndef MNG_OPTIMIZE_FOOTPRINT_INIT
-          case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_g1_ni;  break; }
-          case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_g2_ni;  break; }
-          case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_g4_ni;  break; }
-          case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_g8_ni;  break; }
+          case  1 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a1_ni;  break; }
+          case  2 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a2_ni;  break; }
+          case  4 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a4_ni;  break; }
+          case  8 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a8_ni;  break; }
 #ifndef MNG_NO_16BIT_SUPPORT
-          case 16: { pData->fInitrowproc = (mng_fptr)mng_init_g16_ni;  break; }
+          case 16 : { pData->fInitrowproc = (mng_fptr)mng_init_jpeg_a16_ni; break; }
 #endif
 #else
           case  1 : { pData->ePng_imgtype = png_jpeg_a1;  break; }
@@ -4692,7 +4700,7 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
 #ifndef MNG_NO_16BIT_SUPPORT
         case 16 : { pData->ePng_imgtype = png_jpeg_a16; break; }
 #endif
-#endif
+#endif /* MNG_OPTIMIZE_FOOTPRINT_INIT */
       }
     }
 
@@ -4934,12 +4942,13 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
                   pData->iColortype     = MNG_COLORTYPE_GRAY;
                   pData->iJHDRcolortype = MNG_COLORTYPE_JPEGGRAY;
                 }
-#endif
+#else
                 if (pData->iColortype      == MNG_COLORTYPE_GRAYA)
                   pData->iColortype     = MNG_COLORTYPE_GRAY;
                 else
                 if (pData->iColortype      == MNG_COLORTYPE_RGBA)
                   pData->iColortype     = MNG_COLORTYPE_GRAY;
+#endif
                 else                   /* target has no alpha; that sucks! */
                   MNG_ERROR (pData, MNG_TARGETNOALPHA)
 
@@ -4963,12 +4972,13 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData,
                   pData->iColortype     = MNG_COLORTYPE_RGB;
                   pData->iJHDRcolortype = MNG_COLORTYPE_JPEGCOLOR;
                 }
-#endif                  
+#else
                 if (pData->iColortype == MNG_COLORTYPE_GRAYA)
                   pData->iColortype = MNG_COLORTYPE_GRAY;
                 else
                 if (pData->iColortype == MNG_COLORTYPE_RGBA)
                   pData->iColortype = MNG_COLORTYPE_RGB;
+#endif                  
                 else                   /* target has no alpha; that sucks! */
                   MNG_ERROR (pData, MNG_TARGETNOALPHA)
 
@@ -5254,9 +5264,7 @@ mng_retcode mng_process_display_prom (mng_datap  pData,
   pBuf   = pImage->pImgbuf;
                                        /* can't demote bitdepth! */
   if (iBitdepth < pBuf->iBitdepth)
-  {
     MNG_ERROR (pData, MNG_INVALIDBITDEPTH)
-  }
 
   if ( ((pBuf->iColortype == MNG_COLORTYPE_GRAY      ) &&
         (iColortype       != MNG_COLORTYPE_GRAY      ) &&
