@@ -26,6 +26,8 @@
 /* *                                                                        * */
 /* *             0.9.2 - 07/31/2000 - G.Juyn                                * */
 /* *             - put add_chunk() inside MNG_INCLUDE_WRITE_PROCS wrapper   * */
+/* *             0.9.2 - 08/01/2000 - G.Juyn                                * */
+/* *             - wrapper for add_chunk() changed                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -50,14 +52,16 @@
 /* *                                                                        * */
 /* ************************************************************************** */
 
-#ifdef MNG_INCLUDE_WRITE_PROCS
 void add_chunk (mng_datap  pData,
                 mng_chunkp pChunk)
 {
   if (!pData->pFirstchunk)             /* list is still empty ? */
   {
     pData->pFirstchunk      = pChunk;  /* then this becomes the first */
+    
+#ifdef MNG_SUPPORT_WRITE
     pData->iFirstchunkadded = ((mng_chunk_headerp)pChunk)->iChunkname;
+#endif
 
     if (((mng_chunk_headerp)pChunk)->iChunkname == MNG_UINT_IHDR)
       pData->eImagetype     = mng_it_png;
@@ -81,7 +85,6 @@ void add_chunk (mng_datap  pData,
 
   return;
 }
-#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
