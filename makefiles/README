@@ -23,5 +23,4 @@ makefile.dj - DJGPP
 makefile.mingw - builds a static library for mingw32
 makefile.mingwdll - builds a dynamic library for mingw32
 
-
-Makefile.am, aclocal.m4 and configure.in - automake/autoconf source
+Makefile.am, configure.in and acinclude.m4 (if present) - automake/autoconf source
