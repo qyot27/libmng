@@ -19,6 +19,20 @@ core:
 - added size-optimiation COMPOSE routine usage
 - added conditionals around canvas update routines
 - added MNG_SKIPCHUNK_cHNK footprint optimizations
+- added conditionals around some JNG-supporting code      
+- added conditionals around 16-bit supporting code        
+- combined init functions into one function
+- replaced nested switches with simple init setup function
+- added conditionals zlib and jpeg property accessors
+- added size-optimization DIV255B8 routine usage
+- added conditionals around 8-bit magn routines
+- removed conditionals around 8-bit magn routines
+- added MNG_NO_16BIT_SUPPORT and MNG_NO_DELTA_PNG conditionals
+- reversed many loops to use decrementing counter
+- converted some switches to array references
+- removed some redundant checks for iRawlen==0
+- optionally use zlib's crc32 function instead of local mng_update_crc                                     
+- bugfix empty "if" statement when 16-bit code is enabled
 
 samples:
 

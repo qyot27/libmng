@@ -426,10 +426,10 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 /* ************************************************************************** */
 
 MNG_LOCAL void set_display_routine (mng_datap pData)
-{                                        /* actively running ? */
+{                                      /* actively running ? */
   if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
   {
-    switch (pData->iCanvasstyle)         /* determine display routine */
+    switch (pData->iCanvasstyle)       /* determine display routine */
     {
 #ifndef MNG_SKIPCANVAS_RGB8
       case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8;     break; }
@@ -759,7 +759,7 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
 
               case  4 : { 
 #ifndef MNG_NO_16BIT_SUPPORT
-			if (pImage->pImgbuf->iBitdepth > 8)
+			              if (pImage->pImgbuf->iBitdepth > 8)
                             pData->fRetrieverow = (mng_fptr)mng_retrieve_ga16;
                           else
 #endif
@@ -2510,6 +2510,8 @@ png_imgtype mng_png_imgtype(mng_uint8 colortype, mng_uint8 bitdepth)
 }
 #endif /* MNG_OPTIMIZE_FOOTPRINT_INIT */
 
+/* ************************************************************************** */
+
 mng_retcode mng_process_display_ihdr (mng_datap pData)
 {                                      /* address the current "object" if any */
   mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
@@ -3400,8 +3402,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3414,8 +3415,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3439,8 +3439,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3455,8 +3454,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3517,8 +3515,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3532,8 +3529,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3552,8 +3548,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
                if (pData->iBitdepth == 16)
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif
@@ -3569,8 +3564,7 @@ mng_retcode mng_process_display_basi (mng_datap  pData,
 #endif
                {
 #ifdef MNG_DECREMENT_LOOPS
-                 for (iX = pData->iDatawidth * pData->iDataheight;
-                    iX > 0;iX--)
+                 for (iX = pData->iDatawidth * pData->iDataheight; iX > 0;iX--)
 #else
                  for (iX = 0; iX < pData->iDatawidth * pData->iDataheight; iX++)
 #endif

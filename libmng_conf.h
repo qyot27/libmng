@@ -53,8 +53,6 @@
 #ifndef _libmng_conf_h_
 #define _libmng_conf_h_
 
-#include "mozlibmngconf.h"
-
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  User-selectable compile-time options                                  * */
