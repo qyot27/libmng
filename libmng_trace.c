@@ -133,6 +133,8 @@
 /* *             - added CANVAS_RGB565 and CANVAS_BGR565                    * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
+/* *             - put gamma, cms-related declarations inside #ifdef        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -238,11 +240,13 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_SET_BKGDSTYLE,             "set_bkgdstyle"},
     {MNG_FN_SET_BGCOLOR,               "set_bgcolor"},
     {MNG_FN_SET_STORECHUNKS,           "set_storechunks"},
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
     {MNG_FN_SET_VIEWGAMMA,             "set_viewgamma"},
 #ifndef MNG_NO_DFLT_INFO
     {MNG_FN_SET_DISPLAYGAMMA,          "set_displaygamma"},
 #endif
     {MNG_FN_SET_DFLTIMGGAMMA,          "set_dfltimggamma"},
+#endif
     {MNG_FN_SET_SRGB,                  "set_srgb"},
     {MNG_FN_SET_OUTPUTPROFILE,         "set_outputprofile"},
     {MNG_FN_SET_SRGBPROFILE,           "set_srgbprofile"},
@@ -292,10 +296,12 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_BKGDSTYLE,             "get_bkgdstyle"},
     {MNG_FN_GET_BGCOLOR,               "get_bgcolor"},
     {MNG_FN_GET_STORECHUNKS,           "get_storechunks"},
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
     {MNG_FN_GET_VIEWGAMMA,             "get_viewgamma"},
     {MNG_FN_GET_DISPLAYGAMMA,          "get_displaygamma"},
 #ifndef MNG_NO_DFLT_INFO
     {MNG_FN_GET_DFLTIMGGAMMA,          "get_dfltimggamma"},
+#endif
 #endif
     {MNG_FN_GET_SRGB,                  "get_srgb"},
 #ifndef MNG_SKIP_MAXCANVAS

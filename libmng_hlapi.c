@@ -163,6 +163,9 @@
 /* *             1.0.6 - 07/29/2003 - G.R-P                                 * */
 /* *             - added conditionals around PAST chunk support             * */
 /* *                                                                        * */
+/* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
+/* *             - put gamma, cms-related declarations inside #ifdef        * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -660,8 +663,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
 #endif
     {"mng_get_usebkgd",            1, 0, 0},
     {"mng_get_userdata",           1, 0, 0},
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
     {"mng_get_viewgamma",          1, 0, 0},
     {"mng_get_viewgammaint",       1, 0, 0},
+#endif
 #ifdef MNG_ACCESS_ZLIB
     {"mng_get_zlib_level",         1, 0, 0},
     {"mng_get_zlib_maxidat",       1, 0, 0},
@@ -976,8 +981,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_set_suspensionmode",     1, 0, 0},
     {"mng_set_usebkgd",            1, 0, 0},
     {"mng_set_userdata",           1, 0, 0},
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
     {"mng_set_viewgamma",          1, 0, 0},
     {"mng_set_viewgammaint",       1, 0, 0},
+#endif
 #ifdef MNG_ACCESS_ZLIB
     {"mng_set_zlib_level",         1, 0, 0},
     {"mng_set_zlib_maxidat",       1, 0, 0},

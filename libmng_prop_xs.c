@@ -96,6 +96,8 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
+/* *             - put gamma, cms-related functions inside #ifdef           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -637,6 +639,7 @@ mng_retcode MNG_DECL mng_set_srgbimplicit (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_retcode MNG_DECL mng_set_viewgamma (mng_handle hHandle,
                                         mng_float  dGamma)
 {
@@ -653,6 +656,7 @@ mng_retcode MNG_DECL mng_set_viewgamma (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -694,6 +698,7 @@ mng_retcode MNG_DECL mng_set_dfltimggamma (mng_handle hHandle,
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_retcode MNG_DECL mng_set_viewgammaint (mng_handle hHandle,
                                            mng_uint32 iGamma)
 {
@@ -710,6 +715,7 @@ mng_retcode MNG_DECL mng_set_viewgammaint (mng_handle hHandle,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -1770,6 +1776,7 @@ mng_bool MNG_DECL mng_get_srgb (mng_handle hHandle)
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_float MNG_DECL mng_get_viewgamma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1784,9 +1791,11 @@ mng_float MNG_DECL mng_get_viewgamma (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->dViewgamma;
 }
+#endif
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_float MNG_DECL mng_get_displaygamma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1801,10 +1810,12 @@ mng_float MNG_DECL mng_get_displaygamma (mng_handle hHandle)
 
   return ((mng_datap)hHandle)->dDisplaygamma;
 }
+#endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DFLT_INFO
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_float MNG_DECL mng_get_dfltimggamma (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1820,9 +1831,11 @@ mng_float MNG_DECL mng_get_dfltimggamma (mng_handle hHandle)
   return ((mng_datap)hHandle)->dDfltimggamma;
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_uint32 MNG_DECL mng_get_viewgammaint (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1837,9 +1850,11 @@ mng_uint32 MNG_DECL mng_get_viewgammaint (mng_handle hHandle)
 
   return (mng_uint32)(((mng_datap)hHandle)->dViewgamma * 100000);
 }
+#endif
 
 /* ************************************************************************** */
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_uint32 MNG_DECL mng_get_displaygammaint (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1854,10 +1869,12 @@ mng_uint32 MNG_DECL mng_get_displaygammaint (mng_handle hHandle)
 
   return (mng_uint32)(((mng_datap)hHandle)->dDisplaygamma * 100000);
 }
+#endif
 
 /* ************************************************************************** */
 
 #ifndef MNG_NO_DFLT_INFO
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 mng_uint32 MNG_DECL mng_get_dfltimggammaint (mng_handle hHandle)
 {
 #ifdef MNG_SUPPORT_TRACE
@@ -1872,6 +1889,7 @@ mng_uint32 MNG_DECL mng_get_dfltimggammaint (mng_handle hHandle)
 
   return (mng_uint32)(((mng_datap)hHandle)->dDfltimggamma * 100000);
 }
+#endif
 #endif
 
 /* ************************************************************************** */

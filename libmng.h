@@ -268,6 +268,8 @@
 /* *             - added CANVAS_RGBA565 and CANVAS_BGRA565                  * */
 /* *             1.0.7 - 01/25/2004 - J.S                                   * */
 /* *             - added premultiplied alpha canvas' for RGBA, ARGB, ABGR   * */
+/* *             1.0.7 - 03/07/2004 - G. Randers-Pehrson                    * */
+/* *             - put gamma, cms-related declarations inside #ifdef        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -891,8 +893,8 @@ MNG_EXT mng_retcode MNG_DECL mng_set_srgbprofile2    (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_srgbimplicit    (mng_handle        hHandle);
 #endif
 
+#if defined(MNG_FULL_CMS) || defined(MNG_GAMMA_ONLY) || defined(MNG_APP_CMS)
 /* Gamma settings */
-/* only used if you #define MNG_FULL_CMS or #define MNG_GAMMA_ONLY */
 /* ... blabla (explain gamma processing a little; eg. formula & stuff) ... */
 MNG_EXT mng_retcode MNG_DECL mng_set_viewgamma       (mng_handle        hHandle,
                                                       mng_float         dGamma);
@@ -905,6 +907,7 @@ MNG_EXT mng_retcode MNG_DECL mng_set_viewgammaint    (mng_handle        hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_set_displaygammaint (mng_handle        hHandle,
                                                       mng_uint32        iGamma);
 MNG_EXT mng_retcode MNG_DECL mng_set_dfltimggammaint (mng_handle        hHandle,
+#endif
                                                       mng_uint32        iGamma);
 
 #ifndef MNG_SKIP_MAXCANVAS
