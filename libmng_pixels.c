@@ -14902,7 +14902,7 @@ mng_retcode mng_magnify_g16_y3 (mng_datap  pData,
 
   return MNG_NOERROR;
 }
-#endif /* MNG_OPTIMIZE_FOOTPRINT
+#endif /* MNG_OPTIMIZE_FOOTPRINT */
 
 /* ************************************************************************** */
 
