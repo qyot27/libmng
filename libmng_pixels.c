@@ -129,6 +129,10 @@
 /* *                                                                        * */
 /* *             1.0.6 - 03/09/2003 - G.Juyn                                * */
 /* *             - hiding 12-bit JPEG stuff                                 * */
+/* *             1.0.6 - 05/11/2003 - Glenn RP                              * */
+/* *             - added size-optimiation COMPOSE routine usage             * */
+/* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
+/* *             - added conditionals around canvas update routines         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -310,14 +314,20 @@ MNG_LOCAL void check_update_region (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_RGB8
 mng_retcode mng_display_rgb8 (mng_datap pData)
 {
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
   mng_uint16 iA16;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
+#else
+  mng_uint16 iFGg16;
+  mng_uint16 iBGg16;
+#endif
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -383,6 +393,20 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
             }
             else
             {                          /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+            int i;
+            for (i=0; i<3; i++)
+            {
+              iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+              iBGg16 = (mng_uint16)(*(pScanline+i));
+              iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+                                       /* and return the composed values */
+              *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+            }
+#else
               iFGr16 = mng_get_uint16 (pDataline  );
               iFGg16 = mng_get_uint16 (pDataline+2);
               iFGb16 = mng_get_uint16 (pDataline+4);
@@ -401,6 +425,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
               *pScanline     = (mng_uint8)(iFGr16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
               *(pScanline+2) = (mng_uint8)(iFGb16 >> 8);
+#endif
             }
           }
 
@@ -424,9 +449,17 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
             }
             else
             {                          /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iA8, *(pScanline+i))
+              }
+#else
               MNG_COMPOSE8 (*pScanline,     *pDataline,     iA8, *pScanline    )
               MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
               MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iA8, *(pScanline+2))
+#endif
             }
           }
 
@@ -445,9 +478,11 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_RGB8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_RGBA8
 mng_retcode mng_display_rgba8 (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -455,7 +490,11 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
   mng_int32  iX;
   mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#else
+  mng_uint16 iFGg16;
+#endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
@@ -530,6 +569,21 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
             {
               if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
               {                        /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+                iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+                iBGg16 = (mng_uint16)(*(pScanline+i));
+                iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                                       /* and return the composed values */
+                *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+                                       /* alpha remains fully opaque !!! */
+              }
+#else
                 iFGr16 = mng_get_uint16 (pDataline  );
                 iFGg16 = mng_get_uint16 (pDataline+2);
                 iFGb16 = mng_get_uint16 (pDataline+4);
@@ -549,6 +603,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
                 *(pScanline+2) = (mng_uint8)(iFGb16 >> 8);
                                        /* alpha remains fully opaque !!! */
+#endif
               }
               else
               {                        /* scale background up */
@@ -597,9 +652,17 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
             {
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i))
+              }
+#else
                 MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
                 MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2))
+#endif
                                        /* alpha remains fully opaque !!! */
               }
               else
@@ -631,9 +694,11 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_RGBA8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_ARGB8
 mng_retcode mng_display_argb8 (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -641,7 +706,11 @@ mng_retcode mng_display_argb8 (mng_datap pData)
   mng_int32  iX;
   mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#else
+  mng_uint16 iFGg16;
+#endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
@@ -717,6 +786,21 @@ mng_retcode mng_display_argb8 (mng_datap pData)
             {
               if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
               {                        /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+                iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+                iBGg16 = (mng_uint16)(*(pScanline+i+1));
+                iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                                       /* and return the composed values */
+                                       /* alpha remains fully opaque !!! */
+                *(pScanline+i+1) = (mng_uint8)(iFGg16 >> 8);
+              }
+#else
                 iFGr16 = mng_get_uint16 (pDataline  );
                 iFGg16 = mng_get_uint16 (pDataline+2);
                 iFGb16 = mng_get_uint16 (pDataline+4);
@@ -736,6 +820,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
                 *(pScanline+1) = (mng_uint8)(iFGr16 >> 8);
                 *(pScanline+2) = (mng_uint8)(iFGg16 >> 8);
                 *(pScanline+3) = (mng_uint8)(iFGb16 >> 8);
+#endif
               }
               else
               {                        /* scale background up */
@@ -785,9 +870,17 @@ mng_retcode mng_display_argb8 (mng_datap pData)
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do simple alpha composing */
                                        /* alpha itself remains fully opaque !!! */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+i), iFGa8, *(pScanline+i+1))
+              }
+#else
                 MNG_COMPOSE8 (*(pScanline+1), *pDataline,     iFGa8, *(pScanline+1))
                 MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2))
                 MNG_COMPOSE8 (*(pScanline+3), *(pDataline+2), iFGa8, *(pScanline+3))
+#endif
               }
               else
               {                        /* now blend */
@@ -818,9 +911,11 @@ mng_retcode mng_display_argb8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_ARGB8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_RGB8_A8
 mng_retcode mng_display_rgb8_a8 (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -829,7 +924,11 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
   mng_int32  iX;
   mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#else
+  mng_uint16 iFGg16;
+#endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
@@ -911,6 +1010,21 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
             {
               if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
               {                        /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+                iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+                iBGg16 = (mng_uint16)(*(pScanline+i));
+                iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                                       /* and return the composed values */
+                *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+                                       /* alpha remains fully opaque !!! */
+              }
+#else
                 iFGr16 = mng_get_uint16 (pDataline  );
                 iFGg16 = mng_get_uint16 (pDataline+2);
                 iFGb16 = mng_get_uint16 (pDataline+4);
@@ -930,6 +1044,7 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
                 *(pScanline+2) = (mng_uint8)(iFGb16 >> 8);
                                        /* alpha remains fully opaque !!! */
+#endif
               }
               else
               {                        /* scale background up */
@@ -979,9 +1094,17 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
             {
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iFGa8, *(pScanline+i))
+              }
+#else
                 MNG_COMPOSE8 (*pScanline,     *pDataline,     iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
                 MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iFGa8, *(pScanline+2))
+#endif
                                        /* alpha remains fully opaque !!! */
               }
               else
@@ -1014,17 +1137,24 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_RGB8_A8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGR8
 mng_retcode mng_display_bgr8 (mng_datap pData)
 {
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
   mng_uint16 iA16;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
+#else
+  mng_uint16 iFGg16;
+  mng_uint16 iBGg16;
+#endif
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1090,6 +1220,20 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
             }
             else
             {                          /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+              iBGg16 = (mng_uint16)(*(pScanline+2-i));
+              iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+                                       /* and return the composed values */
+              *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+              }
+#else
               iFGr16 = mng_get_uint16 (pDataline  );
               iFGg16 = mng_get_uint16 (pDataline+2);
               iFGb16 = mng_get_uint16 (pDataline+4);
@@ -1108,6 +1252,7 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
               *pScanline     = (mng_uint8)(iFGb16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
               *(pScanline+2) = (mng_uint8)(iFGr16 >> 8);
+#endif
             }
           }
 
@@ -1131,9 +1276,17 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
             }
             else
             {                          /* do alpha composing */
-              MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    )
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+i), iA8, *(pScanline+i))
+              }
+#else
+              MNG_COMPOSE8 (*pScanline,     *pDataline,     iA8, *pScanline    )
               MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
-              MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2))
+              MNG_COMPOSE8 (*(pScanline+2), *(pDataline+2), iA8, *(pScanline+2))
+#endif
             }
           }
 
@@ -1152,17 +1305,24 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGR8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGRX8
 mng_retcode mng_display_bgrx8 (mng_datap pData)
 {
   mng_uint8p pScanline;
   mng_uint8p pDataline;
   mng_int32  iX;
   mng_uint16 iA16;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
   mng_uint16 iBGr16, iBGg16, iBGb16;
+#else
+  mng_uint16 iFGg16;
+  mng_uint16 iBGg16;
+#endif
   mng_uint8  iA8;
 
 #ifdef MNG_SUPPORT_TRACE
@@ -1231,6 +1391,20 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
             }
             else
             {                          /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+              iBGg16 = (mng_uint16)(*(pScanline+2-i));
+              iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+              MNG_COMPOSE16(iFGg16, iFGg16, iA16, iBGg16)
+                                       /* and return the composed values */
+              *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+              }
+#else
               iFGr16 = mng_get_uint16 (pDataline  );
               iFGg16 = mng_get_uint16 (pDataline+2);
               iFGb16 = mng_get_uint16 (pDataline+4);
@@ -1249,6 +1423,7 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
               *pScanline     = (mng_uint8)(iFGb16 >> 8);
               *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
               *(pScanline+2) = (mng_uint8)(iFGr16 >> 8);
+#endif
               *(pScanline+3) = 0xFF;   /* filler byte */
             }
           }
@@ -1274,9 +1449,17 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
             }
             else
             {                          /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+              MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iA8, *(pScanline+i))
+              }
+#else
               MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iA8, *pScanline    )
               MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iA8, *(pScanline+1))
               MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iA8, *(pScanline+2))
+#endif
               *(pScanline+3) = 0xFF;   /* filler byte */
             }
           }
@@ -1296,9 +1479,11 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGRX8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGRA8
 mng_retcode mng_display_bgra8 (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -1306,7 +1491,9 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
   mng_int32  iX;
   mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
@@ -1381,6 +1568,21 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
             {
               if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
               {                        /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+                iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+                iBGg16 = (mng_uint16)(*(pScanline+2-i));
+                iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                                       /* and return the composed values */
+                *(pScanline+i) = (mng_uint8)(iFGg16 >> 8);
+                                       /* alpha remains fully opaque !!! */
+              }
+#else
                 iFGr16 = mng_get_uint16 (pDataline  );
                 iFGg16 = mng_get_uint16 (pDataline+2);
                 iFGb16 = mng_get_uint16 (pDataline+4);
@@ -1400,6 +1602,7 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
                 *(pScanline+1) = (mng_uint8)(iFGg16 >> 8);
                 *(pScanline+2) = (mng_uint8)(iFGr16 >> 8);
                                        /* alpha remains fully opaque !!! */
+#endif
               }
               else
               {                        /* scale background up */
@@ -1448,9 +1651,17 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
             {
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                int i;
+                for (i=0; i<3; i++)
+                {
+                MNG_COMPOSE8 (*(pScanline+i), *(pDataline+2-i), iFGa8, *(pScanline+i))
+                }
+#else
                 MNG_COMPOSE8 (*pScanline,     *(pDataline+2), iFGa8, *pScanline    )
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+1), iFGa8, *(pScanline+1))
                 MNG_COMPOSE8 (*(pScanline+2), *pDataline,     iFGa8, *(pScanline+2))
+#endif
                                        /* alpha remains fully opaque !!! */
               }
               else
@@ -1482,9 +1693,11 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGRA8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGRA8_PM
 mng_retcode mng_display_bgra8_pm (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -1635,9 +1848,11 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGRA8_PM */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_ABGR8
 mng_retcode mng_display_abgr8 (mng_datap pData)
 {
   mng_uint8p pScanline;
@@ -1645,7 +1860,11 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
   mng_int32  iX;
   mng_uint16 iFGa16, iBGa16, iCa16;
   mng_uint8  iFGa8, iBGa8, iCa8;
+#ifndef MNG_OPTIMIZE_FOOTPRINT
   mng_uint16 iFGr16, iFGg16, iFGb16;
+#else
+  mng_uint16 iFGg16;
+#endif
   mng_uint16 iBGr16, iBGg16, iBGb16;
   mng_uint16 iCr16, iCg16, iCb16;
   mng_uint8  iCr8, iCg8, iCb8;
@@ -1720,6 +1939,21 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
             {
               if (iBGa16 == 0xFFFF)    /* background fully opaque ? */
               {                        /* get the proper values */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+              int i;
+              for (i=0; i<3; i++)
+              {
+                iFGg16 = mng_get_uint16 (pDataline+i+i);
+                                       /* scale background up */
+                iBGg16 = (mng_uint16)(*(pScanline+3-i));
+                iBGg16 = (mng_uint16)((mng_uint32)iBGg16 << 8) | iBGg16;
+                                       /* now compose */
+                MNG_COMPOSE16(iFGg16, iFGg16, iFGa16, iBGg16)
+                                       /* and return the composed values */
+                                       /* alpha itself remains fully opaque !!! */
+                *(pScanline+i+1) = (mng_uint8)(iFGg16 >> 8);
+              }
+#else
                 iFGr16 = mng_get_uint16 (pDataline  );
                 iFGg16 = mng_get_uint16 (pDataline+2);
                 iFGb16 = mng_get_uint16 (pDataline+4);
@@ -1739,6 +1973,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
                 *(pScanline+1) = (mng_uint8)(iFGb16 >> 8);
                 *(pScanline+2) = (mng_uint8)(iFGg16 >> 8);
                 *(pScanline+3) = (mng_uint8)(iFGr16 >> 8);
+#endif
               }
               else
               {                        /* scale background up */
@@ -1788,9 +2023,17 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
               if (iBGa8 == 0xFF)       /* background fully opaque ? */
               {                        /* do simple alpha composing */
                                        /* alpha itself remains fully opaque !!! */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+                int i;
+                for (i=0; i<3; i++)
+                {
+                MNG_COMPOSE8 (*(pScanline+i+1), *(pDataline+2-i), iFGa8, *(pScanline+i+1))
+                }
+#else
                 MNG_COMPOSE8 (*(pScanline+1), *(pDataline+2), iFGa8, *(pScanline+1))
                 MNG_COMPOSE8 (*(pScanline+2), *(pDataline+1), iFGa8, *(pScanline+2))
                 MNG_COMPOSE8 (*(pScanline+3), *pDataline,     iFGa8, *(pScanline+3))
+#endif
               }
               else
               {                        /* now blend */
@@ -1821,6 +2064,7 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_ABGR8 */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -2062,6 +2306,7 @@ mng_retcode mng_restore_bkgd_bgcolor (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_RGB8
 mng_retcode mng_restore_bkgd_rgb8 (mng_datap pData)
 {
   mng_int32  iX;
@@ -2096,9 +2341,11 @@ mng_retcode mng_restore_bkgd_rgb8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_RGB8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGR8
 mng_retcode mng_restore_bkgd_bgr8 (mng_datap pData)
 {
   mng_int32  iX;
@@ -2133,9 +2380,11 @@ mng_retcode mng_restore_bkgd_bgr8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGR8 */
 
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_BGRX8
 mng_retcode mng_restore_bkgd_bgrx8 (mng_datap pData)
 {
   mng_int32  iX;
@@ -2170,6 +2419,7 @@ mng_retcode mng_restore_bkgd_bgrx8 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif /* MNG_SKIPCANVAS_BGRX8 */
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -15412,9 +15662,17 @@ mng_retcode mng_composeover_rgba8 (mng_datap pData)
       {
         if (iBGa8 == 0xFF)       /* background fully opaque ? */
         {                        /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+          int i;
+          for (i=0; i<3; i++)
+          {
+          MNG_COMPOSE8 (*(pOutrow+i), *(pWorkrow+i), iFGa8, *(pOutrow+i))
+          }
+#else
           MNG_COMPOSE8 (*pOutrow,     *pWorkrow,     iFGa8, *pOutrow    )
           MNG_COMPOSE8 (*(pOutrow+1), *(pWorkrow+1), iFGa8, *(pOutrow+1))
           MNG_COMPOSE8 (*(pOutrow+2), *(pWorkrow+2), iFGa8, *(pOutrow+2))
+#endif
                                  /* alpha remains fully opaque !!! */
         }
         else
@@ -15549,9 +15807,17 @@ mng_retcode mng_composeunder_rgba8 (mng_datap pData)
     {
       if (iBGa8 == 0xFF)         /* background fully opaque ? */
       {                          /* do alpha composing */
+#ifdef MNG_OPTIMIZE_FOOTPRINT
+        int i;
+        for (i=0; i<3; i++)
+        {
+        MNG_COMPOSE8 (*(pOutrow+i), *(pOutrow+i), iFGa8, *(pWorkrow+i))
+        }
+#else
         MNG_COMPOSE8 (*pOutrow,     *pOutrow,     iFGa8, *pWorkrow    )
         MNG_COMPOSE8 (*(pOutrow+1), *(pOutrow+1), iFGa8, *(pWorkrow+1))
         MNG_COMPOSE8 (*(pOutrow+2), *(pOutrow+2), iFGa8, *(pWorkrow+2))
+#endif
         *(pOutrow+3) = 0xFF;     /* alpha becomes fully opaque !!! */
       }
       else

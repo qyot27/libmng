@@ -61,6 +61,8 @@
 /* *                                                                        * */
 /* *             1.0.6 - 03/09/2003 - G.Juyn                                * */
 /* *             - hiding 12-bit JPEG stuff                                 * */
+/* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
+/* *             - added conditionals around canvas update routines         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -94,15 +96,33 @@ mng_retcode mng_display_progressive_check (mng_datap pData);
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCANVAS_RGB8
 mng_retcode mng_display_rgb8           (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_RGBA8
 mng_retcode mng_display_rgba8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8
 mng_retcode mng_display_argb8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_RGB8_A8
 mng_retcode mng_display_rgb8_a8        (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
 mng_retcode mng_display_bgr8           (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
 mng_retcode mng_display_bgrx8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8
 mng_retcode mng_display_bgra8          (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8_PM
 mng_retcode mng_display_bgra8_pm       (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8
 mng_retcode mng_display_abgr8          (mng_datap  pData);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */
@@ -115,9 +135,15 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap  pData);
 mng_retcode mng_restore_bkgd_backcolor (mng_datap  pData);
 mng_retcode mng_restore_bkgd_bkgd      (mng_datap  pData);
 mng_retcode mng_restore_bkgd_bgcolor   (mng_datap  pData);
+#ifndef MNG_SKIPCANVAS_RGB8
 mng_retcode mng_restore_bkgd_rgb8      (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
 mng_retcode mng_restore_bkgd_bgr8      (mng_datap  pData);
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
 mng_retcode mng_restore_bkgd_bgrx8     (mng_datap  pData);
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */

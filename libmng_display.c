@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -184,6 +184,9 @@
 /* *             - B654627 - fixed SEGV when no gettickcount callback       * */
 /* *             - B664383 - fixed typo                                     * */
 /* *             - finalized changes in TERM/final_delay to elected proposal* */
+/* *                                                                        * */
+/* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
+/* *             - added conditionals around canvas update routines         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -419,15 +422,33 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
   {
     switch (pData->iCanvasstyle)         /* determine display routine */
     {
+#ifndef MNG_SKIPCANVAS_RGB8
       case MNG_CANVAS_RGB8    : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8;     break; }
+#endif
+#ifndef MNG_SKIPCANVAS_RGBA8
       case MNG_CANVAS_RGBA8   : { pData->fDisplayrow = (mng_fptr)mng_display_rgba8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8
       case MNG_CANVAS_ARGB8   : { pData->fDisplayrow = (mng_fptr)mng_display_argb8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_RGB8_A8
       case MNG_CANVAS_RGB8_A8 : { pData->fDisplayrow = (mng_fptr)mng_display_rgb8_a8;  break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
       case MNG_CANVAS_BGR8    : { pData->fDisplayrow = (mng_fptr)mng_display_bgr8;     break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
       case MNG_CANVAS_BGRX8   : { pData->fDisplayrow = (mng_fptr)mng_display_bgrx8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8
       case MNG_CANVAS_BGRA8   : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8_PM
       case MNG_CANVAS_BGRA8PM : { pData->fDisplayrow = (mng_fptr)mng_display_bgra8_pm; break; }
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8
       case MNG_CANVAS_ABGR8   : { pData->fDisplayrow = (mng_fptr)mng_display_abgr8;    break; }
+#endif
 /*      case MNG_CANVAS_RGB16   : { pData->fDisplayrow = (mng_fptr)mng_display_rgb16;    break; } */
 /*      case MNG_CANVAS_RGBA16  : { pData->fDisplayrow = (mng_fptr)mng_display_rgba16;   break; } */
 /*      case MNG_CANVAS_ARGB16  : { pData->fDisplayrow = (mng_fptr)mng_display_argb16;   break; } */
@@ -541,9 +562,15 @@ MNG_LOCAL mng_retcode load_bkgdlayer (mng_datap pData)
       {
         switch (pData->iBkgdstyle)
         {
+#ifndef MNG_SKIPCANVAS_RGB8
           case MNG_CANVAS_RGB8    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
           case MNG_CANVAS_BGR8    : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgr8;    break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
           case MNG_CANVAS_BGRX8   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgrx8;   break; }
+#endif
   /*        case MNG_CANVAS_RGB16   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_rgb16;   break; } */
   /*        case MNG_CANVAS_BGR16   : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_bgr16;   break; } */
   /*        case MNG_CANVAS_INDEX8  : { pData->fRestbkgdrow = (mng_fptr)mng_restore_bkgd_index8;  break; } */
@@ -5803,4 +5830,5 @@ mng_retcode mng_process_display_past2 (mng_datap pData)
 /* ************************************************************************** */
 /* * end of file                                                            * */
 /* ************************************************************************** */
+
 

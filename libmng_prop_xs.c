@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_prop_xs.c          copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : property get/set interface (implementation)                * */
 /* *                                                                        * */
@@ -83,6 +83,9 @@
 /* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
 /* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
+/* *             1.0.6 - 05/11/2003 - G. Juyn                               * */
+/* *             - added conditionals around canvas update routines         * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -136,15 +139,33 @@ mng_retcode MNG_DECL mng_set_canvasstyle (mng_handle hHandle,
 
   switch (iStyle)
   {
+#ifndef MNG_SKIPCANVAS_RGB8
     case MNG_CANVAS_RGB8    : break;
+#endif
+#ifndef MNG_SKIPCANVAS_RGBA8
     case MNG_CANVAS_RGBA8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_ARGB8
     case MNG_CANVAS_ARGB8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_RGB8_A8
     case MNG_CANVAS_RGB8_A8 : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
     case MNG_CANVAS_BGR8    : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
     case MNG_CANVAS_BGRX8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8
     case MNG_CANVAS_BGRA8   : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGRA8_PM
     case MNG_CANVAS_BGRA8PM : break;
+#endif
+#ifndef MNG_SKIPCANVAS_ABGR8
     case MNG_CANVAS_ABGR8   : break;
+#endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_RGBA16  : break; */
 /*    case MNG_CANVAS_ARGB16  : break; */
@@ -187,8 +208,15 @@ mng_retcode MNG_DECL mng_set_bkgdstyle (mng_handle hHandle,
 
   switch (iStyle)                      /* alpha-modes not supported */
   {
+#ifndef MNG_SKIPCANVAS_RGB8
     case MNG_CANVAS_RGB8    : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGR8
     case MNG_CANVAS_BGR8    : break;
+#endif
+#ifndef MNG_SKIPCANVAS_BGRX8
+    case MNG_CANVAS_BGRX8   : break;
+#endif
 /*    case MNG_CANVAS_RGB16   : break; */
 /*    case MNG_CANVAS_BGR16   : break; */
 /*    case MNG_CANVAS_INDEX8  : break; */

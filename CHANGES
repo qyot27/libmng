@@ -16,6 +16,9 @@ core:
 - removed some compiler-warnings
 - hiding 12-bit JPEG stuff
 - fixed problem with infinite loops during readdisplay()
+- added size-optimiation COMPOSE routine usage
+- added conditionals around canvas update routines
+- added special conditional to optimize Mozilla footprint
 
 samples:
 
