@@ -81,6 +81,8 @@
 /* *             - added two more conditionals                              * */
 /* *             1.0.9 - 09/25/2004 - G.Juyn                                * */
 /* *             - replaced MNG_TWEAK_LARGE_FILES with permanent solution   * */
+/* *             1.0.9 - 17/14/2004 - G.Juyn                                * */
+/* *             - fixed PPLT getchunk/putchunk routines                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1988,6 +1990,7 @@ mng_retcode MNG_DECL mng_getchunk_prom (mng_handle hHandle,
 #ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
                                         mng_handle hChunk,
+                                        mng_uint8  *iDeltatype,
                                         mng_uint32 *iCount)
 {
   mng_datap pData;
@@ -2004,7 +2007,8 @@ mng_retcode MNG_DECL mng_getchunk_pplt (mng_handle hHandle,
   if (pChunk->sHeader.iChunkname != MNG_UINT_PPLT)
     MNG_ERROR (pData, MNG_WRONGCHUNK)  /* ouch */
 
-  *iCount = pChunk->iCount;            /* fill the field */
+  *iDeltatype = pChunk->iDeltatype;    /* fill the fields */
+  *iCount     = pChunk->iCount;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_GETCHUNK_PPLT, MNG_LC_END)
@@ -5077,6 +5081,7 @@ mng_retcode MNG_DECL mng_putchunk_ipng (mng_handle hHandle)
 
 #ifndef MNG_NO_DELTA_PNG
 mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
+                                        mng_uint8  iDeltatype,
                                         mng_uint32 iCount)
 {
   mng_datap        pData;
@@ -5106,7 +5111,8 @@ mng_retcode MNG_DECL mng_putchunk_pplt (mng_handle hHandle,
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
                                        /* fill the chunk */
-  ((mng_ppltp)pChunk)->iCount = iCount;
+  ((mng_ppltp)pChunk)->iDeltatype = iDeltatype;
+  ((mng_ppltp)pChunk)->iCount     = iCount;
 
   mng_add_chunk (pData, pChunk);       /* add it to the list */
 
@@ -5126,8 +5132,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
                                               mng_uint16 iRed,
                                               mng_uint16 iGreen,
                                               mng_uint16 iBlue,
-                                              mng_uint16 iAlpha,
-                                              mng_bool   bUsed)
+                                              mng_uint16 iAlpha)
 {
   mng_datap       pData;
   mng_chunkp      pChunk;
@@ -5161,7 +5166,7 @@ mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle hHandle,
   pEntry->iGreen = (mng_uint8)iGreen;
   pEntry->iBlue  = (mng_uint8)iBlue;
   pEntry->iAlpha = (mng_uint8)iAlpha;
-  pEntry->bUsed  = bUsed;
+  pEntry->bUsed  = MNG_TRUE;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_PUTCHUNK_PPLT_ENTRY, MNG_LC_END)

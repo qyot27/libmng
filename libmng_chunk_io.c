@@ -6236,16 +6236,14 @@ READ_CHUNK (mng_read_pplt)
 
     pTemp += 2;
     iLen  -= 2;
-
+    iDiff = (iM - iX + 1);
     if ((iDeltatype == MNG_DELTATYPE_REPLACERGB  ) ||
         (iDeltatype == MNG_DELTATYPE_DELTARGB    )    )
-      iDiff = (iM - iX + 1) * 3;
+      iDiff = iDiff * 3;
     else
-    if ((iDeltatype == MNG_DELTATYPE_REPLACEALPHA) ||
-        (iDeltatype == MNG_DELTATYPE_DELTAALPHA  )    )
-      iDiff = (iM - iX + 1);
-    else
-      iDiff = (iM - iX + 1) * 4;
+    if ((iDeltatype == MNG_DELTATYPE_REPLACERGBA) ||
+        (iDeltatype == MNG_DELTATYPE_DELTARGBA  )    )
+      iDiff = iDiff * 4;
 
     if (iLen < iDiff)
       MNG_ERROR (pData, MNG_INVALIDLENGTH)
@@ -9494,6 +9492,7 @@ WRITE_CHUNK (mng_write_pplt)
         *(pTemp+1) = 0;
 
         pTemp += 2;
+        iRawlen += 2;
       }
 
       switch (pPPLT->iDeltatype)       /* add group-entry depending on type */
@@ -9505,6 +9504,7 @@ WRITE_CHUNK (mng_write_pplt)
                   *(pTemp+2) = pEntry->iBlue;
 
                   pTemp += 3;
+                  iRawlen += 3;
 
                   break;
                 }
@@ -9514,6 +9514,7 @@ WRITE_CHUNK (mng_write_pplt)
                   *pTemp     = pEntry->iAlpha;
 
                   pTemp++;
+                  iRawlen++;
 
                   break;
                 }
@@ -9526,6 +9527,7 @@ WRITE_CHUNK (mng_write_pplt)
                   *(pTemp+3) = pEntry->iAlpha;
 
                   pTemp += 4;
+                  iRawlen += 4;
 
                   break;
                 }

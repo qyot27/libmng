@@ -284,6 +284,8 @@
 /* *             - added function to retrieve current FRAM delay            * */
 /* *             1.0.9 - 10/14/2004 - G.Juyn                                * */
 /* *             - added bgr565_a8 canvas-style (thanks to J. Elvander)     * */
+/* *             1.0.9 - 17/14/2004 - G.Juyn                                * */
+/* *             - fixed PPLT getchunk/putchunk routines                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1743,6 +1745,7 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_prom       (mng_handle       hHandle,
 
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_pplt       (mng_handle       hHandle,
                                                       mng_handle       hChunk,
+                                                      mng_uint8        *iDeltatype,
                                                       mng_uint32       *iCount);
 
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_pplt_entry (mng_handle       hHandle,
@@ -2163,6 +2166,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_prom       (mng_handle       hHandle,
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_ipng       (mng_handle       hHandle);
 
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_pplt       (mng_handle       hHandle,
+                                                      mng_uint8        iDeltatype,
                                                       mng_uint32       iCount);
 
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle       hHandle,
@@ -2170,8 +2174,7 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_pplt_entry (mng_handle       hHandle,
                                                       mng_uint16       iRed,
                                                       mng_uint16       iGreen,
                                                       mng_uint16       iBlue,
-                                                      mng_uint16       iAlpha,
-                                                      mng_bool         bUsed);
+                                                      mng_uint16       iAlpha);
 
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_jpng       (mng_handle       hHandle);
 
