@@ -181,7 +181,7 @@ typedef signed   int   mng_int32;
 typedef unsigned long  mng_uint32;
 typedef signed   long  mng_int32;
 #else
-#error 'Sorry, I can't find any 32-bit integers on this platform.'
+#error "Sorry, I can't find any 32-bit integers on this platform."
 #endif
 
 typedef signed   short mng_int16;                /* other basic integers */
