@@ -156,7 +156,7 @@ mng_retcode mng_display_rgba565        (mng_datap  pData);
 #ifndef MNG_SKIPCANVAS_BGR565
 mng_retcode mng_display_bgr565         (mng_datap  pData);
 #endif
-#ifndef MNG_SKIPCANVAS_BGRA565
+#ifndef MNG_SKIPCANVAS_BGRA565
 mng_retcode mng_display_bgra565        (mng_datap  pData);
 #endif
 

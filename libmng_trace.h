@@ -577,7 +577,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_RGBA565       1128
 #define MNG_FN_DISPLAY_BGR565        1129
 #define MNG_FN_DISPLAY_BGRA565       1130
-#define MNG_FN_DISPLAY_RGBA8_PM      1131
+#define MNG_FN_DISPLAY_RGBA8_PM      1131
 #define MNG_FN_DISPLAY_ARGB8_PM      1132
 #define MNG_FN_DISPLAY_ABGR8_PM      1133
 
