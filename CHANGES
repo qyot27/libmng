@@ -10,6 +10,7 @@ in short:
 -------------------
 
 bugfixes:
+- B719420 - fixed several MNG_APP_CMS problems
 
 core:
 - removed some compiler-warnings

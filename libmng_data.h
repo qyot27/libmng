@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_data.h             copyright (c) 2000-2002 G.Juyn   * */
-/* * version   : 1.0.5                                                      * */
+/* * version   : 1.0.6                                                      * */
 /* *                                                                        * */
 /* * purpose   : main data structure definition                             * */
 /* *                                                                        * */
@@ -127,6 +127,9 @@
 /* *             - added support to get totals after mng_read()             * */
 /* *             1.0.5 - 24/02/2003 - G.Juyn                                * */
 /* *             - B683152 - libjpeg suspension not always honored correctly* */
+/* *                                                                        * */
+/* *             1.0.6 - 11/04/2003 - G.Juyn                                * */
+/* *             - B719420 - fixed several MNG_APP_CMS problems             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -524,7 +527,7 @@ typedef struct mng_data_struct {
            mng_objectp       pLastevent;         /* event-object structures */
 #endif
 
-#if defined(MNG_GAMMA_ONLY) || defined(MNG_FULL_CMS)
+#if defined(MNG_GAMMA_ONLY) || defined(MNG_FULL_CMS) || defined(MNG_APP_CMS)
            mng_uint8         aGammatab[256];     /* precomputed gamma lookup table */
            mng_float         dLastgamma;         /* last gamma used to compute table */
 #endif
