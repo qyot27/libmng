@@ -164,7 +164,7 @@ mng_retcode read_databuffer (mng_datap    pData,
     }
     else
     {                                  /* need to read some more ? */
-      while ((!pData->bSuspended) && (iSize > pData->iSuspendbufleft))
+      while ((!pData->bSuspended) && (!pData->bEOF) && (iSize > pData->iSuspendbufleft))
       {                                /* not enough space left in buffer ? */
         if (pData->iSuspendbufsize - pData->iSuspendbufleft -
             (mng_uint32)(pData->pSuspendbufnext - pData->pSuspendbuf) <
@@ -206,6 +206,8 @@ mng_retcode read_databuffer (mng_datap    pData,
             pData->bSuspended = MNG_TRUE;
 
         }
+
+        pData->iSuspendpoint = 0;      /* reset it here in case we loop back */ 
       }
 
       if ((!pData->bSuspended) && (!pData->bEOF))
