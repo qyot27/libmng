@@ -217,17 +217,21 @@
 /* #define MNG_BIGENDIAN_SUPPORTED */
 
 /* ************************************************************************** */
+/* enable 'version' functions */
+#if !defined(MNG_VERSION_QUERY_SUPPORT) && \
+    !defined(MNG_NO_VERSION_QUERY_SUPPORT)
+#define MNG_VERSION_QUERY_SUPPORT
+#endif
 
 /* enable 'supports' function */
 /* use this if you need to query the availability of functions at runtime;
    useful for apps that dynamically load the library and that need specific
    functions */
 
-#ifndef MNG_NO_SUPPORT_FUNCQUERY
-#ifndef MNG_SUPPORT_FUNCQUERY
-#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
+#if !defined(MNG_NO_SUPPORT_FUNCQUERY) && !defined(MNG_SUPPORT_FUNCQUERY)
+#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || \
+    defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
 #define MNG_SUPPORT_FUNCQUERY
-#endif
 #endif
 #endif
 

@@ -516,6 +516,7 @@ MNG_LOCAL void cleanup_errors (mng_datap pData)
   return;
 }
 
+#ifdef MNG_VERSION_QUERY_SUPPORT
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  Versioning control                                                    * */
@@ -568,6 +569,7 @@ mng_bool MNG_DECL mng_version_beta (void)
 {
   return MNG_VERSION_BETA;
 }
+#endif
 
 /* ************************************************************************** */
 /* *                                                                        * */

@@ -37,6 +37,7 @@
 #ifndef MNG_BUILD_DEFINED
 #define MNG_BUILD_FULL_MNG
 #define MNG_BUILD_DEFINED
+#endif
 
 #if defined(MNG_BUILD_FULL_MNG)
 #define MNG_DISABLE_UNUSED 
@@ -110,6 +111,7 @@
 
 #if defined(MNG_DISABLE_UNUSED)
 /* Eliminate unused features from libmng */
+#define MNG_NO_VERSION_QUERY_SUPPORT
 #define MNG_NO_OLD_VERSIONS
 #define MNG_SKIPCANVAS_ABGR8
 #define MNG_SKIPCANVAS_ARGB8
