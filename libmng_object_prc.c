@@ -135,6 +135,8 @@
 /* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
 /* *             1.0.9 - 12/31/2004 - G.R-P.                                * */
 /* *             - fixed warnings about possible uninitialized pointers     * */
+/* *             1.0.9 - 01/02/2005 - G.Juyn                                * */
+/* *             - fixing some compiler-warnings                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -261,7 +263,7 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   {
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_imagedata),
                                                (mng_cleanupobject)mng_free_imagedataobject,
-                                               MNG_NULL, &pImagedata);
+                                               MNG_NULL, &((mng_object_headerp)pImagedata));
     if (iRetcode)
       return iRetcode;
   }
@@ -737,7 +739,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   {
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_image),
                                                (mng_cleanupobject)mng_free_imageobject,
-                                               MNG_NULL, &pNew);
+                                               MNG_NULL, &((mng_object_headerp)pNew));
     if (iRetcode)
       return iRetcode;
   }
@@ -2562,7 +2564,7 @@ mng_retcode mng_create_ani_plte (mng_datap      pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_plte),
                                                mng_free_obj_general,
                                                mng_process_ani_plte,
-                                               &pPLTE);
+                                               &((mng_object_headerp)pPLTE));
     if (iRetcode)
       return iRetcode;
 #else
@@ -2656,7 +2658,7 @@ mng_retcode mng_create_ani_trns (mng_datap    pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_trns),
                                                mng_free_obj_general,
                                                mng_process_ani_trns,
-                                               &pTRNS);
+                                               &((mng_object_headerp)pTRNS));
     if (iRetcode)
       return iRetcode;
 #else
@@ -2752,7 +2754,7 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_gama),
                                                mng_free_obj_general,
                                                mng_process_ani_gama,
-                                               &pGAMA);
+                                               &((mng_object_headerp)pGAMA));
     if (iRetcode)
       return iRetcode;
 #else
@@ -2862,7 +2864,7 @@ mng_retcode mng_create_ani_chrm (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_chrm),
                                                mng_free_obj_general,
                                                mng_process_ani_chrm,
-                                               &pCHRM);
+                                               &((mng_object_headerp)pCHRM));
     if (iRetcode)
       return iRetcode;
 #else
@@ -2993,7 +2995,7 @@ mng_retcode mng_create_ani_srgb (mng_datap pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_srgb),
                                                mng_free_obj_general,
                                                mng_process_ani_srgb,
-                                               &pSRGB);
+                                               &((mng_object_headerp)pSRGB));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3097,7 +3099,7 @@ mng_retcode mng_create_ani_iccp (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_iccp),
                                                mng_free_ani_iccp,
                                                mng_process_ani_iccp,
-                                               &pICCP);
+                                               &((mng_object_headerp)pICCP));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3232,7 +3234,7 @@ mng_retcode mng_create_ani_bkgd (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_bkgd),
                                                mng_free_obj_general,
                                                mng_process_ani_bkgd,
-                                               &pBKGD);
+                                               &((mng_object_headerp)pBKGD));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3336,7 +3338,7 @@ mng_retcode mng_create_ani_loop (mng_datap   pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_loop),
                                                mng_free_ani_loop,
                                                mng_process_ani_loop,
-                                               &pLOOP);
+                                               &((mng_object_headerp)pLOOP));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3465,7 +3467,7 @@ mng_retcode mng_create_ani_endl (mng_datap pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_endl),
                                                mng_free_obj_general,
                                                mng_process_ani_endl,
-                                               &pENDL);
+                                               &((mng_object_headerp)pENDL));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3605,7 +3607,7 @@ mng_retcode mng_create_ani_defi (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_defi),
                                                mng_free_obj_general,
                                                mng_process_ani_defi,
-                                               &pDEFI);
+                                               &((mng_object_headerp)pDEFI));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3728,7 +3730,7 @@ mng_retcode mng_create_ani_basi (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_basi),
                                    mng_free_obj_general,
                                    mng_process_ani_basi,
-                                   &pBASI);
+                                   &((mng_object_headerp)pBASI));
     if (iRetcode)
       return iRetcode;
 #else
@@ -3884,7 +3886,7 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_clon),
                                    mng_free_obj_general,
                                    mng_process_ani_clon,
-                                   &pCLON);
+                                   &((mng_object_headerp)pCLON));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4062,7 +4064,7 @@ mng_retcode mng_create_ani_back (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_back),
                                                mng_free_obj_general,
                                                mng_process_ani_back,
-                                               &pBACK);
+                                               &((mng_object_headerp)pBACK));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4178,7 +4180,7 @@ mng_retcode mng_create_ani_fram (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_fram),
                                    mng_free_obj_general,
                                    mng_process_ani_fram,
-                                   &pFRAM);
+                                   &((mng_object_headerp)pFRAM));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4375,7 +4377,7 @@ mng_retcode mng_create_ani_move (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_move),
                                    mng_free_obj_general,
                                    mng_process_ani_move,
-                                   &pMOVE);
+                                   &((mng_object_headerp)pMOVE));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4522,7 +4524,7 @@ mng_retcode mng_create_ani_clip (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_clip),
                                    mng_free_obj_general,
                                    mng_process_ani_clip,
-                                   &pCLIP);
+                                   &((mng_object_headerp)pCLIP));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4677,7 +4679,7 @@ mng_retcode mng_create_ani_show (mng_datap  pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_show),
                                                mng_free_obj_general,
                                                mng_process_ani_show,
-                                               &pSHOW);
+                                               &((mng_object_headerp)pSHOW));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4786,7 +4788,7 @@ mng_retcode mng_create_ani_term (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_term),
                                                mng_free_obj_general,
                                                mng_process_ani_term,
-                                               &pTERM);
+                                               &((mng_object_headerp)pTERM));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4874,7 +4876,7 @@ mng_retcode mng_create_ani_save (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_save),
                                                mng_free_obj_general,
                                                mng_process_ani_save,
-                                               &pSAVE);
+                                               &((mng_object_headerp)pSAVE));
     if (iRetcode)
       return iRetcode;
 #else
@@ -4963,7 +4965,7 @@ mng_retcode mng_create_ani_seek (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_seek),
                                                mng_free_ani_seek,
                                                mng_process_ani_seek,
-                                               &pSEEK);
+                                               &((mng_object_headerp)pSEEK));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5110,7 +5112,7 @@ mng_retcode mng_create_ani_dhdr (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_dhdr),
                                    mng_free_obj_general,
                                    mng_process_ani_dhdr,
-                                   &pDHDR);
+                                   &((mng_object_headerp)pDHDR));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5271,7 +5273,7 @@ mng_retcode mng_create_ani_prom (mng_datap pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_prom),
                                    mng_free_obj_general,
                                    mng_process_ani_prom,
-                                   &pPROM);
+                                   &((mng_object_headerp)pPROM));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5393,7 +5395,7 @@ mng_retcode mng_create_ani_ipng (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ipng),
                                                mng_free_obj_general,
                                                mng_process_ani_ipng,
-                                               &pIPNG);
+                                               &((mng_object_headerp)pIPNG));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5475,7 +5477,7 @@ mng_retcode mng_create_ani_ijng (mng_datap pData)
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_ani_ijng),
                                                mng_free_obj_general,
                                                mng_process_ani_ijng,
-                                               &pIJNG);
+                                               &((mng_object_headerp)pIJNG));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5563,7 +5565,7 @@ mng_retcode mng_create_ani_pplt (mng_datap      pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_pplt),
                                    mng_free_obj_general,
                                    mng_process_ani_pplt,
-                                   &pPPLT);
+                                   &((mng_object_headerp)pPPLT));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5690,7 +5692,7 @@ mng_retcode mng_create_ani_magn (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_magn),
                                    mng_free_obj_general,
                                    mng_process_ani_magn,
-                                   &pMAGN);
+                                   &((mng_object_headerp)pMAGN));
     if (iRetcode)
       return iRetcode;
 #else
@@ -5870,7 +5872,7 @@ mng_retcode mng_create_ani_past (mng_datap  pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_past),
                                    mng_free_ani_past,
                                    mng_process_ani_past,
-                                   &pPAST);
+                                   &((mng_object_headerp)pPAST));
     if (iRetcode)
       return iRetcode;
 #else
@@ -6044,7 +6046,7 @@ mng_retcode mng_create_ani_disc (mng_datap   pData,
     iRetcode = create_obj_general (pData, sizeof (mng_ani_disc),
                                    mng_free_ani_disc,
                                    mng_process_ani_disc,
-                                   &pDISC);
+                                   &((mng_object_headerp)pDISC));
     if (iRetcode)
       return iRetcode;
 #else
@@ -6199,7 +6201,7 @@ mng_retcode mng_create_event (mng_datap  pData,
     mng_retcode iRetcode = create_obj_general (pData, sizeof (mng_event),
                                                mng_free_event,
                                                mng_process_event,
-                                               &pEvent);
+                                               &((mng_object_headerp)pEvent));
     if (iRetcode)
       return iRetcode;
 #else
