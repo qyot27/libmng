@@ -1,12 +1,12 @@
 Summary: A library of functions for manipulating MNG format files.
 Name: libmng
-Version: 0.5.2
+Version: 0.9.0
 Release: 1
 Copyright: AS IS
 Group: System Environment/Libraries
-Source0: libmng-0.5.2.tar.gz 
-Patch: libmng-0.5.2-rhconf.patch 
-URL: http://www.libpng.org/pub/mng/
+Source0: libmng-%{PACKAGE_VERSION}.tar.gz 
+Patch: libmng-%{PACKAGE_VERSION}-rhconf.patch 
+URL: http://www.libmng.com/
 BuildRoot: /var/tmp/libmng-root
 BuildPrereq: libjpeg-devel, zlib-devel, lcms-devel
 
@@ -29,6 +29,9 @@ files, you should install libmng-devel.  You'll also need to install
 the libmng package.
 
 %changelog 
+* Sat Jul  1 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
+- updated to 0.9.0
+
 * Sat Jun 24 2000 MATSUURA Takanori <t-matsuu@protein.osaka-u.ac.jp>
 - 1st release for RPM
 
@@ -63,4 +66,3 @@ rm -rf $RPM_BUILD_ROOT
 /usr/include/*
 /usr/lib/libmng.a
 /usr/lib/libmng.so
-
