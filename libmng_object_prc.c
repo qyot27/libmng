@@ -101,7 +101,9 @@
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - fixed DISC support                                       * */
 /* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
-/* *             - fixed goframe/golayer/gotime processing                 * */
+/* *             - fixed goframe/golayer/gotime processing                  * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - fixed magnification bug with object 0                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -662,14 +664,14 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   pNew->iClipt           = pSource->iClipt;
   pNew->iClipb           = pSource->iClipb;
                                        /* copy magnification info */
-  pNew->iMAGN_MethodX    = pSource->iMAGN_MethodX;
+/*  pNew->iMAGN_MethodX    = pSource->iMAGN_MethodX;     LET'S NOT !!!!!!
   pNew->iMAGN_MethodY    = pSource->iMAGN_MethodY;
   pNew->iMAGN_MX         = pSource->iMAGN_MX;
   pNew->iMAGN_MY         = pSource->iMAGN_MY;
   pNew->iMAGN_ML         = pSource->iMAGN_ML;
   pNew->iMAGN_MR         = pSource->iMAGN_MR;
   pNew->iMAGN_MT         = pSource->iMAGN_MT;
-  pNew->iMAGN_MB         = pSource->iMAGN_MB;
+  pNew->iMAGN_MB         = pSource->iMAGN_MB; */
 
   pNew->iPastx           = 0;          /* initialize PAST info */
   pNew->iPasty           = 0;
@@ -2164,20 +2166,37 @@ mng_retcode mng_process_ani_image (mng_datap   pData,
   }
   else
   {
-    mng_imagep pObjzero = (mng_imagep)pData->pObjzero;
-                                       /* overlay with object 0 status */
-    pImage->bVisible  = pObjzero->bVisible;
-    pImage->bViewable = pObjzero->bViewable;
-    pImage->iPosx     = pObjzero->iPosx;
-    pImage->iPosy     = pObjzero->iPosy;
-    pImage->bClipped  = pObjzero->bClipped;
-    pImage->iClipl    = pObjzero->iClipl;
-    pImage->iClipr    = pObjzero->iClipr;
-    pImage->iClipt    = pObjzero->iClipt;
-    pImage->iClipb    = pObjzero->iClipb;
-                                       /* now this should do the trick */
-    if ((pImage->bVisible) && (pImage->bViewable))
-      iRetcode = mng_display_image (pData, pImage, MNG_FALSE);
+    mng_imagep     pObjzero = (mng_imagep)pData->pObjzero;
+    mng_imagedatap pBuf     = pObjzero->pImgbuf;
+
+    if (!pData->iBreakpoint)           /* don't copy it again ! */
+    {
+      if (pBuf->iImgdatasize)          /* buffer present in active object ? */
+                                       /* then drop it */
+        MNG_FREE (pData, pBuf->pImgdata, pBuf->iImgdatasize)
+
+      if (pBuf->iProfilesize)          /* iCCP profile present ? */
+                                       /* then drop it */
+        MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
+                                       /* now blatently copy the animation buffer */
+      MNG_COPY (pBuf, pImage->pImgbuf, sizeof (mng_imagedata))
+                                       /* copy viewability */
+      pObjzero->bViewable = pImage->bViewable;
+
+      if (pBuf->iImgdatasize)          /* sample buffer present ? */
+      {                                /* then make a copy */
+        MNG_ALLOC (pData, pBuf->pImgdata, pBuf->iImgdatasize)
+        MNG_COPY (pBuf->pImgdata, pImage->pImgbuf->pImgdata, pBuf->iImgdatasize)
+      }
+
+      if (pBuf->iProfilesize)          /* iCCP profile present ? */
+      {                                /* then make a copy */
+        MNG_ALLOC (pData, pBuf->pProfile, pBuf->iProfilesize)
+        MNG_COPY (pBuf->pProfile, pImage->pImgbuf->pProfile, pBuf->iProfilesize)
+      }
+    }
+                                       /* now go and show it */
+    iRetcode = mng_display_image (pData, pObjzero, MNG_FALSE);
   }
 
   if (!iRetcode)                       /* all's well ? */

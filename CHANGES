@@ -16,7 +16,8 @@ core:
 - changed FRAMECOUNT/LAYERCOUNT/PLAYTIME error to warning
 - fixed goframe/golayer/gotime processing
 - added support for nEED "MNG 1.1"
-- added support for nEED "CACHEOFF"; turn playback caching off streaming MNG
+- added support for nEED "CACHEOFF"; turn playback caching off for streaming MNG
+- fixed magnification bug with object 0
 
 samples:
 
