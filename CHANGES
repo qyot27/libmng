@@ -37,7 +37,7 @@ core:
 - removed "old" MAGN methods 3 & 4
 - added "new" MAGN methods 3, 4 & 5                       
 - removed test filter-methods 1 & 65                      
-- added default level-set for filtertype=64                
+- set default level-set for filtertype=64 to all zeroes
 
 samples:
 

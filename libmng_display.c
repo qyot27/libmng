@@ -127,7 +127,7 @@
 /* *             - fixed mixup of data- & function-pointers (thanks Dimitri)* */
 /* *             0.9.4 -  1/18/2001 - G.Juyn                                * */
 /* *             - removed test filter-methods 1 & 65                       * */
-/* *             - added default level-set for filtertype=64                * */
+/* *             - set default level-set for filtertype=64 to all zeroes    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2124,10 +2124,10 @@ mng_retcode process_display_ihdr (mng_datap pData)
     }
 
     pData->iFilterofs = 0;             /* determine filter characteristics */
-    pData->iLevel0    = 1028;          /* default levels */
-    pData->iLevel1    = 33924;
-    pData->iLevel2    = 1028;
-    pData->iLevel3    = 1028;
+    pData->iLevel0    = 0;             /* default levels */
+    pData->iLevel1    = 0;    
+    pData->iLevel2    = 0;
+    pData->iLevel3    = 0;
                                        /* leveling & differing ? */
 /*    if (pData->iFilter & 0x40)
     {
@@ -2951,10 +2951,10 @@ mng_retcode process_display_basi (mng_datap  pData,
   }
 
   pData->iFilterofs = 0;               /* determine filter characteristics */
-  pData->iLevel0    = 1028;            /* default levels */
-  pData->iLevel1    = 33924;
-  pData->iLevel2    = 1028;
-  pData->iLevel3    = 1028;
+  pData->iLevel0    = 0;               /* default levels */
+  pData->iLevel1    = 0;
+  pData->iLevel2    = 0;
+  pData->iLevel3    = 0;
                                        /* leveling & differing ? */
 /*  if (pData->iFilter & 0x40)
   {
@@ -3811,10 +3811,10 @@ mng_retcode process_display_jhdr (mng_datap pData)
     }
 
     pData->iFilterofs = 0;             /* determine filter characteristics */
-    pData->iLevel0    = 1028;          /* default levels */
-    pData->iLevel1    = 33924;
-    pData->iLevel2    = 1028;
-    pData->iLevel3    = 1028;
+    pData->iLevel0    = 0;             /* default levels */
+    pData->iLevel1    = 0;    
+    pData->iLevel2    = 0;
+    pData->iLevel3    = 0;
                                        /* leveling & differing ? */
 /*    if (pData->iJHDRalphafilter & 0x40)
     {
