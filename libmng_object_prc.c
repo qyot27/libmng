@@ -2765,7 +2765,7 @@ mng_retcode mng_create_ani_gama (mng_datap  pData,
 #ifndef MNG_OPTIMIZE_CHUNKREADER
     pGAMA->bEmpty = bEmpty;
     pGAMA->iGamma = iGamma;
-#eelse
+#else
     pGAMA->bEmpty = ((mng_gamap)pChunk)->bEmpty;
     pGAMA->iGamma = ((mng_gamap)pChunk)->iGamma;
 #endif
