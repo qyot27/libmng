@@ -205,6 +205,10 @@
 /* *             1.0.8 - 07/07/2004 - G.R-P                                 * */
 /* *             - change worst-case iAlphadepth to 1 for standalone PNGs   * */
 /* *                                                                        * */
+/* *             1.0.9 - 09/28/2004 - G.R-P                                 * */
+/* *             - improved handling of cheap transparency when 16-bit      * */
+/* *               support is disabled                                      * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #include "libmng.h"
@@ -1233,6 +1237,10 @@ READ_CHUNK (mng_read_trns)
                   pBuf->iTRNSgreen = 0;
                   pBuf->iTRNSblue  = 0;
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_16BIT_SUPPORT)
+                  if (pData->iPNGmult == 2)
+                     pBuf->iTRNSgray >>= 8;
+#endif
                   break;
                 }
         case 2: {                      /* rgb */
@@ -1241,6 +1249,14 @@ READ_CHUNK (mng_read_trns)
                   pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
                   pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_16BIT_SUPPORT)
+                  if (pData->iPNGmult == 2)
+                  {
+                     pBuf->iTRNSred   >>= 8;
+                     pBuf->iTRNSgreen >>= 8;
+                     pBuf->iTRNSblue  >>= 8;
+                  }
+#endif
                   break;
                 }
         case 3: {                      /* indexed */
@@ -1295,6 +1311,10 @@ READ_CHUNK (mng_read_trns)
                   pBuf->iTRNSgreen = 0;
                   pBuf->iTRNSblue  = 0;
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_16BIT_SUPPORT)
+                  if (pData->iPNGmult == 2)
+                     pBuf->iTRNSgray >>= 8;
+#endif
                   break;
                 }
         case 2: {                      /* rgb */
@@ -1303,6 +1323,14 @@ READ_CHUNK (mng_read_trns)
                   pBuf->iTRNSgreen = mng_get_uint16 (pRawdata2+2);
                   pBuf->iTRNSblue  = mng_get_uint16 (pRawdata2+4);
                   pBuf->iTRNScount = 0;
+#if defined(MNG_NO_16BIT_SUPPORT)
+                  if (pData->iPNGmult == 2)
+                  {
+                     pBuf->iTRNSred   >>= 8;
+                     pBuf->iTRNSgreen >>= 8;
+                     pBuf->iTRNSblue  >>= 8;
+                  }
+#endif
                   break;
                 }
         case 3: {                      /* indexed */
