@@ -98,6 +98,8 @@
 /* *             - fixed problem with no refresh after TERM                 * */
 /* *             0.9.3 - 09/10/2000 - G.Juyn                                * */
 /* *             - fixed DEFI behavior                                      * */
+/* *             0.9.3 - 09/16/2000 - G.Juyn                                * */
+/* *             - fixed timing & refresh behavior for single PNG/JNG       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -258,7 +260,12 @@ mng_retcode interframe_delay (mng_datap pData)
       }
     }
     else
-      iWaitfor = 1000;
+    {
+      if (pData->eImagetype == mng_it_mng)
+        iWaitfor = 1000;
+      else
+        iWaitfor = 1;
+    }
 
     if (iWaitfor > iRuninterval)       /* delay necessary ? */
       iInterval = iWaitfor - iRuninterval;
@@ -648,8 +655,8 @@ mng_retcode next_layer (mng_datap pData)
 #endif
 
   if (!pData->iBreakpoint)             /* no previous break here ? */
-  {
-    if ((pData->iLayerseq) &&          /* interframe delay required ? */
+  {                                    /* interframe delay required ? */
+    if ((pData->eImagetype == mng_it_mng) && (pData->iLayerseq) &&
         ((pData->iFramemode == 1) || (pData->iFramemode == 3)))
       iRetcode = interframe_delay (pData);
     else
@@ -1872,7 +1879,7 @@ mng_retcode process_display_iend (mng_datap pData)
           pData->iBreakpoint = 6;
       }
     }
-
+    else
     if ((pData->bHasDHDR) ||           /* was it a DHDR stream */
         (pData->iBreakpoint == 8))     /* or did we get broken here last time ? */
     {
@@ -1893,6 +1900,12 @@ mng_retcode process_display_iend (mng_datap pData)
         if (pData->bTimerset)          /* timer break ? */
           pData->iBreakpoint = 8;
       }
+    }
+    else
+    {                                  /* if the image was displayed on the fly, */
+                                       /* we'll have to make the app refresh */
+      if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
+        pData->bNeedrefresh = MNG_TRUE;
     }
   }
 
@@ -1928,10 +1941,6 @@ mng_retcode process_display_iend (mng_datap pData)
         return iRetcode2;
     }
 #endif
-                                       /* if the image was displayed on the fly, */
-                                       /* we'll have to make the app refresh */
-    if ((pData->eImagetype != mng_it_mng) && (pData->fDisplayrow))
-      pData->bNeedrefresh = MNG_TRUE;
 
     if (bCleanup)                      /* if we got broken last time we need to cleanup */
     {

@@ -35,6 +35,8 @@ core:
 - fixed DEFI behavior                                     
 - fixed inclusion parameters to make the external libs work together
 - added export of zlib functions from windows dll         
+- fixed timing & refresh behavior for single PNG/JNG      
+- removed trace-options from default SO/DLL builds        
 
 samples:
 - added BCB mngview contribution by Andy Protano

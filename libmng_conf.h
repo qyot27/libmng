@@ -27,7 +27,9 @@
 /* *             - changed file-prefixes                                    * */
 /* *                                                                        * */
 /* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
-/* *             - Added workaround for faulty PhotoShop iCCP chunk         * */
+/* *             - added workaround for faulty PhotoShop iCCP chunk         * */
+/* *             0.9.3 - 09/16/2000 - G.Juyn                                * */
+/* *             - removed trace-options from default SO/DLL builds         * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -169,11 +171,7 @@
 /* use this if you have trouble location bugs or problems */
 /* NOTE that you'll need to specify the trace callback function! */
 
-#ifndef MNG_SUPPORT_TRACE
-#if defined(MNG_BUILD_SO) || defined(MNG_USE_SO) || defined(MNG_BUILD_DLL) || defined(MNG_USE_DLL)
-#define MNG_SUPPORT_TRACE
-#endif
-#endif
+/* #define MNG_SUPPORT_TRACE */
 
 /* ************************************************************************** */
 

@@ -5027,7 +5027,7 @@ READ_CHUNK (read_jhdr)
     if (pData->iJHDRalphacompression !=  MNG_COMPRESSION_DEFLATE)
       MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-    if (pData->iJHDRalphafilter !=  MNG_FILTER_ADAPTIVE)
+    if (pData->iJHDRalphafilter & (~MNG_FILTER_MASK))
       MNG_ERROR (pData, MNG_INVALIDFILTER)
 
     if ((pData->iJHDRalphainterlace !=  MNG_INTERLACE_NONE ) &&
