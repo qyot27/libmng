@@ -25,3 +25,5 @@ libmng_la_SOURCES = libmng_callback_xs.c libmng_chunk_io.c \
 	libmng_object_prc.c libmng_pixels.c libmng_prop_xs.c \
 	libmng_read.c libmng_trace.c libmng_write.c libmng_zlib.c 
 
+man_MANS = doc/man/libmng.3 doc/man/jng.5 doc/man/mng.5
+

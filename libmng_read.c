@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_read.c             copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.8                                                      * */
+/* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : Read logic (implementation)                                * */
 /* *                                                                        * */
@@ -92,6 +92,9 @@
 /* *             - defend against using undefined closestream function      * */
 /* *             1.0.8 - 07/28/2004 - G.R-P                                 * */
 /* *             - added check for extreme chunk-lengths                    * */
+/* *                                                                        * */
+/* *             1.0.9 - 09/16/2004 - G.Juyn                                * */
+/* *             - fixed chunk pushing mechanism                            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -973,11 +976,94 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
 MNG_LOCAL mng_retcode process_pushedchunk (mng_datap pData)
 {
   mng_retcode   iRetcode;
-  mng_pushdatap pPush = pData->pFirstpushchunk;
+  mng_pushdatap pPush;
 
-  iRetcode = process_raw_chunk (pData, pPush->pData, pPush->iLength);
-  if (iRetcode)
+#ifdef MNG_SUPPORT_DISPLAY
+  if (pData->pCurraniobj)              /* processing an animation object ? */
+  {
+    do                                 /* process it then */
+    {
+      iRetcode = ((mng_object_headerp)pData->pCurraniobj)->fProcess (pData, pData->pCurraniobj);
+                                       /* refresh needed ? */
+/*      if ((!iRetcode) && (!pData->bTimerset) && (pData->bNeedrefresh))
+        iRetcode = display_progressive_refresh (pData, 1); */
+                                       /* can we advance to next object ? */
+      if ((!iRetcode) && (pData->pCurraniobj) &&
+          (!pData->bTimerset) && (!pData->bSectionwait))
+      {                                /* reset timer indicator on read-cycle */
+        if ((pData->bReading) && (!pData->bDisplaying))
+          pData->bTimerset = MNG_FALSE;
+
+        pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
+                                       /* TERM processing to be done ? */
+        if ((!pData->pCurraniobj) && (pData->bHasTERM) && (!pData->bHasMHDR))
+          iRetcode = mng_process_display_mend (pData);
+      }
+    }                                  /* until error or a break or no more objects */
+    while ((!iRetcode) && (pData->pCurraniobj) &&
+           (!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bFreezing));
+  }
+  else
+  {
+    if (pData->iBreakpoint)            /* do we need to finish something first ? */
+    {
+      switch (pData->iBreakpoint)      /* return to broken display routine */
+      {
+#ifndef MNG_SKIPCHUNK_FRAM
+        case  1 : { iRetcode = mng_process_display_fram2 (pData); break; }
+#endif
+        case  2 : { iRetcode = mng_process_display_ihdr  (pData); break; }
+#ifndef MNG_SKIPCHUNK_SHOW
+        case  3 : ;                     /* same as 4 !!! */
+        case  4 : { iRetcode = mng_process_display_show  (pData); break; }
+#endif
+#ifndef MNG_SKIPCHUNK_CLON
+        case  5 : { iRetcode = mng_process_display_clon2 (pData); break; }
+#endif
+#ifdef MNG_INCLUDE_JNG
+        case  7 : { iRetcode = mng_process_display_jhdr  (pData); break; }
+#endif
+        case  6 : ;                     /* same as 8 !!! */
+        case  8 : { iRetcode = mng_process_display_iend  (pData); break; }
+#ifndef MNG_SKIPCHUNK_MAGN
+        case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
+#endif
+        case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
+#ifndef MNG_SKIPCHUNK_PAST
+        case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
+#endif
+      }
+    }
+  }
+
+  if (iRetcode)                        /* on error bail out */
     return iRetcode;
+
+#endif /* MNG_SUPPORT_DISPLAY */
+                                       /* can we continue processing now, or do we */
+                                       /* need to wait for the timer to finish (again) ? */
+#ifdef MNG_SUPPORT_DISPLAY
+  if ((!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bEOF))
+#else
+  if (!pData->bEOF)
+#endif
+  {
+    pData->iSuspendpoint = 0;            /* safely reset it here ! */
+    pPush = pData->pFirstpushchunk;
+
+    iRetcode = process_raw_chunk (pData, pPush->pData, pPush->iLength);
+    if (iRetcode)
+      return iRetcode;
+
+#ifdef MNG_SUPPORT_DISPLAY             /* refresh needed ? */
+    if ((!pData->bTimerset) && (!pData->bSuspended) && (pData->bNeedrefresh))
+    {
+      iRetcode = mng_display_progressive_refresh (pData, 1);
+      if (iRetcode)                      /* on error bail out */
+        return iRetcode;
+    }
+#endif
+  }
 
   return mng_release_pushchunk (pData);
 }

@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(libmng.h)
+AC_INIT
+AC_CONFIG_SRCDIR([libmng.h])
 AC_PREREQ(2.52)
 
 dnl this call will define PACKAGE and VERSION
@@ -150,7 +151,7 @@ AC_ARG_WITH(jpeg,
 
 dnl check for lcms library
 AC_ARG_WITH(lcms,
-[  --with-lcms[=DIR]       use lcms include/library files in DIR], 
+[  --with-lcms[=DIR]       use lcms include/library files in DIR],
 [with_lcms=$withval],[with_lcms=_auto])
 
   if test "x$with_lcms" != "xno" -a "x$with_lcms" != "xyes" -a \
@@ -188,4 +189,5 @@ AC_ARG_WITH(lcms,
 
   test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
 
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

@@ -1,5 +1,33 @@
 -----------------------------------------------------------
 
+1.0.9 (... .th 2004)
+--------------------
+
+in short:
+
+intermediate cvs
+
+-------------------
+
+bugfixes:
+
+core:
+- fixed chunk pushing mechanism
+
+samples:
+
+contrib:
+
+doc:
+- patched jng & mng manual pages (Thanks Peter Breitenlohner)
+
+makefiles:
+
+autoconf:
+- patched makefile.am & configure.in (Thanks Peter Breitenlohner)
+
+-----------------------------------------------------------
+
 1.0.8 (aug 5th 2004)
 --------------------
 
