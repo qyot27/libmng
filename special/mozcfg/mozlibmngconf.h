@@ -1,15 +1,15 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003         * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003-2004    * */
+/* * version   : 1.0.7                                                      * */
 /* *                                                                        * */
 /* * purpose   : special config file for Mozilla                            * */
 /* *                                                                        * */
 /* * author    : Glenn Randers-Pehrson                                      * */
 /* *                                                                        * */
-/* * comment   : This is the configurationfile designed to minize footprint * */
-/* *             for the integration with Mozilla.                          * */
+/* * comment   : This is the configuration file designed to minimize        * */
+/* *             footprint for the integration with Mozilla.                * */
 /* *                                                                        * */
 /* * changes   :                                                            * */
 /* *                                                                        * */
@@ -20,17 +20,23 @@
 
 /* Mozilla defines */
 
-/* One or none of these may be defined via MNG_CFLAGS in "configure"
-        MNG_BUILD_RAW_MNG 
-        MNG_BUILD_FULL_MNG 
-        MNG_BUILD_MOZ_MNG 
-        MNG_BUILD_MOZ_NO_JNG 
-        MNG_BUILD_WEB_MNG
-        MNG_BUILD_WEB_NO_JNG
-        MNG_BUILD_LC
-        MNG_BUILD_LC_NO_JNG
-        MNG_BUILD_VLC
-*/
+/* One or none of these may be defined via MNG_CFLAGS in "configure" */
+
+#if defined(MNG_BUILD_RAW_MNG)    || \
+    defined(MNG_BUILD_FULL_MNG)   || \
+    defined(MNG_BUILD_MOZ_MNG)    || \
+    defined(MNG_BUILD_MOZ_NO_JNG) || \
+    defined(MNG_BUILD_WEB_MNG)    || \
+    defined(MNG_BUILD_WEB_NO_JNG) || \
+    defined(MNG_BUILD_LC)         || \
+    defined(MNG_BUILD_LC_NO_JNG)  || \
+    defined(MNG_BUILD_VLC)
+# define MNG_BUILD_DEFINED
+#endif
+
+#ifndef MNG_BUILD_DEFINED
+#define MNG_BUILD_FULL_MNG
+#define MNG_BUILD_DEFINED
 
 #if defined(MNG_BUILD_FULL_MNG)
 #define MNG_DISABLE_UNUSED 
