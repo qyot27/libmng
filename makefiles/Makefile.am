@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = 1.3 foreign no-dependencies
 
 # include the app subdirectories in the distribution
-EXTRA_DIST = makefiles doc contrib Unix bcb delphi
+EXTRA_DIST = makefiles doc contrib Unix
 
 
 # libmng release @VERSION@
