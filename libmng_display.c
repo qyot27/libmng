@@ -163,6 +163,8 @@
 /* *             - added support for PAST                                   * */
 /* *             1.0.5 - 09/22/2002 - G.Juyn                                * */
 /* *             - added bgrx8 canvas (filler byte)                         * */
+/* *             1.0.5 - 10/05/2002 - G.Juyn                                * */
+/* *             - fixed dropping mix of frozen/unfrozen objects            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2070,11 +2072,12 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
   pImage = (mng_imagep)pData->pFirstimgobj;
 
   while (pImage)
-  {                                    /* is it un-frozen ? */
-    if (!pImage->bFrozen)
+  {
+    mng_imagep pNext = (mng_imagep)pImage->sHeader.pNext;
+
+    if (!pImage->bFrozen)              /* is it un-frozen ? */
     {
-      mng_imagep  pPrev = (mng_imagep)pImage->sHeader.pPrev;
-      mng_imagep  pNext = (mng_imagep)pImage->sHeader.pNext;
+      mng_imagep pPrev = (mng_imagep)pImage->sHeader.pPrev;
 
       if (pPrev)                       /* unlink it */
         pPrev->sHeader.pNext = pNext;
@@ -2088,7 +2091,7 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
 
       if (pImage->pImgbuf->bFrozen)    /* buffer frozen ? */
       {
-        if (pImage->pImgbuf->iRefcount <= 2)
+        if (pImage->pImgbuf->iRefcount < 2)
           MNG_ERROR (pData, MNG_INTERNALERROR)
                                        /* decrease ref counter */
         pImage->pImgbuf->iRefcount--;
@@ -2104,12 +2107,9 @@ MNG_LOCAL mng_retcode restore_state (mng_datap pData)
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
-
-      pImage = pNext;                  /* this is the next */
     }
-    else                               /* neeeext */
-      pImage = (mng_imagep)pImage->sHeader.pNext;
 
+    pImage = pNext;                    /* neeeext */
   }
 
 #ifdef MNG_SUPPORT_TRACE
@@ -3814,19 +3814,19 @@ mng_retcode mng_process_display_show (mng_datap pData)
           {
             pImage = mng_find_imageobject (pData, (mng_uint16)iX);
                          
-            if (pImage)                  /* object exists ? */
+            if (pImage)                /* object exists ? */
             {
-              if (iFound)                /* already found a candidate ? */
+              if (iFound)              /* already found a candidate ? */
                 pImage->bVisible = MNG_FALSE;
               else
-              if (iTrigger)              /* found the trigger ? */
+              if (iTrigger)            /* found the trigger ? */
               {
                 pImage->bVisible = MNG_TRUE;
                 iFound           = iX;
                 pFound           = pImage;
               }
               else
-              if (pImage->bVisible)      /* ok, this is the trigger */
+              if (pImage->bVisible)    /* ok, this is the trigger */
               {
                 pImage->bVisible = MNG_FALSE;
                 iTrigger         = iX;
@@ -3840,19 +3840,19 @@ mng_retcode mng_process_display_show (mng_datap pData)
           {
             pImage = mng_find_imageobject (pData, (mng_uint16)iX);
                          
-            if (pImage)                  /* object exists ? */
+            if (pImage)                /* object exists ? */
             {
-              if (iFound)                /* already found a candidate ? */
+              if (iFound)              /* already found a candidate ? */
                 pImage->bVisible = MNG_FALSE;
               else
-              if (iTrigger)              /* found the trigger ? */
+              if (iTrigger)            /* found the trigger ? */
               {
                 pImage->bVisible = MNG_TRUE;
                 iFound           = iX;
                 pFound           = pImage;
               }
               else
-              if (pImage->bVisible)      /* ok, this is the trigger */
+              if (pImage->bVisible)    /* ok, this is the trigger */
               {
                 pImage->bVisible = MNG_FALSE;
                 iTrigger         = iX;

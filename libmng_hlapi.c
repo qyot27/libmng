@@ -323,7 +323,6 @@ mng_retcode mng_reset_rundata (mng_datap pData)
   pData->bSkipping             = MNG_FALSE;
 
 #ifdef MNG_SUPPORT_DYNAMICMNG
-  pData->bDynamic              = MNG_FALSE;
   pData->bRunningevent         = MNG_FALSE;
   pData->bStopafterseek        = MNG_FALSE;
   pData->iEventx               = 0;
@@ -2364,7 +2363,7 @@ mng_retcode MNG_DECL mng_trapevent (mng_handle hHandle,
                 (iTempy < (mng_int32)pImage->pImgbuf->iHeight) &&
                 (iTempy >= 0) && (iY < pEvent->iBottom))
             {
-              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iTempy) + iTempx);
 
               if (*pPixel)             /* non-zero ? */
                 bFound = MNG_TRUE;
@@ -2387,7 +2386,7 @@ mng_retcode MNG_DECL mng_trapevent (mng_handle hHandle,
                 (iTempy < (mng_int32)pImage->pImgbuf->iHeight) &&
                 (iTempy >= 0) && (iY < pEvent->iBottom))
             {
-              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iY) + iX);
+              pPixel = pImage->pImgbuf->pImgdata + ((pImage->pImgbuf->iWidth * iTempy) + iTempx);
                                        /* matching index ? */
               if (*pPixel == pEvent->iIndex)
                 bFound = MNG_TRUE;

@@ -13,6 +13,9 @@ bugfixes:
 
 core:
 - fixed chunk-storage for evNT chunk
+- fixed dropping mix of frozen/unfrozen objects
+- fixed problem with cloned objects marked as invalid
+- fixed problem cloning frozen object_buffers
 
 samples:
 

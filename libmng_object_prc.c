@@ -95,6 +95,9 @@
 /* *             1.0.5 - 09/23/2002 - G.Juyn                                * */
 /* *             - fixed reset_object_detail to clear old buffer            * */
 /* *             - added in-memory color-correction of abstract images      * */
+/* *             1.0.5 - 10/05/2002 - G.Juyn                                * */
+/* *             - fixed problem with cloned objects marked as invalid      * */
+/* *             - fixed problem cloning frozen object_buffers              * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -375,6 +378,7 @@ mng_retcode mng_clone_imagedataobject  (mng_datap      pData,
 
   pNewdata->iRefcount = 1;             /* only the reference count */
   pNewdata->bConcrete = bConcrete;     /* and concrete-flag are different */
+  pNewdata->bFrozen   = MNG_FALSE;
 
   if (pNewdata->iImgdatasize)          /* sample buffer present ? */
   {
@@ -627,6 +631,7 @@ mng_retcode mng_clone_imageobject (mng_datap  pData,
   pNew->bFrozen          = MNG_FALSE;
   pNew->bVisible         = bVisible;
   pNew->bViewable        = pSource->bViewable;
+  pNew->bValid           = MNG_TRUE;
 
   if (bHasloca)                        /* location info available ? */
   {

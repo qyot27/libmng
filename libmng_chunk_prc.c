@@ -41,6 +41,8 @@
 /* *             - added HLAPI function to copy chunks                      * */
 /* *             1.0.5 - 09/14/2002 - G.Juyn                                * */
 /* *             - added event handling for dynamic MNG                     * */
+/* *             1.0.5 - 10/04/2002 - G.Juyn                                * */
+/* *             - fixed chunk-storage for evNT chunk                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2113,9 +2115,9 @@ FREE_CHUNK_HDR (mng_free_evnt)
   for (iX = 0; iX < ((mng_evntp)pHeader)->iCount; iX++)
   {
     if (pEntry->iSegmentnamesize)
-      MNG_FREEX (pData, pEntry->zSegmentname, pEntry->iSegmentnamesize)
+      MNG_FREEX (pData, pEntry->zSegmentname, pEntry->iSegmentnamesize+1)
 
-    pEntry = pEntry + sizeof (mng_evnt_entry);
+    pEntry = pEntry++;
   }
 
   if (((mng_evntp)pHeader)->iCount)
@@ -3647,7 +3649,7 @@ ASSIGN_CHUNK_HDR (mng_assign_evnt)
       {
         mng_pchar pTemp = pEntry->zSegmentname;
 
-        MNG_ALLOC (pData, pEntry->zSegmentname, pEntry->iSegmentnamesize)
+        MNG_ALLOC (pData, pEntry->zSegmentname, pEntry->iSegmentnamesize+1)
         MNG_COPY  (pEntry->zSegmentname, pTemp, pEntry->iSegmentnamesize)
       }
       else
