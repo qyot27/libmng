@@ -3060,6 +3060,13 @@ READ_CHUNK (mng_read_mend)
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
+
+    if (!pData->iTotalframes)          /* save totals */
+      pData->iTotalframes   = pData->iFrameseq;
+    if (!pData->iTotallayers)
+      pData->iTotallayers   = pData->iLayerseq;
+    if (!pData->iTotalplaytime)
+      pData->iTotalplaytime = pData->iFrametime;
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 

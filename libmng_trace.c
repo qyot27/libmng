@@ -121,6 +121,8 @@
 /* *             - added flip & tile routines for PAST processing           * */
 /* *             1.0.5 - 10/09/2002 - G.Juyn                                * */
 /* *             - fixed trace-constants for PAST chunk                     * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -313,6 +315,9 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_GET_DOPROGRESSIVE,         "get_doprogressive"},
     {MNG_FN_GET_LASTBACKCHUNK,         "get_lastbackchunk"},
     {MNG_FN_GET_LASTSEEKNAME,          "get_lastseekname"},
+    {MNG_FN_GET_TOTALFRAMES,           "get_totalframes"},
+    {MNG_FN_GET_TOTALLAYERS,           "get_totallayers"},
+    {MNG_FN_GET_TOTALPLAYTIME,         "get_totalplaytime"},
 
     {MNG_FN_STATUS_ERROR,              "status_error"},
     {MNG_FN_STATUS_READING,            "status_reading"},

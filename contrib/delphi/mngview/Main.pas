@@ -65,6 +65,8 @@ uses
 {*                                                                          *}
 {*              1.0.5 - 09/16/2002 - G.Juyn                                 *}
 {*              - added dynamic MNG features                                *}
+{*              1.0.5 - 11/27/2002 - G.Juyn                                 *}
+{*              - fixed freeze during read-cycle                            *}
 {*                                                                          *}
 {****************************************************************************}
 
@@ -427,13 +429,12 @@ end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  BFCancelled := true;
-
-  if OFTimer.Enabled then              { if we're still animating then stop it }
+  OFTimer.Enabled := false;
+  BFCancelled     := true;
+                                       { if we're still animating then stop it }
+  if mng_status_running (IFHandle) and not mng_status_reading (IFHandle) then
     if mng_display_freeze (IFHandle) <> MNG_NOERROR then
       MNGerror ('libmng reported an error during display_freeze!');
-
-  OFTimer.Enabled := false;
 
   mng_cleanup (IFHandle);
 end;
@@ -468,12 +469,12 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   if Key = vk_Escape then              { pressing <esc> will freeze an animation }
   begin
-    if OFTimer.Enabled then
-      if mng_display_freeze (IFHandle) <> MNG_NOERROR then
-        MNGerror ('libmng reported an error during display_freeze!');
-
     OFTimer.Enabled := false;          { don't let that timer go off then ! }
     BFCancelled     := true;
+
+    if mng_status_running (IFHandle) and not mng_status_reading (IFHandle) then
+      if mng_display_freeze (IFHandle) <> MNG_NOERROR then
+        MNGerror ('libmng reported an error during display_freeze!');
   end;
 end;
 

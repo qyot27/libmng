@@ -216,11 +216,12 @@ MNG_LOCAL mng_retcode set_delay (mng_datap  pData,
   if (!iInterval)                      /* at least 1 msec please! */
     iInterval = 1;
 
-  if (!pData->bSearching)              /* only when really displaying */
+  if (pData->bRunning)                 /* only when really displaying */
     if (!pData->fSettimer ((mng_handle)pData, iInterval))
       MNG_ERROR (pData, MNG_APPTIMERERROR)
 
-  pData->bTimerset = MNG_TRUE;         /* and indicate so */
+  if ((!pData->bDynamic) || (pData->bRunning))
+    pData->bTimerset = MNG_TRUE;       /* and indicate so */
 
   return MNG_NOERROR;
 }
@@ -277,7 +278,6 @@ MNG_LOCAL mng_uint32 calculate_delay (mng_datap  pData,
 mng_retcode mng_display_progressive_refresh (mng_datap  pData,
                                              mng_uint32 iInterval)
 {
-/*  if (!pData->bSearching) */             /* we mustn't be searching !!! */
   {                                    /* let the app refresh first ? */
     if ((pData->bRunning) && (!pData->bSkipping) &&
         (pData->iUpdatetop < pData->iUpdatebottom) && (pData->iUpdateleft < pData->iUpdateright))
@@ -324,7 +324,6 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_START)
 #endif
 
-/*  if (!pData->bSearching) */             /* we mustn't be searching !!! */
   {
     if (pData->iFramedelay > 0)        /* real delay ? */
     {                                  /* let the app refresh first ? */
@@ -374,7 +373,8 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       else
         iInterval = 1;                 /* force app to process messageloop */
                                        /* set the timer ? */
-      if (((pData->bRunning) || (pData->bSearching)) && (!pData->bSkipping))
+      if (((pData->bRunning) || (pData->bSearching) || (pData->bReading)) &&
+          (!pData->bSkipping))
       {
         iRetcode = set_delay (pData, iInterval);
 
@@ -2189,6 +2189,8 @@ mng_retcode mng_process_display (mng_datap pData)
 
   do                                   /* process the objects */
   {
+    if (pData->bSearching)             /* clear timer-flag when searching !!! */
+      pData->bTimerset = MNG_FALSE;
                                        /* do we need to finish something first ? */
     if ((pData->iBreakpoint) && (pData->iBreakpoint < 99))
     {
@@ -2246,8 +2248,9 @@ mng_retcode mng_process_display (mng_datap pData)
       }
     }
   }                                    /* until error or a break or no more objects */
-  while ((!iRetcode) && (pData->pCurraniobj) && ((pData->bRunning) || (pData->bSearching)) &&
-         (!pData->bTimerset) && (!pData->bSectionwait) && (!pData->bFreezing));
+  while ((!iRetcode) && (pData->pCurraniobj) &&
+         (((pData->bRunning) && (!pData->bTimerset)) || (pData->bSearching)) &&
+         (!pData->bSectionwait) && (!pData->bFreezing));
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
@@ -4263,13 +4266,13 @@ mng_retcode mng_process_display_jhdr (mng_datap pData)
     {
       next_layer (pData);              /* that's a new layer then ! */
 
+      pData->iBreakpoint = 0;
+
       if (pData->bTimerset)            /* timer break ? */
         pData->iBreakpoint = 7;
       else
       if (pData->bRunning)             /* still running ? */
-      {
-        pData->iBreakpoint = 0;
-                                       /* anything to display ? */
+      {                                /* anything to display ? */
         if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
         {
           set_display_routine (pData); /* then determine display routine */

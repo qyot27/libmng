@@ -2968,7 +2968,8 @@ mng_retcode mng_process_ani_endl (mng_datap   pData,
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_ENDL, MNG_LC_START)
 #endif
 
-  if ((pData->bDisplaying) && ((pData->bRunning) || (pData->bSearching)))
+  if (((pData->bDisplaying) && ((pData->bRunning) || (pData->bSearching))) ||
+      (pData->bReading)                                                       )
   {
     pLOOP = pENDL->pLOOP;              /* determine matching LOOP */
 
@@ -2989,21 +2990,30 @@ mng_retcode mng_process_ani_endl (mng_datap   pData,
       if ((pLOOP->iRunningcount) && (pLOOP->iRunningcount < 0x7fffffffL))
         pLOOP->iRunningcount--;
 
-      /* TODO: we're cheating out on the termination_condition,
-         iteration_min, iteration_max and possible signals;
-         the code is just not ready for that can of worms.... */
-
-      if (!pLOOP->iRunningcount)       /* reached zero ? */
-      {                                /* was this the outer LOOP ? */
-        if (pData->pFirstaniobj == (mng_objectp)pLOOP)
-          pData->bHasLOOP = MNG_FALSE;
+      if ((pData->bReading) && (pLOOP->iRunningcount >= 0x7fffffffL))
+      {
+        pData->iTotalframes   = 0x7fffffffL;
+        pData->iTotallayers   = 0x7fffffffL;
+        pData->iTotalplaytime = 0x7fffffffL;
       }
       else
       {
-        if (pData->pCurraniobj)        /* was we processing objects ? */
-          pData->pCurraniobj = pLOOP;  /* then restart with LOOP */
-        else                           /* else restart behind LOOP !!! */
-          pData->pCurraniobj = pLOOP->sHeader.pNext;
+        /* TODO: we're cheating out on the termination_condition,
+           iteration_min, iteration_max and possible signals;
+           the code is just not ready for that can of worms.... */
+
+        if (!pLOOP->iRunningcount)     /* reached zero ? */
+        {                              /* was this the outer LOOP ? */
+          if (pData->pFirstaniobj == (mng_objectp)pLOOP)  /* TODO: THIS IS WRONG!! */
+            pData->bHasLOOP = MNG_FALSE;
+        }
+        else
+        {
+          if (pData->pCurraniobj)      /* was we processing objects ? */
+            pData->pCurraniobj = pLOOP;/* then restart with LOOP */
+          else                         /* else restart behind LOOP !!! */
+            pData->pCurraniobj = pLOOP->sHeader.pNext;
+        }
       }
                                        /* does this match a 'skipping' LOOP? */
       if ((pData->bSkipping) && (pLOOP->iRepeatcount == 0))

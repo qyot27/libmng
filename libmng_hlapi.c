@@ -150,6 +150,8 @@
 /* *             - added mng_status_dynamic to supports function            * */
 /* *             1.0.5 - 11/04/2002 - G.Juyn                                * */
 /* *             - changed FRAMECOUNT/LAYERCOUNT/PLAYTIME error to warning  * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -619,6 +621,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_get_storechunks",        1, 0, 0},
     {"mng_get_suspensionmode",     1, 0, 0},
     {"mng_get_ticks",              1, 0, 0},
+    {"mng_get_totalframes",        1, 0, 5},
+    {"mng_get_totallayers",        1, 0, 5},
+    {"mng_get_totalplaytime",      1, 0, 5},
     {"mng_get_usebkgd",            1, 0, 0},
     {"mng_get_userdata",           1, 0, 0},
     {"mng_get_viewgamma",          1, 0, 0},
@@ -1279,8 +1284,12 @@ mng_retcode MNG_DECL mng_reset (mng_handle hHandle)
   pData->iLayerseq             = 0;
   pData->iFrametime            = 0;
 
+  pData->iTotallayers          = 0;
+  pData->iTotalframes          = 0;
+  pData->iTotalplaytime        = 0;
+
   pData->bSkipping             = MNG_FALSE;
-  
+
 #ifdef MNG_SUPPORT_DYNAMICMNG
   pData->bDynamic              = MNG_FALSE;
   pData->bRunningevent         = MNG_FALSE;
@@ -1971,8 +1980,8 @@ mng_retcode MNG_DECL mng_display_resume (mng_handle hHandle)
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
   cleanup_errors (pData);              /* cleanup previous errors */
-
-  if (pData->bRunning)                 /* was it running ? */
+                                       /* was it running ? */
+  if ((pData->bRunning) || (pData->bReading))
   {                                    /* are we expecting this call ? */
     if ((pData->bTimerset) || (pData->bSuspended) || (pData->bSectionwait)) 
     {
@@ -2175,13 +2184,15 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
-  if (iFramenr > pData->iFramecount)   /* is the parameter within bounds ? */
+  if (iFramenr > pData->iTotalframes)  /* is the parameter within bounds ? */
+    MNG_ERROR (pData, MNG_FRAMENRTOOHIGH);
+                                       /* within MHDR bounds ? */
+  if ((pData->iFramecount) && (iFramenr > pData->iFramecount))
     MNG_WARNING (pData, MNG_FRAMENRTOOHIGH);
 
   cleanup_errors (pData);              /* cleanup previous errors */
-                                       /* search from current or go back to start ? */
-  if ((pData->pCurraniobj) &&
-      (((mng_object_headerp)pData->pCurraniobj)->iFramenr > iFramenr))
+
+  if (pData->iFrameseq > iFramenr)     /* search from current or go back to start ? */
   {
     iRetcode = mng_reset_rundata (pData);
     if (iRetcode)                      /* on error bail out */
@@ -2193,6 +2204,8 @@ mng_retcode MNG_DECL mng_display_goframe (mng_handle hHandle,
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
+
+  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOFRAME, MNG_LC_END)
@@ -2227,13 +2240,15 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
 
-  if (iLayernr > pData->iLayercount)   /* is the parameter within bounds ? */
+  if (iLayernr > pData->iTotallayers)  /* is the parameter within bounds ? */
+    MNG_ERROR (pData, MNG_LAYERNRTOOHIGH)
+                                       /* within MHDR bounds ? */
+  if ((pData->iLayercount) && (iLayernr > pData->iLayercount))
     MNG_WARNING (pData, MNG_LAYERNRTOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
-                                       /* search from current or go back to start ? */
-  if ((pData->pCurraniobj) &&
-      (((mng_object_headerp)pData->pCurraniobj)->iLayernr > iLayernr))
+
+  if (pData->iLayerseq > iLayernr)     /* search from current or go back to start ? */
   {
     iRetcode = mng_reset_rundata (pData);
     if (iRetcode)                      /* on error bail out */
@@ -2245,6 +2260,8 @@ mng_retcode MNG_DECL mng_display_golayer (mng_handle hHandle,
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
+
+  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOLAYER, MNG_LC_END)
@@ -2278,14 +2295,16 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
 
   if (!pData->bCacheplayback)          /* must store playback info to work!! */
     MNG_ERROR (pData, MNG_FUNCTIONINVALID)
-
-  if (iPlaytime > pData->iPlaytime)    /* is the parameter within bounds ? */
+                                       /* is the parameter within bounds ? */
+  if (iPlaytime > pData->iTotalplaytime)
+    MNG_ERROR (pData, MNG_PLAYTIMETOOHIGH)
+                                       /* within MHDR bounds ? */
+  if ((pData->iPlaytime) && (iPlaytime > pData->iPlaytime))
     MNG_WARNING (pData, MNG_PLAYTIMETOOHIGH)
 
   cleanup_errors (pData);              /* cleanup previous errors */
-                                       /* search from current or go back to start ? */
-  if ((pData->pCurraniobj) &&
-      (((mng_object_headerp)pData->pCurraniobj)->iPlaytime > iPlaytime))
+
+  if (pData->iFrametime > iPlaytime)   /* search from current or go back to start ? */
   {
     iRetcode = mng_reset_rundata (pData);
     if (iRetcode)                      /* on error bail out */
@@ -2297,6 +2316,8 @@ mng_retcode MNG_DECL mng_display_gotime (mng_handle hHandle,
 
   if (iRetcode)                        /* on error bail out */
     return iRetcode;
+
+  pData->bTimerset = MNG_FALSE;        /* reset just to be safe */
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (((mng_datap)hHandle), MNG_FN_DISPLAY_GOTIME, MNG_LC_END)

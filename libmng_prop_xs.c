@@ -80,6 +80,8 @@
 /* *             - added event handling for dynamic MNG                     * */
 /* *             1.0.5 - 09/22/2002 - G.Juyn                                * */
 /* *             - added bgrx8 canvas (filler byte)                         * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2243,6 +2245,66 @@ mng_uint32 MNG_DECL mng_get_currentplaytime (mng_handle hHandle)
 #endif
 
   return ((mng_datap)hHandle)->iFrametime;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_totalframes (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALFRAMES, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALFRAMES, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iTotalframes;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_totallayers (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALLAYERS, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALLAYERS, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iTotallayers;
+}
+#endif /* MNG_SUPPORT_DISPLAY */
+
+/* ************************************************************************** */
+
+#ifdef MNG_SUPPORT_DISPLAY
+mng_uint32 MNG_DECL mng_get_totalplaytime (mng_handle hHandle)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALPLAYTIME, MNG_LC_START)
+#endif
+
+  if ((hHandle == 0) || (((mng_datap)hHandle)->iMagic != MNG_MAGIC))
+    return mng_st_normal;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACEX (((mng_datap)hHandle), MNG_FN_GET_TOTALPLAYTIME, MNG_LC_END)
+#endif
+
+  return ((mng_datap)hHandle)->iTotalplaytime;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
 

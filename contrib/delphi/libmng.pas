@@ -481,6 +481,9 @@ function  mng_get_runtime         (    hHandle         : mng_handle       ) : mn
 function  mng_get_currentframe    (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
 function  mng_get_currentlayer    (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
 function  mng_get_currentplaytime (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
+function  mng_get_totalframes     (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
+function  mng_get_totallayers     (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
+function  mng_get_totalplaytime   (    hHandle         : mng_handle       ) : mng_uint32;        stdcall;
 
 function  mng_status_error        (    hHandle         : mng_handle       ) : mng_bool;          stdcall;
 function  mng_status_reading      (    hHandle         : mng_handle       ) : mng_bool;          stdcall;
@@ -1643,6 +1646,9 @@ function  mng_get_runtime;         external mngdll;
 function  mng_get_currentframe;    external mngdll;
 function  mng_get_currentlayer;    external mngdll;
 function  mng_get_currentplaytime; external mngdll;
+function  mng_get_totalframes;     external mngdll;
+function  mng_get_totallayers;     external mngdll;
+function  mng_get_totalplaytime;   external mngdll;
 
 function  mng_status_error;        external mngdll;
 function  mng_status_reading;      external mngdll;

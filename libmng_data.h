@@ -123,6 +123,8 @@
 /* *             1.0.5 - 10/20/2002 - G.Juyn                                * */
 /* *             - fixed processing for multiple objects in MAGN            * */
 /* *             - fixed display of visible target of PAST operation        * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -420,6 +422,10 @@ typedef struct mng_data_struct {
            mng_uint32        iFrameseq;
            mng_uint32        iLayerseq;
            mng_uint32        iFrametime;         /* millisecs */
+
+           mng_uint32        iTotalframes;       /* end-totals after mng_read() */
+           mng_uint32        iTotallayers;
+           mng_uint32        iTotalplaytime;     /* millisecs */
 
            mng_bool          bSkipping;          /* LOOP iteration=0 */
            

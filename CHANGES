@@ -18,6 +18,8 @@ core:
 - added support for nEED "MNG 1.1"
 - added support for nEED "CACHEOFF"; turn playback caching off for streaming MNG
 - fixed magnification bug with object 0
+- added support to get totals for frames/layers/playtime after mng_read()
+- fixed some issues in init_app_cms()
 
 samples:
 

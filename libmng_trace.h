@@ -130,6 +130,8 @@
 /* *             - added flip & tile routines for PAST processing           * */
 /* *             1.0.5 - 10/09/2002 - G.Juyn                                * */
 /* *             - fixed trace-constants for PAST chunk                     * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -349,6 +351,9 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_DOPROGRESSIVE      455
 #define MNG_FN_GET_LASTBACKCHUNK      456
 #define MNG_FN_GET_LASTSEEKNAME       457
+#define MNG_FN_GET_TOTALFRAMES        458
+#define MNG_FN_GET_TOTALLAYERS        459
+#define MNG_FN_GET_TOTALPLAYTIME      460
 
 #define MNG_FN_STATUS_ERROR           481
 #define MNG_FN_STATUS_READING         482

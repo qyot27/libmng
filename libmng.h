@@ -250,6 +250,8 @@
 /* *             1.0.5 - 10/07/2002 - G.Juyn                                * */
 /* *             - added check for TERM placement during create/write       * */
 /* *             - added beta version function & constant                   * */
+/* *             1.0.5 - 11/07/2002 - G.Juyn                                * */
+/* *             - added support to get totals after mng_read()             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1125,12 +1127,17 @@ MNG_EXT mng_retcode MNG_DECL mng_get_lastseekname    (mng_handle        hHandle,
 /* currentframe, currentlayer & currentplaytime indicate the current
    frame/layer/playtime(msecs) in the animation (these keep increasing;
    even after the animation loops back to the TERM chunk) */
+/* totalframes, totallayers & totalplaytime are filled after a complete run
+   of an animation (eg. at MEND); they are also valid after just reading the MNG */
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_uint32  MNG_DECL mng_get_starttime       (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_runtime         (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentframe    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentlayer    (mng_handle        hHandle);
 MNG_EXT mng_uint32  MNG_DECL mng_get_currentplaytime (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_totalframes     (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_totallayers     (mng_handle        hHandle);
+MNG_EXT mng_uint32  MNG_DECL mng_get_totalplaytime   (mng_handle        hHandle);
 #endif
 
 /* Status variables */

@@ -358,6 +358,9 @@ MNG_LOCAL mng_retcode process_raw_chunk (mng_datap  pData,
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_RAW_CHUNK, MNG_LC_START)
 #endif
+                                       /* reset timer indicator on read-cycle */
+  if ((pData->bReading) && (!pData->bDisplaying))
+    pData->bTimerset = MNG_FALSE;
                                        /* get the chunkname */
   iChunkname = (mng_chunkid)(mng_get_uint32 (pBuf));
 
@@ -455,7 +458,10 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
                                        /* can we advance to next object ? */
       if ((!iRetcode) && (pData->pCurraniobj) &&
           (!pData->bTimerset) && (!pData->bSectionwait))
-      {
+      {                                /* reset timer indicator on read-cycle */
+        if ((pData->bReading) && (!pData->bDisplaying))
+          pData->bTimerset = MNG_FALSE;
+
         pData->pCurraniobj = ((mng_object_headerp)pData->pCurraniobj)->pNext;
                                        /* TERM processing to be done ? */
         if ((!pData->pCurraniobj) && (pData->bHasTERM) && (!pData->bHasMHDR))
@@ -482,6 +488,7 @@ MNG_LOCAL mng_retcode read_chunk (mng_datap  pData)
         case  6 : ;                     /* same as 8 !!! */
         case  8 : { iRetcode = mng_process_display_iend  (pData); break; }
         case  9 : { iRetcode = mng_process_display_magn2 (pData); break; }
+        case 10 : { iRetcode = mng_process_display_mend2 (pData); break; }
         case 11 : { iRetcode = mng_process_display_past2 (pData); break; }
       }
     }
@@ -687,15 +694,19 @@ mng_retcode mng_read_graphic (mng_datap pData)
   if (!pData->bSuspended)              /* still going ? */
   {
     do
-    {
+    {                                  /* reset timer during mng_read() ? */
+      if ((pData->bReading) && (!pData->bDisplaying))
+        pData->bTimerset = MNG_FALSE;
+
       iRetcode = read_chunk (pData);   /* process a chunk */
 
       if (iRetcode)                    /* on error bail out */
         return iRetcode;
     }
 #ifdef MNG_SUPPORT_DISPLAY             /* until EOF or a break-request */
-    while (((!pData->bEOF) || (pData->pCurraniobj)) && (!pData->bSuspended) &&
-           (!pData->bTimerset) && (!pData->bSectionwait));
+    while (((!pData->bEOF) || (pData->pCurraniobj)) &&
+           (!pData->bSuspended) && (!pData->bSectionwait) &&
+           ((!pData->bTimerset) || ((pData->bReading) && (!pData->bDisplaying))));
 #else
     while ((!pData->bEOF) && (!pData->bSuspended));
 #endif
