@@ -18,12 +18,14 @@ samples:
 
 contrib:
 - added GTK mng-view example by Vova Babin
+- added MSVC MNGview sample by Nikolaus Brennig
 
 doc:
 - added README.dll
 
 makefiles:
 - fixed configure.in for lcms (FreeBSD port by Mikhail Teterin)
+- rearranged contrib directory slightly
 
 -----------------------------------------------------------
 
