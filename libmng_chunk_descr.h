@@ -51,6 +51,13 @@ MNG_F_SPECIALFUNC (mng_hist_entries) ;
 MNG_F_SPECIALFUNC (mng_debunk_loop) ;
 MNG_F_SPECIALFUNC (mng_debunk_past) ;
 MNG_F_SPECIALFUNC (mng_disc_entries) ;
+MNG_F_SPECIALFUNC (mng_fram_remainder) ;
+MNG_F_SPECIALFUNC (mng_save_entries) ;
+MNG_F_SPECIALFUNC (mng_pplt_entries) ;
+MNG_F_SPECIALFUNC (mng_drop_entries) ;
+MNG_F_SPECIALFUNC (mng_ordr_entries) ;
+MNG_F_SPECIALFUNC (mng_debunk_magn) ;
+MNG_F_SPECIALFUNC (mng_evnt_entries) ;
 
 /* ************************************************************************** */
 
@@ -91,10 +98,12 @@ MNG_C_SPECIALFUNC (mng_special_clon) ;
 MNG_C_SPECIALFUNC (mng_special_past) ;
 MNG_C_SPECIALFUNC (mng_special_disc) ;
 MNG_C_SPECIALFUNC (mng_special_back) ;
+MNG_C_SPECIALFUNC (mng_special_fram) ;
 MNG_C_SPECIALFUNC (mng_special_move) ;
 MNG_C_SPECIALFUNC (mng_special_clip) ;
 MNG_C_SPECIALFUNC (mng_special_show) ;
 MNG_C_SPECIALFUNC (mng_special_term) ;
+MNG_C_SPECIALFUNC (mng_special_save) ;
 MNG_C_SPECIALFUNC (mng_special_seek) ;
 MNG_C_SPECIALFUNC (mng_special_expi) ;
 MNG_C_SPECIALFUNC (mng_special_fpri) ;
@@ -104,9 +113,14 @@ MNG_C_SPECIALFUNC (mng_special_phyg) ;
 MNG_C_SPECIALFUNC (mng_special_dhdr) ;
 MNG_C_SPECIALFUNC (mng_special_prom) ;
 MNG_C_SPECIALFUNC (mng_special_ipng) ;
+MNG_C_SPECIALFUNC (mng_special_pplt) ;
 MNG_C_SPECIALFUNC (mng_special_ijng) ;
+MNG_C_SPECIALFUNC (mng_special_drop) ;
 MNG_C_SPECIALFUNC (mng_special_dbyk) ;
+MNG_C_SPECIALFUNC (mng_special_ordr) ;
 
+MNG_C_SPECIALFUNC (mng_special_magn) ;
+MNG_C_SPECIALFUNC (mng_special_evnt) ;
 MNG_C_SPECIALFUNC (mng_special_unknown) ;
 
 /* ************************************************************************** */

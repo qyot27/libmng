@@ -97,30 +97,37 @@ typedef mng_retcode (*mng_c_specialfunc)  (mng_datap  pData,
 #define MNG_FIELD_TERMINATOR  0x0002
 #define MNG_FIELD_REPETITIVE  0x0004
 #define MNG_FIELD_DEFLATED    0x0008
-#define MNG_FIELD_PUTIMGTYPE  0x0010
-#define MNG_FIELD_IFIMGTYPES  0x1F00   /* image-type mask */ 
-#define MNG_FIELD_IFIMGTYPE0  0x0100
-#define MNG_FIELD_IFIMGTYPE2  0x0200
-#define MNG_FIELD_IFIMGTYPE3  0x0400
-#define MNG_FIELD_IFIMGTYPE4  0x0800
-#define MNG_FIELD_IFIMGTYPE6  0x1000
+#define MNG_FIELD_IFIMGTYPES  0x01F0   /* image-type mask */
+#define MNG_FIELD_IFIMGTYPE0  0x0010
+#define MNG_FIELD_IFIMGTYPE2  0x0020
+#define MNG_FIELD_IFIMGTYPE3  0x0040
+#define MNG_FIELD_IFIMGTYPE4  0x0080
+#define MNG_FIELD_IFIMGTYPE6  0x0100
+#define MNG_FIELD_PUTIMGTYPE  0x0200
+#define MNG_FIELD_NOHIGHBIT   0x0400
+#define MNG_FIELD_GROUPMASK   0x7000
+#define MNG_FIELD_GROUP1      0x1000
+#define MNG_FIELD_GROUP2      0x2000
+#define MNG_FIELD_GROUP3      0x3000
+#define MNG_FIELD_GROUP4      0x4000
+#define MNG_FIELD_GROUP5      0x5000
+#define MNG_FIELD_GROUP6      0x6000
+#define MNG_FIELD_GROUP7      0x7000
+#define MNG_FIELD_INT         0x8000
 
 typedef struct {                       /* chunk-field descriptor */
-           mng_fieldtype     eFieldtype;
            mng_f_specialfunc pSpecialfunc;
+           mng_uint16        iMinvalue;
+           mng_uint16        iMaxvalue;
+           mng_uint16        iLengthmin;
+           mng_uint16        iLengthmax;
            mng_uint16        iOffsetchunk;
            mng_uint16        iOffsetobject;
            mng_uint16        iOffsetchunkind;
            mng_uint16        iOffsetobjectind;
            mng_uint16        iOffsetchunklen;
            mng_uint16        iOffsetobjectlen;
-           mng_uint32        iMinvalue;
-           mng_uint32        iMaxvalue;
-           mng_uint16        iLengthmin;
-           mng_uint16        iLengthmax;
            mng_uint16        iFlags;
-           mng_uint8         iGroupid;
-           mng_uint8         iValidatesgroup;
         } mng_field_descriptor;
 typedef mng_field_descriptor * mng_field_descp;
 
@@ -151,6 +158,7 @@ typedef mng_field_descriptor * mng_field_descp;
 #define MNG_DESCR_NOMHDR      0x0200
 #define MNG_DESCR_NOTERM      0x0400
 #define MNG_DESCR_NOLOOP      0x0800
+#define MNG_DESCR_NOSAVE      0x1000
 
 typedef struct {                       /* chunk descriptor */
            mng_imgtype       eImgtype;

@@ -400,10 +400,6 @@ typedef enum mng_speedtypes mng_speedtype;
                                        /* enumeration object-creation indicators */
 enum mng_createobjtypes {mng_create_none, mng_create_always, mng_create_ifglobal};
 typedef enum mng_createobjtypes mng_createobjtype;
-
-                                       /* enumeration field types */
-enum mng_fieldtypes {mng_field_int, mng_field_char};
-typedef enum mng_fieldtypes mng_fieldtype;
 #endif
 
 /* ************************************************************************** */

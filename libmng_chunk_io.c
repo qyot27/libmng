@@ -402,15 +402,15 @@ void mng_put_uint16 (mng_uint8p pBuf,
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 {
   mng_uint8p pOut = pIn;
-
   while (*pOut)                        /* the read_graphic routine has made sure there's */
     pOut++;                            /* always at least 1 zero-byte in the buffer */
-
   return pOut;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -666,7 +666,7 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
   mng_uint16      iFieldcount = iFields;
   mng_uint8p      pTempdata   = pRawdata;
   mng_uint32      iTemplen    = iRawlen;
-  mng_uint8       iLastgroup  = 0;
+  mng_uint16      iLastgroup  = 0;
   mng_uint8p      pChunkdata;
   mng_uint32      iDatalen;
   mng_uint8       iColortype;
@@ -719,9 +719,9 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
 
           if (bProcess)
           {
-            iLastgroup = pTempfield->iGroupid;
+            iLastgroup = (mng_uint16)(pTempfield->iFlags & MNG_FIELD_GROUPMASK);
                                       /* numeric field ? */
-            if (pTempfield->eFieldtype == mng_field_int)
+            if (pTempfield->iFlags & MNG_FIELD_INT)
             {
               if (iTemplen < pTempfield->iLengthmax)
                 MNG_ERROR (pData, MNG_INVALIDLENGTH)
@@ -729,22 +729,21 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
               switch (pTempfield->iLengthmax)
               {
                 case 1 : { mng_uint8 iNum = *pTempdata;
-                           if (((mng_uint32)iNum < pTempfield->iMinvalue) || ((mng_uint32)iNum > pTempfield->iMaxvalue))
+                           if (((mng_uint16)iNum < pTempfield->iMinvalue) ||
+                               ((mng_uint16)iNum > pTempfield->iMaxvalue)    )
                              MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
                            *(pChunkdata+pTempfield->iOffsetchunk) = iNum;
                            break; }
                 case 2 : { mng_uint16 iNum = mng_get_uint16 (pTempdata);
-                           if (((mng_uint32)iNum < pTempfield->iMinvalue) || ((mng_uint32)iNum > pTempfield->iMaxvalue))
+                           if ((iNum < pTempfield->iMinvalue) || (iNum > pTempfield->iMaxvalue))
                              MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
                            *((mng_uint16p)(pChunkdata+pTempfield->iOffsetchunk)) = iNum;
                            break; }
                 case 4 : { mng_uint32 iNum = mng_get_uint32 (pTempdata);
-                           if ((iNum < pTempfield->iMinvalue) || (iNum > pTempfield->iMaxvalue))
+                           if ((iNum < pTempfield->iMinvalue) ||
+                               ((pTempfield->iFlags & MNG_FIELD_NOHIGHBIT) && (iNum & 0x80000000)) )
                              MNG_ERROR (pData, MNG_INVALIDFIELDVAL)
                            *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk)) = iNum;
-                           break; }
-                case 8 : { *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk  )) = mng_get_uint32 (pTempdata+4);
-                           *((mng_uint32p)(pChunkdata+pTempfield->iOffsetchunk+4)) = mng_get_uint32 (pTempdata);
                            break; }
               }
 
@@ -853,7 +852,8 @@ mng_retcode MNG_LOCAL create_chunk_storage (mng_datap       pData,
         {
           if (!(pTempfield->iFlags & MNG_FIELD_OPTIONAL))
             MNG_ERROR (pData, MNG_INVALIDLENGTH)
-          if ((pTempfield->iGroupid) && (pTempfield->iGroupid = iLastgroup))
+          if ((pTempfield->iFlags & MNG_FIELD_GROUPMASK) &&
+              ((mng_uint16)(pTempfield->iFlags & MNG_FIELD_GROUPMASK) == iLastgroup))
             MNG_ERROR (pData, MNG_INVALIDLENGTH)
         }
 
@@ -928,7 +928,8 @@ READ_CHUNK (mng_read_general)
 #endif
       ((pDescr->iMustNOThaves & MNG_DESCR_NOMHDR) && (pData->bHasMHDR)) ||
       ((pDescr->iMustNOThaves & MNG_DESCR_NOLOOP) && (pData->bHasLOOP)) ||
-      ((pDescr->iMustNOThaves & MNG_DESCR_NOTERM) && (pData->bHasTERM))   )
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOTERM) && (pData->bHasTERM)) ||
+      ((pDescr->iMustNOThaves & MNG_DESCR_NOSAVE) && (pData->bHasSAVE))   )
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
   if (pData->eSigtype == mng_it_mng)   /* check global and embedded empty chunks */  
@@ -4715,6 +4716,7 @@ READ_CHUNK (mng_read_back)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_FRAM
 READ_CHUNK (mng_read_fram)
 {
@@ -4978,6 +4980,7 @@ READ_CHUNK (mng_read_fram)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -5320,6 +5323,7 @@ READ_CHUNK (mng_read_term)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_SAVE
 READ_CHUNK (mng_read_save)
 {
@@ -5529,6 +5533,7 @@ READ_CHUNK (mng_read_save)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -6654,6 +6659,7 @@ READ_CHUNK (mng_read_ipng)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 READ_CHUNK (mng_read_pplt)
 {
@@ -6802,7 +6808,7 @@ READ_CHUNK (mng_read_pplt)
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-      
+
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
@@ -6834,6 +6840,7 @@ READ_CHUNK (mng_read_pplt)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -6888,6 +6895,7 @@ READ_CHUNK (mng_read_ijng)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 READ_CHUNK (mng_read_drop)
 {
@@ -6949,6 +6957,7 @@ READ_CHUNK (mng_read_drop)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
@@ -7009,6 +7018,7 @@ READ_CHUNK (mng_read_dbyk)
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_NO_DELTA_PNG
 #ifndef MNG_SKIPCHUNK_ORDR
 READ_CHUNK (mng_read_ordr)
@@ -7073,9 +7083,11 @@ READ_CHUNK (mng_read_ordr)
 }
 #endif
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_MAGN
 READ_CHUNK (mng_read_magn)
 {
@@ -7270,9 +7282,11 @@ READ_CHUNK (mng_read_magn)
   return MNG_NOERROR;                  /* done */
 }
 #endif
+#endif
 
 /* ************************************************************************** */
 
+#ifndef MNG_OPTIMIZE_CHUNKREADER
 #ifndef MNG_SKIPCHUNK_evNT
 READ_CHUNK (mng_read_evnt)
 {
@@ -7627,6 +7641,7 @@ READ_CHUNK (mng_read_evnt)
 
   return MNG_NOERROR;                  /* done */
 }
+#endif
 #endif
 
 /* ************************************************************************** */
@@ -10434,3 +10449,4 @@ WRITE_CHUNK (mng_write_unknown)
 /* ************************************************************************** */
 /* * end of file                                                            * */
 /* ************************************************************************** */
+
