@@ -1037,8 +1037,8 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
       pBuf->iBKGDgreen       = pData->iGlobalBKGDgreen;
       pBuf->iBKGDblue        = pData->iGlobalBKGDblue;
     }
-  }
 #endif
+  }
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_END)
