@@ -29,7 +29,7 @@ $(EXE_BASENAME): $(OBJ)
 $(EXE_BASENAME)-static: $(OBJ)
 	$(CC) -static -o $(EXE_BASENAME)-static $(OBJ) $(LIBS)
 
-.c.o: gtk-mng-viewer.h
+.c.o: gtk-mng-view.h
 	$(CC) -c $(CFLAGS) $<
 
 clean:
