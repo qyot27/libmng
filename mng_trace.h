@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.h               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (definition)                               * */
 /* *                                                                        * */
@@ -43,6 +43,12 @@
 /* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
 /* *             - added tracecode for mng_read_resume HLAPI function       * */
 /* *                                                                        * */
+/* *             0.5.3 - 06/06/2000 - G.Juyn                                * */
+/* *             - added tracecodes for tracing JPEG progression            * */
+/* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
+/* *             - added tracecodes for get/set speedtype                   * */
+/* *             - added tracecodes for get imagelevel                      * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -79,6 +85,17 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_LC_END                      2
 #define MNG_LC_INITIALIZE               3
 #define MNG_LC_CLEANUP                  4
+
+/* ************************************************************************** */
+
+#define MNG_LC_JPEG_CREATE_DECOMPRESS   101
+#define MNG_LC_JPEG_READ_HEADER         102
+#define MNG_LC_JPEG_START_DECOMPRESS    103
+#define MNG_LC_JPEG_START_OUTPUT        104
+#define MNG_LC_JPEG_READ_SCANLINES      105
+#define MNG_LC_JPEG_FINISH_OUTPUT       106
+#define MNG_LC_JPEG_FINISH_DECOMPRESS   107
+#define MNG_LC_JPEG_DESTROY_DECOMPRESS  108
 
 /* ************************************************************************** */
 
@@ -169,6 +186,7 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_SET_JPEG_PROGRESSIVE   324
 #define MNG_FN_SET_JPEG_OPTIMIZED     325
 #define MNG_FN_SET_JPEG_MAXJDAT       326
+#define MNG_FN_SET_SPEED              327
 
 #define MNG_FN_GET_USERDATA           401
 #define MNG_FN_GET_SIGTYPE            402
@@ -202,6 +220,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_GET_JPEG_PROGRESSIVE   430
 #define MNG_FN_GET_JPEG_OPTIMIZED     431
 #define MNG_FN_GET_JPEG_MAXJDAT       432
+#define MNG_FN_GET_SPEED              433
+#define MNG_FN_GET_IMAGELEVEL         434
 
 /* ************************************************************************** */
 

@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_trace.c               copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.1                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Trace functions (implementation)                           * */
 /* *                                                                        * */
@@ -35,6 +35,10 @@
 /* *             - added tracestring for RGB8_A8 canvasstyle                * */
 /* *             0.5.2 - 06/06/2000 - G.Juyn                                * */
 /* *             - added tracestring for mng_read_resume HLAPI function     * */
+/* *                                                                        * */
+/* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
+/* *             - added tracestrings for get/set speedtype                 * */
+/* *             - added tracestring for get imagelevel                     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -146,6 +150,7 @@
     {MNG_FN_SET_JPEG_PROGRESSIVE,      "set_jpeg_progressive"},
     {MNG_FN_SET_JPEG_OPTIMIZED,        "set_jpeg_optimized"},
     {MNG_FN_SET_JPEG_MAXJDAT,          "set_jpeg_maxjdat"},
+    {MNG_FN_SET_SPEED,                 "set_speed"},
 
     {MNG_FN_GET_USERDATA,              "get_userdata"},
     {MNG_FN_GET_SIGTYPE,               "get_sigtype"},
@@ -179,6 +184,8 @@
     {MNG_FN_GET_JPEG_PROGRESSIVE,      "get_jpeg_progressive"},
     {MNG_FN_GET_JPEG_OPTIMIZED,        "get_jpeg_optimized"},
     {MNG_FN_GET_JPEG_MAXJDAT,          "get_jpeg_maxjdat"},
+    {MNG_FN_GET_SPEED,                 "get_speed"},
+    {MNG_FN_GET_IMAGELEVEL,            "get_imagelevel"},
 
     {MNG_FN_ITERATE_CHUNKS,            "iterate_chunks"},
 

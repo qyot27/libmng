@@ -147,6 +147,9 @@
 /* *                                                                        * */
 /* *             0.5.3 - 06/16/2000 - G.Juyn                                * */
 /* *             - changed the version parameters (obviously)               * */
+/* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
+/* *             - added get/set for speedtype to facilitate testing        * */
+/* *             - added get for imagelevel during processtext callback     * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -677,6 +680,13 @@ MNG_EXT mng_retcode MNG_DECL mng_set_jpeg_maxjdat    (mng_handle        hHandle,
                                                       mng_uint32        iMaxJDAT);
 #endif /* MNG_INCLUDE_JNG */
 
+/* Speed-setting  */
+/* use this to facilitate testing of animations */
+#if defined(MNG_SUPPORT_DISPLAY)
+MNG_EXT mng_retcode MNG_DECL mng_set_speed           (mng_handle        hHandle,
+                                                      mng_speedtype     iSpeed);
+#endif
+
 /* ************************************************************************** */
 /* *                                                                        * */
 /* *  Property get functions                                                * */
@@ -754,6 +764,18 @@ MNG_EXT mng_bool    MNG_DECL mng_get_jpeg_optimized  (mng_handle        hHandle)
 
 MNG_EXT mng_uint32  MNG_DECL mng_get_jpeg_maxjdat    (mng_handle        hHandle);
 #endif /* MNG_INCLUDE_JNG */
+
+/* see _set_  */
+#if defined(MNG_SUPPORT_DISPLAY)
+MNG_EXT mng_speedtype
+                    MNG_DECL mng_get_speed           (mng_handle        hHandle);
+#endif
+
+/* Image-level */
+/* this can be used inside the processtext callback to determine the level of
+   text of the image being processed; the value 1 is returned for top-level
+   texts, and the value 2 for a text inside an embedded image inside a MNG */
+MNG_EXT mng_uint32  MNG_DECL mng_get_imagelevel      (mng_handle        hHandle);
 
 /* ************************************************************************** */
 /* *                                                                        * */

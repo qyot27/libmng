@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_objects.h             copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Internal object structures (definition)                    * */
 /* *                                                                        * */
@@ -32,6 +32,9 @@
 /* *             - added ani-objects for delta-image processing             * */
 /* *             - added compression/filter/interlace fields to             * */
 /* *               object-buffer for delta-image processing                 * */
+/* *                                                                        * */
+/* *             0.5.3 - 06/17/2000 - G.Juyn                                * */
+/* *             - changed definition of aTRNSentries                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -100,7 +103,7 @@ typedef struct {                                 /* MNG specification "object-bu
            mng_uint16        iTRNSgreen;
            mng_uint16        iTRNSblue;
            mng_uint32        iTRNScount;
-           mng_uint8         aTRNSentries[256];
+           mng_uint8arr      aTRNSentries;
 
            mng_uint32        iGamma;             /* gAMA fields */
 

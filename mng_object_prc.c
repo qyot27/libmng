@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : mng_object_prc.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.5.2                                                      * */
+/* * version   : 0.5.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (implementation)                * */
 /* *                                                                        * */
@@ -35,6 +35,14 @@
 /* *             - added ani-object routines for delta-image processing     * */
 /* *             - added compression/filter/interlace fields to             * */
 /* *               object-buffer for delta-image processing                 * */
+/* *                                                                        * */
+/* *             0.5.3 - 06/17/2000 - G.Juyn                                * */
+/* *             - changed support for delta-image processing               * */
+/* *             0.5.3 - 06/20/2000 - G.Juyn                                * */
+/* *             - fixed some small things (as precaution)                  * */
+/* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
+/* *             - added processing of PLTE/tRNS & color-info for           * */
+/* *               delta-images in the ani_objects chain                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -864,18 +872,20 @@ void add_ani_object (mng_datap          pData,
 {
   mng_object_headerp pLast = (mng_object_headerp)pData->pLastaniobj;
 
-  if (pLast)
+  if (pLast)                           /* link it as last in the chain */
   {
     pObject->pPrev      = pLast;
     pLast->pNext        = pObject;
   }
   else
   {
+    pObject->pPrev      = MNG_NULL;    /* be on the safe side */
     pData->pFirstaniobj = pObject;
   }
 
+  pObject->pNext        = MNG_NULL;    /* be on the safe side */
   pData->pLastaniobj    = pObject;
-
+                                       /* keep track for jumping */
   pObject->iFramenr     = pData->iFrameseq;
   pObject->iLayernr     = pData->iLayerseq;
   pObject->iPlaytime    = pData->iFrametime;
@@ -889,12 +899,17 @@ void add_ani_object (mng_datap          pData,
 mng_retcode create_ani_image (mng_datap pData)
 {
   mng_ani_imagep pImage;
-  mng_imagep     pCurrent = (mng_imagep)pData->pCurrentobj;
+  mng_imagep     pCurrent;
   mng_retcode    iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_CREATE_ANI_IMAGE, MNG_LC_START)
 #endif
+
+  if (pData->bHasDHDR)                 /* processing delta-image ? */
+    pCurrent = (mng_imagep)pData->pObjzero;
+  else                                 /* get the current object */
+    pCurrent = (mng_imagep)pData->pCurrentobj;
 
   if (!pCurrent)                       /* otherwise object 0 */
     pCurrent = (mng_imagep)pData->pObjzero;
@@ -948,22 +963,132 @@ mng_retcode process_ani_image (mng_datap   pData,
 {
   mng_retcode    iRetcode = MNG_NOERROR;
   mng_ani_imagep pImage   = (mng_imagep)pObject;
-  mng_imagep     pCurrent = (mng_imagep)pData->pCurrentobj;
-  mng_imagep     pObjzero = (mng_imagep)pData->pObjzero;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_ANI_IMAGE, MNG_LC_START)
 #endif
 
-  if (pCurrent)                        /* active object ? */
+  if (pData->bHasDHDR)                 /* processing delta-image ? */
   {
-    mng_imagedatap pBuf = pCurrent->pImgbuf;
+    mng_imagep pDelta        = (mng_imagep)pData->pDeltaImage;
+    mng_imagedatap pBufdelta = pDelta->pImgbuf;
+    mng_imagedatap pBufimage = pImage->pImgbuf;
+
+    if (pBufimage->bHasPLTE)           /* palette in source ? */
+    {
+      mng_uint32 iX;
+                                       /* new palette larger than old one ? */
+      if ((!pBufdelta->bHasPLTE) || (pBufdelta->iPLTEcount < pBufimage->iPLTEcount))
+        pBufdelta->iPLTEcount = pBufimage->iPLTEcount;
+
+      pBufdelta->bHasPLTE = MNG_TRUE;  /* it's definitely got a PLTE now */
+
+      for (iX = 0; iX < pBufimage->iPLTEcount; iX++)
+      {
+        pBufdelta->aPLTEentries[iX].iRed   = pBufimage->aPLTEentries[iX].iRed;
+        pBufdelta->aPLTEentries[iX].iGreen = pBufimage->aPLTEentries[iX].iGreen;
+        pBufdelta->aPLTEentries[iX].iBlue  = pBufimage->aPLTEentries[iX].iBlue;
+      }
+    }
+
+    if (pBufimage->bHasTRNS)           /* cheap transparency in source ? */
+    {
+      switch (pData->iColortype)       /* drop it into the target */
+      {
+        case 0: {                      /* gray */
+                  pBufdelta->iTRNSgray  = pBufimage->iTRNSgray;
+                  pBufdelta->iTRNSred   = 0;
+                  pBufdelta->iTRNSgreen = 0;
+                  pBufdelta->iTRNSblue  = 0;
+                  pBufdelta->iTRNScount = 0;
+                  break;
+                }
+        case 2: {                      /* rgb */
+                  pBufdelta->iTRNSgray  = 0;
+                  pBufdelta->iTRNSred   = pBufimage->iTRNSred;
+                  pBufdelta->iTRNSgreen = pBufimage->iTRNSgreen;
+                  pBufdelta->iTRNSblue  = pBufimage->iTRNSblue;
+                  pBufdelta->iTRNScount = 0;
+                  break;
+                }
+        case 3: {                      /* indexed */
+                  pBufdelta->iTRNSgray  = 0;
+                  pBufdelta->iTRNSred   = 0;
+                  pBufdelta->iTRNSgreen = 0;
+                  pBufdelta->iTRNSblue  = 0;
+                                       /* existing range smaller than new one ? */
+                  if ((!pBufdelta->bHasTRNS) || (pBufdelta->iTRNScount < pBufimage->iTRNScount))
+                    pBufdelta->iTRNScount = pBufimage->iTRNScount;
+
+                  MNG_COPY (&pBufdelta->aTRNSentries, &pBufimage->aTRNSentries, pBufimage->iTRNScount)
+                  break;
+                }
+      }
+
+      pBufdelta->bHasTRNS = MNG_TRUE;  /* tell it it's got a tRNS now */
+    }
+
+    if (pBufimage->bHasGAMA)           /* gamma in source ? */
+    {
+      pBufdelta->bHasGAMA = MNG_TRUE;  /* drop it onto the target */
+      pBufdelta->iGamma   = pBufimage->iGamma;
+    }
+
+    if (pBufimage->bHasCHRM)           /* chroma in source ? */
+    {                                  /* drop it onto the target */
+      pBufdelta->bHasCHRM       = MNG_TRUE;
+      pBufdelta->iWhitepointx   = pBufimage->iWhitepointx;
+      pBufdelta->iWhitepointy   = pBufimage->iWhitepointy;
+      pBufdelta->iPrimaryredx   = pBufimage->iPrimaryredx;
+      pBufdelta->iPrimaryredy   = pBufimage->iPrimaryredy;
+      pBufdelta->iPrimarygreenx = pBufimage->iPrimarygreenx;
+      pBufdelta->iPrimarygreeny = pBufimage->iPrimarygreeny;
+      pBufdelta->iPrimarybluex  = pBufimage->iPrimarybluex;
+      pBufdelta->iPrimarybluey  = pBufimage->iPrimarybluey;
+    }
+
+    if (pBufimage->bHasSRGB)           /* sRGB in source ? */
+    {                                  /* drop it onto the target */
+      pBufdelta->bHasSRGB         = MNG_TRUE;
+      pBufdelta->iRenderingintent = pBufimage->iRenderingintent;
+    }
+
+    if (pBufimage->bHasICCP)           /* ICC profile in source ? */
+    {
+      pBufdelta->bHasICCP = MNG_TRUE;  /* drop it onto the target */
+
+      if (pBufdelta->pProfile)         /* profile existed ? */
+        MNG_FREEX (pData, pBufdelta->pProfile, pBufdelta->iProfilesize)
+                                       /* allocate a buffer & copy it */
+      MNG_ALLOC (pData, pBufdelta->pProfile, pBufimage->iProfilesize)
+      MNG_COPY  (pBufdelta->pProfile, pBufimage->pProfile, pBufimage->iProfilesize)
+                                       /* store it's length as well */
+      pBufdelta->iProfilesize = pBufimage->iProfilesize;
+    }
+
+
+    /* TODO: process the ani_image delta-pixels if they exist */
+
+    
+                                       /* now go and shoot it off (if required) */
+    if ((pDelta->bVisible) && (pDelta->bViewable))
+      iRetcode = display_image (pData, pDelta, MNG_FALSE);
+  }
+  else
+  if (pData->pCurrentobj)              /* active object ? */
+  {
+    mng_imagep     pCurrent = (mng_imagep)pData->pCurrentobj;
+    mng_imagedatap pBuf     = pCurrent->pImgbuf;
 
     if (!pData->iBreakpoint)           /* don't copy it again ! */
     {
       if (pBuf->iImgdatasize)          /* buffer present in active object ? */
                                        /* then drop it */
         MNG_FREE (pData, pBuf->pImgdata, pBuf->iImgdatasize)
+
+      if (pBuf->iProfilesize)          /* iCCP profile present ? */
+                                       /* then drop it */
+        MNG_FREE (pData, pBuf->pProfile, pBuf->iProfilesize)
                                        /* now blatently copy the animation buffer */
       MNG_COPY (pBuf, pImage->pImgbuf, sizeof (mng_imagedata))
 
@@ -978,23 +1103,25 @@ mng_retcode process_ani_image (mng_datap   pData,
         MNG_ALLOC (pData, pBuf->pProfile, pBuf->iProfilesize)
         MNG_COPY (pBuf->pProfile, pImage->pImgbuf->pProfile, pBuf->iProfilesize)
       }
-    }  
+    }
                                        /* now go and shoot it off (if required) */
-    if ((pImage->bVisible) && (pImage->bViewable))
+    if ((pCurrent->bVisible) && (pCurrent->bViewable))
       iRetcode = display_image (pData, pCurrent, MNG_FALSE);
   }
-  else                                 /* overlay with object 0 status */
+  else
   {
-    pImage->bVisible   = pObjzero->bVisible;
-    pImage->bViewable  = pObjzero->bViewable;
-    pImage->iPosx      = pObjzero->iPosx;
-    pImage->iPosy      = pObjzero->iPosy;
-    pImage->bClipped   = pObjzero->bClipped;
-    pImage->iClipl     = pObjzero->iClipl;
-    pImage->iClipr     = pObjzero->iClipr;
-    pImage->iClipt     = pObjzero->iClipt;
-    pImage->iClipb     = pObjzero->iClipb;
-                                       /* so this should do the trick */
+    mng_imagep pObjzero = (mng_imagep)pData->pObjzero;
+                                       /* overlay with object 0 status */
+    pImage->bVisible  = pObjzero->bVisible;
+    pImage->bViewable = pObjzero->bViewable;
+    pImage->iPosx     = pObjzero->iPosx;
+    pImage->iPosy     = pObjzero->iPosy;
+    pImage->bClipped  = pObjzero->bClipped;
+    pImage->iClipl    = pObjzero->iClipl;
+    pImage->iClipr    = pObjzero->iClipr;
+    pImage->iClipt    = pObjzero->iClipt;
+    pImage->iClipb    = pObjzero->iClipb;
+                                       /* now this should do the trick */
     if ((pImage->bVisible) && (pImage->bViewable))
       iRetcode = display_image (pData, pImage, MNG_FALSE);
   }
@@ -1002,7 +1129,7 @@ mng_retcode process_ani_image (mng_datap   pData,
   if (!iRetcode)                       /* all's well ? */
   {
     if (pData->bTimerset)              /* timer break ? */
-      pData->iBreakpoint = 99;         /* fictive number ! */
+      pData->iBreakpoint = 99;         /* fictive number; no more processing needed! */
     else
       pData->iBreakpoint = 0;          /* else clear it */
   }

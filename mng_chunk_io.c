@@ -69,6 +69,15 @@
 /* *             - added processing of color-info on delta-image            * */
 /* *             0.5.3 - 06/13/2000 - G.Juyn                                * */
 /* *             - fixed handling of empty SAVE chunk                       * */
+/* *             0.5.3 - 06/17/2000 - G.Juyn                                * */
+/* *             - changed to support delta-images                          * */
+/* *             - added extra checks for delta-images                      * */
+/* *             0.5.3 - 06/20/2000 - G.Juyn                                * */
+/* *             - fixed possible trouble if IEND display-process got       * */
+/* *               broken up                                                * */
+/* *             0.5.3 - 06/21/2000 - G.Juyn                                * */
+/* *             - added processing of PLTE & tRNS for delta-images         * */
+/* *             - added administration of imagelevel parameter             * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -481,9 +490,9 @@ READ_CHUNK (read_ihdr)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
 #ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasJHDR))
+  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasIDAT) || (pData->bHasJHDR))
 #else
-  if ((pData->bHasIHDR) || (pData->bHasBASI))
+  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasIDAT))
 #endif
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 
@@ -534,6 +543,20 @@ READ_CHUNK (read_ihdr)
       (pData->iInterlace != MNG_INTERLACE_ADAM7)    )
     MNG_ERROR (pData, MNG_INVALIDINTERLACE)
 
+  if (pData->bHasDHDR)                 /* check the colortype for delta-images ! */
+  {
+    mng_imagedatap pBuf = ((mng_imagep)pData->pObjzero)->pImgbuf;
+
+    if (pData->iColortype != pBuf->iColortype)
+    {
+      if ( ( (pData->iColortype != MNG_COLORTYPE_INDEXED) ||
+             (pBuf->iColortype  == MNG_COLORTYPE_GRAY   )    ) &&
+           ( (pData->iColortype != MNG_COLORTYPE_GRAY   ) ||
+             (pBuf->iColortype  == MNG_COLORTYPE_INDEXED)    )    )
+        MNG_ERROR (pData, MNG_INVALIDCOLORTYPE)
+    }
+  }
+
   if (!pData->bHasheader)              /* first chunk ? */
   {
     pData->bHasheader = MNG_TRUE;      /* we've got a header */
@@ -549,6 +572,9 @@ READ_CHUNK (read_ihdr)
         MNG_ERROR (pData, MNG_APPMISCERROR)
         
   }
+
+  if (!pData->bHasDHDR)
+    pData->iImagelevel++;              /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
@@ -646,47 +672,88 @@ READ_CHUNK (read_plte)
 #ifdef MNG_SUPPORT_DISPLAY
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
   {
-    mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
+    mng_imagep     pImage;
     mng_imagedatap pBuf;
 
-    if (!pImage)                       /* no object then dump it in obj 0 */
-      pImage = (mng_imagep)pData->pObjzero;
-
-    pBuf = pImage->pImgbuf;            /* address the object buffer */
-    pBuf->bHasPLTE = MNG_TRUE;         /* and tell it it's got a PLTE now */
-
-    if (!iRawlen)                      /* if empty, inherit from global */
+    if (pData->bHasDHDR)               /* processing delta-image ? */
     {
-      pBuf->iPLTEcount = pData->iGlobalPLTEcount;
-      MNG_COPY (&pBuf->aPLTEentries, &pData->aGlobalPLTEentries,
-                sizeof (pBuf->aPLTEentries))
+      pImage = (mng_imagep)pData->pDeltaImage;
+      pBuf   = pImage->pImgbuf;
+                                       /* new palette larger than old one ? */
+      if ((!pBuf->bHasPLTE) || (pBuf->iPLTEcount < iRawlen / 3))
+        pBuf->iPLTEcount = iRawlen / 3;
 
-      if (pData->bHasglobalTRNS)       /* also copy global tRNS ? */
-      {                                /* indicate tRNS available */
-        pBuf->bHasTRNS = MNG_TRUE;
+      pBuf->bHasPLTE = MNG_TRUE;       /* it's definitely got a PLTE now */
 
-        iRawlen2  = pData->iGlobalTRNSrawlen;
-        pRawdata2 = (mng_uint8p)(&pData->aGlobalTRNSrawdata);
-                                       /* global length oke ? */
-        if ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount))
-          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
-                                       /* copy it */
-        pBuf->iTRNScount = iRawlen2;
-        MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
-      }
-    }
-    else
-    {
-      pBuf->iPLTEcount = iRawlen / 3;  /* store fields for future reference */
-      pRawdata2        = pRawdata;
+      pRawdata2 = pRawdata;            /* copy the entries */
 
-      for (iX = 0; iX < pBuf->iPLTEcount; iX++)
+      for (iX = 0; iX < iRawlen / 3; iX++)
       {
         pBuf->aPLTEentries[iX].iRed   = *pRawdata2;
         pBuf->aPLTEentries[iX].iGreen = *(pRawdata2+1);
         pBuf->aPLTEentries[iX].iBlue  = *(pRawdata2+2);
 
         pRawdata2 += 3;
+      }
+                                       /* again for object 0 !!! */
+      pImage           = (mng_imagep)pData->pObjzero;
+      pBuf             = pImage->pImgbuf;
+      pBuf->bHasPLTE   = MNG_TRUE;     /* it's definitely got a PLTE now */
+      pBuf->iPLTEcount = iRawlen / 3;  /* this is the exact length */
+      pRawdata2        = pRawdata;     /* copy the entries */
+
+      for (iX = 0; iX < iRawlen / 3; iX++)
+      {
+        pBuf->aPLTEentries[iX].iRed   = *pRawdata2;
+        pBuf->aPLTEentries[iX].iGreen = *(pRawdata2+1);
+        pBuf->aPLTEentries[iX].iBlue  = *(pRawdata2+2);
+
+        pRawdata2 += 3;
+      }
+    }
+    else
+    {                                  /* get the current object */
+      pImage = (mng_imagep)pData->pCurrentobj;
+
+      if (!pImage)                     /* no object then dump it in obj 0 */
+        pImage = (mng_imagep)pData->pObjzero;
+
+      pBuf = pImage->pImgbuf;          /* address the object buffer */
+      pBuf->bHasPLTE = MNG_TRUE;       /* and tell it it's got a PLTE now */
+
+      if (!iRawlen)                    /* if empty, inherit from global */
+      {
+        pBuf->iPLTEcount = pData->iGlobalPLTEcount;
+        MNG_COPY (&pBuf->aPLTEentries, &pData->aGlobalPLTEentries,
+                  sizeof (pBuf->aPLTEentries))
+
+        if (pData->bHasglobalTRNS)     /* also copy global tRNS ? */
+        {                              /* indicate tRNS available */
+          pBuf->bHasTRNS = MNG_TRUE;
+
+          iRawlen2  = pData->iGlobalTRNSrawlen;
+          pRawdata2 = (mng_uint8p)(&pData->aGlobalTRNSrawdata);
+                                       /* global length oke ? */
+          if ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount))
+            MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+                                       /* copy it */
+          pBuf->iTRNScount = iRawlen2;
+          MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
+        }
+      }
+      else
+      {                                /* store fields for future reference */
+        pBuf->iPLTEcount = iRawlen / 3;
+        pRawdata2        = pRawdata;
+
+        for (iX = 0; iX < pBuf->iPLTEcount; iX++)
+        {
+          pBuf->aPLTEentries[iX].iRed   = *pRawdata2;
+          pBuf->aPLTEentries[iX].iGreen = *(pRawdata2+1);
+          pBuf->aPLTEentries[iX].iBlue  = *(pRawdata2+2);
+
+          pRawdata2 += 3;
+        }
       }
     }
   }
@@ -763,6 +830,9 @@ READ_CHUNK (read_idat)
   if (pData->bHasJSEP)
     MNG_ERROR (pData, MNG_SEQUENCEERROR)
 #endif
+                                       /* not allowed for for deltatype NO_CHANGE */
+  if ((pData->bHasDHDR) && ((pData->iDeltatype == MNG_DELTATYPE_NOCHANGE)))
+    MNG_ERROR (pData, MNG_CHUNKNOTALLOWED)
                                        /* can only be empty in BASI-block! */
   if ((iRawlen == 0) && (!pData->bHasBASI))
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
@@ -832,6 +902,8 @@ READ_CHUNK (read_iend)
   if ((pData->bHasIHDR) && (!pData->bHasIDAT))
     MNG_ERROR (pData, MNG_IDATMISSING)
 
+  pData->iImagelevel--;                /* one level up */
+
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bHasMHDR)
   {                                    /* create an animation object */
@@ -850,22 +922,30 @@ READ_CHUNK (read_iend)
   }
 #endif /* MNG_SUPPORT_DISPLAY */
 
-  pData->bHasIHDR         = MNG_FALSE; /* IEND signals the end */
-  pData->bHasBASI         = MNG_FALSE; /* for most ... */
-  pData->bHasDHDR         = MNG_FALSE;
-#ifdef MNG_INCLUDE_JNG
-  pData->bHasJHDR         = MNG_FALSE;
-  pData->bHasJSEP         = MNG_FALSE;
-  pData->bHasJDAT         = MNG_FALSE;
+#ifdef MNG_SUPPORT_DISPLAY
+  if (!pData->bTimerset)               /* reset only if not broken !!! */
+  {
 #endif
-  pData->bHasPLTE         = MNG_FALSE;
-  pData->bHasTRNS         = MNG_FALSE;
-  pData->bHasGAMA         = MNG_FALSE;
-  pData->bHasCHRM         = MNG_FALSE;
-  pData->bHasSRGB         = MNG_FALSE;
-  pData->bHasICCP         = MNG_FALSE;
-  pData->bHasBKGD         = MNG_FALSE;
-  pData->bHasIDAT         = MNG_FALSE;
+                                       /* IEND signals the end for most ... */
+    pData->bHasIHDR         = MNG_FALSE;
+    pData->bHasBASI         = MNG_FALSE;
+    pData->bHasDHDR         = MNG_FALSE;
+#ifdef MNG_INCLUDE_JNG
+    pData->bHasJHDR         = MNG_FALSE;
+    pData->bHasJSEP         = MNG_FALSE;
+    pData->bHasJDAT         = MNG_FALSE;
+#endif
+    pData->bHasPLTE         = MNG_FALSE;
+    pData->bHasTRNS         = MNG_FALSE;
+    pData->bHasGAMA         = MNG_FALSE;
+    pData->bHasCHRM         = MNG_FALSE;
+    pData->bHasSRGB         = MNG_FALSE;
+    pData->bHasICCP         = MNG_FALSE;
+    pData->bHasBKGD         = MNG_FALSE;
+    pData->bHasIDAT         = MNG_FALSE;
+#ifdef MNG_SUPPORT_DISPLAY
+  }
+#endif  
 
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
@@ -953,65 +1033,143 @@ READ_CHUNK (read_trns)
 #ifdef MNG_SUPPORT_DISPLAY
   if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
   {
-    mng_imagep     pImage = (mng_imagep)pData->pCurrentobj;
+    mng_imagep     pImage;
     mng_imagedatap pBuf;
     mng_uint8p     pRawdata2;
     mng_uint32     iRawlen2;
 
-    if (!pImage)                       /* no object then dump it in obj 0 */
-      pImage = (mng_imagep)pData->pObjzero;
-
-    pBuf = pImage->pImgbuf;            /* address object buffer */
-    pBuf->bHasTRNS = MNG_TRUE;         /* and tell it it's got a tRNS now */
-
-    if (iRawlen == 0)                  /* if empty, inherit from global */
+    if (pData->bHasDHDR)               /* processing delta-image ? */
     {
-      iRawlen2  = pData->iGlobalTRNSrawlen;
-      pRawdata2 = (mng_ptr)(&pData->aGlobalTRNSrawdata);
-                                       /* global length oke ? */
-      if ((pData->iColortype == 0) && (iRawlen2 != 2))
-        MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+      pImage = (mng_imagep)pData->pDeltaImage;
+      pBuf   = pImage->pImgbuf;        /* address object buffer */
 
-      if ((pData->iColortype == 2) && (iRawlen2 != 6))
-        MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+      switch (pData->iColortype)        /* store fields for future reference */
+      {
+        case 0: {                      /* gray */
+                  pBuf->iTRNSgray  = mng_get_uint16 (pRawdata);
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 2: {                      /* rgb */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = mng_get_uint16 (pRawdata);
+                  pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
+                  pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 3: {                      /* indexed */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                                       /* existing range smaller than new one ? */
+                  if ((!pBuf->bHasTRNS) || (pBuf->iTRNScount < iRawlen))
+                    pBuf->iTRNScount = iRawlen;
 
-      if ((pData->iColortype == 3) && ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount)))
-        MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+                  MNG_COPY (&pBuf->aTRNSentries, pRawdata, iRawlen)
+                  break;
+                }
+      }
+
+      pBuf->bHasTRNS = MNG_TRUE;       /* tell it it's got a tRNS now */
+                                       /* and again for object 0 !!! */
+      pImage = (mng_imagep)pData->pObjzero;
+      pBuf   = pImage->pImgbuf;        /* address object buffer */
+
+      switch (pData->iColortype)       /* store fields for future reference */
+      {
+        case 0: {                      /* gray */
+                  pBuf->iTRNSgray  = mng_get_uint16 (pRawdata);
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 2: {                      /* rgb */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = mng_get_uint16 (pRawdata);
+                  pBuf->iTRNSgreen = mng_get_uint16 (pRawdata+2);
+                  pBuf->iTRNSblue  = mng_get_uint16 (pRawdata+4);
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 3: {                      /* indexed */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                  pBuf->iTRNScount = iRawlen;
+                  MNG_COPY (&pBuf->aTRNSentries, pRawdata, iRawlen)
+                  break;
+                }
+      }
+
+      pBuf->bHasTRNS = MNG_TRUE;       /* tell it it's got a tRNS now */
     }
     else
-    {
-      iRawlen2  = iRawlen;
-      pRawdata2 = pRawdata;
-    }
+    {                                  /* address current object */
+      pImage = (mng_imagep)pData->pCurrentobj;
 
-    switch (pData->iColortype)          /* store fields for future reference */
-    {
-      case 0: {                        /* gray */
-                pBuf->iTRNSgray  = mng_get_uint16 (pRawdata2);
-                pBuf->iTRNSred   = 0;
-                pBuf->iTRNSgreen = 0;
-                pBuf->iTRNSblue  = 0;
-                pBuf->iTRNScount = 0;
-                break;
-              }
-      case 2: {                        /* rgb */
-                pBuf->iTRNSgray  = 0;
-                pBuf->iTRNSred   = mng_get_uint16 (pRawdata2);
-                pBuf->iTRNSgreen = mng_get_uint16 (pRawdata2+2);
-                pBuf->iTRNSblue  = mng_get_uint16 (pRawdata2+4);
-                pBuf->iTRNScount = 0;
-                break;
-              }
-      case 3: {                        /* indexed */
-                pBuf->iTRNSgray  = 0;
-                pBuf->iTRNSred   = 0;
-                pBuf->iTRNSgreen = 0;
-                pBuf->iTRNSblue  = 0;
-                pBuf->iTRNScount = iRawlen2;
-                MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
-                break;
-              }
-    }
+      if (!pImage)                     /* no object then dump it in obj 0 */
+        pImage = (mng_imagep)pData->pObjzero;
+
+      pBuf = pImage->pImgbuf;          /* address object buffer */
+      pBuf->bHasTRNS = MNG_TRUE;       /* and tell it it's got a tRNS now */
+
+      if (iRawlen == 0)                /* if empty, inherit from global */
+      {
+        iRawlen2  = pData->iGlobalTRNSrawlen;
+        pRawdata2 = (mng_ptr)(&pData->aGlobalTRNSrawdata);
+                                         /* global length oke ? */
+        if ((pData->iColortype == 0) && (iRawlen2 != 2))
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+
+        if ((pData->iColortype == 2) && (iRawlen2 != 6))
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+
+        if ((pData->iColortype == 3) && ((iRawlen2 == 0) || (iRawlen2 > pBuf->iPLTEcount)))
+          MNG_ERROR (pData, MNG_GLOBALLENGTHERR)
+      }
+      else
+      {
+        iRawlen2  = iRawlen;
+        pRawdata2 = pRawdata;
+      }
+
+      switch (pData->iColortype)        /* store fields for future reference */
+      {
+        case 0: {                      /* gray */
+                  pBuf->iTRNSgray  = mng_get_uint16 (pRawdata2);
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 2: {                      /* rgb */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = mng_get_uint16 (pRawdata2);
+                  pBuf->iTRNSgreen = mng_get_uint16 (pRawdata2+2);
+                  pBuf->iTRNSblue  = mng_get_uint16 (pRawdata2+4);
+                  pBuf->iTRNScount = 0;
+                  break;
+                }
+        case 3: {                      /* indexed */
+                  pBuf->iTRNSgray  = 0;
+                  pBuf->iTRNSred   = 0;
+                  pBuf->iTRNSgreen = 0;
+                  pBuf->iTRNSblue  = 0;
+                  pBuf->iTRNScount = iRawlen2;
+                  MNG_COPY (&pBuf->aTRNSentries, pRawdata2, iRawlen2)
+                  break;
+                }
+      }
+    }  
   }
   else                                 /* store as global */
   {
@@ -1035,7 +1193,7 @@ READ_CHUNK (read_trns)
 
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
-                                  
+
     if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
     {                                  /* not global! */
       ((mng_trnsp)*ppChunk)->bGlobal  = MNG_FALSE;
@@ -1146,7 +1304,12 @@ READ_CHUNK (read_gama)
     if (pData->bHasDHDR)               /* update delta image ? */
     {
       pImage = (mng_imagep)pData->pDeltaImage;
-
+                                       /* store for color-processing routines */
+      pImage->pImgbuf->iGamma   = mng_get_uint32 (pRawdata);
+      pImage->pImgbuf->bHasGAMA = MNG_TRUE;
+                                       /* also put in object 0 ! */
+      pImage = (mng_imagep)pData->pObjzero;
+                                       /* store for color-processing routines */
       pImage->pImgbuf->iGamma   = mng_get_uint32 (pRawdata);
       pImage->pImgbuf->bHasGAMA = MNG_TRUE;
     }
@@ -1248,78 +1411,104 @@ READ_CHUNK (read_chrm)
     pData->bHasglobalCHRM = (mng_bool)(iRawlen != 0);
 
 #ifdef MNG_SUPPORT_DISPLAY
-#ifdef MNG_INCLUDE_JNG
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
-#else
-  if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
-#endif
   {
-    mng_imagep     pImage;
-    mng_imagedatap pBuf;
+    mng_uint32 iWhitepointx,   iWhitepointy;
+    mng_uint32 iPrimaryredx,   iPrimaryredy;
+    mng_uint32 iPrimarygreenx, iPrimarygreeny;
+    mng_uint32 iPrimarybluex,  iPrimarybluey;
 
-    if (pData->bHasDHDR)               /* update delta image ? */
+    iWhitepointx   = mng_get_uint32 (pRawdata);
+    iWhitepointy   = mng_get_uint32 (pRawdata+4);
+    iPrimaryredx   = mng_get_uint32 (pRawdata+8);
+    iPrimaryredy   = mng_get_uint32 (pRawdata+12);
+    iPrimarygreenx = mng_get_uint32 (pRawdata+16);
+    iPrimarygreeny = mng_get_uint32 (pRawdata+20);
+    iPrimarybluex  = mng_get_uint32 (pRawdata+24);
+    iPrimarybluey  = mng_get_uint32 (pRawdata+28);
+    
+#ifdef MNG_INCLUDE_JNG
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR) || (pData->bHasJHDR))
+#else
+    if ((pData->bHasIHDR) || (pData->bHasBASI) || (pData->bHasDHDR))
+#endif
     {
-      pImage = (mng_imagep)pData->pDeltaImage;
+      mng_imagep     pImage;
+      mng_imagedatap pBuf;
 
-      pBuf = pImage->pImgbuf;          /* address object buffer */
-      pBuf->bHasCHRM = MNG_TRUE;       /* and tell it it's got a CHRM now */
+      if (pData->bHasDHDR)             /* update delta image ? */
+      {
+        pImage = (mng_imagep)pData->pDeltaImage;
+
+        pBuf = pImage->pImgbuf;        /* address object buffer */
+        pBuf->bHasCHRM = MNG_TRUE;     /* and tell it it's got a CHRM now */
                                        /* store for color-processing routines */
-      pBuf->iWhitepointx   = mng_get_uint32 (pRawdata);
-      pBuf->iWhitepointy   = mng_get_uint32 (pRawdata+4);
-      pBuf->iPrimaryredx   = mng_get_uint32 (pRawdata+8);
-      pBuf->iPrimaryredy   = mng_get_uint32 (pRawdata+12);
-      pBuf->iPrimarygreenx = mng_get_uint32 (pRawdata+16);
-      pBuf->iPrimarygreeny = mng_get_uint32 (pRawdata+20);
-      pBuf->iPrimarybluex  = mng_get_uint32 (pRawdata+24);
-      pBuf->iPrimarybluey  = mng_get_uint32 (pRawdata+28);
-    }
-    else
-    {
-      pImage = (mng_imagep)pData->pCurrentobj;
-
-      if (!pImage)                     /* no object then dump it in obj 0 */
+        pBuf->iWhitepointx   = iWhitepointx;
+        pBuf->iWhitepointy   = iWhitepointy;
+        pBuf->iPrimaryredx   = iPrimaryredx;
+        pBuf->iPrimaryredy   = iPrimaryredy;
+        pBuf->iPrimarygreenx = iPrimarygreenx;
+        pBuf->iPrimarygreeny = iPrimarygreeny;
+        pBuf->iPrimarybluex  = iPrimarybluex;
+        pBuf->iPrimarybluey  = iPrimarybluey;
+                                       /* also store it in object 0 ! */
         pImage = (mng_imagep)pData->pObjzero;
 
-      pBuf = pImage->pImgbuf;          /* address object buffer */
-      pBuf->bHasCHRM = MNG_TRUE;       /* and tell it it's got a CHRM now */
+        pBuf = pImage->pImgbuf;        /* address object buffer */
+        pBuf->bHasCHRM = MNG_TRUE;     /* and tell it it's got a CHRM now */
                                        /* store for color-processing routines */
-      pBuf->iWhitepointx   = mng_get_uint32 (pRawdata);
-      pBuf->iWhitepointy   = mng_get_uint32 (pRawdata+4);
-      pBuf->iPrimaryredx   = mng_get_uint32 (pRawdata+8);
-      pBuf->iPrimaryredy   = mng_get_uint32 (pRawdata+12);
-      pBuf->iPrimarygreenx = mng_get_uint32 (pRawdata+16);
-      pBuf->iPrimarygreeny = mng_get_uint32 (pRawdata+20);
-      pBuf->iPrimarybluex  = mng_get_uint32 (pRawdata+24);
-      pBuf->iPrimarybluey  = mng_get_uint32 (pRawdata+28);
-    }
-  }
-  else
-  {                                    /* store as global */
-    if (iRawlen != 0)
-    {
-      pData->iGlobalWhitepointx   = mng_get_uint32 (pRawdata);
-      pData->iGlobalWhitepointy   = mng_get_uint32 (pRawdata+4);
-      pData->iGlobalPrimaryredx   = mng_get_uint32 (pRawdata+8);
-      pData->iGlobalPrimaryredy   = mng_get_uint32 (pRawdata+12);
-      pData->iGlobalPrimarygreenx = mng_get_uint32 (pRawdata+16);
-      pData->iGlobalPrimarygreeny = mng_get_uint32 (pRawdata+20);
-      pData->iGlobalPrimarybluex  = mng_get_uint32 (pRawdata+24);
-      pData->iGlobalPrimarybluey  = mng_get_uint32 (pRawdata+28);
-    }
+        pBuf->iWhitepointx   = iWhitepointx;
+        pBuf->iWhitepointy   = iWhitepointy;
+        pBuf->iPrimaryredx   = iPrimaryredx;
+        pBuf->iPrimaryredy   = iPrimaryredy;
+        pBuf->iPrimarygreenx = iPrimarygreenx;
+        pBuf->iPrimarygreeny = iPrimarygreeny;
+        pBuf->iPrimarybluex  = iPrimarybluex;
+        pBuf->iPrimarybluey  = iPrimarybluey;
+      }
+      else
+      {
+        pImage = (mng_imagep)pData->pCurrentobj;
 
-    {                                  /* create an animation object */
-      mng_retcode iRetcode = create_ani_chrm (pData, (mng_bool)(iRawlen == 0),
-                                              pData->iGlobalWhitepointx,
-                                              pData->iGlobalWhitepointy,
-                                              pData->iGlobalPrimaryredx,
-                                              pData->iGlobalPrimaryredy,
-                                              pData->iGlobalPrimarygreenx,
-                                              pData->iGlobalPrimarygreeny,
-                                              pData->iGlobalPrimarybluex,
-                                              pData->iGlobalPrimarybluey);
+        if (!pImage)                   /* no object then dump it in obj 0 */
+          pImage = (mng_imagep)pData->pObjzero;
 
-      if (iRetcode)                    /* on error bail out */
-        return iRetcode;
+        pBuf = pImage->pImgbuf;        /* address object buffer */
+        pBuf->bHasCHRM = MNG_TRUE;     /* and tell it it's got a CHRM now */
+                                       /* store for color-processing routines */
+        pBuf->iWhitepointx   = iWhitepointx;
+        pBuf->iWhitepointy   = iWhitepointy;
+        pBuf->iPrimaryredx   = iPrimaryredx;
+        pBuf->iPrimaryredy   = iPrimaryredy;
+        pBuf->iPrimarygreenx = iPrimarygreenx;
+        pBuf->iPrimarygreeny = iPrimarygreeny;
+        pBuf->iPrimarybluex  = iPrimarybluex;
+        pBuf->iPrimarybluey  = iPrimarybluey;
+      }
+    }
+    else
+    {                                  /* store as global */
+      if (iRawlen != 0)
+      {
+        pData->iGlobalWhitepointx   = iWhitepointx;
+        pData->iGlobalWhitepointy   = iWhitepointy;
+        pData->iGlobalPrimaryredx   = iPrimaryredx;
+        pData->iGlobalPrimaryredy   = iPrimaryredy;
+        pData->iGlobalPrimarygreenx = iPrimarygreenx;
+        pData->iGlobalPrimarygreeny = iPrimarygreeny;
+        pData->iGlobalPrimarybluex  = iPrimarybluex;
+        pData->iGlobalPrimarybluey  = iPrimarybluey;
+      }
+
+      {                                /* create an animation object */
+        mng_retcode iRetcode = create_ani_chrm (pData, (mng_bool)(iRawlen == 0),
+                                                iWhitepointx,   iWhitepointy,
+                                                iPrimaryredx,   iPrimaryredy,
+                                                iPrimarygreenx, iPrimarygreeny,
+                                                iPrimarybluex,  iPrimarybluey);
+
+        if (iRetcode)                  /* on error bail out */
+          return iRetcode;
+      }
     }
   }
 #endif /* MNG_SUPPORT_DISPLAY */
@@ -1415,7 +1604,12 @@ READ_CHUNK (read_srgb)
     if (pData->bHasDHDR)               /* update delta image ? */
     {
       pImage = (mng_imagep)pData->pDeltaImage;
-
+                                       /* store for color-processing routines */
+      pImage->pImgbuf->iRenderingintent = *pRawdata;
+      pImage->pImgbuf->bHasSRGB         = MNG_TRUE;
+                                       /* also store in object 0 ! */
+      pImage = (mng_imagep)pData->pObjzero;
+                                       /* store for color-processing routines */
       pImage->pImgbuf->iRenderingintent = *pRawdata;
       pImage->pImgbuf->bHasSRGB         = MNG_TRUE;
     }
@@ -1553,6 +1747,17 @@ READ_CHUNK (read_iccp)
     if (pData->bHasDHDR)               /* update delta image ? */
     {
       pImage = (mng_imagep)pData->pDeltaImage;
+
+      if (pImage->pImgbuf->pProfile)   /* profile existed ? */
+        MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
+                                       /* allocate a buffer & copy it */
+      MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize)
+      MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize)
+                                       /* store it's length as well */
+      pImage->pImgbuf->iProfilesize = iProfilesize;
+      pImage->pImgbuf->bHasICCP     = MNG_TRUE;
+                                       /* also store in object 0 ! */
+      pImage = (mng_imagep)pData->pObjzero;
 
       if (pImage->pImgbuf->pProfile)   /* profile existed ? */
         MNG_FREEX (pData, pImage->pImgbuf->pProfile, pImage->pImgbuf->iProfilesize)
@@ -2713,6 +2918,8 @@ READ_CHUNK (read_mhdr)
     if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
       MNG_ERROR (pData, MNG_APPMISCERROR)
 
+  pData->iImagelevel++;                /* one level deeper */
+
 #ifdef MNG_STORE_CHUNKS
   if (pData->bStorechunks)
   {                                    /* initialize storage */
@@ -3184,6 +3391,8 @@ READ_CHUNK (read_basi)
   if ((pData->iInterlace != MNG_INTERLACE_NONE ) &&
       (pData->iInterlace != MNG_INTERLACE_ADAM7)    )
     MNG_ERROR (pData, MNG_INVALIDINTERLACE)
+
+  pData->iImagelevel++;                /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
   {
@@ -3718,9 +3927,10 @@ READ_CHUNK (read_fram)
         {
           switch (iFramemode)
           {
+            case  0: { break; }
             case  1: { iFramemode = 3; break; }
             case  2: { iFramemode = 4; break; }
-            case  3: { iFramemode = 5; break; }  /* TODO: provision for mode=5 ??? */
+            case  3: { break; }
             case  4: { iFramemode = 1; break; }
             case  5: { iFramemode = 2; break; }
             default: { iFramemode = 1; break; }
@@ -4809,6 +5019,7 @@ READ_CHUNK (read_jhdr)
   }
 
   pData->iColortype = 0;               /* fake grayscale for other routines */
+  pData->iImagelevel++;                /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
   if (pData->bDisplaying)
@@ -4989,6 +5200,8 @@ READ_CHUNK (read_dhdr)
     MNG_ERROR (pData, MNG_INVALIDLENGTH)
 
   pData->bHasDHDR = MNG_TRUE;          /* inside a DHDR-IEND block now */
+
+  pData->iImagelevel++;                /* one level deeper */
 
 #ifdef MNG_SUPPORT_DISPLAY
   {

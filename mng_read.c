@@ -250,10 +250,11 @@ mng_retcode read_chunk (mng_datap  pData)
         case 3 : ;                     /* same as 4 !!! */
         case 4 : { iRetcode = process_display_show  (pData); break; }
         case 5 : { iRetcode = process_display_clon2 (pData); break; }
-        case 6 : { iRetcode = process_display_iend  (pData); break; }
 #ifdef MNG_INCLUDE_JNG
         case 7 : { iRetcode = process_display_jhdr  (pData); break; }
 #endif
+        case 6 : ;                     /* same as 8 !!! */
+        case 8 : { iRetcode = process_display_iend  (pData); break; }
       }
     }
   }
