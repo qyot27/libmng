@@ -1550,7 +1550,8 @@ mng_retcode restore_bkgd_rgb8 (mng_datap pData)
 
   if (pData->fGetbkgdline)             /* can we access the background ? */
   {                                    /* point to the right pixel then */
-    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData, pData->iRow) +
+    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData,
+                                             pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)
@@ -1586,7 +1587,8 @@ mng_retcode restore_bkgd_bgr8 (mng_datap pData)
 
   if (pData->fGetbkgdline)             /* can we access the background ? */
   {                                    /* point to the right pixel then */
-    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData, pData->iRow) +
+    pBkgd = (mng_uint8p)pData->fGetbkgdline ((mng_handle)pData,
+                                             pData->iRow + pData->iDestt) +
             (3 * pData->iDestl);
 
     for (iX = pData->iSourcel; iX < pData->iSourcer; iX++)

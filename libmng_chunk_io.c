@@ -108,6 +108,9 @@
 /* *             - fixed check for simplicity-bits in MHDR (JNG)            * */
 /* *             0.9.3 - 08/12/2000 - G.Juyn                                * */
 /* *             - added workaround for faulty PhotoShop iCCP chunk         * */
+/* *             0.9.3 - 08/22/2000 - G.Juyn                                * */
+/* *             - fixed write-code for zTXt & iTXt                         * */
+/* *             - fixed read-code for iTXt                                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2076,6 +2079,7 @@ READ_CHUNK (read_itxt)
   mng_pchar   zKeyword, zLanguage, zTranslation;
   mng_uint8p  pNull1, pNull2, pNull3;
   mng_uint32  iCompressedsize;
+  mng_uint8   iCompressionflag;
   mng_uint32  iBufsize;
   mng_uint8p  pBuf;
 
@@ -2113,10 +2117,11 @@ READ_CHUNK (read_itxt)
   if (*(pNull1+2) != 0)                /* only deflate compression-method allowed */
     MNG_ERROR (pData, MNG_INVALIDCOMPRESS)
 
-  iKeywordlen     = (mng_uint32)(pNull1 - pRawdata);
-  iLanguagelen    = (mng_uint32)(pNull2 - pNull1 - 3);
-  iTranslationlen = (mng_uint32)(pNull3 - pNull2 - 1);
-  iCompressedsize = (mng_uint32)(iRawlen - iKeywordlen - iLanguagelen - iTranslationlen - 5);
+  iKeywordlen      = (mng_uint32)(pNull1 - pRawdata);
+  iLanguagelen     = (mng_uint32)(pNull2 - pNull1 - 3);
+  iTranslationlen  = (mng_uint32)(pNull3 - pNull2 - 1);
+  iCompressedsize  = (mng_uint32)(iRawlen - iKeywordlen - iLanguagelen - iTranslationlen - 5);
+  iCompressionflag = *(pNull1+1);
 
   zKeyword     = 0;                    /* no buffers acquired yet */
   zLanguage    = 0;
@@ -2125,14 +2130,25 @@ READ_CHUNK (read_itxt)
   iTextlen     = 0;
 
   if (pData->fProcesstext)             /* inform the application ? */
-  {                                    /* decompress the text */
-    iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
-                               &pBuf, &iBufsize, &iTextlen);
+  {
+    if (iCompressionflag)              /* decompress the text ? */
+    {
+      iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
+                                 &pBuf, &iBufsize, &iTextlen);
 
-    if (iRetcode)                      /* on error bail out */
-    {                                  /* don't forget to drop the temp buffer */
-      MNG_FREEX (pData, pBuf, iBufsize)
-      return iRetcode;
+      if (iRetcode)                    /* on error bail out */
+      {                                /* don't forget to drop the temp buffer */
+        MNG_FREEX (pData, pBuf, iBufsize)
+        return iRetcode;
+      }
+    }
+    else
+    {
+      iTextlen = iCompressedsize;
+      iBufsize = iTextlen+1;           /* plus 1 for terminator byte!!! */
+
+      MNG_ALLOCX (pData, pBuf, iBufsize);
+      MNG_COPY   (pBuf, pNull3+1, iTextlen);
     }
 
     MNG_ALLOCX (pData, zKeyword,     iKeywordlen     + 1)
@@ -2152,7 +2168,7 @@ READ_CHUNK (read_itxt)
     MNG_COPY (zLanguage,    pNull1+3, iLanguagelen)
     MNG_COPY (zTranslation, pNull2+1, iTranslationlen)
 
-    if (!pData->fProcesstext ((mng_handle)pData, MNG_TYPE_ZTXT, zKeyword, (mng_pchar)pBuf,
+    if (!pData->fProcesstext ((mng_handle)pData, MNG_TYPE_ITXT, zKeyword, (mng_pchar)pBuf,
                                                                 zLanguage, zTranslation))
     {                                  /* don't forget to drop the temp buffers */
       MNG_FREEX (pData, zTranslation, iTranslationlen + 1)
@@ -2185,17 +2201,28 @@ READ_CHUNK (read_itxt)
     ((mng_itxtp)*ppChunk)->iCompressionmethod = *(pNull1+2);
 
     if ((!pBuf) && (iCompressedsize))  /* did we not get a text-buffer yet ? */
-    {                                  /* decompress the text */
-      iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
-                                 &pBuf, &iBufsize, &iTextlen);
+    {
+      if (iCompressionflag)            /* decompress the text ? */
+      {
+        iRetcode = inflate_buffer (pData, pNull3+1, iCompressedsize,
+                                   &pBuf, &iBufsize, &iTextlen);
 
-      if (iRetcode)                    /* on error bail out */
-      {                                /* don't forget to drop the temp buffers */
-        MNG_FREEX (pData, zTranslation, iTranslationlen + 1)
-        MNG_FREEX (pData, zLanguage,    iLanguagelen    + 1)
-        MNG_FREEX (pData, zKeyword,     iKeywordlen     + 1)
-        MNG_FREEX (pData, pBuf,         iBufsize)
-        return iRetcode;
+        if (iRetcode)                  /* on error bail out */
+        {                              /* don't forget to drop the temp buffers */
+          MNG_FREEX (pData, zTranslation, iTranslationlen + 1)
+          MNG_FREEX (pData, zLanguage,    iLanguagelen    + 1)
+          MNG_FREEX (pData, zKeyword,     iKeywordlen     + 1)
+          MNG_FREEX (pData, pBuf,         iBufsize)
+          return iRetcode;
+        }
+      }
+      else
+      {
+        iTextlen = iCompressedsize;
+        iBufsize = iTextlen+1;         /* plus 1 for terminator byte!!! */
+
+        MNG_ALLOCX (pData, pBuf, iBufsize);
+        MNG_COPY   (pBuf, pNull3+1, iTextlen);
       }
     }
 
@@ -2220,7 +2247,7 @@ READ_CHUNK (read_itxt)
 
     ((mng_itxtp)*ppChunk)->iTextsize = iTextlen;
 
-    if (iCompressedsize)
+    if (iTextlen)
     {
       MNG_ALLOCX (pData, ((mng_itxtp)*ppChunk)->zText, iTextlen + 1)
 
@@ -6304,7 +6331,7 @@ WRITE_CHUNK (write_ztxt)
   if (!iRetcode)                       /* all ok ? */
   {
     pRawdata = pData->pWritebuf+8;     /* init output buffer & size */
-    iRawlen  = pZTXT->iKeywordsize + 1 + iReallen;
+    iRawlen  = pZTXT->iKeywordsize + 2 + iReallen;
                                        /* requires large buffer ? */
     if (iRawlen > pData->iWritebufsize)
       MNG_ALLOC (pData, pRawdata, iRawlen)
@@ -6317,7 +6344,9 @@ WRITE_CHUNK (write_ztxt)
       pTemp += pZTXT->iKeywordsize;
     }
 
-    *pTemp = 0;
+    *pTemp = 0;                        /* terminator zero */
+    pTemp++;
+    *pTemp = 0;                        /* compression type */
     pTemp++;
 
     if (iReallen)
@@ -6329,7 +6358,7 @@ WRITE_CHUNK (write_ztxt)
     if (iRawlen > pData->iWritebufsize)
       MNG_FREEX (pData, pRawdata, iRawlen)
 
-  }      
+  }
 
   MNG_FREEX (pData, pBuf, iBuflen);    /* always drop the compression buffer */
 
@@ -6358,15 +6387,23 @@ WRITE_CHUNK (write_itxt)
 #endif
 
   pITXT = (mng_itxtp)pChunk;           /* address the proper chunk */
-                                       /* compress the text */
-  iRetcode = deflate_buffer (pData, (mng_uint8p)pITXT->zText, pITXT->iTextsize,
-                             &pBuf, &iBuflen, &iReallen);
+
+  if (pITXT->iCompressionflag)         /* compress the text */
+    iRetcode = deflate_buffer (pData, (mng_uint8p)pITXT->zText, pITXT->iTextsize,
+                               &pBuf, &iBuflen, &iReallen);
+  else
+    iRetcode = MNG_NOERROR;
 
   if (!iRetcode)                       /* all ok ? */
   {
     pRawdata = pData->pWritebuf+8;     /* init output buffer & size */
     iRawlen  = pITXT->iKeywordsize + pITXT->iLanguagesize +
-               pITXT->iTranslationsize + 5 + iReallen;
+               pITXT->iTranslationsize + 5;
+
+    if (pITXT->iCompressionflag)
+      iRawlen = iRawlen + iReallen;
+    else
+      iRawlen = iRawlen + pITXT->iTextsize;
                                        /* requires large buffer ? */
     if (iRawlen > pData->iWritebufsize)
       MNG_ALLOC (pData, pRawdata, iRawlen)
@@ -6379,11 +6416,12 @@ WRITE_CHUNK (write_itxt)
       pTemp += pITXT->iKeywordsize;
     }
 
-    *pTemp     = 0;
-    *(pTemp+1) = pITXT->iCompressionflag;
-    *(pTemp+2) = pITXT->iCompressionmethod;
-
-    pTemp += 3;
+    *pTemp = 0;
+    pTemp++;
+    *pTemp = pITXT->iCompressionflag;
+    pTemp++;
+    *pTemp = pITXT->iCompressionmethod;
+    pTemp++;
 
     if (pITXT->iLanguagesize)
     {
@@ -6396,15 +6434,23 @@ WRITE_CHUNK (write_itxt)
 
     if (pITXT->iTranslationsize)
     {
-      MNG_COPY (pTemp, pITXT->zLanguage, pITXT->iLanguagesize)
-      pTemp += pITXT->iLanguagesize;
+      MNG_COPY (pTemp, pITXT->zTranslation, pITXT->iTranslationsize)
+      pTemp += pITXT->iTranslationsize;
     }
 
     *pTemp = 0;
     pTemp++;
 
-    if (iReallen)
-      MNG_COPY (pTemp, pBuf, iReallen)
+    if (pITXT->iCompressionflag)
+    {
+      if (iReallen)
+        MNG_COPY (pTemp, pBuf, iReallen)
+    }
+    else
+    {
+      if (pITXT->iTextsize)
+        MNG_COPY (pTemp, pITXT->zText, pITXT->iTextsize)
+    }
                                        /* and write it */
     iRetcode = write_raw_chunk (pData, pITXT->sHeader.iChunkname,
                                 iRawlen, pRawdata);
@@ -6412,15 +6458,18 @@ WRITE_CHUNK (write_itxt)
     if (iRawlen > pData->iWritebufsize)
       MNG_FREEX (pData, pRawdata, iRawlen)
 
-  }      
+  }
 
   MNG_FREEX (pData, pBuf, iBuflen);    /* always drop the compression buffer */
+
+  if (iRetcode)                        /* on error bail out */
+    return iRetcode;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_WRITE_ITXT, MNG_LC_END)
 #endif
 
-  return iRetcode;
+  return MNG_NOERROR;
 }
 
 /* ************************************************************************** */

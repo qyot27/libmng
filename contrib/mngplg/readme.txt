@@ -1,7 +1,7 @@
 MNGPLG
 A simple browser plug-in for the MNG image/animation file format.
 By Jason Summers  <jason1@pobox.com>
-Version 0.9.0  August 5, 2000
+Version 0.9.1  August 22, 2000
 Web site: <http://pobox.com/~jason1/imaging/mngplg/>
 
 

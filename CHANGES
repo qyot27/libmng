@@ -19,6 +19,9 @@ core:
 - added check for simplicity-bits in MHDR                 
 - added workaround for faulty PhotoShop iCCP chunk      
 - fixed app-supplied background restore                   
+- fixed TERM processing delay of 0 msecs            
+- fixed write-code for zTXt & iTXt
+- fixed read-code for iTXt                                
 
 samples:
 

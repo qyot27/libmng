@@ -5,7 +5,7 @@
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
 /* * file      : libmng_display.c          copyright (c) 2000 G.Juyn        * */
-/* * version   : 0.9.2                                                      * */
+/* * version   : 0.9.3                                                      * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
 /* *                                                                        * */
@@ -90,6 +90,8 @@
 /* *                                                                        * */
 /* *             0.9.3 - 08/07/2000 - G.Juyn                                * */
 /* *             - B111300 - fixup for improved portability                 * */
+/* *             0.9.3 - 08/21/2000 - G.Juyn                                * */
+/* *             - fixed TERM processing delay of 0 msecs                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -122,6 +124,9 @@
 mng_retcode set_delay (mng_datap  pData,
                        mng_uint32 iInterval)
 {
+  if (!iInterval)                      /* at least 1 msec please! */
+    iInterval = 1;
+
   if (!pData->fSettimer ((mng_handle)pData, iInterval))
     MNG_ERROR (pData, MNG_APPTIMERERROR)
 
@@ -1963,8 +1968,9 @@ mng_retcode process_display_mend (mng_datap pData)
                      return iRetcode;
                                        /* restart from TERM chunk */
                    pData->pCurraniobj = pTERM;
-                                       /* set the delay */
-                   iRetcode = set_delay (pData, pTERM->iDelay);
+
+                   if (pTERM->iDelay)  /* set the delay (?) */
+                     iRetcode = set_delay (pData, pTERM->iDelay);
 
                    if (iRetcode)       /* on error bail out */
                      return iRetcode;
