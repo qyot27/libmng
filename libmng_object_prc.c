@@ -286,7 +286,9 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   pImagedata->bHasCHRM           = pData->bHasglobalCHRM;
   pImagedata->bHasSRGB           = pData->bHasglobalSRGB;
   pImagedata->bHasICCP           = pData->bHasglobalICCP;
+#ifndef MNG_SKIPCHUNK_bKGD
   pImagedata->bHasBKGD           = pData->bHasglobalBKGD;
+#endif
 
   if (pData->bHasglobalGAMA)           /* global gAMA present ? */
     pImagedata->iGamma           = pData->iGlobalGamma;
@@ -329,12 +331,14 @@ mng_retcode mng_create_imagedataobject (mng_datap      pData,
   }
 #endif
 
+#ifndef MNG_SKIPCHUNK_bKGD
   if (pData->bHasglobalBKGD)           /* global bKGD present ? */
   {
     pImagedata->iBKGDred         = pData->iGlobalBKGDred;
     pImagedata->iBKGDgreen       = pData->iGlobalBKGDgreen;
     pImagedata->iBKGDblue        = pData->iGlobalBKGDblue;
   }
+#endif
 
   *ppObject = pImagedata;              /* return it */
 
@@ -981,7 +985,9 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
     pBuf->bHasCHRM = pData->bHasglobalCHRM;
     pBuf->bHasSRGB = pData->bHasglobalSRGB;
     pBuf->bHasICCP = pData->bHasglobalICCP;
+#ifndef MNG_SKIPCHUNK_bKGD
     pBuf->bHasBKGD = pData->bHasglobalBKGD;
+#endif
 
 #ifndef MNG_SKIPCHUNK_iCCP
     if (pBuf->iProfilesize)            /* drop possibly old ICC profile */
@@ -1024,6 +1030,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
     }
 #endif
 
+#ifndef MNG_SKIPCHUNK_bKGD
     if (pData->bHasglobalBKGD)           /* global bKGD present ? */
     {
       pBuf->iBKGDred         = pData->iGlobalBKGDred;
@@ -1031,6 +1038,7 @@ mng_retcode mng_reset_object_details (mng_datap  pData,
       pBuf->iBKGDblue        = pData->iGlobalBKGDblue;
     }
   }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_RESET_OBJECTDETAILS, MNG_LC_END)
@@ -2772,6 +2780,7 @@ mng_retcode mng_process_ani_iccp (mng_datap   pData,
 /* ************************************************************************** */
 /* ************************************************************************** */
 
+#ifndef MNG_SKIPCHUNK_bKGD
 mng_retcode mng_create_ani_bkgd (mng_datap  pData,
                                  mng_uint16 iRed,
                                  mng_uint16 iGreen,
@@ -2844,6 +2853,7 @@ mng_retcode mng_process_ani_bkgd (mng_datap   pData,
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 /* ************************************************************************** */
