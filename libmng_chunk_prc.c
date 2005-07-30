@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_prc.c        copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_chunk_prc.c        copyright (c) 2000-2005 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (implementation)            * */
 /* *                                                                        * */
@@ -65,6 +65,9 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
 /* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
+/* *                                                                        * */
+/* *             1.0.10 - 07/30/2005 - G.Juyn                               * */
+/* *             - fixed problem with CLON object during readdisplay()      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3372,6 +3375,9 @@ ASSIGN_CHUNK_HDR (mng_assign_clon)
   ((mng_clonp)pChunkto)->iSourceid     = ((mng_clonp)pChunkfrom)->iSourceid;
   ((mng_clonp)pChunkto)->iCloneid      = ((mng_clonp)pChunkfrom)->iCloneid;
   ((mng_clonp)pChunkto)->iClonetype    = ((mng_clonp)pChunkfrom)->iClonetype;
+#ifdef MNG_OPTIMIZE_CHUNKREADER
+  ((mng_clonp)pChunkto)->bHasdonotshow = ((mng_clonp)pChunkfrom)->bHasdonotshow;
+#endif
   ((mng_clonp)pChunkto)->iDonotshow    = ((mng_clonp)pChunkfrom)->iDonotshow;
   ((mng_clonp)pChunkto)->iConcrete     = ((mng_clonp)pChunkfrom)->iConcrete;
   ((mng_clonp)pChunkto)->bHasloca      = ((mng_clonp)pChunkfrom)->bHasloca;

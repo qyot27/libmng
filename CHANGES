@@ -14,8 +14,11 @@ bugfixes:
 core:
 - fixed some compiler-warnings
 - fixed display routines called twice for FULL_MNG support in mozlibmngconf.h
+- standard windows dll upgraded to zlib 1.2.3
+- fixed problem with CLON object during readdisplay() (thanks Winfried!)
 
 samples:
+- xmngview upgraded to 0.6 (thanks Winfried!)
 
 contrib:
 

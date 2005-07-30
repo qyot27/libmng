@@ -241,8 +241,8 @@ mng_retcode mng_create_ani_basi   (mng_datap      pData,
                                    mng_uint8      iViewable);
 
 mng_retcode mng_create_ani_clon   (mng_datap      pData,
-                                   mng_uint16     iCloneid,
                                    mng_uint16     iSourceid,
+                                   mng_uint16     iCloneid,
                                    mng_uint8      iClonetype,
                                    mng_bool       bHasdonotshow,
                                    mng_uint8      iDonotshow,

@@ -138,8 +138,10 @@
 /* *             1.0.9 - 01/02/2005 - G.Juyn                                * */
 /* *             - fixing some compiler-warnings                            * */
 /* *                                                                        * */
-/* *             1.0.10 - 07/02/2005 - G.Juyn                               * */
+/* *             1.0.10 - 02/07/2005 - G.Juyn                               * */
 /* *             - fixed some compiler-warnings                             * */
+/* *             1.0.10 - 07/30/2005 - G.Juyn                               * */
+/* *             - fixed problem with CLON object during readdisplay()      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3887,8 +3889,8 @@ mng_retcode mng_process_ani_basi (mng_datap   pData,
 #ifndef MNG_SKIPCHUNK_CLON
 #ifndef MNG_OPTIMIZE_CHUNKREADER
 mng_retcode mng_create_ani_clon (mng_datap  pData,
-                                 mng_uint16 iCloneid,
                                  mng_uint16 iSourceid,
+                                 mng_uint16 iCloneid,
                                  mng_uint8  iClonetype,
                                  mng_bool   bHasdonotshow,
                                  mng_uint8  iDonotshow,
@@ -3930,8 +3932,8 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
     mng_add_ani_object (pData, (mng_object_headerp)pCLON);
 
 #ifndef MNG_OPTIMIZE_CHUNKREADER
-    pCLON->iCloneid      = iCloneid;
     pCLON->iSourceid     = iSourceid;
+    pCLON->iCloneid      = iCloneid;
     pCLON->iClonetype    = iClonetype;
     pCLON->bHasdonotshow = bHasdonotshow;
     pCLON->iDonotshow    = iDonotshow;
@@ -3941,8 +3943,8 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
     pCLON->iLocax        = iLocax;
     pCLON->iLocay        = iLocay;
 #else
-    pCLON->iCloneid      = ((mng_clonp)pChunk)->iCloneid;
     pCLON->iSourceid     = ((mng_clonp)pChunk)->iSourceid;
+    pCLON->iCloneid      = ((mng_clonp)pChunk)->iCloneid;
     pCLON->iClonetype    = ((mng_clonp)pChunk)->iClonetype;
     pCLON->bHasdonotshow = ((mng_clonp)pChunk)->bHasdonotshow;
     pCLON->iDonotshow    = ((mng_clonp)pChunk)->iDonotshow;
@@ -3974,8 +3976,8 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
 #endif
 #else
 #ifndef MNG_OPTIMIZE_CHUNKREADER
-  pData->iCLONcloneid      = iCloneid;
   pData->iCLONsourceid     = iSourceid;
+  pData->iCLONcloneid      = iCloneid;
   pData->iCLONclonetype    = iClonetype;
   pData->bCLONhasdonotshow = bHasdonotshow;
   pData->iCLONdonotshow    = iDonotshow;
@@ -3985,8 +3987,8 @@ mng_retcode mng_create_ani_clon (mng_datap  pData,
   pData->iCLONlocationx    = iLocax;
   pData->iCLONlocationy    = iLocay;
 #else
-  pData->iCLONcloneid      = ((mng_clonp)pChunk)->iCloneid;
   pData->iCLONsourceid     = ((mng_clonp)pChunk)->iSourceid;
+  pData->iCLONcloneid      = ((mng_clonp)pChunk)->iCloneid;
   pData->iCLONclonetype    = ((mng_clonp)pChunk)->iClonetype;
   pData->bCLONhasdonotshow = ((mng_clonp)pChunk)->bHasdonotshow;
   pData->iCLONdonotshow    = ((mng_clonp)pChunk)->iDonotshow;

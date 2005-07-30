@@ -1,10 +1,10 @@
 /*
  * This code is mainly code I have found in
- *   ida-0.14  Gerd Knorr <kraxel :at: bytesex.org>
+ *   ida-0.14  Gerd Knorr <kraxel@bytesex.org>
  *          http://bytesex.org/ida
  * Ida is a small and fast image viewer, motif-based.
  *
- * Copyright (C) 2002 Gerd Knorr <kraxel :at: bytesex.org>
+ * Copyright (C) 2002 Gerd Knorr <kraxel@bytesex.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,6 @@
  * (at your option) any later version.
  *
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -38,7 +37,7 @@ static void dither_line_color(unsigned char *src, unsigned char *dest,
 static void init_dither(int shades_r, int shades_g, int shades_b, 
     int shades_gray);
 
-static XVisualInfo     *info;
+static XVisualInfo     *vis_info;
 
 /* PseudoColor: ditherresult => colormap-entry 
 */
@@ -51,7 +50,6 @@ static unsigned long   x11_map_gray[64];
 static unsigned long   x11_red;
 static unsigned long   x11_green;
 static unsigned long   x11_blue;
-
 
 static int      try_red[] =    {4, 6, 6, 5, 4};
 static int      try_green[] =  {8, 6, 6, 5, 4};
@@ -68,7 +66,6 @@ static unsigned long   x11_lut_gray[256];
 #define x11_gray          x11_map_gray[47*x11_grays/64]
 #define x11_lightgray     x11_map_gray[55*x11_grays/64]
 #define x11_white         x11_map_gray[63*x11_grays/64]
-
 
 static int x11_alloc_grays(Display * dpy, Colormap cmap, unsigned long *colors,
 	int gray)
@@ -96,14 +93,9 @@ static int x11_alloc_grays(Display * dpy, Colormap cmap, unsigned long *colors,
     return 1;
   }
 	colors[i] = akt_color.pixel;
-#ifdef DEBUG_X11_ALLOC_GRAYS
-	fprintf(stderr, "%2lx: %04x %04x %04x\n",
-		akt_color.pixel,akt_color.red,akt_color.green,akt_color.red);
-#endif
    }
     return 0;
 }
-
 
 static int x11_alloc_colorcube(Display * dpy, Colormap cmap, 
 	unsigned long *colors, int red, int green, int blue)
@@ -118,10 +110,6 @@ static int x11_alloc_colorcube(Display * dpy, Colormap cmap,
 	akt_color.red = ((i / (green * blue)) % red) * 65535 / upb_r;
 	akt_color.green = ((i / blue) % green) * 65535 / upb_g;
 	akt_color.blue = (i % blue) * 65535 / upb_b;
-#ifdef DEBUG_X11_ALLOC_COLORCUBE
-	fprintf(stderr, "%04x %04x %04x\n",
-		akt_color.red, akt_color.green, akt_color.red);
-#endif
 
 	if (!XAllocColor(dpy, cmap, &akt_color)) 
   {
@@ -168,24 +156,19 @@ static void x11_create_lut(unsigned long red_mask,
 	    rgb_red_bits++;
 	else 
 	if (!rgb_red_bits)
-	    rgb_red_shift++;
+	  rgb_red_shift++;
 	if (green_mask & mask)
-	    rgb_green_bits++;
+	  rgb_green_bits++;
 	else 
 	if (!rgb_green_bits)
-	    rgb_green_shift++;
+	  rgb_green_shift++;
+
 	if (blue_mask & mask)
-	    rgb_blue_bits++;
+	  rgb_blue_bits++;
 	else 
 	if (!rgb_blue_bits)
-	    rgb_blue_shift++;
+	  rgb_blue_shift++;
    }
-#ifdef DEBUG_X11_CREATE_LUT
-    printf("color: bits shift\n");
-    printf("red  : %04i %05i\n", rgb_red_bits, rgb_red_shift);
-    printf("green: %04i %05i\n", rgb_green_bits, rgb_green_shift);
-    printf("blue : %04i %05i\n", rgb_blue_bits, rgb_blue_shift);
-#endif
 
     for (i = 0; i < 256; i++) 
    {
@@ -193,50 +176,57 @@ static void x11_create_lut(unsigned long red_mask,
 	x11_lut_green[i] = (i >> (8 - rgb_green_bits)) << rgb_green_shift;
 	x11_lut_blue[i] = (i >> (8 - rgb_blue_bits)) << rgb_blue_shift;
 	x11_lut_gray[i] =
-	    x11_lut_red[i] | x11_lut_green[i] | x11_lut_blue[i];
+	  x11_lut_red[i] | x11_lut_green[i] | x11_lut_blue[i];
    }
 }
 
-void x11_init_color(image_data *data)
+void x11_init_color(ImageInfo *img)
 {
     Colormap        cmap;
-    XVisualInfo     template;
-    int             found, i;
+    XVisualInfo     vis_template;
+    int found, vis_class;
+	unsigned int i;
 	Display *dpy;
 
-	dpy = data->dpy;
+	dpy = img->dpy;
     cmap = DefaultColormap(dpy, DefaultScreen(dpy));
     if (0 == x11_grays)
 	  x11_grays = 8;
 
 /* Ask for visual type 
 */
-    template.screen = XDefaultScreen(dpy);
-    template.visualid =
-	  XVisualIDFromVisual(data->visual);
-    info = XGetVisualInfo(dpy, VisualIDMask | VisualScreenMask, &template,
+    vis_template.screen = XDefaultScreen(dpy);
+    vis_template.visualid =
+	  XVisualIDFromVisual(img->visual);
+    vis_info = 
+	  XGetVisualInfo(dpy, VisualIDMask | VisualScreenMask, &vis_template,
 			  &found);
     if (XShmQueryExtension(dpy)) 
-   {
-	data->have_shmem = 1;
-   }
+	  img->have_shmem = 1;
 
-    if (info->class == TrueColor) 
+#if defined(__cplusplus) || defined(c_plusplus)
+	vis_class = vis_info->c_class;
+#else
+    vis_class = vis_info->class;
+#endif
+	if(vis_class == TrueColor)
    {
-	data->gray = 0;		/* XXX testing... */
-	data->display_depth = 4;
-	data->display_type = TRUECOLOR;
+	img->gray = 0;		/* XXX testing... */
+	img->display_depth = 4;
+	img->display_type = TRUECOLOR;
 
-	x11_create_lut(info->red_mask, info->green_mask, info->blue_mask);
+	x11_create_lut(vis_info->red_mask, vis_info->green_mask, 
+	  vis_info->blue_mask);
 	x11_black = x11_alloc_color(dpy, cmap, 0, 0, 0);
 	x11_gray = x11_alloc_color(dpy, cmap, 0xc000, 0xc000, 0xc000);
 	x11_lightgray = x11_alloc_color(dpy, cmap, 0xe000, 0xe000, 0xe000);
 	x11_white = x11_alloc_color(dpy, cmap, 0xffff, 0xffff, 0xffff);
-   } else 
-	if (info->class == PseudoColor && info->depth == 8) 
+   } 
+	else 
+	if(vis_class == PseudoColor && vis_info->depth == 8) 
    {
-	data->display_depth = 1;
-	data->display_type = PSEUDOCOLOR;
+	img->display_depth = 1;
+	img->display_type = PSEUDOCOLOR;
 	if (0 != x11_alloc_grays(dpy, cmap, x11_map_gray, x11_grays)) 
   {
     fprintf(stderr, "%s:%d:Sorry, can't allocate %d grays\n", 
@@ -244,7 +234,7 @@ void x11_init_color(image_data *data)
 	Viewer_postlude();
     exit(1);
   }
-	if (!data->gray) 
+	if (!img->gray) 
   {
     for (i = 0; i < sizeof(try_red) / sizeof(int); i++) 
  {
@@ -261,19 +251,20 @@ void x11_init_color(image_data *data)
  }
     if (i == sizeof(try_red) / sizeof(int)) 
  {
-	data->gray = 1;
+	img->gray = 1;
 	fputs("failed to allocate colors, using grayscaled\n", stderr);
  }
   }
-	if (data->gray)
+	if (img->gray)
 	    init_dither(2, 2, 2, x11_grays);
-   } else 
-	if (info->class == StaticGray || info->class == GrayScale) 
+   } 
+	else 
+	if(vis_class == StaticGray || vis_class == GrayScale) 
    {
-	data->display_depth = 1;
-	data->display_type = PSEUDOCOLOR;
+	img->display_depth = 1;
+	img->display_type = PSEUDOCOLOR;
 	x11_grays = 64;
-	data->gray = 1;
+	img->gray = 1;
 
 	init_dither(2, 2, 2, x11_grays);
 
@@ -284,7 +275,8 @@ void x11_init_color(image_data *data)
 	Viewer_postlude();
     exit(1);
   }
-   } else 
+   } 
+	else 
    {
 	fprintf(stderr, "%s:%d: Sorry, can't handle visual\n", __FILE__,__LINE__);
 	Viewer_postlude();
@@ -296,19 +288,19 @@ void x11_init_color(image_data *data)
     x11_green = x11_alloc_color(dpy, cmap, 0, 65535, 0);
     x11_blue = x11_alloc_color(dpy, cmap, 0, 0, 65535);
 
-    if (data->gray) 
+    if (img->gray) 
    {
 	x11_map = x11_map_gray;
 
 	dither_line = dither_line_gray;
-   } else 
+   } 
+	else 
    {
 	x11_map = x11_map_color;
 
 	dither_line = dither_line_color;
    }
 }
-
 
 static int      mitshm_bang = 0;
 
@@ -318,23 +310,23 @@ static int x11_error_dev_null(Display * dpy, XErrorEvent * event)
     return 0;
 }
 
-XImage *x11_create_ximage(image_data *data)
+XImage *x11_create_ximage(ImageInfo *img)
 {
     XImage         *ximage = NULL;
-    unsigned char  *ximage_data;
+    unsigned char  *data;
     XShmSegmentInfo *shminfo = NULL;
-    XtPointer       old_handler;
+    int (*old_handler)(Display * dpy, XErrorEvent * event);
 
-    if (data->have_shmem) 
+    if (img->have_shmem) 
    {
 	old_handler = XSetErrorHandler(x11_error_dev_null);
-	data->shm = shminfo = malloc(sizeof(XShmSegmentInfo));
+	img->shm = shminfo = (XShmSegmentInfo*)malloc(sizeof(XShmSegmentInfo));
 	memset(shminfo, 0, sizeof(XShmSegmentInfo));
-	ximage = XShmCreateImage(data->dpy,
-				 data->visual,
-				 data->depth,
+	ximage = XShmCreateImage(img->dpy,
+				 img->visual,
+				 img->depth,
 				 ZPixmap, NULL,
-				 shminfo, data->img_width, data->img_height);
+				 shminfo, img->img_width, img->img_height);
 	if (ximage) 
   {
     shminfo->shmid = shmget(IPC_PRIVATE,
@@ -358,42 +350,43 @@ XImage *x11_create_ximage(image_data *data)
     ximage->data = shminfo->shmaddr;
     shminfo->readOnly = False;
 
-    XShmAttach(data->dpy, shminfo);
-    XSync(data->dpy, False);
+    XShmAttach(img->dpy, shminfo);
+    XSync(img->dpy, False);
     shmctl(shminfo->shmid, IPC_RMID, 0);
 
     if (mitshm_bang) 
  {
-	data->have_shmem = 0;
+	img->have_shmem = 0;
 	shmdt(shminfo->shmaddr);
 	free(shminfo);
-	data->shm = shminfo = NULL;
+	img->shm = shminfo = NULL;
 	XDestroyImage(ximage);
 	ximage = NULL;
  }
-  } else 
+  } 
+	else 
   {
-    data->have_shmem = 0;
+    img->have_shmem = 0;
     free(shminfo);
-    data->shm = shminfo = NULL;
+    img->shm = shminfo = NULL;
   }
 	XSetErrorHandler(old_handler);
    }
 
     if (ximage == NULL) 
    {
-	data->shm = NULL;
-	if (NULL == (ximage_data = 
-		malloc(data->img_width * data->img_height * data->display_depth))) 
+	img->shm = NULL;
+	if (NULL == (data = (unsigned char*)
+		malloc(img->img_width * img->img_height * img->display_depth))) 
   {
     fprintf(stderr,"Oops: out of memory\n");
     goto oom;
   }
-	ximage = XCreateImage(data->dpy,
-			      data->visual,
-			      data->depth,
-			      ZPixmap, 0, ximage_data,
-			      data->img_width, data->img_height,
+	ximage = XCreateImage(img->dpy,
+			      img->visual,
+			      img->depth,
+			      ZPixmap, 0, (char*)data,
+			      img->img_width, img->img_height,
 			      8, 0);
    }
     memset(ximage->data, 0, ximage->bytes_per_line * ximage->height);
@@ -409,28 +402,28 @@ XImage *x11_create_ximage(image_data *data)
    }
     if (ximage)
 	  XDestroyImage(ximage);
-	data->shm = 0;
+	img->shm = 0;
     return NULL;
 }
 
-void x11_destroy_ximage(image_data *data)
+void x11_destroy_ximage(ImageInfo *img)
 {
-    XShmSegmentInfo *shminfo = data->shm;
+    XShmSegmentInfo *shminfo = (XShmSegmentInfo*)img->shm;
 
     if (shminfo) 
    {
-	XShmDetach(data->dpy, shminfo);
-	XDestroyImage(data->ximage);
+	XShmDetach(img->dpy, shminfo);
+	XDestroyImage(img->ximage);
 	shmdt(shminfo->shmaddr);
 	free(shminfo);
-   } else
-	XDestroyImage(data->ximage);
+   } 
+	else
+	  XDestroyImage(img->ximage);
 }
 /*
  * ordered dither routines
  *
  * stolen from The GIMP and trimmed for speed
- *
  */
 #define DITHER_LEVEL 8
 
@@ -563,8 +556,7 @@ static void init_dither(int shades_r, int shades_g, int shades_b,
 static void dither_line_color(unsigned char *src, unsigned char *dest, 
 	unsigned int y, unsigned int width)
 {
-    long   a, b, dval;
-    long           *ymod;
+    unsigned long a, b, dval, *ymod;
 	unsigned int x;
     ymod = DM[y & DITHER_MASK];
 
@@ -585,16 +577,15 @@ static void dither_line_color(unsigned char *src, unsigned char *dest,
 	if (dval < a)
 	    a >>= 8;
 	b += a;
-	src += 3;
-	*dest++ = b & 0xff;
+	src += RGB_SIZE;
+	*dest++ = (unsigned char)(b & 0xff);
    }
 }
 
 static void dither_line_gray(unsigned char *src, unsigned char *dest, 
 	unsigned int y, unsigned int width)
 {
-    long           *ymod;
-    long   a, g;
+    unsigned long a, g, *ymod;
 	unsigned int x;
 
     ymod = DM[y & DITHER_MASK];
@@ -603,7 +594,7 @@ static void dither_line_gray(unsigned char *src, unsigned char *dest,
    {
 	g = (src[0]*3 + src[1]*6 + src[2]) / 10;
 	a = gray_dither[g];
-	src += 3;
+	src += RGB_SIZE;
 
 	if (ymod[x & DITHER_MASK] < a)
 	    a >>= 8;
@@ -612,7 +603,7 @@ static void dither_line_gray(unsigned char *src, unsigned char *dest,
    }
 }
 
-void viewer_renderline(image_data *data, unsigned char *scanline, 
+void viewer_renderline(ImageInfo *img, unsigned char *scanline, 
 	unsigned int row, unsigned int x, unsigned int width)
 {
     unsigned char *src, *dst;
@@ -621,15 +612,15 @@ void viewer_renderline(image_data *data, unsigned char *scanline,
 	unsigned int col, max_col;
 	unsigned short mng_rgb_size;
 
-	mng_rgb_size = data->mng_rgb_size;
-	ximage = data->ximage;
+	mng_rgb_size = img->mng_rgb_size;
+	ximage = img->ximage;
     src = scanline;
 	col = x;
 	max_col = x + width;
 
-    if (data->display_type == PSEUDOCOLOR) 
+    if (img->display_type == PSEUDOCOLOR) 
    {
-    dst = data->dither_line;
+    dst = img->dither_line;
     dither_line(src, dst, row, width);
 
 	while(col < max_col)
@@ -649,6 +640,6 @@ void viewer_renderline(image_data *data, unsigned char *scanline,
     XPutPixel(ximage, col, row, pix);
 
 	++col;
-	src += 3;
+	src += RGB_SIZE;
   }
 }

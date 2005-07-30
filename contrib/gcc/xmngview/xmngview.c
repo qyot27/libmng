@@ -1,5 +1,9 @@
-/* Built with libmng-1.0.5
- * <szukw000 :at: students.uni-mainz.de>
+/* Built with libmng-1.0.9
+ * Compiled on linux with gcc-3.3.4
+ * james@blastwave.org suggested the single step mode and wrote:
+ * "xmngview works on Solaris both Sparc and Intel and compiles with Sun's cc"
+ *
+ * <szukw000@students.uni-mainz.de> 
  *    This program my be redistributed under the terms of the
  *    GNU General Public Licence, version 2, or at your preference,
  *    any later version.
@@ -9,22 +13,19 @@
  * The official libmng web-site:
  *   http://www.libmng.com
  * 
- * Libmng's community on SourceForge:
- *   https://sourceforge.net/project/?group_id=5635
+ * Libmng on SourceForge:
+ *   http://libmng.sourceforge.net
  * 
  * The official MNG homepage:
  *   http://www.libpng.org/pub/mng
  * 
  * The official PNG homepage:
  *   http://www.libpng.org/pub/png
- * 
 */
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
+#include <ctype.h>
 #include <libmng.h>
 
 #include <X11/StringDefs.h>
@@ -40,21 +41,15 @@
 #include <Xm/Label.h>
 #include <X11/extensions/XShm.h>
 
-#include <assert.h>
-
 #include "xmng.h"
 
-/* #define DEBUG */
-/* #define DEBUG_DRAW */
-/* #define DEBUG_DELAY */
-/* #define DEBUG_X */
-/* #define TEST_X */
-/* #define DEBUG_READ */
+#define DEFAULT_BACKGROUND "grey77"
+static char version[]={"0.6"};
 
 static void run_viewer(FILE *reader, char *read_idf);
 
 static mng_handle user_handle;
-static image_data user_data;
+static ImageInfo img;
 static struct timeval start_tv, now_tv;
 static XtIntervalId timeout_ID;
 static char *prg_idf;
@@ -64,7 +59,218 @@ static  Widget toplevel, main_form, canvas, file_label;
 static XmFontList file_font;
 static Dimension start_width;
 
-static void fsb_cancel_cb(Widget w, XtPointer client_data, XtPointer call_data)
+#define SLASH '/'
+/*
+ * Cnf: XQueryColor(3X11)
+*/
+static char *parse_rgb_color(char *val)
+{
+    char *s, *d;
+    int ch;
+    char status, rgb_type;
+    char r[6], g[6], b[6], rgb[24];
+
+    rgb_type = 0;
+    status = 1;
+    s = val;
+    memset(r, 0, 6);
+    memset(g, 0, 6);
+    memset(b, 0, 6);
+
+    if(strncasecmp(s, "rgb:", 4) == 0)
+   {
+    rgb_type = 1;
+    s += 4;
+    if((d = strchr(s, SLASH)))
+  {
+    *d = 0;
+
+    if(d - s > 4)
+      s[4] = 0;
+    strcpy(r, s);
+
+    s = ++d;
+
+    if((d = strchr(s, SLASH)))
+ {
+    *d = 0;
+    if(d - s > 4)
+      s[4] = 0;
+    strcpy(g, s);
+
+    s = d + 1;
+    while((ch = *++d) && isxdigit(ch));
+    *d = 0;
+    if(d - s > 4)
+      s[4] = 0;
+    strcpy(b, s);
+
+ }
+    if(*r == 0 || *g == 0 || *b == 0)
+      return NULL;
+
+    s = r - 1;
+    while((ch = *++s))
+ {
+    if(isxdigit(ch)) continue;
+    status = rgb_type = 0;
+    break;
+ }
+    s = g - 1;
+    while((ch = *++s))
+ {
+    if(isxdigit(ch)) continue;
+    status = rgb_type = 0;
+    break;
+ }
+    s = b - 1;
+    while((ch = *++s))
+ {
+    if(isxdigit(ch)) continue;
+    status = rgb_type = 0;
+    break;
+ }
+    if(status)
+ {
+    strcpy(rgb, "rgb:");
+    d = rgb + 4;
+    s = r;
+    while(*s) *d++ = *s++;
+    *d++ = SLASH;
+    s = g;
+    while(*s) *d++ = *s++;
+    *d++ = SLASH;
+    s = b;
+    while(*s) *d++ = *s++;
+    *d = 0;
+
+    return strdup(rgb);
+ }
+  } /* if((slash = strchr(s, SLASH))) */
+    return NULL;
+   }
+
+    s = val;
+    if(*s == '#' || isdigit(*s))
+   {
+    if(*s != '#')
+      --s;
+    while((ch = *++s))
+  {
+    if(isxdigit(ch)) continue;
+    status = 0;
+    break;
+  }
+    if(status)
+  {
+    d = rgb;
+    s = val;
+    if(*s == '#')
+      ++s;
+/*
+ * #RGB                (4 bits each)
+ * #RRGGBB             (8 bits each)
+ * #RRRGGGBBB          (12 bits each)
+ * #RRRRGGGGBBBB       (16 bits each)
+*/
+    if(strlen(s) > 12)
+      s[12] = 0;
+    *d++ = '#';
+    strcpy(d, s);
+    return strdup(rgb);
+  }
+    return NULL;
+   }
+
+/*
+ * 'white', 'LavenderBlush', 'dark slate gray', 'grey12'
+*/
+    s = val - 1;
+    while((ch = *++s))
+   {
+    if(isalnum(ch) || isspace(ch)) continue;
+    status = 0;
+    break;
+   }
+    if(!status)
+      return NULL;
+    return strdup(val);
+
+}/* parse_rgb_color() */
+
+static void set_bg_pixel(ImageInfo *img)
+{
+    XColor xcolor;
+    Widget w;
+    char *s, *d;
+    int found;
+
+    w = img->canvas;
+
+    if(!img->has_bg_pixel)
+   {
+    if(img->has_bg_color)
+  {
+    s = strdup(img->bg_color);
+
+    d = parse_rgb_color(s);
+
+    free(s);
+
+    if(d)
+ {
+    strcpy(img->bg_color, d);
+    free(d);
+ }
+    else
+      img->has_bg_color = 0;
+  }
+    if(!img->has_bg_color)
+  {
+    strcpy(img->bg_color, DEFAULT_BACKGROUND);
+    img->has_bg_color = 1;
+  }
+
+    found = XParseColor(img->dpy,
+      DefaultColormap(img->dpy, DefaultScreen(img->dpy)),
+      img->bg_color, &xcolor);
+
+    if(!found)
+  {
+    strcpy(img->bg_color, DEFAULT_BACKGROUND);
+
+    found = XParseColor(img->dpy,
+      DefaultColormap(img->dpy, DefaultScreen(img->dpy)),
+      img->bg_color, &xcolor);
+
+  }
+    xcolor.flags = DoRed | DoGreen | DoBlue;
+
+    XAllocColor(img->dpy,
+      DefaultColormap(img->dpy, DefaultScreen(img->dpy)),
+      &xcolor);
+   }
+    else
+   {
+    xcolor.pixel = img->bg_pixel;
+    xcolor.flags = DoRed|DoGreen|DoBlue;
+
+    found = XQueryColor(img->dpy,
+      DefaultColormap(img->dpy, DefaultScreen(img->dpy)),
+      &xcolor);
+   }
+    img->bg_pixel = xcolor.pixel;
+    img->xbg_red = xcolor.red;
+    img->xbg_green = xcolor.green;
+    img->xbg_blue = xcolor.blue;
+    img->bg_red = (unsigned char)xcolor.red&0xff;
+    img->bg_green = (unsigned char)xcolor.green&0xff;
+    img->bg_blue = (unsigned char)xcolor.blue&0xff;
+    img->has_bg_pixel = 1;
+
+}/* set_bg_pixel() */
+
+static void fsb_cancel_cb(Widget w, XtPointer client, XtPointer call)
 {
     XtUnmanageChild(w);
 }
@@ -128,7 +334,6 @@ void run_mng_file_cb(Widget w, XtPointer client, XtPointer call)
     fprintf(stderr, "\n\n%s: cannot open file '%s'\n\n", prg_idf, read_idf);
     return;
    }
-
 	run_viewer(reader, read_idf);
 
     free(read_idf);
@@ -138,189 +343,95 @@ static void user_reset_data(void)
 {
 	if(timeout_ID) XtRemoveTimeOut(timeout_ID);
 	timeout_ID = 0;
-	mng_cleanup(&user_data.user_handle);
-	user_data.read_pos = 0;
-	free(user_data.read_buf);
-	user_data.read_buf = NULL;
-	user_data.read_len = 0;
-	user_data.img_width = 0;
-	user_data.img_height = 0;
-	user_data.mng_bytes_per_line = 0;
-	user_data.bpl = 0;
-	user_data.read_idf = NULL;
-	user_data.frozen = 0;
+	mng_cleanup(&img.user_handle);
 
-	XClearWindow(user_data.dpy, user_data.win);
+	img.read_pos = 0;
+	free(img.read_buf);
+	img.read_buf = NULL;
+	img.read_len = 0;
+	img.img_width = 0;
+	img.img_height = 0;
+	img.mng_bytes_per_line = 0;
+	img.read_idf = NULL;
+	img.frozen = 0;
+	img.restarted = 0;
+    img.single_step_wanted = 0;
+    img.single_step_served = 0;
 
-/* mng_buf and ximage are freed in user_init_data() or Viewer_postlude()
-*/
-}
-
-static void player_stop_cb(Widget w, XtPointer client, XtPointer call)
-{
-	if(user_data.stopped) return;
-	if(user_data.user_handle)
-   {
-	user_reset_data();
-	user_data.stopped = 1;
-   }
+	XClearWindow(img.dpy, img.win);
 }
 
 void browse_file_cb(Widget w, XtPointer client, XtPointer call)
 {
-	if(user_data.user_handle)
-   {
-	user_reset_data();
-   }
-	user_data.stopped = 0;
-	user_data.frozen = 0;
-	user_data.restarted = 0;
+	if(img.user_handle)
+	  user_reset_data();
+
+	img.stopped = 0;
+	img.frozen = 0;
+	img.restarted = 0;
     create_file_dialog(w, "Select", "Select MNG file", run_mng_file_cb);
 }
 
 void Viewer_postlude(void)
 {
 	if(timeout_ID) XtRemoveTimeOut(timeout_ID);
-	mng_cleanup(&user_data.user_handle);
-	if(user_data.reader) fclose(user_data.reader);
-	if(user_data.ximage) XDestroyImage(user_data.ximage);
-	if(user_data.read_buf) free(user_data.read_buf);
-	if(user_data.mng_buf) free(user_data.mng_buf);
-	if(user_data.dither_line) free(user_data.dither_line);
-	if(!user_data.user_win && user_data.dpy) XtCloseDisplay(user_data.dpy);
+	mng_cleanup(&img.user_handle);
+	if(img.reader) fclose(img.reader);
+	if(img.ximage) XDestroyImage(img.ximage);
+	if(img.read_buf) free(img.read_buf);
+	if(img.mng_buf) free(img.mng_buf);
+	if(img.dither_line) free(img.dither_line);
+	if(!img.external_win && img.dpy) XtCloseDisplay(img.dpy);
 	fputc('\n', stderr);
 }
 
-#ifdef TEST_X
-static void test_x(image_data *data)
-{
-    XWindowAttributes wattr;
-    XPixmapFormatValues *pf;
-    Visual *visual;
-    int n;
-    long             bpp;   /* Bytes per pixel */
-    long             pad;   /* Scanline pad in byte */
-
-    Window           target;
-    Display         *dpy;
-	Window root;
-	int x, y;
-	unsigned int width, height, border_width, depth;
-	Status status;
-
-    dpy = data->dpy;
-    target = data->win;
-
-	status = XGetGeometry(dpy, target, &root, &x, &y, &width, &height,
-	  &border_width, &depth);
-
-    XGetWindowAttributes(dpy, target, &wattr);
-
-
-	fprintf(stderr,"\n\nUSERWIN %lu DATAWIN %lu and ROOT %lu\n",
-	  data->user_win, target, root);
-	fprintf(stderr,"X %d Y %d W %u H %u BORDER_W %u DEPTH %u \n\n",
-	  x,y,width,height,border_width,depth);
-
-    visual = wattr.visual;
-
-    fprintf(stderr,"VisualId: 0x%lx\n", visual->visualid);
-    fprintf(stderr,"BitmapPad  = %d\n", BitmapPad(dpy));
-    fprintf(stderr,"BitmapUnit = %d\n", BitmapUnit(dpy));
-    fprintf(stderr,"Depth      = %d\n", DefaultDepth(dpy,DefaultScreen(dpy)));
-    fprintf(stderr,"RedMask    = 0x%lx\n", visual->red_mask);
-    fprintf(stderr,"GreenMask  = 0x%lx\n", visual->green_mask);
-    fprintf(stderr,"BlueMask   = 0x%lx\n", visual->blue_mask);
-    fprintf(stderr,"Bits/RGB   = %d\n", visual->bits_per_rgb);
-    bpp = 0;
-
-
-    for(pf=XListPixmapFormats(dpy, &n); n--; pf++) {
-        if (pf->depth == DefaultDepth(dpy, DefaultScreen(dpy))) {
-            bpp = pf->bits_per_pixel/8;
-            pad = pf->scanline_pad/8;
-        }
-        fprintf(stderr,"----------------\n");
-        fprintf(stderr,"Depth          = %d\n", pf->depth);
-        fprintf(stderr,"Bits Per Pixel = %d\n", pf->bits_per_pixel);
-        fprintf(stderr,"Scanline Pad   = %d\n", pf->scanline_pad);
-    }
-
-
-}
-#endif
-
-static void user_init_data(image_data *data)
+static void user_init_data(ImageInfo *img)
 {
 	unsigned int depth;
-	int screen, row, col;
+	int screen;
 	Display *dpy;
-	Pixel bg;
-	XColor xcolor;
 
-#ifdef TEST_X
-	test_x(data);
-#endif
-
-	dpy = data->dpy;
+	dpy = img->dpy;
     screen = DefaultScreen(dpy);
     depth = DefaultDepth(dpy, screen);
-	data->depth = depth;
+	img->depth = depth;
 
-	if(!data->visual)
+	if(!img->visual)
    {
-	data->visual = DefaultVisual(dpy, screen);
-	data->gc = DefaultGC(dpy, DefaultScreen(dpy));
-   }else
-   {
-	free(data->mng_buf);
-	x11_destroy_ximage(data);
+	img->visual = DefaultVisual(dpy, screen);
+	img->gc = DefaultGC(dpy, DefaultScreen(dpy));
    }
-	if(data->canvas)
-   {
-
-	XtVaGetValues(data->canvas, XmNbackground, &bg, NULL);
-	xcolor.pixel = bg;
-	XQueryColor(dpy, DefaultColormap(dpy, DefaultScreen(dpy)), &xcolor);
-   }else
-   {
-	if(data->user_bg)
-  {
-	xcolor.pixel = data->bg_pixel;
-	XQueryColor(dpy, DefaultColormap(dpy, DefaultScreen(dpy)), &xcolor);
-  }
 	else
-	XLookupColor(dpy, DefaultColormap(dpy, DefaultScreen(dpy)),
-	  "grey80", &xcolor, &xcolor);
-   }
-	
-	mng_set_bgcolor(data->user_handle, xcolor.red, xcolor.green,
-	  xcolor.blue);
+   {
+	if(img->mng_buf) free(img->mng_buf);
+	if(img->dither_line) free(img->dither_line);
 
-	data->mng_bytes_per_line = data->img_width * data->mng_rgb_size;
-	data->mng_buf = (unsigned char*)
-	  calloc(1, data->mng_bytes_per_line * data->img_height);
-	data->dither_line = (unsigned char*)
-	  calloc(1, data->mng_bytes_per_line);
-	x11_init_color(data);
-	data->ximage = x11_create_ximage(data);
+	x11_destroy_ximage(img);
+   }
+
+	set_bg_pixel(img);
+
+	mng_set_bgcolor(img->user_handle, 
+	  img->xbg_red, img->xbg_green, img->xbg_blue);
+
+	img->mng_bytes_per_line = img->img_width * img->mng_rgb_size;
+	img->mng_buf = (unsigned char*)
+	  calloc(1, img->mng_bytes_per_line * img->img_height);
+	img->dither_line = (unsigned char*)
+	  calloc(1, img->mng_bytes_per_line);
+
+	if(!img->x11_init)
+   {
+	x11_init_color(img);
+
+	img->x11_init = 1;
+   }
+	img->ximage = x11_create_ximage(img);
 	
-	if(data->ximage == NULL)
+	if(img->ximage == NULL)
    {
 	Viewer_postlude();
 	exit(0);
-   }
-	if(data->type == MNG_TYPE)
-	  return;
-
-	row = -1;
-	while(++row < data->img_height)
-   {
-	col = -1;
-	while(++col < data->img_width)
-  {
-	XPutPixel(data->ximage, col, row, xcolor.pixel);
-  }
    }
 }
 
@@ -330,36 +441,93 @@ static void player_exit_cb(Widget w, XtPointer client, XtPointer call)
     exit(0);
 }
 
-static void player_pause_cb(Widget w, XtPointer client, XtPointer call)
+static void player_stop_cb(Widget w, XtPointer client, XtPointer call)
 {
-	if(user_data.stopped) return;
-	if(user_data.frozen) return;
+    if(img.type != MNG_TYPE) return;
+    if(!img.user_handle) return;
+    if(img.stopped) return;
+
+    user_reset_data();
+    img.stopped = 1;
+}
+
+static void player_single_step_cb(Widget w, XtPointer client, XtPointer call)
+{
+    if(img.type != MNG_TYPE) return;
+    if(!img.user_handle) return;
+    if(img.stopped) return;
+
+    if(img.single_step_served)
+   {
+    img.single_step_served = 0;
+    img.frozen = 0;
+
+    img.single_step_wanted = 1;
+    return;
+   }
 	if(timeout_ID) XtRemoveTimeOut(timeout_ID);
 	timeout_ID = 0;
-	mng_display_freeze(user_data.user_handle);
-	user_data.frozen = 1;
+    img.single_step_wanted = 1;
+    mng_display_resume(img.user_handle);
+}
+
+static void player_pause_cb(Widget w, XtPointer client, XtPointer call)
+{
+    if(img.type != MNG_TYPE) return;
+    if(!img.user_handle) return;
+    if(img.stopped) return;
+    if(img.frozen) return;
+
+    if(timeout_ID) XtRemoveTimeOut(timeout_ID);
+    timeout_ID = 0;
+    img.frozen = 1;
+    img.single_step_served = 0;
+    img.single_step_wanted = 0;
 }
 
 static void player_resume_cb(Widget w, XtPointer client, XtPointer call)
 {
-	if(!user_data.frozen) return;
-	user_data.frozen = 0;
-	mng_display_resume(user_data.user_handle);
+    if(img.type != MNG_TYPE) return;
+    if(!img.user_handle) return;
+    if(img.stopped) return;
+
+    if(!img.frozen
+    && !img.single_step_served)
+      return;
+    img.frozen = 0;
+
+    if(img.single_step_served
+    || img.single_step_wanted)
+   {
+    img.single_step_served = 0;
+    img.single_step_wanted = 0;
+
+    if(timeout_ID) XtRemoveTimeOut(timeout_ID);
+    timeout_ID = 0;
+   }
+    mng_display_resume(img.user_handle);
 }
 
 static void player_restart_cb(Widget w, XtPointer client, XtPointer call)
 {
-	if(user_data.stopped) return;
+    if(img.type != MNG_TYPE) return;
+    if(!img.user_handle) return;
+    if(img.stopped) return;
+
+    img.frozen = 1;
 	if(timeout_ID) XtRemoveTimeOut(timeout_ID);
 	timeout_ID = 0;
-	
-	user_data.frozen = 0;
-	user_data.read_pos = 0;
-	gettimeofday(&start_tv, NULL);
 
-	mng_reset(user_data.user_handle);
-	user_data.restarted = 1;
-	mng_readdisplay(user_data.user_handle);
+    img.frozen = 0;
+    img.single_step_served = 0;
+    img.single_step_wanted = 0;
+
+    img.read_pos = 0;
+    mng_reset(img.user_handle);
+    img.restarted = 1;
+	gettimeofday(&start_tv, NULL);
+	mng_read(img.user_handle);
+	mng_display(img.user_handle);
 }
 
 static void release_event_cb(Widget w, XtPointer client, XEvent *event,
@@ -372,10 +540,10 @@ static void release_event_cb(Widget w, XtPointer client, XEvent *event,
 static void redraw(int type)
 {
 	if((type == Expose || type == GraphicsExpose)
-	&& user_data.ximage)
+	&& img.ximage)
    {
-	  XPutImage(user_data.dpy, user_data.win, user_data.gc, user_data.ximage,
-	    0, 0, 0, 0, user_data.img_width, user_data.img_height);
+	  XPutImage(img.dpy, img.win, img.gc, img.ximage,
+	    0, 0, 0, 0, img.img_width, img.img_height);
    }
 }
 
@@ -400,78 +568,43 @@ static mng_bool user_read(mng_handle user_handle, mng_ptr out_buf,
 	mng_uint32  req_len, mng_uint32 *out_len)
 {
     mng_uint32 more;
-    image_data *data;
-#ifdef DEBUG_READ
-fprintf(stderr,"\n\tuser_read req %d ",req_len);
-#endif
-    data = (image_data *)mng_get_userdata(user_handle);
+    ImageInfo *img;
 
-	more = data->read_len - data->read_pos;
+    img = (ImageInfo *)mng_get_userdata(user_handle);
+
+	more = img->read_len - img->read_pos;
 
 	if(more > 0
-	&& data->read_buf != NULL)
+	&& img->read_buf != NULL)
    {
-	if(req_len < more) more = req_len;
-	memcpy(out_buf, data->read_buf + data->read_pos, more);
-	data->read_pos += more;
+	if(req_len < more) 
+	  more = req_len;
+	memcpy(out_buf, img->read_buf + img->read_pos, more);
+	img->read_pos += more;
 	*out_len = more;
-#ifdef DEBUG_READ
-fprintf(stderr,"sent %d",req_len);
-#endif
+
     return MNG_TRUE;
    }
-#ifdef DEBUG
-fprintf(stderr,"\n%s:%5d:user_read\n\tnothing to read\n",__FILE__,__LINE__);
-#endif
 	return MNG_FALSE;
 }
 
 static mng_bool user_open_stream(mng_handle user_handle)
 {
-/* stream already open */
-#ifdef DEBUG
-fprintf(stderr,"\nuser_open_stream\n");
-#endif
     return MNG_TRUE;
 }
 
 static mng_bool user_close_stream(mng_handle user_handle)
 {
-	image_data *data;
-
-	data = (image_data*)mng_get_userdata(user_handle);
-
-	if(data->type == MNG_TYPE)
-	  return MNG_TRUE;
-   {
-	int have_shmem, row, src_len;
-	unsigned char *src;	
-
-	have_shmem = data->have_shmem;
-	src = data->mng_buf;
-	src_len = data->mng_bytes_per_line;
-
-	row = -1;
-	while(++row < data->img_height)
-  {
-	viewer_renderline(data, src, row, 0, data->img_width);
-	
-	 src += src_len;
-  }
-	XPUTIMAGE(data->dpy, data->win, data->gc, data->ximage,
-	  0, 0, 0, 0, data->img_width, data->img_height);
-	XSync(data->dpy, False);
 	return MNG_TRUE;
-   }
 }
 
 static void create_widgets(mng_uint32 width, mng_uint32 height)
 {
 	Widget but_rc, but_frame, canvas_frame;
-	Widget but1, but2, but3, but4, but5, but6;
+	Widget but1, but2, but3, but4, but5, but6, but7;
 
     toplevel = XtAppInitialize(&app_context, "xmngview", NULL, 0, 
-	user_data.argc_ptr, user_data.argv,
+	img.argc_ptr, img.argv,
       0, 0, 0);
 
     main_form = XtVaCreateManagedWidget("main_form",
@@ -488,7 +621,6 @@ static void create_widgets(mng_uint32 width, mng_uint32 height)
 	  XmNrightAttachment, XmATTACH_FORM,
 	  XmNshadowThickness, FRAME_SHADOW_WIDTH,
 	  NULL);
-
     but_rc = XtVaCreateManagedWidget("but_rc",
       xmRowColumnWidgetClass,  but_frame,
       XmNentryAlignment, XmALIGNMENT_CENTER,
@@ -498,7 +630,6 @@ static void create_widgets(mng_uint32 width, mng_uint32 height)
 	  XmNresizeWidth, True,
       XmNentryBorder, BUT_ENTRY_BORDER,
       NULL);
-
     but1 = XtVaCreateManagedWidget("Exit",
       xmPushButtonWidgetClass, but_rc,
       NULL);
@@ -523,16 +654,22 @@ static void create_widgets(mng_uint32 width, mng_uint32 height)
     XtAddCallback(but4, XmNactivateCallback,
       player_restart_cb, NULL);
 
-    but5 = XtVaCreateManagedWidget("Stop",
+    but5 = XtVaCreateManagedWidget("Step",
       xmPushButtonWidgetClass, but_rc,
       NULL);
     XtAddCallback(but5, XmNactivateCallback,
-      player_stop_cb, NULL);
+      player_single_step_cb, NULL);
 
-    but6 = XtVaCreateManagedWidget("Browse",
+    but6 = XtVaCreateManagedWidget("Finish",
       xmPushButtonWidgetClass, but_rc,
       NULL);
     XtAddCallback(but6, XmNactivateCallback,
+      player_stop_cb, NULL);
+
+    but7 = XtVaCreateManagedWidget("Browse",
+      xmPushButtonWidgetClass, but_rc,
+      NULL);
+    XtAddCallback(but7, XmNactivateCallback,
       browse_file_cb, NULL);
 
 	file_label = XtVaCreateManagedWidget("FILE: ",
@@ -565,12 +702,14 @@ static void create_widgets(mng_uint32 width, mng_uint32 height)
       False, release_event_cb, (XtPointer)toplevel);
 
 	XtAddCallback(canvas, 
-	  XmNexposeCallback, (XtCallbackProc)exposures_cb, (XtPointer)&user_data);
+	  XmNexposeCallback, (XtCallbackProc)exposures_cb, (XtPointer)&img);
 	
     XtRealizeWidget(toplevel);
 
 	if(start_width == 0)
    {
+	width = height = 0;
+
 	start_width = (FRAME_SHADOW_WIDTH<<1);
 	XtVaGetValues(but1, XmNwidth, &width, NULL);
 	start_width += width + (BUT_ENTRY_BORDER<<1) + ANY_WIDTH;
@@ -584,49 +723,48 @@ static void create_widgets(mng_uint32 width, mng_uint32 height)
 	start_width += width + (BUT_ENTRY_BORDER<<1) + ANY_WIDTH;
 	XtVaGetValues(but6, XmNwidth, &width, NULL);
 	start_width += width + (BUT_ENTRY_BORDER<<1);
+	XtVaGetValues(but7, XmNwidth, &width, NULL);
+	start_width += width + (BUT_ENTRY_BORDER<<1);
    }
-
-	user_data.canvas = canvas;
-    user_data.dpy = XtDisplay(user_data.canvas);
-    user_data.win = XtWindow(user_data.canvas);
+	img.canvas = canvas;
+    img.dpy = XtDisplay(img.canvas);
+    img.win = XtWindow(img.canvas);
     file_font = XmFontListAppendEntry(NULL,
         XmFontListEntryCreate(XmFONTLIST_DEFAULT_TAG,
         XmFONT_IS_FONT,
-        XLoadQueryFont(user_data.dpy,
+        XLoadQueryFont(img.dpy,
         "-*-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-1")));
 }
 
 static mng_bool user_process_header(mng_handle user_handle,
     mng_uint32 width, mng_uint32 height)
 {
-    image_data *data;
+    ImageInfo *img;
 	Dimension cw, ch, tw, th, dh, dw, fw, fh;
 	XmString xmstr;
 	char *s, buf[128];
 
-    data = (image_data*)mng_get_userdata(user_handle);
-#ifdef DEBUG
-fprintf(stderr,"\nuser_process_header: w %d h %d USER_WIN %lu\n",
-width,height,data->user_win);
-#endif
+    img = (ImageInfo*)mng_get_userdata(user_handle);
 
-	if(data->restarted)
+	if(img->restarted)
    {
-	data->restarted = 0;
+	img->restarted = 0;
 	return MNG_TRUE;
    }
-	data->img_width = width;
-	data->img_height = height;
+	img->img_width = width;
+	img->img_height = height;
 
-	if(!data->user_win)
+	if(!img->external_win)
    {
-	if(!data->canvas)
+	if(!img->canvas)
 	  create_widgets(width, height);
 	else
   {
+	tw = th = fw = fh = cw = ch = 0;
+
 	XtVaGetValues(toplevel, XmNwidth, &tw, XmNheight, &th, NULL);
 	XtVaGetValues(main_form, XmNwidth, &fw, XmNheight, &fh, NULL);
-	XtVaGetValues(data->canvas, XmNwidth, &cw, XmNheight, &ch, NULL);
+	XtVaGetValues(img->canvas, XmNwidth, &cw, XmNheight, &ch, NULL);
 
 	if(height > ch)
  {
@@ -662,39 +800,33 @@ width,height,data->user_win);
  }
 	XtVaSetValues(toplevel, XmNwidth,tw  , XmNheight,th , NULL);
 	XtVaSetValues(main_form, XmNwidth,fw  , XmNheight,fh , NULL);
-	XtVaSetValues(data->canvas, XmNwidth,width  , XmNheight,height , NULL);
+	XtVaSetValues(img->canvas, XmNwidth,width  , XmNheight,height , NULL);
   }
-   }else
-	if(data->user_win)
+   }
+	else
+	if(img->external_win)
    {
 	Display *dpy;
 
 	XtToolkitInitialize();
 	app_context = XtCreateApplicationContext();
 	dpy = XtOpenDisplay(app_context, NULL,NULL,"xmngview",
-		NULL, 0, data->argc_ptr, data->argv);
-	data->dpy = dpy;
-
-    data->win = 
-	  XCreateSimpleWindow(dpy, data->user_win,
-	    0,0,
-        width, height,
-        0, WhitePixel(dpy, DefaultScreen(dpy)),
-	    data->bg_pixel);
-    XMapWindow(dpy, data->win);
+		NULL, 0, img->argc_ptr, img->argv);
+	img->dpy = dpy;
+    img->win = img->external_win;
 	
-	XSelectInput(dpy, data->win, ExposureMask);
+	XSelectInput(dpy, img->win, ExposureMask);
    }
-	user_init_data(data);
+	user_init_data(img);
 
-	if(data->canvas)
+	if(img->canvas)
    {
-	s = strrchr(data->read_idf, '/');
-	if(s == NULL) s = data->read_idf; else ++s;
+	s = strrchr(img->read_idf, '/');
+	if(s == NULL) s = img->read_idf; else ++s;
 	s = strdup(s);
 	if(strlen(s) > 64) s[64] = 0;
-	sprintf(buf, "%s (%d x %d)", s, data->img_width, data->img_height);
-	xmstr = XmStringCreateLtoR(buf, XmSTRING_DEFAULT_CHARSET);
+	sprintf(buf, "%s (%d x %d)", s, img->img_width, img->img_height);
+	xmstr = XmStringCreateLtoR((char*)buf, XmSTRING_DEFAULT_CHARSET);
 	XtVaSetValues(file_label, XmNlabelString, xmstr, NULL);
 	XmStringFree(xmstr);
 	free(s);
@@ -706,14 +838,28 @@ width,height,data->user_win);
 static void wait_cb(XtPointer client, XtIntervalId * id)
 {
 	timeout_ID = 0;
-	mng_display_resume(user_data.user_handle);
+
+	if(img.frozen
+	|| img.single_step_served)
+   {
+//	gettimeofday(&start_tv, NULL);
+
+	timeout_ID = XtAppAddTimeOut(app_context,
+	  img.delay, wait_cb, NULL);
+   }
+	else
+   {
+	mng_display_resume(img.user_handle);
+   }
 }
 
 static mng_bool user_set_timer(mng_handle user_handle, mng_uint32 delay)
 {
-#ifdef DEBUG
-fprintf(stderr,"\nuser_set_timer: %d\n", delay);
-#endif
+	ImageInfo *img;
+
+	img = (ImageInfo*)mng_get_userdata(user_handle);
+	img->delay = delay;
+
 	timeout_ID = XtAppAddTimeOut(app_context,
 	  delay, wait_cb, NULL);
 
@@ -722,34 +868,31 @@ fprintf(stderr,"\nuser_set_timer: %d\n", delay);
 
 static mng_uint32 user_get_tick_count(mng_handle user_handle)
 {
+	double sec, usec;
 	mng_uint32 ticks;
-	
+
 	gettimeofday(&now_tv, NULL);
-	ticks = (now_tv.tv_sec - start_tv.tv_sec) * 1000
-	   + (now_tv.tv_usec - start_tv.tv_usec)/ 1000;
-#ifdef DEBUG_DELAY
-fprintf(stderr,"\nuser_get_tick_count %d", ticks);
-#endif
+
+	sec = (double)(now_tv.tv_sec - start_tv.tv_sec);
+	usec = (double)now_tv.tv_usec - (double)start_tv.tv_usec;
+	ticks = (mng_uint32)(sec * 1000.0 + usec/1000.0);
+//fprintf(stderr,"TICKS %u (%f:%f)\n", ticks, sec, usec);
 	return ticks;
 }
 
 static mng_ptr user_get_canvas_line(mng_handle user_handle, mng_uint32 line)
 {
-	image_data *data;
-#ifdef DEBUG
-fprintf(stderr,"\nuser_get_canvas_line %d",line);
-#endif
-	data = (image_data*)mng_get_userdata(user_handle);
+	ImageInfo *img;
 
-	return data->mng_buf + data->mng_bytes_per_line * line;
+	img = (ImageInfo*)mng_get_userdata(user_handle);
+
+	return img->mng_buf + img->mng_bytes_per_line * line;
 }
-
-#define FRAME_H 32
 
 static mng_bool user_refresh(mng_handle user_handle, mng_uint32 x,
     mng_uint32 y, mng_uint32 width, mng_uint32 height)
 {
-    image_data *data;
+    ImageInfo *img;
     mng_uint32 src_len;
     unsigned char *src_start, *src_buf;
     int row, max_row;
@@ -760,29 +903,26 @@ static mng_bool user_refresh(mng_handle user_handle, mng_uint32 x,
     Visual *visual;
 	int have_shmem;
 
-	data = (image_data*)mng_get_userdata(user_handle);
+    img = (ImageInfo*)mng_get_userdata(user_handle);
 
-#ifdef DEBUG_DRAW
-fprintf(stderr,"\nuser_refresh:"
-" RECT x %3d y %3d w %3d h %3d", x, y, width, height);
-#endif
+	if(img->single_step_wanted)
+	  img->single_step_served = 1;
 
-    data = (image_data*)mng_get_userdata(user_handle);
-    win = data->win;
-    gc = data->gc;
-    dpy = data->dpy;
-    ximage = data->ximage;
-    visual = data->visual;
-	have_shmem = data->have_shmem;
+    win = img->win;
+    gc = img->gc;
+    dpy = img->dpy;
+    ximage = img->ximage;
+    visual = img->visual;
+	have_shmem = img->have_shmem;
 
     max_row = y + height;
     row = y;
-    src_len = data->mng_bytes_per_line;
-    src_buf = src_start = data->mng_buf + data->mng_rgb_size * x + y * src_len;
+    src_len = img->mng_bytes_per_line;
+    src_buf = src_start = img->mng_buf + img->mng_rgb_size * x + y * src_len;
 
     while(row < max_row)
   {
-	viewer_renderline(data, src_start, row, x, width);
+	viewer_renderline(img, src_start, row, x, width);
 
     ++row;
     src_start += src_len;
@@ -797,10 +937,10 @@ static mng_bool user_error(mng_handle user_handle, mng_int32 code,
     mng_chunkid chunktype, mng_uint32 chunkseq,
     mng_int32 extra1, mng_int32 extra2, mng_pchar text)
 {
-    image_data *data;
-    char        chunk[5];
+    ImageInfo *img;
+    unsigned char chunk[5];
 
-	data = (image_data*)mng_get_userdata(user_handle);
+	img = (ImageInfo*)mng_get_userdata(user_handle);
 
     chunk[0] = (char)((chunktype >> 24) & 0xFF);
     chunk[1] = (char)((chunktype >> 16) & 0xFF);
@@ -808,12 +948,11 @@ static mng_bool user_error(mng_handle user_handle, mng_int32 code,
     chunk[3] = (char)((chunktype      ) & 0xFF);
     chunk[4] = '\0';
 
-    fprintf(stderr, "\n\n%s: error playing '%s' chunk %s (%d):\n",
-        prg_idf, data->read_idf, chunk, chunkseq);
-    fprintf(stderr, "code %d severity %d extra1 %d extra2 %d"
-	  "\ntext:'%s'\n\n", code, severity, extra1, extra2, text);
-
-    return (0);
+    fprintf(stderr, "\n\n%s: error playing(%s) chunk[%d]'%s':\n",
+        prg_idf, img->read_idf, chunkseq, chunk);
+    fprintf(stderr, "code(%d) severity(%d) extra1(%d) extra2(%d)"
+      "\ntext:'%s'\n\n", code, severity, extra1, extra2, text);
+    return 0;
 }
 
 static mng_bool prelude(void)
@@ -821,50 +960,45 @@ static mng_bool prelude(void)
 #define MAXBUF 8
     unsigned char buf[MAXBUF];
 	
-#ifdef DEBUG
-fprintf(stderr,"\nprelude\n");
-#endif
-
-    if(fread(buf, 1, MAXBUF, user_data.reader) != MAXBUF)
+    if(fread(buf, 1, MAXBUF, img.reader) != MAXBUF)
    {
 	fprintf(stderr,"\n%s:prelude\n\tcannot read signature \n",
 	  prg_idf);
-      return MNG_FALSE;
+    return MNG_FALSE;
    }
 	
 	if(memcmp(buf, MNG_MAGIC, 8) == 0)
-	  user_data.type = MNG_TYPE;
+	  img.type = MNG_TYPE;
 	else
 	if(memcmp(buf, JNG_MAGIC, 8) == 0)
-	  user_data.type = JNG_TYPE;
+	  img.type = JNG_TYPE;
 	else
 	if(memcmp(buf, PNG_MAGIC, 8) == 0)
-	  user_data.type = PNG_TYPE;
-	if(!user_data.type)
+	  img.type = PNG_TYPE;
+	if(!img.type)
    {
 	fprintf(stderr,"\n%s:'%s' is no MNG / JNG / PNG file\n", 
-	prg_idf, user_data.read_idf);
+	prg_idf, img.read_idf);
     return MNG_FALSE;
    }
+    fseek(img.reader, 0, SEEK_SET);
+    fseek(img.reader, 0, SEEK_END);
+    img.read_len = ftell(img.reader);
+    fseek(img.reader, 0, SEEK_SET);
 
-    fseek(user_data.reader, 0, SEEK_SET);
-    fseek(user_data.reader, 0, SEEK_END);
-    user_data.read_len = ftell(user_data.reader);
-    fseek(user_data.reader, 0, SEEK_SET);
-
-	if(!user_data.user_handle)
+	if(!img.user_handle)
    {
-    user_handle = mng_initialize(&user_data, user_alloc, user_free, MNG_NULL);
+    user_handle = mng_initialize(&img, user_alloc, user_free, MNG_NULL);
 
     if(user_handle == MNG_NULL)
   {
     fprintf(stderr, "\n%s: cannot initialize libmng.\n", prg_idf);
     return MNG_FALSE;
   }
-	user_data.user_handle = user_handle;
+	img.user_handle = user_handle;
 
 	mng_set_canvasstyle(user_handle, MNG_CANVAS_RGB8);
-	user_data.mng_rgb_size = CANVAS_RGB8_SIZE;
+	img.mng_rgb_size = CANVAS_RGB8_SIZE;
 
     if(mng_setcb_openstream(user_handle, user_open_stream) != OK
     || mng_setcb_closestream(user_handle, user_close_stream) != OK
@@ -882,10 +1016,10 @@ fprintf(stderr,"\nprelude\n");
     return MNG_FALSE;
   }
    }
-	user_data.read_buf = (unsigned char*)calloc(1, user_data.read_len + 2);
-	fread(user_data.read_buf, 1, user_data.read_len, user_data.reader);
-	fclose(user_data.reader);
-	user_data.reader = NULL;
+	img.read_buf = (unsigned char*)calloc(1, img.read_len + 2);
+	fread(img.read_buf, 1, img.read_len, img.reader);
+	fclose(img.reader);
+	img.reader = NULL;
 
     return MNG_TRUE;
 }
@@ -894,8 +1028,8 @@ static void run_viewer(FILE *reader, char *read_idf)
 {
 	XEvent event;
 
-	user_data.read_idf = read_idf;
-	user_data.reader = reader;
+	img.read_idf = read_idf;
+	img.reader = reader;
 
 	if(read_idf != NULL)
    {
@@ -903,10 +1037,12 @@ static void run_viewer(FILE *reader, char *read_idf)
 	  return ;
 
 	gettimeofday(&start_tv, NULL);
-	mng_readdisplay(user_data.user_handle);
+
+	mng_read(img.user_handle);
+	mng_display(img.user_handle);
    }
 
-	if(!user_data.user_win)
+	if(!img.external_win)
   {
 	XtAppMainLoop(app_context);
   }
@@ -919,12 +1055,45 @@ static void run_viewer(FILE *reader, char *read_idf)
   }
 }
 
+static void usage(const char *prg)
+{
+	const char *bar=
+"\n------------------------------------------------------------------------\n";
+
+	fputs(bar, stderr);
+	fprintf(stderr,"%s version %s\n"
+	  "USAGE: %s [--w WINDOW] [--bg BACKGROUND_COLOR] [FILE]\n", 
+	  prg, version, prg);
+	fputs("\twith BACKGROUND_COLOR = "
+	"(\"TEXT\" | \"#RGB\" | \"rgb:R/G/B\" | \"PIXEL\")\n"
+	  "\te.g.\n\t(--bg \"red\" | --bg \"#ff0000\" "
+	  "| --bg \"rgb:ff/00/00\" | --bg \"0xf800\")\n"
+	  "\twith FILE=(idf.mng | idf.jng | idf.png)",stderr);
+	fputs(bar, stderr);
+}
+
+static void shrink_name(char *buf)
+{
+    char *s, *d;
+    int ch;
+
+    s = d = buf;
+    while((ch = *s++))
+  {
+    if(isspace(ch)) continue;
+    *d++ = tolower(ch);
+  }
+    *d = 0;
+}
+
 int main(int argc, char **argv)
 {
 	FILE *reader;
 	char *read_idf, *s;
-	int i, user_bg;
-	Window user_win;
+	char *ok;
+	int i;
+	unsigned char has_bg_color, has_bg_pixel;
+	Window external_win;
 	Pixel bg_pixel;
 
     if((prg_idf = strrchr(argv[0], '/')) == NULL)
@@ -932,24 +1101,51 @@ int main(int argc, char **argv)
     else
       ++prg_idf;
 
-	user_win = 0; read_idf = NULL; reader = NULL;
-	user_bg = 0; bg_pixel = 0;
-	i = argc;
+	memset(&img, 0, sizeof(ImageInfo));
+	external_win = 0; read_idf = NULL; reader = NULL;
+	has_bg_color = has_bg_pixel = 0;
+	bg_pixel = 0;
+	i = 0;
 
-    while(--i > 0)
+    while(++i < argc)
    {
     s = argv[i];
 
-    if(strncmp(s, "-w", 2) == 0)
+	if(strcmp(s, "--help") == 0
+	|| strcmp(s, "-help") == 0
+	|| *s == '?')
   {
-    user_win = atol(s+2); 
+	usage(prg_idf);
+	return 0;
+  }
+    if(strcasecmp(s, "--w") == 0)
+  {
+	++i;
+	s = argv[i];
+    external_win = strtoul(s, &ok, 10);
+	if(*ok)
+	  return 0;
 	continue;
   }
-    if(strncmp(s, "-bg", 3) == 0)
+    if(strcasecmp(s, "--bg") == 0)
   {
-    bg_pixel = atol(s+3);
-	user_bg = 1;
-	continue;
+	++i;
+	s = argv[i];
+    if(*s == '#' || strncasecmp(s, "rgb:", 4) == 0 || isalpha(*s))
+ {
+    strncpy(img.bg_color, s, MAX_COLORBUF);
+    img.bg_color[MAX_COLORBUF] = 0;
+    has_bg_color = 1;
+
+    if(*s != '#')
+      shrink_name(img.bg_color);
+    continue;
+ }
+    bg_pixel = strtoul(s, &ok, 16);
+
+    if(*ok == 0)
+      has_bg_pixel = 1;
+    continue;
   }
     if(*s != '-')
   {
@@ -966,14 +1162,20 @@ int main(int argc, char **argv)
 	return 0;
   }
    }
-	memset(&user_data, 0, sizeof(image_data));
-	user_data.argv = argv;
-	user_data.argc_ptr = &argc;
-	user_data.user_win = user_win;
-	user_data.bg_pixel = bg_pixel;
-	user_data.user_bg = user_bg;
+	img.argv = argv;
+	img.argc_ptr = &argc;
+	img.external_win = external_win;
+    img.has_bg_pixel = has_bg_pixel;
+    img.bg_pixel = bg_pixel;
+    img.has_bg_color = has_bg_color;
 
-	if(read_idf == NULL && user_win == 0)
+    if(!has_bg_pixel && !has_bg_color)
+   {
+	strcpy(img.bg_color, DEFAULT_BACKGROUND);
+	img.has_bg_color = 1;
+   }
+
+	if(read_idf == NULL && external_win == 0)
 	  create_widgets(5,5);
 
 	run_viewer(reader, read_idf);
