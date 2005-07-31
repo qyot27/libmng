@@ -16,6 +16,9 @@ core:
 - fixed display routines called twice for FULL_MNG support in mozlibmngconf.h
 - standard windows dll upgraded to zlib 1.2.3
 - fixed problem with CLON object during readdisplay() (thanks Winfried!)
+- added typecast to appease the compiler (G R-P)
+- added more SKIPCHUNK conditionals (G R-P)
+- added MORE MNG_NO_1_2_4BIT_SUPPORT (G R-P)
 
 samples:
 - xmngview upgraded to 0.6 (thanks Winfried!)

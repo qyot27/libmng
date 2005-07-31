@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_hlapi.c            copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_hlapi.c            copyright (c) 2000-2005 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
 /* *                                                                        * */
@@ -187,6 +187,9 @@
 /* *             - added function to retrieve current FRAM delay            * */
 /* *             1.0.9 - 12/20/2004 - G.Juyn                                * */
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
+/* *                                                                        * */
+/* *             1.0.10 - 07/06/2005 - G.R-P                                * */
+/* *             - added more SKIPCHUNK conditionals                        * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -447,7 +450,9 @@ MNG_LOCAL mng_retcode mng_reset_rundata (mng_datap pData)
   pData->iGlobalPrimarybluey   = 0;
 #endif
 
+#ifndef MNG_SKIPCHUNK_sRGB
   pData->iGlobalRendintent     = 0;    /* reset global sRGB data */
+#endif
 
 #ifndef MNG_SKIPCHUNK_iCCP
   if (pData->iGlobalProfilesize)       /* drop global profile (if any) */
@@ -773,7 +778,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getchunk_dhdr",          1, 0, 0},
 #endif
     {"mng_getchunk_disc",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {"mng_getchunk_drop",          1, 0, 0},
+#endif
     {"mng_getchunk_endl",          1, 0, 0},
 #ifndef MNG_SKIPCHUNK_evNT
     {"mng_getchunk_evnt",          1, 0, 5},
@@ -812,7 +819,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getchunk_jsep",          1, 0, 0},
 #endif
     {"mng_getchunk_loop",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_MAGN
     {"mng_getchunk_magn",          1, 0, 0},
+#endif
     {"mng_getchunk_mend",          1, 0, 0},
     {"mng_getchunk_mhdr",          1, 0, 0},
     {"mng_getchunk_move",          1, 0, 0},
@@ -855,7 +864,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
 #ifndef MNG_SKIPCHUNK_sPLT
     {"mng_getchunk_splt",          1, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_sRGB
     {"mng_getchunk_srgb",          1, 0, 0},
+#endif
     {"mng_getchunk_term",          1, 0, 0},
 #ifndef MNG_SKIPCHUNK_tEXt
     {"mng_getchunk_text",          1, 0, 0},
@@ -875,7 +886,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_initialize",             1, 0, 0},
     {"mng_iterate_chunks",         1, 0, 0},
     {"mng_putchunk_back",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_BASI
     {"mng_putchunk_basi",          1, 0, 0},
+#endif
 #ifndef MNG_SKIPCHUNK_bKGD
     {"mng_putchunk_bkgd",          1, 0, 0},
 #endif
@@ -894,7 +907,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_putchunk_dhdr",          1, 0, 0},
 #endif
     {"mng_putchunk_disc",          1, 0, 0},
+#ifndef MNG_NO_DELTA_PNG
     {"mng_putchunk_drop",          1, 0, 0},
+#endif
     {"mng_putchunk_endl",          1, 0, 0},
 #ifndef MNG_SKIPCHUNK_evNT
     {"mng_putchunk_evnt",          1, 0, 5},
@@ -906,7 +921,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
 #ifndef MNG_SKIPCHUNK_fPRI
     {"mng_putchunk_fpri",          1, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_FRAM
     {"mng_putchunk_fram",          1, 0, 0},
+#endif
     {"mng_putchunk_gama",          1, 0, 0},
 #ifndef MNG_SKIPCHUNK_hIST
     {"mng_putchunk_hist",          1, 0, 0},
@@ -933,7 +950,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_putchunk_jsep",          1, 0, 0},
 #endif
     {"mng_putchunk_loop",          1, 0, 0},
+#ifndef MNG_SKIPCHUNK_MAGN
     {"mng_putchunk_magn",          1, 0, 0},
+#endif
     {"mng_putchunk_mend",          1, 0, 0},
     {"mng_putchunk_mhdr",          1, 0, 0},
     {"mng_putchunk_move",          1, 0, 0},
@@ -976,7 +995,9 @@ MNG_LOCAL mng_func_entry const func_table [] =
 #ifndef MNG_SKIPCHUNK_sPLT
     {"mng_putchunk_splt",          1, 0, 0},
 #endif
+#ifndef MNG_SKIPCHUNK_sRGB
     {"mng_putchunk_srgb",          1, 0, 0},
+#endif
     {"mng_putchunk_term",          1, 0, 0},
 #ifndef MNG_SKIPCHUNK_tEXt
     {"mng_putchunk_text",          1, 0, 0},

@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_descr.c      copyright (c) 2004 G.Juyn        * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_chunk_descr.c      copyright (c) 2005 G.Juyn        * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk descriptor functions (implementation)                * */
 /* *                                                                        * */
@@ -22,6 +22,9 @@
 /* *             - cleaned up macro-invocations (thanks to D. Airlie)       * */
 /* *             1.0.9 - 01/17/2005 - G.Juyn                                * */
 /* *             - fixed problem with global PLTE/tRNS                      * */
+/* *                                                                        * */
+/* *             1.0.10 - 01/17/2005 - G.R-P.                               * */
+/* *             - added typecast to appease the compiler                   * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -4540,7 +4543,7 @@ MNG_F_SPECIALFUNC (mng_pplt_entries)
     if (iM < iX)
       MNG_ERROR (pData, MNG_INVALIDINDEX);
 
-    if (iM >= iMax)                    /* determine highest used index */
+    if (iM >= (mng_int32) iMax)       /* determine highest used index */
       iMax = iM + 1;
 
     pRawdata += 2;

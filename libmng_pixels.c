@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_pixels.c           copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_pixels.c           copyright (c) 2000-2005 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Pixel-row management routines (implementation)             * */
 /* *                                                                        * */
@@ -181,6 +181,9 @@
 /* *             - fixed MNG_NO_1_2_4BIT_SUPPORT for TBBN1G04.PNG           * */
 /* *             1.0.9 - 12/31/2004 - G.R-P.                                * */
 /* *             - fixed warnings about C++ style (//) comments             * */
+/* *                                                                        * */
+/* *             1.0.10 - 07/06/2005 - G.R-P.                               * */
+/* *             - added MORE MNG_NO_1_2_4BIT_SUPPORT                       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -3768,6 +3771,7 @@ iX += pData->iColinc)
 #endif /* MNG_SKIPCANVAS_BGR565_A8 */
 
 
+#ifndef MNG_SKIPCHUNK_BACK
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * Background restore routines - restore the background with info from    * */
@@ -3863,6 +3867,7 @@ mng_retcode mng_restore_bkgd_backimage (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -4804,6 +4809,7 @@ mng_retcode mng_retrieve_rgba16 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_store_g1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -4957,6 +4963,7 @@ mng_retcode mng_store_g4 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5110,6 +5117,7 @@ mng_retcode mng_store_rgb16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_store_idx1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -5259,6 +5267,7 @@ mng_retcode mng_store_idx4 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5669,6 +5678,7 @@ mng_retcode mng_store_jpeg_rgb8_alpha (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_store_jpeg_g8_a1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -5835,6 +5845,7 @@ mng_retcode mng_store_jpeg_g8_a4 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -5912,6 +5923,7 @@ mng_retcode mng_store_jpeg_g8_a16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_store_jpeg_rgb8_a1 (mng_datap pData)
 {
   mng_imagedatap pBuf = (mng_imagedatap)pData->pStorebuf;
@@ -6078,6 +6090,7 @@ mng_retcode mng_store_jpeg_rgb8_a4 (mng_datap pData)
                                        /* we've got one more row of alpha-samples */
   return mng_next_jpeg_alpharow (pData);
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -6932,6 +6945,7 @@ mng_retcode mng_delta_rgb16 (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_delta_idx1 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pDeltaImage)->pImgbuf;
@@ -7164,6 +7178,7 @@ mng_retcode mng_delta_idx4 (mng_datap pData)
 
   return mng_store_idx4 (pData);
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -7471,6 +7486,7 @@ mng_retcode mng_delta_rgba16 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_retcode mng_delta_g1_g1 (mng_datap pData)
 {
   mng_imagedatap pBuf = ((mng_imagep)pData->pStoreobj)->pImgbuf;
@@ -7606,6 +7622,7 @@ mng_retcode mng_delta_g4_g4 (mng_datap pData)
 
   return MNG_NOERROR;
 }
+#endif
 
 /* ************************************************************************** */
 
@@ -9333,6 +9350,7 @@ mng_retcode mng_scale_rgba16_rgba8 (mng_datap pData)
 /* *                                                                        * */
 /* ************************************************************************** */
 
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint8 mng_promote_replicate_1_2 (mng_uint8 iB)
 {
   return (mng_uint8)((iB << 1) | iB);
@@ -9409,6 +9427,7 @@ mng_uint16 mng_promote_replicate_4_16 (mng_uint8 iB)
   return (mng_uint16)(((mng_uint16)iB << 8) + (mng_uint16)iB);
 }
 #endif
+#endif /* NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
@@ -9422,6 +9441,7 @@ mng_uint16 mng_promote_replicate_8_16 (mng_uint8 iB)
 /* ************************************************************************** */
 
 #if !defined(MNG_NO_DELTA_PNG)
+#ifndef MNG_NO_1_2_4BIT_SUPPORT
 mng_uint8 mng_promote_zerofill_1_2 (mng_uint8 iB)
 {
   return (mng_uint8)(iB << 1);
@@ -9488,6 +9508,7 @@ mng_uint16 mng_promote_zerofill_4_16 (mng_uint8 iB)
   return (mng_uint16)((mng_uint16)iB << 12);
 }
 #endif
+#endif /* MNG_NO_1_2_4BIT_SUPPORT */
 
 /* ************************************************************************** */
 
