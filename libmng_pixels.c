@@ -184,6 +184,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 07/06/2005 - G.R-P.                               * */
 /* *             - added MORE MNG_NO_1_2_4BIT_SUPPORT                       * */
+/* *             1.0.10 - 10/06/2005 - G.R-P.                               * */
+/* *             - alloc more memory for MNG_NO_1_2_4BIT_SUPPORT            * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -14018,12 +14020,21 @@ mng_retcode mng_init_rowproc (mng_datap pData)
      without alpha!!! */
   if (pData->iRowmax)
   {
+#if defined(MNG_NO_16BIT_SUPPORT) || defined (MNG_NO_1_2_4BIT_SUPPORT)
+    mng_uint8 iRowadd=0;
+#ifdef MNG_NO_1_2_4BIT_SUPPORT
+    if (pData->iPNGdepth < 8)
+       iRowadd=(pData->iPNGdepth*pData->iRowmax+7)/8;
+#endif
 #ifdef MNG_NO_16BIT_SUPPORT
-      MNG_ALLOC (pData, pData->pWorkrow, pData->iPNGmult*pData->iRowmax);
-      MNG_ALLOC (pData, pData->pPrevrow, pData->iPNGmult*pData->iRowmax);
+    if (pData->iPNGdepth > 8)
+       iRowadd=pData->iRowmax;
+#endif
+    MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax+iRowadd);
+    MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax+iRowadd);
 #else
-      MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax);
-      MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax);
+    MNG_ALLOC (pData, pData->pWorkrow, pData->iRowmax);
+    MNG_ALLOC (pData, pData->pPrevrow, pData->iRowmax);
 #endif
   }
 
