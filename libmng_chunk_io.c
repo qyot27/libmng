@@ -228,6 +228,9 @@
 /* *             1.0.10 - 02/07/2005 - G.Juyn                               * */
 /* *             - fixed display routines called twice for FULL_MNG         * */
 /* *               support in mozlibmngconf.h                               * */
+/* *             1.0.10 - 12/04/2005 - G.R-P.                               * */
+/* *             - #ifdef out use of mng_inflate_buffer when it is not      * */
+/* *               available.                                               * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
