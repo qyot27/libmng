@@ -424,7 +424,8 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 
 /* ************************************************************************** */
 
-#if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || !defined(MNG_SKIPCHUNK_iTXt)
+#if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
+    !defined(MNG_SKIPCHUNK_iTXt)
 mng_retcode mng_inflate_buffer (mng_datap  pData,
                                 mng_uint8p pInbuf,
                                 mng_uint32 iInsize,
@@ -777,6 +778,8 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
 
               if ((pTempfield->iLengthmax) && (iDatalen > pTempfield->iLengthmax))
                 MNG_ERROR (pData, MNG_INVALIDLENGTH);
+#if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
+    !defined(MNG_SKIPCHUNK_iTXt)
                                        /* needs decompression ? */
               if (pTempfield->iFlags & MNG_FIELD_DEFLATED)
               {
@@ -810,7 +813,9 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
                 if (pBuf)              /* free the temporary buffer */
                   MNG_FREEX (pData, pBuf, iBufsize);
 
-              } else {                 /* no decompression, so just copy */
+              } else
+#endif
+                     {                 /* no decompression, so just copy */
 
                 mng_ptr pWork;
                                        /* don't forget to generate null terminator */
