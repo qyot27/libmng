@@ -1,8 +1,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003-2004    * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : mozlibmngconf.h           copyright (c) G.R-P 2003-2005    * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : special config file for Mozilla                            * */
 /* *                                                                        * */
@@ -105,7 +105,6 @@
 #define MNG_USE_ZLIB_CRC
 #define MNG_OPTIMIZE_FOOTPRINT_INIT
 #define MNG_OPTIMIZE_FOOTPRINT_MAGN
-#define MNG_NO_1_2_4BIT_SUPPORT
 #define MNG_OPTIMIZE_OBJCLEANUP
 #define MNG_OPTIMIZE_CHUNKINITFREE
 #define MNG_OPTIMIZE_CHUNKASSIGN
