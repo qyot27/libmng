@@ -2668,7 +2668,7 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
                                        /* allocate a buffer & copy it */
         MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
         MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pImage->pImgbuf->iProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
       }
@@ -2685,7 +2685,7 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
                                        /* allocate a buffer & copy it */
         MNG_ALLOC (pData, pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
         MNG_COPY  (pImage->pImgbuf->pProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pImage->pImgbuf->iProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
       }
@@ -2704,7 +2704,7 @@ MNG_C_SPECIALFUNC (mng_special_iccp)
       {                                /* allocate a global buffer & copy it */
         MNG_ALLOC (pData, pData->pGlobalProfile, ((mng_iccpp)pChunk)->iProfilesize);
         MNG_COPY  (pData->pGlobalProfile, ((mng_iccpp)pChunk)->pProfile, ((mng_iccpp)pChunk)->iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pData->iGlobalProfilesize = ((mng_iccpp)pChunk)->iProfilesize;
       }
                                        /* create an animation object */

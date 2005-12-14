@@ -677,7 +677,7 @@ mng_retcode mng_free_imageobject (mng_datap  pData,
   }
                                        /* unlink the image-data buffer */
   iRetcode = mng_free_imagedataobject (pData, pImgbuf);
-                                       /* drop it's own buffer */
+                                       /* drop its own buffer */
   MNG_FREEX (pData, pImage, sizeof (mng_image));
 
 #ifdef MNG_SUPPORT_TRACE
@@ -2411,7 +2411,7 @@ mng_retcode mng_free_ani_image (mng_datap   pData,
 #endif
                                        /* unlink the image-data buffer */
   iRetcode = mng_free_imagedataobject (pData, pImgbuf);
-                                       /* drop it's own buffer */
+                                       /* drop its own buffer */
   MNG_FREEX (pData, pImage, sizeof (mng_ani_image));
 
 #ifdef MNG_SUPPORT_TRACE

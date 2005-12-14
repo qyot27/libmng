@@ -33,7 +33,7 @@
 /* *             - added cleanup of saved-data (SAVE/SEEK processing)       * */
 /* *             0.5.1 - 05/16/2000 - G.Juyn                                * */
 /* *             - moved the actual write_graphic functionality from here   * */
-/* *               to it's appropriate function in the mng_write module     * */
+/* *               to its appropriate function in the mng_write module      * */
 /* *                                                                        * */
 /* *             0.5.2 - 05/19/2000 - G.Juyn                                * */
 /* *             - cleaned up some code regarding mixed support             * */
@@ -106,7 +106,7 @@
 /* *             0.9.3 - 10/18/2000 - G.Juyn                                * */
 /* *             - added closestream() processing for mng_cleanup()         * */
 /* *             0.9.3 - 10/27/2000 - G.Juyn                                * */
-/* *             - fixed seperate read() & display() processing             * */
+/* *             - fixed separate read() & display() processing             * */
 /* *                                                                        * */
 /* *             0.9.4 - 11/20/2000 - G.Juyn                                * */
 /* *             - fixed unwanted repetition in mng_readdisplay()           * */

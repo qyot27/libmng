@@ -2388,7 +2388,7 @@ READ_CHUNK (mng_read_iccp)
                                        /* allocate a buffer & copy it */
         MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize);
         MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pImage->pImgbuf->iProfilesize = iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
       }
@@ -2405,7 +2405,7 @@ READ_CHUNK (mng_read_iccp)
                                        /* allocate a buffer & copy it */
         MNG_ALLOC (pData, pImage->pImgbuf->pProfile, iProfilesize);
         MNG_COPY  (pImage->pImgbuf->pProfile, pBuf, iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pImage->pImgbuf->iProfilesize = iProfilesize;
         pImage->pImgbuf->bHasICCP     = MNG_TRUE;
       }
@@ -2424,7 +2424,7 @@ READ_CHUNK (mng_read_iccp)
       {                                /* allocate a global buffer & copy it */
         MNG_ALLOC (pData, pData->pGlobalProfile, iProfilesize);
         MNG_COPY  (pData->pGlobalProfile, pBuf, iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
         pData->iGlobalProfilesize = iProfilesize;
       }
 

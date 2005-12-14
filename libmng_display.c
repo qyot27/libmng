@@ -110,7 +110,7 @@
 /* *             0.9.3 - 10/19/2000 - G.Juyn                                * */
 /* *             - added storage for pixel-/alpha-sampledepth for delta's   * */
 /* *             0.9.3 - 10/27/2000 - G.Juyn                                * */
-/* *             - fixed seperate read() & display() processing             * */
+/* *             - fixed separate read() & display() processing             * */
 /* *                                                                        * */
 /* *             0.9.4 - 10/31/2000 - G.Juyn                                * */
 /* *             - fixed possible loop in display_resume() (Thanks Vova!)   * */
@@ -1691,7 +1691,7 @@ mng_retcode mng_execute_delta_image (mng_datap  pData,
                                        /* allocate a buffer & copy it */
       MNG_ALLOC (pData, pBuftarget->pProfile, pBufdelta->iProfilesize);
       MNG_COPY  (pBuftarget->pProfile, pBufdelta->pProfile, pBufdelta->iProfilesize);
-                                       /* store it's length as well */
+                                       /* store its length as well */
       pBuftarget->iProfilesize = pBufdelta->iProfilesize;
     }
 #endif
@@ -2165,7 +2165,7 @@ MNG_LOCAL mng_retcode save_state (mng_datap pData)
   pImage = (mng_imagep)pData->pFirstimgobj;
 
   while (pImage)
-  {                                    /* freeze the object AND it's buffer */
+  {                                    /* freeze the object AND its buffer */
     pImage->bFrozen          = MNG_TRUE;
     pImage->pImgbuf->bFrozen = MNG_TRUE;
                                        /* neeeext */
