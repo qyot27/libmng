@@ -224,6 +224,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 07/06/2005 - G.R-P.                               * */
 /* *             - added more SKIPCHUNK conditionals                        * */
+/* *             1.0.10 - 12/28/2005 - G.R-P.                               * */
+/* *             - added missing SKIPCHUNK_MAGN conditional                 * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -5305,6 +5307,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData)
   {
     if (pImage->pImgbuf->bConcrete)    /* is it concrete ? */
     {                                  /* previous magnification to be done ? */
+#ifndef MNG_SKIPCHUNK_MAGN
       if ((pImage->iMAGN_MethodX) || (pImage->iMAGN_MethodY))
       {
         iRetcode = mng_magnify_imageobject (pData, pImage);
@@ -5312,6 +5315,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData)
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
+#endif
                                        /* save delta fields */
       pData->pDeltaImage           = (mng_ptr)pImage;
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
