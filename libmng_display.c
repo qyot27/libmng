@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_display.c          copyright (c) 2000-2005 G.Juyn   * */
+/* * file      : libmng_display.c          copyright (c) 2000-2006 G.Juyn   * */
 /* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
@@ -226,6 +226,8 @@
 /* *             - added more SKIPCHUNK conditionals                        * */
 /* *             1.0.10 - 12/28/2005 - G.R-P.                               * */
 /* *             - added missing SKIPCHUNK_MAGN conditional                 * */
+/* *             1.0.10 - 03/07/2006 - (thanks to W. Manthey)               * */
+/* *             - added CANVAS_RGB555 and CANVAS_BGR555                    * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -515,6 +517,12 @@ MNG_LOCAL void set_display_routine (mng_datap pData)
 #endif
 #ifndef MNG_SKIPCANVAS_BGR565_A8
       case MNG_CANVAS_BGR565_A8 : { pData->fDisplayrow = (mng_fptr)mng_display_bgr565_a8;  break; }
+#endif
+#ifndef MNG_SKIPCANVAS_RGB555
+      case MNG_CANVAS_RGB555  : { pData->fDisplayrow = (mng_fptr)mng_display_rgb555;  break; }
+#endif
+#ifndef MNG_SKIPCANVAS_BGR555
+      case MNG_CANVAS_BGR555  : { pData->fDisplayrow = (mng_fptr)mng_display_bgr555;  break; }
 #endif
 
 #ifndef MNG_NO_16BIT_SUPPORT
