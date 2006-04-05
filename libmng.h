@@ -102,7 +102,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng.h                  copyright (c) 2000-2005 G.Juyn   * */
+/* * file      : libmng.h                  copyright (c) 2000-2006 G.Juyn   * */
 /* * version   : 1.0.9                                                      * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
@@ -514,10 +514,10 @@ MNG_EXT mng_retcode MNG_DECL mng_cleanup         (mng_handle*   hHandle);
 /* high-level read functions */
 /* use mng_read if you simply want to read a Network Graphic */
 /* mng_read_resume is used in I/O-read-suspension scenarios, where the
-   "readdata" callback may return FALSE & length=0 indicating it's buffer is
+   "readdata" callback may return FALSE & length=0 indicating its buffer is
    depleted or too short to supply the required bytes, and the buffer needs
    to be refilled; libmng will return the errorcode MNG_NEEDMOREDATA telling
-   the app to refill it's read-buffer after which it must call mng_read_resume
+   the app to refill its read-buffer after which it must call mng_read_resume
    (or mng_display_resume if it also displaying the image simultaneously) */
 #ifdef MNG_SUPPORT_READ
 MNG_EXT mng_retcode MNG_DECL mng_read            (mng_handle    hHandle);
@@ -729,7 +729,7 @@ MNG_EXT mng_retcode MNG_DECL mng_setcb_processunknown(mng_handle        hHandle,
 /* getbkgdline is called to get an access-pointer to a line from the
    background-canvas */
 /* refresh is called to inform the GUI to redraw the current canvas onto
-   it's output device (eg. in Win32 this would mean sending an
+   its output device (eg. in Win32 this would mean sending an
    invalidate message for the specified region */
 /* NOTE that the update-region is specified as x,y,width,height; eg. the
    invalidate message for Windows requires left,top,right,bottom parameters
@@ -1277,7 +1277,7 @@ MNG_EXT mng_retcode MNG_DECL mng_get_lastbackchunk   (mng_handle        hHandle,
 
 /* SEEK info */
 /* can be used to retrieve the segmentname of the last processed SEEK chunk;
-   if no SEEK chunk was processed or it's segmentname was empty, the function
+   if no SEEK chunk was processed or its segmentname was empty, the function
    will return an empty string; the provided buffer must be at least 80 bytes!! */
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_EXT mng_retcode MNG_DECL mng_get_lastseekname    (mng_handle        hHandle,
