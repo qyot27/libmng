@@ -529,7 +529,7 @@ mng_retcode mng_display_rgb8 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8, MNG_LC_START);
 #endif
 
-  iBps=(pData->bIsRGBA16 ? 2:1);
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -935,7 +935,7 @@ mng_retcode mng_display_rgba8 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8, MNG_LC_START);
 #endif
 
-  iBps=(pData->bIsRGBA16 ? 2:1);
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -1410,8 +1410,8 @@ mng_retcode mng_display_rgba8_pm (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA8_PM, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+                  
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -1933,7 +1933,7 @@ mng_retcode mng_display_argb8 (mng_datap pData)
   MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8, MNG_LC_START);
 #endif
 
-  iBps=(pData->bIsRGBA16 ? 2:1);
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -2405,8 +2405,8 @@ mng_retcode mng_display_argb8_pm (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_ARGB8_PM, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -2930,8 +2930,8 @@ mng_retcode mng_display_rgb8_a8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB8_A8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination rows */
@@ -3364,8 +3364,8 @@ mng_retcode mng_display_bgr8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGR8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -3724,8 +3724,8 @@ mng_retcode mng_display_bgrx8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGRX8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -4136,8 +4136,8 @@ mng_retcode mng_display_bgra8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -4588,8 +4588,8 @@ mng_retcode mng_display_bgra8_pm (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA8PM, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -5096,8 +5096,8 @@ mng_retcode mng_display_abgr8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -5568,8 +5568,8 @@ mng_retcode mng_display_abgr8_pm (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_ABGR8_PM, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -6040,8 +6040,8 @@ mng_retcode mng_display_bgr565 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGR565, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -6415,8 +6415,8 @@ mng_retcode mng_display_rgb565 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB565, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -6837,8 +6837,8 @@ mng_retcode mng_display_bgra565 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGRA565, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -7321,8 +7321,8 @@ mng_retcode mng_display_rgba565 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGBA565, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -7820,8 +7820,8 @@ mng_retcode mng_display_bgr565_a8 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGR565_A8, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -8276,8 +8276,8 @@ mng_retcode mng_display_rgb555 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_RGB555, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */
@@ -8648,8 +8648,8 @@ mng_retcode mng_display_bgr555 (mng_datap pData)
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DISPLAY_BGR555, MNG_LC_START);
 #endif
-                                       /* viewable row ? */
-  iBps=(pData->bIsRGBA16 ? 2:1);
+
+  iBps=(mng_uint8)(pData->bIsRGBA16 ? 2:1);
                                        /* viewable row ? */
   if ((pData->iRow >= pData->iSourcet) && (pData->iRow < pData->iSourceb))
   {                                    /* address destination row */

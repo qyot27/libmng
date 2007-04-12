@@ -68,6 +68,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 07/30/2005 - G.Juyn                               * */
 /* *             - fixed problem with CLON object during readdisplay()      * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1530,6 +1532,34 @@ FREE_CHUNK_HDR (mng_free_itxt)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_ITXT, MNG_LC_END);
+#endif
+
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
+  return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
+}
+#endif
+
+/* ************************************************************************** */
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+FREE_CHUNK_HDR (mng_free_mpng)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_MPNG, MNG_LC_START);
+#endif
+
+  if (((mng_mpngp)pHeader)->iFramessize)
+    MNG_FREEX (pData, ((mng_mpngp)pHeader)->pFrames,
+                      ((mng_mpngp)pHeader)->iFramessize);
+
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
+  MNG_FREEX (pData, pHeader, sizeof (mng_mpng));
+#endif
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_MPNG, MNG_LC_END);
 #endif
 
 #ifndef MNG_OPTIMIZE_CHUNKINITFREE
@@ -4215,6 +4245,40 @@ ASSIGN_CHUNK_HDR (mng_assign_magn)
   return MNG_NOERROR;
 }
 #endif
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+ASSIGN_CHUNK_HDR (mng_assign_mpng)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_MPNG, MNG_LC_START);
+#endif
+
+  if (((mng_chunk_headerp)pChunkfrom)->iChunkname != MNG_UINT_mpNG)
+    MNG_ERROR (pData, MNG_WRONGCHUNK); /* ouch */
+
+  ((mng_mpngp)pChunkto)->iFramewidth        = ((mng_mpngp)pChunkfrom)->iFramewidth;
+  ((mng_mpngp)pChunkto)->iFrameheight       = ((mng_mpngp)pChunkfrom)->iFrameheight;
+  ((mng_mpngp)pChunkto)->iNumplays          = ((mng_mpngp)pChunkfrom)->iNumplays;
+  ((mng_mpngp)pChunkto)->iTickspersec       = ((mng_mpngp)pChunkfrom)->iTickspersec;
+  ((mng_mpngp)pChunkto)->iCompressionmethod = ((mng_mpngp)pChunkfrom)->iCompressionmethod;
+  ((mng_mpngp)pChunkto)->iFramessize        = ((mng_mpngp)pChunkfrom)->iFramessize;
+
+  if (((mng_mpngp)pChunkto)->iFramessize)
+  {
+    MNG_ALLOC (pData, ((mng_mpngp)pChunkto)->pFrames, ((mng_mpngp)pChunkto)->iFramessize);
+    MNG_COPY  (((mng_mpngp)pChunkto)->pFrames, ((mng_mpngp)pChunkfrom)->pFrames,
+               ((mng_mpngp)pChunkto)->iFramessize);
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_MPNG, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
 #endif
 
 /* ************************************************************************** */

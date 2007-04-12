@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_io.h         copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_chunk_io.h         copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.109                                                      * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (definition)                            * */
 /* *                                                                        * */
@@ -43,6 +43,9 @@
 /* *                                                                        * */
 /* *             1.0.9 - 12/07/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKREADER               * */
+/* *                                                                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -172,6 +175,9 @@ READ_CHUNK (mng_read_magn) ;
 #ifndef MNG_SKIPCHUNK_nEED
 READ_CHUNK (mng_read_need) ;
 #endif
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+READ_CHUNK (mng_read_mpng) ;
+#endif
 #ifndef MNG_SKIPCHUNK_evNT
 READ_CHUNK (mng_read_evnt) ;
 #endif
@@ -240,6 +246,9 @@ READ_CHUNK (mng_read_unknown) ;
 #endif
 #define mng_read_magn 0
 #define mng_read_need 0
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+#define mng_read_mpng 0
+#endif
 #define mng_read_evnt 0
 #define mng_read_unknown 0
 #endif /* MNG_INCLUDE_READ_PROCS */
@@ -311,6 +320,9 @@ WRITE_CHUNK (mng_write_ordr) ;
 #endif
 WRITE_CHUNK (mng_write_magn) ;
 WRITE_CHUNK (mng_write_need) ;
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+WRITE_CHUNK (mng_write_mpng) ;
+#endif
 WRITE_CHUNK (mng_write_evnt) ;
 WRITE_CHUNK (mng_write_unknown) ;
 
@@ -377,6 +389,9 @@ WRITE_CHUNK (mng_write_unknown) ;
 #endif
 #define mng_write_magn 0
 #define mng_write_need 0
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+#define mng_write_mpng 0
+#endif
 #define mng_write_evnt 0
 #define mng_write_unknown 0
 #endif /* MNG_INCLUDE_WRITE_PROCS */

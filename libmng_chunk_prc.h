@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_prc.h        copyright (c) 2000-2003 G.Juyn   * */
-/* * version   : 1.0.6                                                      * */
+/* * file      : libmng_chunk_prc.h        copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk initialization & cleanup (definition)                * */
 /* *                                                                        * */
@@ -38,6 +38,9 @@
 /* *             - added conditional MNG_OPTIMIZE_CHUNKINITFREE             * */
 /* *             1.0.9 - 12/06/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_CHUNKASSIGN               * */
+/* *                                                                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -200,6 +203,9 @@ FREE_CHUNK_HDR (mng_free_drop) ;
 FREE_CHUNK_HDR (mng_free_dbyk) ;
 FREE_CHUNK_HDR (mng_free_ordr) ;
 #endif
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+FREE_CHUNK_HDR (mng_free_mpng) ;
+#endif
 FREE_CHUNK_HDR (mng_free_evnt) ;
 FREE_CHUNK_HDR (mng_free_unknown) ;
 
@@ -280,6 +286,9 @@ ASSIGN_CHUNK_HDR (mng_assign_drop) ;
 ASSIGN_CHUNK_HDR (mng_assign_dbyk) ;
 ASSIGN_CHUNK_HDR (mng_assign_ordr) ;
 #endif
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+ASSIGN_CHUNK_HDR (mng_assign_mpng) ;
+#endif
 ASSIGN_CHUNK_HDR (mng_assign_evnt) ;
 ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 
@@ -347,6 +356,7 @@ ASSIGN_CHUNK_HDR (mng_assign_unknown) ;
 #endif
 #define mng_assign_magn 0
 #define mng_assign_need 0
+#define mng_assign_mpng 0
 #define mng_assign_evnt 0
 #define mng_assign_unknown 0
 #endif /* MNG_INCLUDE_WRITE_PROCS */

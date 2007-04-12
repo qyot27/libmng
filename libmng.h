@@ -2,7 +2,7 @@
 /* *                                                                        * */
 /* * COPYRIGHT NOTICE:                                                      * */
 /* *                                                                        * */
-/* * Copyright (c) 2000-2006 Gerard Juyn                                    * */
+/* * Copyright (c) 2000-2007 Gerard Juyn                                    * */
 /* * [You may insert additional notices after this sentence if you modify   * */
 /* *  this source]                                                          * */
 /* *                                                                        * */
@@ -102,8 +102,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng.h                  copyright (c) 2000-2006 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng.h                  copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : main application interface                                 * */
 /* *                                                                        * */
@@ -289,6 +289,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 03/07/2006 - (thanks to W. Manthey)               * */
 /* *             - added CANVAS_RGB555 and CANVAS_BGR555                    * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1805,6 +1807,27 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_magn       (mng_handle       hHandle,
                                                       mng_uint16       *iMB,
                                                       mng_uint16       *iMethodY);
 
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_mpng       (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       *iFramewidth,
+                                                      mng_uint32       *iFrameheight,
+                                                      mng_uint16       *iNumplays,
+                                                      mng_uint16       *iTickspersec,
+                                                      mng_uint8        *iCompressionmethod,
+                                                      mng_uint32       *iCount);
+MNG_EXT mng_retcode MNG_DECL mng_getchunk_mpng_frame (mng_handle       hHandle,
+                                                      mng_handle       hChunk,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint32       *iX,
+                                                      mng_uint32       *iY,
+                                                      mng_uint32       *iWidth,
+                                                      mng_uint32       *iHeight,
+                                                      mng_uint32       *iXoffset,
+                                                      mng_uint32       *iYoffset,
+                                                      mng_uint16       *iTicks);
+#endif
+
 MNG_EXT mng_retcode MNG_DECL mng_getchunk_evnt       (mng_handle       hHandle,
                                                       mng_handle       hChunk,
                                                       mng_uint32       *iCount);
@@ -2221,6 +2244,25 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_magn       (mng_handle       hHandle,
                                                       mng_uint16       iMB,
                                                       mng_uint16       iMethodY);
 
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_mpng       (mng_handle       hHandle,
+                                                      mng_uint32       iFramewidth,
+                                                      mng_uint32       iFrameheight,
+                                                      mng_uint16       iNumplays,
+                                                      mng_uint16       iTickspersec,
+                                                      mng_uint8        iCompressionmethod,
+                                                      mng_uint32       iCount);
+MNG_EXT mng_retcode MNG_DECL mng_putchunk_mpng_frame (mng_handle       hHandle,
+                                                      mng_uint32       iEntry,
+                                                      mng_uint32       iX,
+                                                      mng_uint32       iY,
+                                                      mng_uint32       iWidth,
+                                                      mng_uint32       iHeight,
+                                                      mng_uint32       iXoffset,
+                                                      mng_uint32       iYoffset,
+                                                      mng_uint16       iTicks);
+#endif
+
 MNG_EXT mng_retcode MNG_DECL mng_putchunk_evnt       (mng_handle       hHandle,
                                                       mng_uint32       iCount);
 
@@ -2436,6 +2478,8 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_OBJNOTABSTRACT   (mng_retcode)1071 /* object must be abstract     */
 #define MNG_TERMSEQERROR     (mng_retcode)1072 /* TERM in wrong place         */
 #define MNG_INVALIDFIELDVAL  (mng_retcode)1073 /* invalid fieldvalue (generic)*/
+#define MNG_INVALIDWIDTH     (mng_retcode)1074 /* invalid frame/image width   */
+#define MNG_INVALIDHEIGHT    (mng_retcode)1075 /* invalid frame/image height  */
 
 #define MNG_INVALIDCNVSTYLE  (mng_retcode)2049 /* can't make anything of this */
 #define MNG_WRONGCHUNK       (mng_retcode)2050 /* accessing the wrong chunk   */
@@ -2572,11 +2616,13 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UINT_bKGD 0x624b4744L
 #define MNG_UINT_cHRM 0x6348524dL
 #define MNG_UINT_eXPI 0x65585049L
+#define MNG_UINT_evNT 0x65764e54L
 #define MNG_UINT_fPRI 0x66505249L
 #define MNG_UINT_gAMA 0x67414d41L
 #define MNG_UINT_hIST 0x68495354L
 #define MNG_UINT_iCCP 0x69434350L
 #define MNG_UINT_iTXt 0x69545874L
+#define MNG_UINT_mpNG 0x6d704e47L
 #define MNG_UINT_nEED 0x6e454544L
 #define MNG_UINT_oFFs 0x6f464673L
 #define MNG_UINT_pCAL 0x7043414cL
@@ -2590,8 +2636,6 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UINT_tIME 0x74494d45L
 #define MNG_UINT_tRNS 0x74524e53L
 #define MNG_UINT_zTXt 0x7a545874L
-
-#define MNG_UINT_evNT 0x65764e54L
 
 /* ************************************************************************** */
 /* *                                                                        * */

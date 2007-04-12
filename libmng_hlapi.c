@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_hlapi.c            copyright (c) 2000-2005 G.Juyn   * */
+/* * file      : libmng_hlapi.c            copyright (c) 2000-2007 G.Juyn   * */
 /* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : high-level application API (implementation)                * */
@@ -190,6 +190,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 07/06/2005 - G.R-P                                * */
 /* *             - added more SKIPCHUNK conditionals                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -224,7 +226,7 @@
 
 #ifdef MNG_SUPPORT_DISPLAY
 MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
-                              mng_bool  bDropaniobj)
+                                        mng_bool  bDropaniobj)
 {
   mng_objectp       pObject;
   mng_objectp       pNext;
@@ -283,6 +285,15 @@ MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
     pData->pLastevent  = MNG_NULL;
 #endif
   }
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+  if (pData->pMPNG)                    /* drop MPNG data (if any) */
+  {
+    fCleanup = ((mng_object_headerp)pData->pMPNG)->fCleanup;
+    fCleanup (pData, pData->pMPNG);
+    pData->pMPNG = MNG_NULL;
+  }
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_DROP_OBJECTS, MNG_LC_END);
@@ -504,7 +515,7 @@ MNG_LOCAL mng_retcode mng_reset_rundata (mng_datap pData)
 #endif
 
   pData->pLastseek             = MNG_NULL;
-  
+
   return MNG_NOERROR;
 }
 #endif /* MNG_SUPPORT_DISPLAY */
@@ -782,6 +793,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_getchunk_drop",          1, 0, 0},
 #endif
     {"mng_getchunk_endl",          1, 0, 0},
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+    {"mng_getchunk_mpng",          1, 0, 10},
+    {"mng_getchunk_mpng_frame",    1, 0, 10},
+#endif
 #ifndef MNG_SKIPCHUNK_evNT
     {"mng_getchunk_evnt",          1, 0, 5},
     {"mng_getchunk_evnt_entry",    1, 0, 5},
@@ -911,6 +926,10 @@ MNG_LOCAL mng_func_entry const func_table [] =
     {"mng_putchunk_drop",          1, 0, 0},
 #endif
     {"mng_putchunk_endl",          1, 0, 0},
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+    {"mng_putchunk_mpng",          1, 0, 10},
+    {"mng_putchunk_mpng_frame",    1, 0, 10},
+#endif
 #ifndef MNG_SKIPCHUNK_evNT
     {"mng_putchunk_evnt",          1, 0, 5},
     {"mng_putchunk_evnt_entry",    1, 0, 5},

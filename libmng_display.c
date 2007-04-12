@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_display.c          copyright (c) 2000-2006 G.Juyn   * */
+/* * file      : libmng_display.c          copyright (c) 2000-2007 G.Juyn   * */
 /* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Display management (implementation)                        * */
@@ -228,6 +228,10 @@
 /* *             - added missing SKIPCHUNK_MAGN conditional                 * */
 /* *             1.0.10 - 03/07/2006 - (thanks to W. Manthey)               * */
 /* *             - added CANVAS_RGB555 and CANVAS_BGR555                    * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - fixed several compiler warnings                          * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2652,6 +2656,8 @@ png_imgtype mng_png_imgtype(mng_uint8 colortype, mng_uint8 bitdepth)
 }
 #endif /* MNG_OPTIMIZE_FOOTPRINT_INIT */
 
+/* ************************************************************************** */
+
 mng_retcode mng_process_display_ihdr (mng_datap pData)
 {                                      /* address the current "object" if any */
   mng_imagep pImage = (mng_imagep)pData->pCurrentobj;
@@ -2742,8 +2748,9 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
       pData->pStoreobj = pImage;       /* tell the row routines */
     else                               /* otherwise use object 0 */
       pData->pStoreobj = pData->pObjzero;
-                                       /* display "on-the-fly" ? */
-    if (
+
+#ifndef MNG_INCLUDE_MPNG_PROPOSAL
+    if (                               /* display "on-the-fly" ? */
 #ifndef MNG_SKIPCHUNK_MAGN
          (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
          (((mng_imagep)pData->pStoreobj)->iMAGN_MethodY == 0) &&
@@ -2763,6 +2770,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
           set_display_routine (pData); /* then determine display routine */
       }
     }
+#endif
   }
 
   if (!pData->bTimerset)               /* no timer break ? */
@@ -3009,6 +3017,41 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+mng_retcode mng_process_display_mpng (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MPNG, MNG_LC_START);
+#endif
+
+  pData->iAlphadepth = 8;              /* assume transparency !! */
+
+  if (pData->fProcessheader)           /* inform the app (creating the output canvas) ? */
+  {
+    pData->iWidth  = ((mng_mpng_objp)pData->pMPNG)->iFramewidth;
+    pData->iHeight = ((mng_mpng_objp)pData->pMPNG)->iFrameheight;
+
+    if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
+      MNG_ERROR (pData, MNG_APPMISCERROR);
+  }
+
+  next_layer (pData);                  /* first mPNG layer then ! */
+  pData->bTimerset   = MNG_FALSE;
+  pData->iBreakpoint = 0;
+
+  if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+    set_display_routine (pData);       /* then determine display routine */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_MPNG, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_idat (mng_datap  pData,
                                       mng_uint32 iRawlen,
@@ -3021,6 +3064,22 @@ mng_retcode mng_process_display_idat (mng_datap  pData)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START);
+#endif
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+  if ((pData->eImagetype == mng_it_png) && (pData->iLayerseq <= 0))
+  {
+    if (pData->fProcessheader)         /* inform the app (creating the output canvas) ? */
+      if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
+        MNG_ERROR (pData, MNG_APPMISCERROR);
+
+    next_layer (pData);                /* first regular PNG layer then ! */
+    pData->bTimerset   = MNG_FALSE;
+    pData->iBreakpoint = 0;
+
+    if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+      set_display_routine (pData);     /* then determine display routine */
+  }
 #endif
 
   if (pData->bRestorebkgd)             /* need to restore the background ? */
@@ -3146,9 +3205,18 @@ mng_retcode mng_process_display_iend (mng_datap pData)
   if (!pData->bTimerset)               /* can we continue ? */
   {
     pData->iBreakpoint = 0;            /* clear this flag now ! */
-                                       /* cleanup object 0 */
-    mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
-                              0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
+
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+    if (pData->eImagetype == mng_it_mpng)
+    {
+      pData->pCurraniobj = pData->pFirstaniobj;
+    } else
+#endif 
+    {                                  /* cleanup object 0 */
+      mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
+                                0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
+    }
 
     if (pData->bInflating)             /* if we've been inflating */
     {                                  /* cleanup row-processing, */

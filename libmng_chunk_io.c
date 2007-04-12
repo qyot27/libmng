@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_io.c         copyright (c) 2000-2005 G.Juyn   * */
+/* * file      : libmng_chunk_io.c         copyright (c) 2000-2007 G.Juyn   * */
 /* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk I/O routines (implementation)                        * */
@@ -231,6 +231,8 @@
 /* *             1.0.10 - 12/04/2005 - G.R-P.                               * */
 /* *             - #ifdef out use of mng_inflate_buffer when it is not      * */
 /* *               available.                                               * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -428,7 +430,7 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 /* ************************************************************************** */
 
 #if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
-    !defined(MNG_SKIPCHUNK_iTXt)
+    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL)
 mng_retcode mng_inflate_buffer (mng_datap  pData,
                                 mng_uint8p pInbuf,
                                 mng_uint32 iInsize,
@@ -782,7 +784,7 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
               if ((pTempfield->iLengthmax) && (iDatalen > pTempfield->iLengthmax))
                 MNG_ERROR (pData, MNG_INVALIDLENGTH);
 #if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
-    !defined(MNG_SKIPCHUNK_iTXt)
+    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL)
                                        /* needs decompression ? */
               if (pTempfield->iFlags & MNG_FIELD_DEFLATED)
               {
@@ -805,8 +807,20 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
                 {
                   if (iRetcode)
                     return iRetcode;
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+                  if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_mpNG)
+                  {
+                    MNG_ALLOC (pData, pWork, iRealsize+1);
+                  }
+                  else
+                  {
+#endif
                                        /* don't forget to generate null terminator */
-                  MNG_ALLOC (pData, pWork, iRealsize+1);
+                    MNG_ALLOC (pData, pWork, iRealsize+1);
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+                  }
+#endif
                   MNG_COPY (pWork, pBuf, iRealsize);
 
                   *((mng_ptr *)(pChunkdata+pTempfield->iOffsetchunk))      = pWork;
@@ -888,13 +902,16 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
 
 READ_CHUNK (mng_read_general)
 {
-  mng_chunk_descp pDescr   = ((mng_chunk_headerp)pHeader)->pChunkdescr;
-  mng_field_descp pField   = pDescr->pFielddesc;
-  mng_uint16      iFields  = pDescr->iFielddesc;
   mng_retcode     iRetcode = MNG_NOERROR;
+  mng_chunk_descp pDescr   = ((mng_chunk_headerp)pHeader)->pChunkdescr;
+  mng_field_descp pField;
+  mng_uint16      iFields;
 
   if (!pDescr)                         /* this is a bad booboo !!! */
     MNG_ERROR (pData, MNG_INTERNALERROR);
+
+  pField  = pDescr->pFielddesc;
+  iFields = pDescr->iFielddesc;
                                        /* check chunk against signature */
   if ((pDescr->eImgtype == mng_it_mng) && (pData->eSigtype != mng_it_mng))
     MNG_ERROR (pData, MNG_CHUNKNOTALLOWED);
@@ -1206,9 +1223,11 @@ READ_CHUNK (mng_read_ihdr)
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
       MNG_WARNING (pData, MNG_IMAGETOOLARGE);
 
+#if !defined(MNG_INCLUDE_MPNG_PROPOSAL) || !defined(MNG_SUPPORT_DISPLAY)
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
         MNG_ERROR (pData, MNG_APPMISCERROR);
+#endif        
   }
 
   if (!pData->bHasDHDR)
@@ -5823,6 +5842,9 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
 /* TODO:    MNG_UINT_hIST,  */
     MNG_UINT_iCCP,
     MNG_UINT_iTXt,
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+    MNG_UINT_mpNG,
+#endif
     MNG_UINT_nEED,
 /* TODO:    MNG_UINT_oFFs,  */
 /* TODO:    MNG_UINT_pCAL,  */
@@ -7296,6 +7318,137 @@ READ_CHUNK (mng_read_magn)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_READ_MAGN, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;                  /* done */
+}
+#endif
+#endif
+
+/* ************************************************************************** */
+
+#ifndef MNG_OPTIMIZE_CHUNKREADER
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+READ_CHUNK (mng_read_mpng)
+{
+  mng_uint32  iFramewidth;
+  mng_uint32  iFrameheight;
+  mng_uint16  iTickspersec;
+  mng_uint32  iFramessize;
+  mng_uint32  iCompressedsize;
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  mng_retcode iRetcode;
+  mng_uint16  iNumplays;
+  mng_uint32  iBufsize;
+  mng_uint8p  pBuf = 0;
+#endif
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_MPNG, MNG_LC_START);
+#endif
+                                       /* sequence checks */
+  if (!pData->bHasIHDR)
+    MNG_ERROR (pData, MNG_SEQUENCEERROR);
+
+  if (iRawlen < 41)                    /* length must be at least 41 */
+    MNG_ERROR (pData, MNG_INVALIDLENGTH);
+
+  iFramewidth     = mng_get_int32 (pRawdata);
+  if (iFramewidth == 0)                /* frame_width must not be zero */
+    MNG_ERROR (pData, MNG_INVALIDWIDTH);
+
+  iFrameheight    = mng_get_int32 (pRawdata+4);
+  if (iFrameheight == 0)               /* frame_height must not be zero */
+    MNG_ERROR (pData, MNG_INVALIDHEIGHT);
+
+  iTickspersec    = mng_get_uint16 (pRawdata+10);
+  if (iTickspersec == 0)               /* delay_den must not be zero */
+    MNG_ERROR (pData, MNG_INVALIDFIELDVAL);
+
+  if (*(pRawdata+12) != 0)             /* only deflate compression-method allowed */
+    MNG_ERROR (pData, MNG_INVALIDCOMPRESS);
+
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  iNumplays       = mng_get_uint16 (pRawdata+8);
+  iCompressedsize = (mng_uint32)(iRawlen - 13);
+#endif
+
+#ifdef MNG_SUPPORT_DISPLAY
+  {
+    iRetcode = mng_inflate_buffer (pData, pRawdata+13, iCompressedsize,
+                                   &pBuf, &iBufsize, &iFramessize);
+    if (iRetcode)                    /* on error bail out */
+    {
+      MNG_FREEX (pData, pBuf, iBufsize);
+      return iRetcode;
+    }
+
+    if (iFramessize % 26)
+    {
+      MNG_FREEX (pData, pBuf, iBufsize);
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
+    }
+
+    iRetcode = mng_create_mpng_obj (pData, iFramewidth, iFrameheight, iNumplays,
+                                    iTickspersec, iFramessize, pBuf);
+    if (iRetcode)                      /* on error bail out */
+    {
+      MNG_FREEX (pData, pBuf, iBufsize);
+      return iRetcode;
+    }
+  }
+#endif /* MNG_SUPPORT_DISPLAY */
+
+#ifdef MNG_STORE_CHUNKS
+  if (pData->bStorechunks)
+  {                                    /* initialize storage */
+    iRetcode = ((mng_chunk_headerp)pHeader)->fCreate (pData, pHeader, ppChunk);
+    if (iRetcode)                      /* on error bail out */
+      return iRetcode;
+                                       /* store the fields */
+    ((mng_mpngp)*ppChunk)->iFramewidth        = iFramewidth;
+    ((mng_mpngp)*ppChunk)->iFrameheight       = iFrameheight;
+    ((mng_mpngp)*ppChunk)->iNumplays          = iNumplays;
+    ((mng_mpngp)*ppChunk)->iTickspersec       = iTickspersec;
+    ((mng_mpngp)*ppChunk)->iCompressionmethod = *(pRawdata+14);
+
+#ifndef MNG_SUPPORT_DISPLAY
+    iRetcode = mng_inflate_buffer (pData, pRawdata+13, iCompressedsize,
+                                   &pBuf, &iBufsize, &iFramessize);
+    if (iRetcode)                    /* on error bail out */
+    {
+      MNG_FREEX (pData, pBuf, iBufsize);
+      return iRetcode;
+    }
+
+    if (iFramessize % 26)
+    {
+      MNG_FREEX (pData, pBuf, iBufsize);
+      MNG_ERROR (pData, MNG_INVALIDLENGTH);
+    }
+#endif
+
+    if (iFramessize)
+    {
+      MNG_ALLOCX (pData, ((mng_mpngp)*ppChunk)->pFrames, iFramessize);
+      if (((mng_mpngp)*ppChunk)->pFrames == 0)
+      {
+        MNG_FREEX (pData, pBuf, iBufsize);
+        MNG_ERROR (pData, MNG_OUTOFMEMORY);
+      }
+
+      ((mng_mpngp)*ppChunk)->iFramessize = iFramessize;
+      MNG_COPY (((mng_mpngp)*ppChunk)->pFrames, pBuf, iFramessize);
+    }
+  }
+#endif /* MNG_STORE_CHUNKS */
+
+#if defined(MNG_SUPPORT_DISPLAY) || defined(MNG_STORE_CHUNKS)
+  MNG_FREEX (pData, pBuf, iBufsize);
+#endif
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_READ_MPNG, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;                  /* done */
@@ -10318,6 +10471,62 @@ WRITE_CHUNK (mng_write_magn)
 
   return iRetcode;
 }
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+WRITE_CHUNK (mng_write_mpng)
+{
+  mng_mpngp   pMPNG;
+  mng_uint8p  pRawdata;
+  mng_uint32  iRawlen;
+  mng_retcode iRetcode;
+  mng_uint8p  pBuf = 0;
+  mng_uint32  iBuflen;
+  mng_uint32  iReallen;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_MPNG, MNG_LC_START);
+#endif
+
+  pMPNG = (mng_mpngp)pChunk;           /* address the proper chunk */
+                                       /* compress the frame structures */
+  iRetcode = deflate_buffer (pData, (mng_uint8p)pMPNG->pFrames, pMPNG->iFramessize,
+                             &pBuf, &iBuflen, &iReallen);
+
+  if (!iRetcode)                       /* all ok ? */
+  {
+    pRawdata = pData->pWritebuf+8;     /* init output buffer & size */
+    iRawlen  = 15 + iReallen;
+                                       /* requires large buffer ? */
+    if (iRawlen > pData->iWritebufsize)
+      MNG_ALLOC (pData, pRawdata, iRawlen);
+                                       /* fill the buffer */
+    mng_put_uint32 (pRawdata,    pMPNG->iFramewidth);
+    mng_put_uint32 (pRawdata+4,  pMPNG->iFrameheight);
+    mng_put_uint16 (pRawdata+8,  pMPNG->iNumplays);
+    mng_put_uint16 (pRawdata+10, pMPNG->iTickspersec);
+    *(pRawdata+12) = pMPNG->iCompressionmethod;
+
+    if (iReallen)
+      MNG_COPY (pRawdata+13, pBuf, iReallen);
+                                       /* and write it */
+    iRetcode = write_raw_chunk (pData, pMPNG->sHeader.iChunkname,
+                                iRawlen, pRawdata);
+                                       /* drop the temp buffer ? */
+    if (iRawlen > pData->iWritebufsize)
+      MNG_FREEX (pData, pRawdata, iRawlen);
+  }
+
+  MNG_FREEX (pData, pBuf, iBuflen);    /* always drop the compression buffer */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_MPNG, MNG_LC_END);
+#endif
+
+  return iRetcode;
+}
+#endif
 
 /* ************************************************************************** */
 

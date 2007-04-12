@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_chunk_descr.c      copyright (c) 2005 G.Juyn        * */
+/* * file      : libmng_chunk_descr.c      copyright (c) 2005-2007 G.Juyn   * */
 /* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Chunk descriptor functions (implementation)                * */
@@ -25,6 +25,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 01/17/2005 - G.R-P.                               * */
 /* *             - added typecast to appease the compiler                   * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1066,6 +1068,38 @@ MNG_LOCAL mng_field_descriptor mng_fields_magn [] =
 
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+MNG_LOCAL mng_field_descriptor mng_fields_mpng [] =
+  {
+    {MNG_NULL,
+     MNG_FIELD_INT,
+     1, 0, 4, 4,
+     offsetof(mng_mpng, iFramewidth), MNG_NULL, MNG_NULL},
+    {MNG_NULL,
+     MNG_FIELD_INT,
+     1, 0, 4, 4,
+     offsetof(mng_mpng, iFrameheight), MNG_NULL, MNG_NULL},
+    {MNG_NULL,
+     MNG_FIELD_INT,
+     0, 0xFFFF, 2, 2,
+     offsetof(mng_mpng, iNumplays), MNG_NULL, MNG_NULL},
+    {MNG_NULL,
+     MNG_FIELD_INT,
+     1, 0xFFFF, 2, 2,
+     offsetof(mng_mpng, iTickspersec), MNG_NULL, MNG_NULL},
+    {MNG_NULL,
+     MNG_FIELD_INT,
+     0, 0, 1, 1,
+     offsetof(mng_mpng, iCompressionmethod), MNG_NULL, MNG_NULL},
+    {MNG_NULL,
+     MNG_FIELD_DEFLATED,
+     0, 0, 1, 0,
+     offsetof(mng_mpng, pFrames), MNG_NULL, offsetof(mng_mpng, iFramessize)}
+  };
+#endif
+
+/* ************************************************************************** */
+
 #ifndef MNG_SKIPCHUNK_evNT
 MNG_LOCAL mng_field_descriptor mng_fields_evnt [] =
   {
@@ -1616,6 +1650,16 @@ MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_evnt =
      MNG_DESCR_NOSAVE};
 #endif
 
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+MNG_LOCAL mng_chunk_descriptor mng_chunk_descr_mpng =
+    {mng_it_mpng, mng_create_none, 0, 0,
+     MNG_NULL, MNG_NULL, mng_special_mpng,
+     mng_fields_mpng, (sizeof(mng_fields_mpng) / sizeof(mng_field_descriptor)),
+     MNG_NULL,
+     MNG_DESCR_IHDR,
+     MNG_DESCR_NOMHDR | MNG_DESCR_NOJHDR | MNG_DESCR_NOIDAT};
+#endif
+
 /* ************************************************************************** */
 /* ************************************************************************** */
 /* the good ol' unknown babe */
@@ -1763,6 +1807,9 @@ MNG_LOCAL mng_chunk_header mng_chunk_table [] =
 #endif
 #ifndef MNG_SKIPCHUNK_iTXt
     {MNG_UINT_iTXt, mng_init_general, mng_free_itxt,    mng_read_general, mng_write_itxt, mng_assign_itxt,    0, 0, sizeof(mng_itxt), &mng_chunk_descr_itxt},
+#endif
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+    {MNG_UINT_mpNG, mng_init_general, mng_free_mpng,    mng_read_general, mng_write_mpng, mng_assign_mpng,    0, 0, sizeof(mng_mpng), &mng_chunk_descr_mpng},
 #endif
 #ifndef MNG_SKIPCHUNK_nEED
     {MNG_UINT_nEED, mng_init_general, mng_free_need,    mng_read_general, mng_write_need, mng_assign_need,    0, 0, sizeof(mng_need), &mng_chunk_descr_need},
@@ -1968,9 +2015,11 @@ MNG_C_SPECIALFUNC (mng_special_ihdr)
     if ((pData->iWidth > pData->iMaxwidth) || (pData->iHeight > pData->iMaxheight))
       MNG_WARNING (pData, MNG_IMAGETOOLARGE);
 
+#if !defined(MNG_INCLUDE_MPNG_PROPOSAL) || !defined(MNG_SUPPORT_DISPLAY)
     if (pData->fProcessheader)         /* inform the app ? */
       if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
         MNG_ERROR (pData, MNG_APPMISCERROR);
+#endif
   }
 
   if (!pData->bHasDHDR)
@@ -2131,8 +2180,7 @@ MNG_C_SPECIALFUNC (mng_special_idat)
 /* ************************************************************************** */
 
 MNG_C_SPECIALFUNC (mng_special_iend)
-{
-                                       /* IHDR-block requires IDAT */
+{                                      /* IHDR-block requires IDAT */
   if ((pData->bHasIHDR) && (!pData->bHasIDAT))
     MNG_ERROR (pData, MNG_IDATMISSING);
 
@@ -5162,6 +5210,19 @@ MNG_F_SPECIALFUNC (mng_evnt_entries)
 MNG_C_SPECIALFUNC (mng_special_evnt)
 {
   return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+MNG_C_SPECIALFUNC (mng_special_mpng)
+{
+#ifdef MNG_SUPPORT_DISPLAY
+  return mng_create_mpng_obj (pData, pChunk);
+#else
+  return MNG_NOERROR;
+#endif
 }
 #endif
 

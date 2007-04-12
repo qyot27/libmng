@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_display.h          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_display.h          copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Display management (definition)                            * */
 /* *                                                                        * */
@@ -54,6 +54,9 @@
 /* *             1.0.9 - 12/11/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_DISPLAYCALLS              * */
 /* *                                                                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
+/* *                                                                        * */
 /* ************************************************************************** */
 
 #if defined(__BORLANDC__) && defined(MNG_STRICT_ANSI)
@@ -93,6 +96,10 @@ mng_retcode mng_process_display       (mng_datap      pData);
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
 
 mng_retcode mng_process_display_ihdr  (mng_datap      pData);
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+mng_retcode mng_process_display_mpng  (mng_datap      pData);
+#endif
 
 mng_retcode mng_process_display_idat  (mng_datap      pData,
                                        mng_uint32     iRawlen,
@@ -248,6 +255,9 @@ mng_retcode mng_process_display_past2 (mng_datap      pData);
 #else /* MNG_OPTIMIZE_DISPLAYCALLS */
 
 mng_retcode mng_process_display_ihdr  (mng_datap      pData);
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+mng_retcode mng_process_display_mpng  (mng_datap      pData);
+#endif
 mng_retcode mng_process_display_idat  (mng_datap      pData);
 mng_retcode mng_process_display_iend  (mng_datap      pData);
 mng_retcode mng_process_display_mend  (mng_datap      pData);

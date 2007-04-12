@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 
-1.0.10 (xxx xxth 2005)
+1.0.10 (xxx xxth 2007)
 ----------------------
 
 in short:
@@ -19,6 +19,7 @@ core:
 - added typecast to appease the compiler (G R-P)
 - added more SKIPCHUNK conditionals (G R-P)
 - added MORE MNG_NO_1_2_4BIT_SUPPORT (G R-P)
+- added provisional support for mPNG proposal
 
 samples:
 - xmngview upgraded to 0.6 (thanks Winfried!)

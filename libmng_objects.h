@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_objects.h          copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_objects.h          copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Internal object structures (definition)                    * */
 /* *                                                                        * */
@@ -67,6 +67,9 @@
 /* *                                                                        * */
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_OBJCLEANUP                * */
+/* *                                                                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -582,6 +585,21 @@ typedef struct {                                 /* event object */
            mng_int32         iLasty;
         } mng_event;
 typedef mng_event * mng_eventp;
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+typedef struct {                                 /* mPNG object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint32        iFramewidth;
+           mng_uint32        iFrameheight;
+           mng_uint32        iNumplays;
+           mng_uint16        iTickspersec;
+           mng_uint32        iFramessize;
+           mng_ptr           pFrames;
+        } mng_mpng_obj;
+typedef mng_mpng_obj * mng_mpng_objp;
 #endif
 
 /* ************************************************************************** */

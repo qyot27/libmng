@@ -4,8 +4,8 @@
 /* ************************************************************************** */
 /* *                                                                        * */
 /* * project   : libmng                                                     * */
-/* * file      : libmng_object_prc.h       copyright (c) 2000-2004 G.Juyn   * */
-/* * version   : 1.0.9                                                      * */
+/* * file      : libmng_object_prc.h       copyright (c) 2000-2007 G.Juyn   * */
+/* * version   : 1.0.10                                                     * */
 /* *                                                                        * */
 /* * purpose   : Object processing routines (definition)                    * */
 /* *                                                                        * */
@@ -61,6 +61,9 @@
 /* *                                                                        * */
 /* *             1.0.9 - 12/05/2004 - G.Juyn                                * */
 /* *             - added conditional MNG_OPTIMIZE_OBJCLEANUP                * */
+/* *                                                                        * */
+/* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
+/* *             - added support for mPNG proposal                          * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -626,6 +629,27 @@ mng_retcode mng_create_event      (mng_datap    pData,
 mng_retcode mng_free_event        (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_event     (mng_datap    pData,
+                                   mng_objectp  pObject);
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+#ifndef MNG_OPTIMIZE_CHUNKREADER
+mng_retcode mng_create_mpng_obj   (mng_datap    pData,
+                                   mng_uint32   iFramewidth,
+                                   mng_uint32   iFrameheight,
+                                   mng_uint16   iNumplays,
+                                   mng_uint16   iTickspersec,
+                                   mng_uint32   iFramessize,
+                                   mng_ptr      pFrames);
+#else
+mng_retcode mng_create_mpng_obj   (mng_datap    pData,
+                                   mng_ptr      pEntry);
+#endif
+mng_retcode mng_free_mpng_obj     (mng_datap    pData,
+                                   mng_objectp  pObject);
+mng_retcode mng_process_mpng_obj  (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
 
