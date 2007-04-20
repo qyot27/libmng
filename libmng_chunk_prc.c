@@ -70,6 +70,8 @@
 /* *             - fixed problem with CLON object during readdisplay()      * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1560,6 +1562,33 @@ FREE_CHUNK_HDR (mng_free_mpng)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_FREE_MPNG, MNG_LC_END);
+#endif
+
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
+  return MNG_NOERROR;
+#else
+  return mng_free_general(pData, pHeader);
+#endif
+}
+#endif
+
+/* ************************************************************************** */
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+FREE_CHUNK_HDR (mng_free_adat)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ADAT, MNG_LC_START);
+#endif
+
+  if (((mng_adatp)pHeader)->iTilessize)
+    MNG_FREEX (pData, ((mng_adatp)pHeader)->pTiles, ((mng_adatp)pHeader)->iTilessize);
+
+#ifndef MNG_OPTIMIZE_CHUNKINITFREE
+  MNG_FREEX (pData, pHeader, sizeof (mng_adat));
+#endif
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_FREE_ADAT, MNG_LC_END);
 #endif
 
 #ifndef MNG_OPTIMIZE_CHUNKINITFREE
@@ -4275,6 +4304,63 @@ ASSIGN_CHUNK_HDR (mng_assign_mpng)
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_ASSIGN_MPNG, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+ASSIGN_CHUNK_HDR (mng_assign_ahdr)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_AHDR, MNG_LC_START);
+#endif
+
+  if (((mng_chunk_headerp)pChunkfrom)->iChunkname != MNG_UINT_ahDR)
+    MNG_ERROR (pData, MNG_WRONGCHUNK); /* ouch */
+
+  ((mng_ahdrp)pChunkto)->iNumframes   = ((mng_ahdrp)pChunkfrom)->iNumframes;
+  ((mng_ahdrp)pChunkto)->iTickspersec = ((mng_ahdrp)pChunkfrom)->iTickspersec;
+  ((mng_ahdrp)pChunkto)->iNumplays    = ((mng_ahdrp)pChunkfrom)->iNumplays;
+  ((mng_ahdrp)pChunkto)->iTilewidth   = ((mng_ahdrp)pChunkfrom)->iTilewidth;
+  ((mng_ahdrp)pChunkto)->iTileheight  = ((mng_ahdrp)pChunkfrom)->iTileheight;
+  ((mng_ahdrp)pChunkto)->iInterlace   = ((mng_ahdrp)pChunkfrom)->iInterlace;
+  ((mng_ahdrp)pChunkto)->iStillused   = ((mng_ahdrp)pChunkfrom)->iStillused;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_AHDR, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+ASSIGN_CHUNK_HDR (mng_assign_adat)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_ADAT, MNG_LC_START);
+#endif
+
+  if (((mng_chunk_headerp)pChunkfrom)->iChunkname != MNG_UINT_adAT)
+    MNG_ERROR (pData, MNG_WRONGCHUNK); /* ouch */
+
+  ((mng_adatp)pChunkto)->iTilessize = ((mng_adatp)pChunkfrom)->iTilessize;
+
+  if (((mng_adatp)pChunkto)->iTilessize)
+  {
+    MNG_ALLOC (pData, ((mng_adatp)pChunkto)->pTiles, ((mng_adatp)pChunkto)->iTilessize);
+    MNG_COPY  (((mng_adatp)pChunkto)->pTiles, ((mng_adatp)pChunkfrom)->pTiles,
+               ((mng_adatp)pChunkto)->iTilessize);
+  }
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_ASSIGN_ADAT, MNG_LC_END);
 #endif
 
   return MNG_NOERROR;

@@ -70,6 +70,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -600,6 +602,24 @@ typedef struct {                                 /* mPNG object */
            mng_ptr           pFrames;
         } mng_mpng_obj;
 typedef mng_mpng_obj * mng_mpng_objp;
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+typedef struct {                                 /* ANG object */
+           mng_object_header sHeader;            /* default header (DO NOT REMOVE) */
+           mng_uint32        iNumframes;
+           mng_uint32        iTickspersec;
+           mng_uint32        iNumplays;
+           mng_uint32        iTilewidth;
+           mng_uint32        iTileheight;
+           mng_uint8         iInterlace;
+           mng_uint8         iStillused;
+           mng_uint32        iTilessize;
+           mng_ptr           pTiles;
+        } mng_ang_obj;
+typedef mng_ang_obj * mng_ang_objp;
 #endif
 
 /* ************************************************************************** */

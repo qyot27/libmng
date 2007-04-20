@@ -46,6 +46,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -323,6 +325,10 @@ WRITE_CHUNK (mng_write_need) ;
 #ifdef MNG_INCLUDE_MPNG_PROPOSAL
 WRITE_CHUNK (mng_write_mpng) ;
 #endif
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+WRITE_CHUNK (mng_write_ahdr) ;
+WRITE_CHUNK (mng_write_adat) ;
+#endif
 WRITE_CHUNK (mng_write_evnt) ;
 WRITE_CHUNK (mng_write_unknown) ;
 
@@ -391,6 +397,10 @@ WRITE_CHUNK (mng_write_unknown) ;
 #define mng_write_need 0
 #ifdef MNG_INCLUDE_MPNG_PROPOSAL
 #define mng_write_mpng 0
+#endif
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+#define mng_write_adat 0
+#define mng_write_ahdr 0
 #endif
 #define mng_write_evnt 0
 #define mng_write_unknown 0

@@ -60,6 +60,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -956,8 +958,8 @@ typedef struct {                       /* mpNG frame */
            mng_uint32        iY;
            mng_uint32        iWidth;
            mng_uint32        iHeight;
-           mng_uint32        iXoffset;
-           mng_uint32        iYoffset;
+           mng_int32         iXoffset;
+           mng_int32         iYoffset;
            mng_uint16        iTicks;
         } mng_mpng_frame;
 typedef mng_mpng_frame * mng_mpng_framep;
@@ -973,6 +975,37 @@ typedef struct {                       /* mpNG */
            mng_mpng_framep   pFrames;
         } mng_mpng;
 typedef mng_mpng * mng_mpngp;
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+typedef struct {                       /* ahDR */
+           mng_chunk_header  sHeader;
+           mng_uint32        iNumframes;
+           mng_uint32        iTickspersec;
+           mng_uint32        iNumplays;
+           mng_uint32        iTilewidth;
+           mng_uint32        iTileheight;
+           mng_uint8         iInterlace;
+           mng_uint8         iStillused;
+        } mng_ahdr;
+typedef mng_ahdr * mng_ahdrp;
+
+typedef struct {                       /* adAT tile */
+           mng_uint32        iTicks;
+           mng_int32         iXoffset;
+           mng_int32         iYoffset;
+           mng_uint8         iTilesource;
+        } mng_adat_tile;
+typedef mng_adat_tile * mng_adat_tilep;
+
+typedef struct {                       /* adAT */
+           mng_chunk_header  sHeader;
+           mng_uint32        iTilessize;
+           mng_adat_tilep    pTiles;
+        } mng_adat;
+typedef mng_adat * mng_adatp;
 #endif
 
 /* ************************************************************************** */

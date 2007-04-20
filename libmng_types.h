@@ -123,6 +123,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -396,6 +398,9 @@ enum mng_imgtypes {mng_it_unknown, mng_it_png, mng_it_mng, mng_it_jng
 #ifdef MNG_INCLUDE_MPNG_PROPOSAL
      ,mng_it_mpng
 #endif     
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+     ,mng_it_ang
+#endif
      };
 typedef enum mng_imgtypes mng_imgtype;
 

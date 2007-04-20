@@ -233,6 +233,8 @@
 /* *               available.                                               * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -430,7 +432,8 @@ MNG_LOCAL mng_uint8p find_null (mng_uint8p pIn)
 /* ************************************************************************** */
 
 #if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
-    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL)
+    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL) || \
+    defined(MNG_INCLUDE_ANG_PROPOSAL)
 mng_retcode mng_inflate_buffer (mng_datap  pData,
                                 mng_uint8p pInbuf,
                                 mng_uint32 iInsize,
@@ -784,7 +787,8 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
               if ((pTempfield->iLengthmax) && (iDatalen > pTempfield->iLengthmax))
                 MNG_ERROR (pData, MNG_INVALIDLENGTH);
 #if !defined(MNG_SKIPCHUNK_iCCP) || !defined(MNG_SKIPCHUNK_zTXt) || \
-    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL)
+    !defined(MNG_SKIPCHUNK_iTXt) || defined(MNG_INCLUDE_MPNG_PROPOSAL) || \
+    defined(MNG_INCLUDE_ANG_PROPOSAL)
                                        /* needs decompression ? */
               if (pTempfield->iFlags & MNG_FIELD_DEFLATED)
               {
@@ -808,17 +812,18 @@ MNG_LOCAL mng_retcode create_chunk_storage (mng_datap       pData,
                   if (iRetcode)
                     return iRetcode;
 
-#ifdef MNG_INCLUDE_MPNG_PROPOSAL
-                  if (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_mpNG)
+#if defined(MNG_INCLUDE_MPNG_PROPOSAL) || defined(MNG_INCLUDE_ANG_PROPOSAL)
+                  if ( (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_mpNG) ||
+                       (((mng_chunk_headerp)pHeader)->iChunkname == MNG_UINT_adAT)    )
                   {
-                    MNG_ALLOC (pData, pWork, iRealsize+1);
+                    MNG_ALLOC (pData, pWork, iRealsize);
                   }
                   else
                   {
 #endif
                                        /* don't forget to generate null terminator */
                     MNG_ALLOC (pData, pWork, iRealsize+1);
-#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+#if defined(MNG_INCLUDE_MPNG_PROPOSAL) || defined(MNG_INCLUDE_ANG_PROPOSAL)
                   }
 #endif
                   MNG_COPY (pWork, pBuf, iRealsize);
@@ -5833,6 +5838,10 @@ MNG_LOCAL mng_bool CheckKeyword (mng_datap  pData,
     MNG_UINT_SEEK,
     MNG_UINT_SHOW,
     MNG_UINT_TERM,
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+    MNG_UINT_adAT,
+    MNG_UINT_ahDR,
+#endif
     MNG_UINT_bKGD,
     MNG_UINT_cHRM,
 /* TODO:    MNG_UINT_eXPI,  */
@@ -10525,6 +10534,55 @@ WRITE_CHUNK (mng_write_mpng)
 #endif
 
   return iRetcode;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+WRITE_CHUNK (mng_write_ahdr)
+{
+  mng_ahdrp   pAHDR;
+  mng_uint8p  pRawdata;
+  mng_uint32  iRawlen;
+  mng_retcode iRetcode;
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_AHDR, MNG_LC_START);
+#endif
+
+  pAHDR    = (mng_ahdrp)pChunk;        /* address the proper chunk */
+  pRawdata = pData->pWritebuf+8;       /* init output buffer & size */
+  iRawlen  = 22;
+                                       /* fill the buffer */
+  mng_put_uint32 (pRawdata,    pAHDR->iNumframes);
+  mng_put_uint32 (pRawdata+4,  pAHDR->iTickspersec);
+  mng_put_uint32 (pRawdata+8,  pAHDR->iNumplays);
+  mng_put_uint32 (pRawdata+12, pAHDR->iTilewidth);
+  mng_put_uint32 (pRawdata+16, pAHDR->iTileheight);
+  *(pRawdata+20) = pAHDR->iInterlace;
+  *(pRawdata+21) = pAHDR->iStillused;
+                                       /* and write it */
+  iRetcode = write_raw_chunk (pData, pAHDR->sHeader.iChunkname,
+                              iRawlen, pRawdata);
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_WRITE_AHDR, MNG_LC_END);
+#endif
+
+  return iRetcode;
+}
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+WRITE_CHUNK (mng_write_adat)
+{
+
+  /* TODO: something */
+
+  return MNG_NOERROR;
 }
 #endif
 

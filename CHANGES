@@ -19,7 +19,8 @@ core:
 - added typecast to appease the compiler (G R-P)
 - added more SKIPCHUNK conditionals (G R-P)
 - added MORE MNG_NO_1_2_4BIT_SUPPORT (G R-P)
-- added provisional support for mPNG proposal
+- added provisional support for aNIM(mPNG) proposal
+- added provisional support for ANG proposal
 
 samples:
 - xmngview upgraded to 0.6 (thanks Winfried!)

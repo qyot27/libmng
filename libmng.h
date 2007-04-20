@@ -291,6 +291,8 @@
 /* *             - added CANVAS_RGB555 and CANVAS_BGR555                    * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1823,8 +1825,8 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_mpng_frame (mng_handle       hHandle,
                                                       mng_uint32       *iY,
                                                       mng_uint32       *iWidth,
                                                       mng_uint32       *iHeight,
-                                                      mng_uint32       *iXoffset,
-                                                      mng_uint32       *iYoffset,
+                                                      mng_int32        *iXoffset,
+                                                      mng_int32        *iYoffset,
                                                       mng_uint16       *iTicks);
 #endif
 
@@ -2258,8 +2260,8 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_mpng_frame (mng_handle       hHandle,
                                                       mng_uint32       iY,
                                                       mng_uint32       iWidth,
                                                       mng_uint32       iHeight,
-                                                      mng_uint32       iXoffset,
-                                                      mng_uint32       iYoffset,
+                                                      mng_int32        iXoffset,
+                                                      mng_int32        iYoffset,
                                                       mng_uint16       iTicks);
 #endif
 
@@ -2613,6 +2615,8 @@ MNG_EXT mng_retcode MNG_DECL mng_updatemngsimplicity (mng_handle        hHandle,
 #define MNG_UINT_SEEK 0x5345454bL
 #define MNG_UINT_SHOW 0x53484f57L
 #define MNG_UINT_TERM 0x5445524dL
+#define MNG_UINT_adAT 0x61644154L
+#define MNG_UINT_ahDR 0x61684452L
 #define MNG_UINT_bKGD 0x624b4744L
 #define MNG_UINT_cHRM 0x6348524dL
 #define MNG_UINT_eXPI 0x65585049L

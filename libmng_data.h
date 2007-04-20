@@ -150,6 +150,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -740,6 +742,9 @@ typedef struct mng_data_struct {
 
 #ifdef MNG_INCLUDE_MPNG_PROPOSAL
            mng_objectp       pMPNG;              /* mpNG object if available */
+#endif
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+           mng_objectp       pANG;               /* ANG object if available */
 #endif
 
 #endif /* MNG_SUPPORT_DISPLAY */

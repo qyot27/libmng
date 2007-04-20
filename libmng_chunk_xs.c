@@ -2321,8 +2321,8 @@ MNG_EXT mng_retcode MNG_DECL mng_getchunk_mpng_frame (mng_handle hHandle,
                                                       mng_uint32 *iY,
                                                       mng_uint32 *iWidth,
                                                       mng_uint32 *iHeight,
-                                                      mng_uint32 *iXoffset,
-                                                      mng_uint32 *iYoffset,
+                                                      mng_int32  *iXoffset,
+                                                      mng_int32  *iYoffset,
                                                       mng_uint16 *iTicks)
 {
   mng_datap       pData;
@@ -6559,8 +6559,8 @@ MNG_EXT mng_retcode MNG_DECL mng_putchunk_mpng_frame (mng_handle hHandle,
                                                       mng_uint32 iY,
                                                       mng_uint32 iWidth,
                                                       mng_uint32 iHeight,
-                                                      mng_uint32 iXoffset,
-                                                      mng_uint32 iYoffset,
+                                                      mng_int32  iXoffset,
+                                                      mng_int32  iYoffset,
                                                       mng_uint16 iTicks)
 {
   mng_datap       pData;

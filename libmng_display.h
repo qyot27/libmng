@@ -56,6 +56,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -93,12 +95,23 @@ mng_retcode mng_process_display       (mng_datap      pData);
 
 /* ************************************************************************** */
 
+#ifdef MNG_OPTIMIZE_FOOTPRINT_INIT
+png_imgtype mng_png_imgtype           (mng_uint8      colortype,
+                                       mng_uint8      bitdepth);
+#endif
+
+/* ************************************************************************** */
+
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
 
 mng_retcode mng_process_display_ihdr  (mng_datap      pData);
 
 #ifdef MNG_INCLUDE_MPNG_PROPOSAL
 mng_retcode mng_process_display_mpng  (mng_datap      pData);
+#endif
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+mng_retcode mng_process_display_ang   (mng_datap      pData);
 #endif
 
 mng_retcode mng_process_display_idat  (mng_datap      pData,

@@ -192,6 +192,8 @@
 /* *             - added more SKIPCHUNK conditionals                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -292,6 +294,15 @@ MNG_LOCAL mng_retcode mng_drop_objects (mng_datap pData,
     fCleanup = ((mng_object_headerp)pData->pMPNG)->fCleanup;
     fCleanup (pData, pData->pMPNG);
     pData->pMPNG = MNG_NULL;
+  }
+#endif
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+  if (pData->pANG)                     /* drop ANG data (if any) */
+  {
+    fCleanup = ((mng_object_headerp)pData->pANG)->fCleanup;
+    fCleanup (pData, pData->pANG);
+    pData->pANG = MNG_NULL;
   }
 #endif
 

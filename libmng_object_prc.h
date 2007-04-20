@@ -64,6 +64,8 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -650,6 +652,28 @@ mng_retcode mng_create_mpng_obj   (mng_datap    pData,
 mng_retcode mng_free_mpng_obj     (mng_datap    pData,
                                    mng_objectp  pObject);
 mng_retcode mng_process_mpng_obj  (mng_datap    pData,
+                                   mng_objectp  pObject);
+#endif
+
+/* ************************************************************************** */
+
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+#ifndef MNG_OPTIMIZE_CHUNKREADER
+mng_retcode mng_create_ang_obj    (mng_datap    pData,
+                                   mng_uint32   iNumframes,
+                                   mng_uint32   iTickspersec,
+                                   mng_uint32   iNumplays,
+                                   mng_uint32   iTilewidth,
+                                   mng_uint32   iTileheight,
+                                   mng_uint8    iInterlace,
+                                   mng_uint8    iStillused);
+#else
+mng_retcode mng_create_ang_obj    (mng_datap    pData,
+                                   mng_ptr      pEntry);
+#endif
+mng_retcode mng_free_ang_obj      (mng_datap    pData,
+                                   mng_objectp  pObject);
+mng_retcode mng_process_ang_obj   (mng_datap    pData,
                                    mng_objectp  pObject);
 #endif
 

@@ -19228,24 +19228,21 @@ mng_retcode mng_cleanup_rowproc (mng_datap pData)
 #ifdef MNG_INCLUDE_LCMS                /* cleanup cms profile/transform */
   {
     mng_retcode iRetcode = mng_clear_cms (pData);
-
     if (iRetcode)                      /* on error bail out */
       return iRetcode;
   }
 #endif /* MNG_INCLUDE_LCMS */
 
-  if (pData->pWorkrow)                 /* cleanup buffer for working row */
-    MNG_FREE (pData, pData->pWorkrow, pData->iRowmax);
-
-  if (pData->pPrevrow)                 /* cleanup buffer for previous row */
-    MNG_FREE (pData, pData->pPrevrow, pData->iRowmax);
-
   if (pData->pRGBArow)                 /* cleanup buffer for intermediate row */
-    MNG_FREE (pData, pData->pRGBArow, (pData->iDatawidth << 3));
+    MNG_FREEX (pData, pData->pRGBArow, (pData->iDatawidth << 3));
+  if (pData->pPrevrow)                 /* cleanup buffer for previous row */
+    MNG_FREEX (pData, pData->pPrevrow, pData->iRowmax);
+  if (pData->pWorkrow)                 /* cleanup buffer for working row */
+    MNG_FREEX (pData, pData->pWorkrow, pData->iRowmax);
 
-  pData->pWorkrow = 0;                 /* propogate uninitialized buffers */
-  pData->pPrevrow = 0;
-  pData->pRGBArow = 0;
+  pData->pWorkrow = MNG_NULL;          /* propogate uninitialized buffers */
+  pData->pPrevrow = MNG_NULL;
+  pData->pRGBArow = MNG_NULL;
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_CLEANUP_ROWPROC, MNG_LC_END);

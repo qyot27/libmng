@@ -232,6 +232,8 @@
 /* *             - fixed several compiler warnings                          * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
+/* *             - added support for ANG proposal                           * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -2749,7 +2751,7 @@ mng_retcode mng_process_display_ihdr (mng_datap pData)
     else                               /* otherwise use object 0 */
       pData->pStoreobj = pData->pObjzero;
 
-#ifndef MNG_INCLUDE_MPNG_PROPOSAL
+#if !defined(MNG_INCLUDE_MPNG_PROPOSAL) && !defined(MNG_INCLUDE_ANG_PROPOSAL)
     if (                               /* display "on-the-fly" ? */
 #ifndef MNG_SKIPCHUNK_MAGN
          (((mng_imagep)pData->pStoreobj)->iMAGN_MethodX == 0) &&
@@ -3052,6 +3054,36 @@ mng_retcode mng_process_display_mpng (mng_datap pData)
 
 /* ************************************************************************** */
 
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+mng_retcode mng_process_display_ang (mng_datap pData)
+{
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_ANG, MNG_LC_START);
+#endif
+
+  if (pData->fProcessheader)           /* inform the app (creating the output canvas) ? */
+  {
+    if (!pData->fProcessheader (((mng_handle)pData), pData->iWidth, pData->iHeight))
+      MNG_ERROR (pData, MNG_APPMISCERROR);
+  }
+
+  next_layer (pData);                  /* first mPNG layer then ! */
+  pData->bTimerset   = MNG_FALSE;
+  pData->iBreakpoint = 0;
+
+  if ((pData->iDestr > pData->iDestl) && (pData->iDestb > pData->iDestt))
+    set_display_routine (pData);       /* then determine display routine */
+
+#ifdef MNG_SUPPORT_TRACE
+  MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_ANG, MNG_LC_END);
+#endif
+
+  return MNG_NOERROR;
+}
+#endif
+
+/* ************************************************************************** */
+
 #ifndef MNG_OPTIMIZE_DISPLAYCALLS
 mng_retcode mng_process_display_idat (mng_datap  pData,
                                       mng_uint32 iRawlen,
@@ -3066,7 +3098,7 @@ mng_retcode mng_process_display_idat (mng_datap  pData)
   MNG_TRACE (pData, MNG_FN_PROCESS_DISPLAY_IDAT, MNG_LC_START);
 #endif
 
-#ifdef MNG_INCLUDE_MPNG_PROPOSAL
+#if defined(MNG_INCLUDE_MPNG_PROPOSAL) || defined(MNG_INCLUDE_ANG_PROPOSAL) 
   if ((pData->eImagetype == mng_it_png) && (pData->iLayerseq <= 0))
   {
     if (pData->fProcessheader)         /* inform the app (creating the output canvas) ? */
@@ -3212,7 +3244,13 @@ mng_retcode mng_process_display_iend (mng_datap pData)
     {
       pData->pCurraniobj = pData->pFirstaniobj;
     } else
-#endif 
+#endif
+#ifdef MNG_INCLUDE_ANG_PROPOSAL
+    if (pData->eImagetype == mng_it_ang)
+    {
+      pData->pCurraniobj = pData->pFirstaniobj;
+    } else
+#endif
     {                                  /* cleanup object 0 */
       mng_reset_object_details (pData, (mng_imagep)pData->pObjzero,
                                 0, 0, 0, 0, 0, 0, 0, MNG_TRUE);
@@ -5626,7 +5664,7 @@ mng_retcode mng_process_display_dhdr (mng_datap  pData)
  
 #ifdef MNG_OPTIMIZE_FOOTPRINT_INIT
   pData->fInitrowproc = (mng_fptr)mng_init_rowproc;
-  pData->ePng_imgtype=mng_png_imgtype(pData->iColortype,pData->iBitdepth);
+  pData->ePng_imgtype = mng_png_imgtype (pData->iColortype, pData->iBitdepth);
 #else
       switch (pData->iColortype)       /* determine row initialization routine */
       {
