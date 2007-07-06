@@ -153,6 +153,7 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 07/06/2007 - G.R-P bugfix by Lucas Quintana       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -616,6 +617,8 @@ mng_retcode mng_trace (mng_datap  pData,
 #define MNG_FN_DISPLAY_ARGB8_PM      1132
 #define MNG_FN_DISPLAY_ABGR8_PM      1133
 #define MNG_FN_DISPLAY_BGR565_A8     1134
+#define MNG_FN_DISPLAY_RGB555        1135
+#define MNG_FN_DISPLAY_BGR555        1136
 
 /* ************************************************************************** */
 

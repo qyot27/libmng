@@ -194,6 +194,7 @@
 /* *             - added support for mPNG proposal                          * */
 /* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
 /* *             - added support for ANG proposal                           * */
+/* *             1.0.10 - 07/06/2007 - G.R-P bugfix by Lucas Quintana       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -1380,7 +1381,7 @@ mng_handle MNG_DECL mng_initialize (mng_ptr       pUserdata,
   mng_reset ((mng_handle)pData);
 
 #ifdef MNG_SUPPORT_TRACE
-  if (mng_trace (pData, MNG_FN_INITIALIZE, MNG_LC_END);)
+  if (mng_trace (pData, MNG_FN_INITIALIZE, MNG_LC_END))
   {
     MNG_FREEX (pData, pData, sizeof (mng_data));
     return MNG_NULL;

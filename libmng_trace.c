@@ -150,6 +150,7 @@
 /* *                                                                        * */
 /* *             1.0.10 - 04/08/2007 - G.Juyn                               * */
 /* *             - added support for mPNG proposal                          * */
+/* *             1.0.10 - 07/06/2007 - G.R-P bugfix by Lucas Quintana       * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -745,7 +746,7 @@ MNG_LOCAL mng_trace_entry const trace_table [] =
     {MNG_FN_DISPLAY_RGBA8_PM,          "display_rgba8_pm"},
     {MNG_FN_DISPLAY_ARGB8_PM,          "display_argb8_pm"},
     {MNG_FN_DISPLAY_ABGR8_PM,          "display_abgr8_pm"},
-    (MNG_FN_DISPLAY_BGR565_A8,         "display_bgr565_a8"},
+    {MNG_FN_DISPLAY_BGR565_A8,         "display_bgr565_a8"},
 
     {MNG_FN_INIT_FULL_CMS,             "init_full_cms"},
     {MNG_FN_CORRECT_FULL_CMS,          "correct_full_cms"},
