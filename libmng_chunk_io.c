@@ -235,6 +235,8 @@
 /* *             - added support for mPNG proposal                          * */
 /* *             1.0.10 - 04/12/2007 - G.Juyn                               * */
 /* *             - added support for ANG proposal                           * */
+/* *             1.0.10 - 05/02/2007 - G.Juyn                               * */
+/* *             - fixed inflate_buffer for extreme compression ratios      * */
 /* *                                                                        * */
 /* ************************************************************************** */
 
@@ -471,12 +473,12 @@ mng_retcode mng_inflate_buffer (mng_datap  pData,
       if (iRetcode == MNG_BUFOVERFLOW) /* not enough space ? */
       {                                /* then get some more */
         MNG_FREEX (pData, *pOutbuf, *iOutsize);
-        *iOutsize = *iOutsize + iInsize;
+        *iOutsize = *iOutsize + *iOutsize;
         MNG_ALLOC (pData, *pOutbuf, *iOutsize);
       }
     }                                  /* repeat if we didn't have enough space */
     while ((iRetcode == MNG_BUFOVERFLOW) &&
-           (*iOutsize < 20 * iInsize));
+           (*iOutsize < 200 * iInsize));
 
     if (!iRetcode)                     /* if oke ? */
       *((*pOutbuf) + *iRealsize) = 0;  /* then put terminator zero */
