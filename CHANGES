@@ -1,6 +1,6 @@
 -----------------------------------------------------------
 
-1.0.10 (xxx xxth 2007)
+1.0.10 (Jul 13th 2007)
 ----------------------
 
 in short:
@@ -19,7 +19,7 @@ core:
 - added typecast to appease the compiler (G R-P)
 - added more SKIPCHUNK conditionals (G R-P)
 - added MORE MNG_NO_1_2_4BIT_SUPPORT (G R-P)
-- added provisional support for aNIM(mPNG) proposal
+- added provisional support for anIM(mpNG) proposal
 - added provisional support for ANG proposal
 
 samples:
