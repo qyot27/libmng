@@ -1018,7 +1018,7 @@ static int32 NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, 
 		}
 		if(!This->mngdata) {
 			warn(This,"Cannot allocate memory for image (%d,%d,%p",offset,len,buffer);
-                        if(oldmngdata) free(old_mngdata);
+                        if(oldmngdata) free(oldmngdata);
 			return -1;
 		}
 	}
