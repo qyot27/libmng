@@ -1325,16 +1325,20 @@ static void CopyToClipboard(PluginInstance *This,unsigned char *mem,int size,UIN
 
 	if(EmptyClipboard()) {
 		hClip=GlobalAlloc(GMEM_ZEROINIT|GMEM_MOVEABLE|GMEM_DDESHARE,size);
-		lpClip=GlobalLock(hClip);
-		if(lpClip) {
+                if(hClip) {
+		  lpClip=GlobalLock(hClip);
+		  if(lpClip) {
 			CopyMemory(lpClip,mem,size);
 			GlobalUnlock(hClip);
 			if(!SetClipboardData(format,hClip)) {
 				warn(This,"Can't set clipboard data");
 			}
-		}
-		else {
-			warn(This,"Can't allocate memory for clipboard");
+		  }
+		  else {
+			warn(This,"Can't lock clipboard");
+	        }
+	        else {
+	  	  warn(This,"Can't allocate memory for clipboard");
 		}
 	}
 	else {
