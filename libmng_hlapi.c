@@ -199,7 +199,7 @@
 /* *             1.0.11 - 07/24/2007 - G.R-P bugfix for all-zero delays     * */
 /* *                                                                        * */
 /* ************************************************************************** */
-#ifndef MNG_SKIPCHUNK_SHOW
+
 #include "libmng.h"
 #include "libmng_data.h"
 #include "libmng_error.h"

@@ -389,24 +389,24 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
 #ifndef MNG_SKIPCHUNK_FRAM
   if (pData->iFramedelay > 0 || pData->bForcedelay) /* real delay ? */
   { /* let the app refresh first ? */
-  pData->bForcedelay = MNG_FALSE;
-  if ((pData->bRunning) && (!pData->bSkipping) &&
-  (pData->iUpdatetop < pData->iUpdatebottom) &&
-  (pData->iUpdateleft < pData->iUpdateright))
-      if (!pData->fRefresh (((mng_handle)pData),
+     pData->bForcedelay = MNG_FALSE;
+     if ((pData->bRunning) && (!pData->bSkipping) &&
+         (pData->iUpdatetop < pData->iUpdatebottom) &&
+         (pData->iUpdateleft < pData->iUpdateright))
+       if (!pData->fRefresh (((mng_handle)pData),
                               pData->iUpdateleft,  pData->iUpdatetop,
                               pData->iUpdateright - pData->iUpdateleft,
                               pData->iUpdatebottom - pData->iUpdatetop))
           MNG_ERROR (pData, MNG_APPMISCERROR);
 
-      pData->iUpdateleft   = 0;        /* reset update-region */
-      pData->iUpdateright  = 0;
-      pData->iUpdatetop    = 0;
-      pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
-      pData->bNeedrefresh  = MNG_FALSE;
+     pData->iUpdateleft   = 0;        /* reset update-region */
+     pData->iUpdateright  = 0;
+     pData->iUpdatetop    = 0;
+     pData->iUpdatebottom = 0;        /* reset refreshneeded indicator */
+     pData->bNeedrefresh  = MNG_FALSE;
 
 #ifndef MNG_SKIPCHUNK_TERM
-      if (pData->bOnlyfirstframe)      /* only processing first frame after TERM ? */
+     if (pData->bOnlyfirstframe) /* only processing first frame after TERM ? */
       {
         pData->iFramesafterTERM++;
                                        /* did we do a frame yet ? */
@@ -420,7 +420,7 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
       }
 #endif
 
-      if (pData->fGettickcount)
+     if (pData->fGettickcount)
       {                                /* get current tickcount */
         pData->iRuntime = pData->fGettickcount ((mng_handle)pData);
                                        /* calculate interval since last sync-point */
@@ -454,15 +454,14 @@ MNG_LOCAL mng_retcode interframe_delay (mng_datap pData)
         if (iRetcode)                  /* on error bail out */
           return iRetcode;
       }
-    }
-
-    if (!pData->bSkipping)             /* increase frametime in advance */
-      pData->iFrametime = pData->iFrametime + iWaitfor;
-                                       /* setup for next delay */
-    pData->iFramedelay = pData->iNextdelay;
-    pData->iAccumdelay += pData->iFramedelay;
-#endif
   }
+
+  if (!pData->bSkipping)             /* increase frametime in advance */
+    pData->iFrametime = pData->iFrametime + iWaitfor;
+                                     /* setup for next delay */
+  pData->iFramedelay = pData->iNextdelay;
+  pData->iAccumdelay += pData->iFramedelay;
+#endif
 
 #ifdef MNG_SUPPORT_TRACE
   MNG_TRACE (pData, MNG_FN_INTERFRAME_DELAY, MNG_LC_END);
