@@ -149,13 +149,13 @@ AC_ARG_WITH(jpeg,
 
   test $_restore -eq 1 && CPPFLAGS=$_cppflags LDFLAGS=$_ldflags
 
-dnl check for lcms library
-AC_ARG_WITH(lcms,
-[  --with-lcms[=DIR]       use lcms include/library files in DIR],
-[with_lcms=$withval],[with_lcms=_auto])
+dnl check for lcms2 library
+AC_ARG_WITH(lcms2,
+[  --with-lcms2[=DIR]       use lcms2 include/library files in DIR],
+[with_lcms2=$withval],[with_lcms2=_auto])
 
-  if test "x$with_lcms" != "xno" -a "x$with_lcms" != "xyes" -a \
-	"x$with_lcms" != "x_auto"; then
+  if test "x$with_lcms2" != "xno" -a "x$with_lcms2" != "xyes" -a \
+	"x$with_lcms2" != "x_auto"; then
     # Save in case test with directory specified fails
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
@@ -167,23 +167,23 @@ AC_ARG_WITH(lcms,
     _restore=0
   fi
 
-  if test "x$with_lcms" != "xno"; then
-    AC_CHECK_HEADER(lcms.h, [
-      have_lcms=yes
-      AC_CHECK_LIB(lcms, cmsCreateRGBProfile, [
-        LIBS="$LIBS -llcms"
-        AC_DEFINE(HAVE_LIBLCMS)
-        dnl for now this implies MNG_INCLUDE_LCMS in the headers:
-        AC_DEFINE(MNG_FULL_CMS)
+  if test "x$with_lcms2" != "xno"; then
+    AC_CHECK_HEADER(lcms2.h, [
+      have_lcms2=yes
+      AC_CHECK_LIB(lcms2, cmsCreateRGBProfile, [
+        LIBS="$LIBS -llcms2"
+        AC_DEFINE(HAVE_LIBLCMS2)
+        dnl for now this implies MNG_INCLUDE_LCMS2 in the headers:
+        AC_DEFINE(MNG_FULL_CMS2)
 	_restore=0
-	have_lcms=yes
+	have_lcms2=yes
       ],[
-	have_lcms=no
+	have_lcms2=no
       ])
     ])
-    dnl give feedback only if the user asked specifically for lcms
-    if test "x$with_lcms" != "x_auto" -a "x$have_lcms" != "xyes"; then
-      AC_MSG_WARN([lcms not found... disabling CMS support])
+    dnl give feedback only if the user asked specifically for lcms2
+    if test "x$with_lcms2" != "x_auto" -a "x$have_lcms2" != "xyes"; then
+      AC_MSG_WARN([lcms2 not found... disabling CMS support])
     fi
   fi
 

@@ -162,8 +162,8 @@
 #ifdef MNG_SKIP_ZLIB
 #undef MNG_INCLUDE_ZLIB
 #endif
-#ifdef MNG_SKIP_LCMS
-#undef MNG_INCLUDE_LCMS
+#ifdef MNG_SKIP_LCMS2
+#undef MNG_INCLUDE_LCMS2
 #endif
 #ifdef MNG_SKIP_IJG6B
 #undef MNG_INCLUDE_IJG6B
@@ -174,12 +174,12 @@
 #include <zlib.h>
 #endif
 
-#ifdef MNG_INCLUDE_LCMS                /* little cms by Marti Maria Saguer */
+#ifdef MNG_INCLUDE_LCMS2                /* little cms by Marti Maria Saguer */
 #ifndef ZLIB_DLL
 #undef FAR
 #endif
-#include <lcms.h>
-#endif /* MNG_INCLUDE_LCMS */
+#include <lcms2.h>
+#endif /* MNG_INCLUDE_LCMS2 */
 
 #ifdef MNG_INCLUDE_IJG6B               /* IJG's jpgsrc6b */
 #include <stdio.h>
@@ -191,7 +191,7 @@
 #endif
 #endif /* MNG_USE_SETJMP */
 #ifdef FAR
-#undef FAR                             /* possibly defined by zlib or lcms */
+#undef FAR                             /* possibly defined by zlib or lcms2 */
 #endif
 #define JPEG_INTERNAL_OPTIONS          /* for RGB_PIXELSIZE */
 #include <jpeglib.h>                   /* all that for JPEG support  :-) */
@@ -383,13 +383,13 @@ typedef J_DCT_METHOD     mngjpeg_dctmethod;
 
 /* ************************************************************************** */
 
-#ifdef MNG_INCLUDE_LCMS
+#ifdef MNG_INCLUDE_LCMS2
 typedef cmsHPROFILE         mng_cmsprof;         /* little CMS helper defs */
 typedef cmsHTRANSFORM       mng_cmstrans;
 typedef cmsCIExyY           mng_CIExyY;
 typedef cmsCIExyYTRIPLE     mng_CIExyYTRIPLE;
 typedef LPGAMMATABLE        mng_gammatabp;
-#endif /* MNG_INCLUDE_LCMS */
+#endif /* MNG_INCLUDE_LCMS2 */
 
 /* ************************************************************************** */
 
